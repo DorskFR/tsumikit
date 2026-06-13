@@ -127,7 +127,9 @@ pre {
 	flex: 1;
 }
 .faint {
-	color: var(--text-faint);
+	/* `--faint-color` lets a parent retint slotted `.faint` text via inheritance
+	   (custom props cross the slot boundary, so no :global needed). */
+	color: var(--faint-color, var(--text-faint));
 }
 .mono {
 	font-family: var(--font-mono);

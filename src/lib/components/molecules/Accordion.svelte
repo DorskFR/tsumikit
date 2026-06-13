@@ -37,7 +37,7 @@
 		<details name={groupName} open={item.open}>
 			<summary>
 				<span class="acc-title">{item.title}</span>
-				<Icon name="chevron-down" />
+				<span class="acc-chevron"><Icon name="chevron-down" /></span>
 			</summary>
 			<div class="acc-panel">{@render item.content()}</div>
 		</details>
@@ -79,11 +79,14 @@
 		outline: 2px solid var(--accent);
 		outline-offset: -2px;
 	}
-	summary :global(.icon) {
+	/* Wrap the chevron in our own element so rotation is a scoped rule (no
+	   :global into the Icon child). The Icon inherits the color via currentColor. */
+	.acc-chevron {
+		display: inline-flex;
 		color: var(--text-muted);
 		transition: transform 0.15s var(--ease);
 	}
-	details[open] summary :global(.icon) {
+	details[open] summary .acc-chevron {
 		transform: rotate(180deg);
 	}
 	.acc-panel {

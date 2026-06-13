@@ -72,6 +72,9 @@
 	}
 	.opt.selected {
 		--oc: var(--opt-accent, var(--accent));
+		/* Retint slotted `.faint` hint text toward the accent — via an inherited
+		   custom property, so no :global reach into slotted content. */
+		--faint-color: color-mix(in srgb, var(--oc) 70%, var(--text-muted));
 		border-color: var(--oc);
 		background: color-mix(in srgb, var(--oc) 14%, var(--bg));
 		color: var(--oc);
@@ -79,9 +82,5 @@
 	.opt.selected:hover:not(:disabled) {
 		border-color: var(--oc);
 		background: color-mix(in srgb, var(--oc) 20%, var(--bg));
-	}
-	/* The slotted hint text (a `.faint` utility) tints toward the accent too. */
-	.opt.selected :global(.faint) {
-		color: color-mix(in srgb, var(--oc) 70%, var(--text-muted));
 	}
 </style>
