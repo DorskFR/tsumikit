@@ -1,10 +1,10 @@
 <script lang="ts">
-	// Accessible dialog / bottom-sheet. Mobile: full-width sheet anchored to the
-	// bottom. Desktop (≥640px): centered, optionally resizable with the width
-	// persisted under `resizeKey`. Handles the full a11y contract: role/aria-modal,
-	// labelled by the title, Escape to close, click-outside to close, focus moved
-	// into the dialog on open, a Tab focus-trap, and focus restored to the trigger
-	// on close.
+	// Accessible dialog / bottom-sheet built on the native <dialog> element, so
+	// the platform gives us the hard parts for free: top-layer rendering above
+	// everything (no z-index races), a real focus trap, inert background, initial
+	// focus, focus restoration to the trigger, Escape-to-close and a styleable
+	// ::backdrop. We only add: open-on-mount, click-outside, and optional
+	// desktop resize (width persisted under `resizeKey`).
 	import type { Snippet } from 'svelte';
 	import { browser } from '$app/environment';
 	import IconButton from '$lib/components/molecules/IconButton.svelte';
@@ -27,8 +27,7 @@
 
 	const titleId = `modal-title-${Math.random().toString(36).slice(2, 8)}`;
 
-	// Default (and minimum) sheet width: 34rem at the 16px base = 544px.
-	const MIN_W = 544;
+	const MIN_W = 544; // 34rem at 16px base
 	const MAX_W = 1100;
 
 	function loadWidth(): number | null {
@@ -37,44 +36,18 @@
 		return Number.isFinite(n) && n >= MIN_W ? Math.min(n, MAX_W) : null;
 	}
 	let width = $state<number | null>(loadWidth());
-	let sheetEl = $state<HTMLElement | null>(null);
+	let dialogEl = $state<HTMLDialogElement | null>(null);
 
-	// --- focus management ---
-	let previouslyFocused: HTMLElement | null = null;
-	function focusables(): HTMLElement[] {
-		if (!sheetEl) return [];
-		return Array.from(
-			sheetEl.querySelectorAll<HTMLElement>(
-				'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
-			)
-		).filter((el) => el.offsetParent !== null);
-	}
 	$effect(() => {
-		// On mount: remember the trigger, move focus inside. On unmount: restore.
-		previouslyFocused = (browser ? document.activeElement : null) as HTMLElement | null;
-		const first = focusables()[0];
-		(first ?? sheetEl)?.focus();
-		return () => previouslyFocused?.focus?.();
+		// Open as a modal (top layer + trap + inert background + focus mgmt). The
+		// native element restores focus to the trigger automatically on close.
+		dialogEl?.showModal();
 	});
 
-	function trap(e: KeyboardEvent) {
-		if (e.key !== 'Tab') return;
-		const f = focusables();
-		if (f.length === 0) {
-			e.preventDefault();
-			sheetEl?.focus();
-			return;
-		}
-		const first = f[0];
-		const last = f[f.length - 1];
-		const active = document.activeElement as HTMLElement | null;
-		if (e.shiftKey && active === first) {
-			e.preventDefault();
-			last.focus();
-		} else if (!e.shiftKey && active === last) {
-			e.preventDefault();
-			first.focus();
-		}
+	// Click outside: <dialog fills the viewport; clicks on its padding-free self
+	// (not the inner .sheet) are backdrop clicks.
+	function onDialogClick(e: MouseEvent) {
+		if (e.target === dialogEl) onclose();
 	}
 
 	// --- resize ---
@@ -103,35 +76,21 @@
 		}
 		if (browser && resizeKey && width != null) localStorage.setItem(resizeKey, String(width));
 	}
-
-	function onkey(e: KeyboardEvent) {
-		if (e.key === 'Escape') {
-			e.stopPropagation();
-			onclose();
-		} else {
-			trap(e);
-		}
-	}
 </script>
 
-<div
-	class="overlay"
-	role="presentation"
-	onclick={(e) => {
-		if (e.target === e.currentTarget) onclose();
+<dialog
+	bind:this={dialogEl}
+	class="modal"
+	class:resizing
+	aria-labelledby={titleId}
+	style={width != null ? `--sheet-w: ${width}px` : undefined}
+	oncancel={(e) => {
+		e.preventDefault(); /* keep parent the source of truth for open state */
+		onclose();
 	}}
+	onclick={onDialogClick}
 >
-	<div
-		bind:this={sheetEl}
-		class="sheet"
-		class:resizing
-		role="dialog"
-		aria-modal="true"
-		aria-labelledby={titleId}
-		tabindex="-1"
-		onkeydown={onkey}
-		style={width != null ? `--sheet-w: ${width}px` : undefined}
-	>
+	<div class="sheet">
 		<div class="sheet-head">
 			<span id={titleId} class="sheet-title truncate">{title}</span>
 			<div class="spacer"></div>
@@ -156,24 +115,98 @@
 			></div>
 		{/if}
 	</div>
-</div>
+</dialog>
 
 <style>
+	/* Reset the UA dialog box: we own the surface via the inner .sheet. The
+	   dialog itself is just the centering/backdrop layer. */
+	.modal {
+		margin: 0;
+		padding: 0;
+		border: 0;
+		background: none;
+		max-width: 100vw;
+		max-height: 100dvh;
+		width: 100%;
+		height: 100%;
+		color: var(--text);
+		/* center on desktop; the sheet anchors to the bottom on mobile */
+		display: flex;
+		align-items: flex-end;
+		justify-content: center;
+	}
+	.modal::backdrop {
+		background: rgba(0, 0, 0, 0.55);
+		/* animate the backdrop in (progressive enhancement) */
+		animation: backdrop-in 0.18s var(--ease);
+	}
+	@keyframes backdrop-in {
+		from {
+			opacity: 0;
+		}
+	}
+	@media (min-width: 640px) {
+		.modal {
+			align-items: center;
+			padding: var(--sp-6);
+		}
+	}
+
+	.sheet {
+		position: relative;
+		width: 100%;
+		max-width: 34rem;
+		max-height: calc(100dvh - var(--safe-top) - var(--sp-6));
+		display: flex;
+		flex-direction: column;
+		background: var(--bg-elevated);
+		border: 1px solid var(--border);
+		border-radius: var(--r-lg) var(--r-lg) 0 0;
+		box-shadow: var(--shadow-lg);
+		animation: sheet-up 0.18s var(--ease);
+		padding-bottom: var(--safe-bottom);
+	}
 	@media (min-width: 640px) {
 		.sheet {
+			border-radius: var(--r-lg);
+			padding-bottom: 0;
 			width: var(--sheet-w, 34rem);
 			max-width: min(var(--sheet-w, 34rem), calc(100vw - 2rem));
 		}
 	}
-	.sheet {
-		position: relative;
+	@keyframes sheet-up {
+		from {
+			transform: translateY(8%);
+			opacity: 0.4;
+		}
 	}
-	.sheet:focus {
-		outline: none;
-	}
-	.sheet.resizing {
+	.modal.resizing .sheet {
 		user-select: none;
 	}
+
+	.sheet-head {
+		display: flex;
+		align-items: center;
+		gap: var(--sp-2);
+		padding: var(--sp-4);
+		border-bottom: 1px solid var(--border);
+	}
+	.sheet-title {
+		font-size: var(--fs-lg);
+		font-weight: var(--fw-semibold);
+	}
+	.sheet-body {
+		padding: var(--sp-4);
+		overflow-y: auto;
+		-webkit-overflow-scrolling: touch;
+	}
+	.sheet-foot {
+		display: flex;
+		gap: var(--sp-2);
+		padding: var(--sp-4);
+		border-top: 1px solid var(--border);
+	}
+
 	.sheet-resize {
 		display: none;
 	}
@@ -203,7 +236,7 @@
 			transition: background 0.12s var(--ease);
 		}
 		.sheet-resize:hover::after,
-		.sheet.resizing .sheet-resize::after {
+		.modal.resizing .sheet-resize::after {
 			background: var(--accent);
 		}
 	}
