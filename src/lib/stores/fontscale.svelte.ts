@@ -1,4 +1,4 @@
-import { browser } from '$app/environment';
+import { browser } from '$lib/env';
 
 // OPT-IN. Most apps don't need this: the kit is rem-based and never resets the
 // root font-size, so the user's browser/OS font-size preference and browser
@@ -12,7 +12,7 @@ import { browser } from '$app/environment';
 // (control heights, padding) in lockstep, so text would barely grow relative to
 // a ballooning UI. Driving --fs-scale leaves spacing/control sizes fixed and
 // enlarges only text. Discrete levels avoid per-pixel reflow churn.
-const KEY = 'uikit-font-scale';
+const KEY = 'tsumikit-font-scale';
 
 export interface ScaleLevel {
 	id: string;
@@ -24,7 +24,7 @@ export const SCALE_LEVELS: ScaleLevel[] = [
 	{ id: 'small', label: 'Small', value: 0.9 },
 	{ id: 'normal', label: 'Normal', value: 1 },
 	{ id: 'large', label: 'Large', value: 1.2 },
-	{ id: 'largest', label: 'Largest', value: 1.5 }
+	{ id: 'largest', label: 'Largest', value: 1.5 },
 ];
 const DEFAULT_LEVEL = 'normal';
 

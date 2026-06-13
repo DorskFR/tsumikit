@@ -6,7 +6,7 @@
 	// ::backdrop. We only add: open-on-mount, click-outside, and optional
 	// desktop resize (width persisted under `resizeKey`).
 	import type { Snippet } from 'svelte';
-	import { browser } from '$app/environment';
+	import { browser } from '$lib/env';
 	import IconButton from '$lib/components/molecules/IconButton.svelte';
 
 	let {

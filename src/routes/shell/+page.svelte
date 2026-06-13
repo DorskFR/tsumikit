@@ -16,6 +16,7 @@
 		AutoGrid,
 		type IconName
 	} from '$lib';
+	import { base } from '$app/paths';
 
 	const nav: { id: string; label: string; icon: IconName }[] = [
 		{ id: 'overview', label: 'Overview', icon: 'info' },
@@ -27,12 +28,12 @@
 	let active = $state('overview');
 </script>
 
-<AppShell resizableSidebar minSidebar={64} maxSidebar={320} sidebarWidthKey="uikit-shell-sidebar">
+<AppShell resizableSidebar minSidebar={64} maxSidebar={320} sidebarWidthKey="tsumikit-shell-sidebar">
 	{#snippet header()}
 		<Heading level={1} size="md">AppShell</Heading>
 		<Badge tone="info">demo</Badge>
 		<div class="spacer"></div>
-		<Link href="/" class="cq-hide">← Showcase</Link>
+		<Link href="{base}/" class="cq-hide">← Showcase</Link>
 		<ThemePicker />
 	{/snippet}
 
@@ -50,7 +51,7 @@
 	{/snippet}
 
 	{#snippet footer()}
-		<Text variant="caption" tone="faint">@dorsk/uikit · AppShell example</Text>
+		<Text variant="caption" tone="faint">@dorsk/tsumikit · AppShell example</Text>
 	{/snippet}
 
 	<Container pad>

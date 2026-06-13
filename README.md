@@ -1,4 +1,4 @@
-# @dorsk/uikit
+# @dorsk/tsumikit
 
 A minimal, **dependency-free** UI kit for Svelte 5 + pure CSS. Token-driven
 atoms and molecules with theming, font-scaling, a color-blind-safe theme and
@@ -7,8 +7,7 @@ peer.
 
 ## Design
 
-Each layer reaches only one layer down (the layered model from cctui's
-`DESIGN.md`):
+Each layer reaches only one layer down:
 
 ```
 variables.css  →  every color/space/radius/font/size is a var(--…). No
@@ -25,20 +24,28 @@ your app       →  assemble molecules + layout.
 hard-coded values · override by specificity, never by forking · props (incl.
 `aria-*`) spread down onto the underlying element.
 
-## Run the showcase
+**Live demo:** https://dorskfr.github.io/tsumikit
+
+## Develop
 
 ```bash
 npm install
-npm run dev      # open the printed URL — single page with every component
+npm run dev      # showcase at the printed URL (+ /shell for the AppShell demo)
+npm run lint     # biome (ts/js)
 npm run check    # svelte-check
-npm run build    # static SPA in /build
+npm run build    # prerendered static site in /build
+npm run package  # build the publishable library into /dist (+ publint)
 ```
+
+Git hooks (Biome on commit, `svelte-check` on push) are installed by lefthook
+via the `prepare` script. The library is published to npm from a release tag
+via GitHub Actions using npm **trusted publishing** (OIDC — no token secret).
 
 ## Use in your own project
 
 ```ts
-import '@dorsk/uikit/styles/app.css';            // once, at the app root
-import { Button, Field, Input, Modal, ThemePicker } from '@dorsk/uikit';
+import '@dorsk/tsumikit/styles/app.css';            // once, at the app root
+import { Button, Field, Input, Modal, ThemePicker } from '@dorsk/tsumikit';
 ```
 
 ```svelte

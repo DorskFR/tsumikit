@@ -1,0 +1,12 @@
+# Git hooks (run `npx lefthook install` once, or it's wired via the prepare script).
+pre-commit:
+  parallel: true
+  commands:
+    biome:
+      glob: '*.{ts,js}'
+      run: npx biome check {staged_files}
+
+pre-push:
+  commands:
+    check:
+      run: npm run check

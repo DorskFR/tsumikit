@@ -45,6 +45,7 @@
 		type RadioOption,
 		type Column
 	} from '$lib';
+	import { base } from '$app/paths';
 
 	// interactive demo state
 	let switchOn = $state(true);
@@ -81,7 +82,7 @@
 	];
 
 	const sampleCode = `// install and use
-import { Button, theme } from '@dorsk/uikit';
+import { Button, theme } from '@dorsk/tsumikit';
 
 function greet(name) {
   return \`Hello, \${name}!\`;
@@ -133,15 +134,15 @@ function greet(name) {
 </script>
 
 <svelte:head>
-	<title>@dorsk/uikit — component showcase</title>
+	<title>@dorsk/tsumikit — component showcase</title>
 </svelte:head>
 
 <header class="top">
 	<div class="container top-row">
-		<Heading level={1} size="lg">@dorsk/uikit</Heading>
+		<Heading level={1} size="lg">@dorsk/tsumikit</Heading>
 		<Text variant="caption" class="hide-sm">Svelte 5 · pure CSS · zero deps</Text>
 		<div class="spacer"></div>
-		<Link href="/shell" class="hide-sm">AppShell demo →</Link>
+		<Link href="{base}/shell" class="hide-sm">AppShell demo →</Link>
 		<ThemePicker />
 	</div>
 </header>
@@ -204,9 +205,9 @@ function greet(name) {
 				</div>
 				<Button block variant="primary">Block button</Button>
 				<div class="row row-wrap">
-					<CopyButton text="npm i @dorsk/uikit" />
-					<CopyButton text="npm i @dorsk/uikit" variant="default" label="Copy install" />
-					<Chip mono>npm i @dorsk/uikit</Chip>
+					<CopyButton text="npm i @dorsk/tsumikit" />
+					<CopyButton text="npm i @dorsk/tsumikit" variant="default" label="Copy install" />
+					<Chip mono>npm i @dorsk/tsumikit</Chip>
 				</div>
 			</div>
 		</Card>
@@ -587,7 +588,7 @@ function greet(name) {
 </main>
 
 {#if modalOpen}
-	<Modal title="Example dialog" onclose={() => (modalOpen = false)} resizeKey="uikit-demo-modal">
+	<Modal title="Example dialog" onclose={() => (modalOpen = false)} resizeKey="tsumikit-demo-modal">
 		{#snippet body()}
 		<div class="stack">
 			<Text variant="body">

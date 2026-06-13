@@ -1,9 +1,9 @@
-import { browser } from '$app/environment';
+import { browser } from '$lib/env';
 
 // Theme registry — the single list the picker and the store both read. Adding a
 // theme = one entry here + one [data-theme="id"] block in variables.css. Nothing
 // else changes. `themeColor` drives the mobile browser-chrome <meta theme-color>.
-const KEY = 'uikit-theme';
+const KEY = 'tsumikit-theme';
 
 export const THEMES = [
 	{ id: 'dark', label: 'Dark', icon: '☾', themeColor: '#0f1115' },
@@ -21,7 +21,7 @@ export const THEMES = [
 	{ id: 'everforest', label: 'Everforest', icon: '☘', themeColor: '#2d353b' },
 	{ id: 'monokai', label: 'Monokai', icon: '✸', themeColor: '#272822' },
 	{ id: 'amoled', label: 'AMOLED (high contrast)', icon: '◼', themeColor: '#000000' },
-	{ id: 'highcontrast', label: 'High Contrast Light', icon: '◻', themeColor: '#ffffff' }
+	{ id: 'highcontrast', label: 'High Contrast Light', icon: '◻', themeColor: '#ffffff' },
 ] as const;
 
 export type Mode = (typeof THEMES)[number]['id'];

@@ -19,6 +19,6 @@ export function autoresize(node: HTMLTextAreaElement, _value?: string) {
 		},
 		destroy() {
 			node.removeEventListener('input', resize);
-		}
+		},
 	};
 }

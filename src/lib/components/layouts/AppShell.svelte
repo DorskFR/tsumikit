@@ -8,7 +8,7 @@
 	//     and marks the rest of the page `inert` so focus stays in the drawer.
 	// Switching to desktop auto-closes the drawer. Safe-area insets are honored.
 	import type { Snippet } from 'svelte';
-	import { browser } from '$app/environment';
+	import { browser } from '$lib/env';
 	import IconButton from '$lib/components/molecules/IconButton.svelte';
 
 	let {
