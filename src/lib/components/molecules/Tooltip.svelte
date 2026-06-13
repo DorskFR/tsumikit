@@ -18,7 +18,7 @@
 		trigger
 	}: {
 		text: string;
-		placement?: 'top' | 'bottom';
+		placement?: 'top' | 'bottom' | 'left' | 'right';
 		delay?: number;
 		trigger: Snippet;
 	} = $props();
