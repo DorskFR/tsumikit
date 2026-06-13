@@ -44,6 +44,10 @@ export { default as FontScalePicker } from './components/molecules/FontScalePick
 // ---- organisms ----
 export { default as DataTable, type Column } from './components/organisms/DataTable.svelte';
 
+// ---- layouts ----
+export { default as AppShell } from './components/layouts/AppShell.svelte';
+export { default as Container } from './components/layouts/Container.svelte';
+
 // ---- stores / actions ----
 export { theme, THEMES, type Mode } from './stores/theme.svelte';
 export { fontScale, SCALE_LEVELS, type ScaleLevel } from './stores/fontscale.svelte';

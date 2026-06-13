@@ -111,6 +111,7 @@
 		<Heading level={1} size="lg">@dorsk/uikit</Heading>
 		<Text variant="caption" class="hide-sm">Svelte 5 · pure CSS · zero deps</Text>
 		<div class="spacer"></div>
+		<Link href="/shell" class="hide-sm">AppShell demo →</Link>
 		<FontScalePicker />
 		<ThemePicker />
 	</div>
