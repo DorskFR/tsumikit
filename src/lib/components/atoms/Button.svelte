@@ -3,10 +3,7 @@
 	import type { HTMLButtonAttributes } from 'svelte/elements';
 
 	type ButtonProps = HTMLButtonAttributes & {
-		// Base look. `option`/`toggle` are specialization variants used by the
-		// OptionButton / Toggle molecules — they pass a prop instead of reaching
-		// into this element with :global, so all the styling stays scoped here.
-		variant?: 'default' | 'primary' | 'ghost' | 'danger' | 'option' | 'toggle';
+		variant?: 'default' | 'primary' | 'ghost' | 'danger';
 		size?: 'sm' | 'md';
 		control?: boolean;
 		block?: boolean;
@@ -16,11 +13,6 @@
 		icon?: boolean;
 		iconInline?: boolean;
 		hoverDanger?: boolean;
-		// Shared selection/shape state for the option/toggle variants.
-		selected?: boolean;
-		row?: boolean;
-		pill?: boolean;
-		struck?: boolean;
 		class?: string;
 		children?: Snippet;
 	};
@@ -33,10 +25,6 @@
 		icon = false,
 		iconInline = false,
 		hoverDanger = false,
-		selected = false,
-		row = false,
-		pill = false,
-		struck = false,
 		type = 'button',
 		disabled = false,
 		title,
@@ -56,18 +44,12 @@
 	class:btn-primary={variant === 'primary'}
 	class:btn-ghost={variant === 'ghost'}
 	class:btn-danger={variant === 'danger'}
-	class:option={variant === 'option'}
-	class:toggle={variant === 'toggle'}
 	class:btn-sm={size === 'sm'}
 	class:btn-control={control}
 	class:btn-block={block}
 	class:btn-icon={icon}
 	class:btn-icon-inline={iconInline}
 	class:hover-danger={hoverDanger}
-	class:selected
-	class:row
-	class:pill
-	class:struck
 	onclick={onclick}
 >
 	{@render children?.()}
@@ -205,79 +187,5 @@
 	}
 	.btn-icon-inline.hover-danger:hover:not(:disabled) {
 		color: var(--danger);
-	}
-
-	/* OptionButton — bordered selection card; gains a colored ring + tint when
-	   selected. The accent is driven by --opt-accent (default accent), so each
-	   picker recolors per use. `row` lays icon + label horizontally. */
-	.option {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-		padding: var(--sp-2);
-		min-height: 0;
-		background: var(--bg);
-		border: 1px solid var(--border-strong);
-		border-radius: var(--r-md);
-		color: var(--text);
-		text-align: left;
-		white-space: normal;
-	}
-	.option:hover:not(:disabled):not(.selected) {
-		border-color: var(--border-strong);
-		background: var(--bg);
-	}
-	.option.row {
-		flex-direction: row;
-		align-items: center;
-		justify-content: center;
-		gap: var(--sp-2);
-		color: var(--text-muted);
-		font-weight: var(--fw-medium);
-	}
-	.option.selected {
-		--oc: var(--opt-accent, var(--accent));
-		border-color: var(--oc);
-		background: color-mix(in srgb, var(--oc) 14%, var(--bg));
-		color: var(--oc);
-	}
-	.option.selected:hover:not(:disabled) {
-		border-color: var(--oc);
-		background: color-mix(in srgb, var(--oc) 20%, var(--bg));
-	}
-	/* The slotted hint text (a `.faint` utility) tints toward the accent too. */
-	.option.selected :global(.faint) {
-		color: color-mix(in srgb, var(--oc) 70%, var(--text-muted));
-	}
-
-	/* Toggle — muted chip that lights up (tinted) when selected. The "on" tint is
-	   driven by --toggle-accent (default accent), so callers recolor per use. */
-	.toggle {
-		gap: 4px;
-		min-height: 0;
-		padding: 0.15rem var(--sp-2);
-		border-radius: var(--r-sm);
-		font-size: var(--fs-xs);
-		font-weight: var(--fw-medium);
-		line-height: 1.4;
-		background: var(--bg-elevated-2);
-		color: var(--text-muted);
-		border: 1px solid var(--border);
-	}
-	.toggle.pill {
-		border-radius: var(--r-pill);
-	}
-	.toggle:hover:not(:disabled) {
-		border-color: var(--border-strong);
-		background: var(--bg-elevated-2);
-	}
-	.toggle.selected {
-		--tc: var(--toggle-accent, var(--accent));
-		color: var(--tc);
-		border-color: color-mix(in srgb, var(--tc) 55%, transparent);
-		background: color-mix(in srgb, var(--tc) 16%, transparent);
-	}
-	.toggle.struck {
-		text-decoration: line-through;
 	}
 </style>
