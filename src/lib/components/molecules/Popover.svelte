@@ -18,6 +18,8 @@
 		label,
 		trigger,
 		children,
+		triggerClass = '',
+		bare = false,
 		onopen,
 		onclose
 	}: {
@@ -25,11 +27,16 @@
 		gap?: number;
 		/** Accessible name for the trigger. */
 		label: string;
-		/** Trigger content (rendered inside a ghost button that owns the popover
-		 *  wiring). */
+		/** Trigger content (rendered inside a button that owns the popover wiring). */
 		trigger: Snippet;
 		/** Panel content. */
 		children: Snippet;
+		/** Extra class on the trigger button — style it from your own scoped CSS,
+		 *  no :global needed (you supply the class). */
+		triggerClass?: string;
+		/** Drop the default ghost-icon chrome so the trigger is an unstyled button
+		 *  you fully own (pair with `triggerClass`). */
+		bare?: boolean;
 		onopen?: () => void;
 		onclose?: () => void;
 	} = $props();
@@ -74,7 +81,8 @@
 <button
 	bind:this={triggerEl}
 	type="button"
-	class="btn btn-ghost btn-icon pop-trigger"
+	class="pop-trigger {triggerClass}"
+	class:bare
 	popovertarget={id}
 	aria-label={label}
 >
@@ -94,10 +102,37 @@
 </div>
 
 <style>
+	/* The trigger owns its look (a ghost icon-button) from tokens — it no longer
+	   borrows global .btn classes, so a consumer can restyle it via `triggerClass`
+	   (+ `bare`) from their own scoped CSS instead of fighting globals. */
 	.pop-trigger {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
+		min-height: 2.25rem;
+		min-width: 2.25rem;
+		padding: var(--sp-2);
+		border: 1px solid transparent;
+		border-radius: var(--r-md);
+		background: transparent;
+		color: var(--text);
+		transition:
+			background 0.12s var(--ease),
+			border-color 0.12s var(--ease);
+	}
+	.pop-trigger:hover {
+		background: var(--bg-elevated-2);
+	}
+	/* `bare`: strip the chrome down to a plain button the consumer styles. */
+	.pop-trigger.bare {
+		min-height: 0;
+		min-width: 0;
+		padding: 0;
+		border: 0;
+		background: none;
+	}
+	.pop-trigger.bare:hover {
+		background: none;
 	}
 	.pop-panel {
 		position: fixed;

@@ -1,5 +1,7 @@
 /*
- * Base reset + element defaults + reusable global classes.
+ * Base reset + element defaults + a small generic utility layer + the
+ * syntax-highlight token mapping (which must be global to reach {@html} output).
+ * Component styling lives in each component's own scoped <style>, never here.
  * Consumes ONLY tokens from variables.css — never a raw color/size.
  * Mobile-first: base styles target phones; `min-width` queries enhance up.
  */
@@ -96,7 +98,10 @@ pre {
 	border-radius: var(--r-pill);
 }
 
-/* ---------- layout primitives ---------- */
+/* ---------- generic utilities ----------
+ * Small, content-agnostic helpers (NOT component styling — components own that in
+ * their own scope). Layout components (Container/Stack/Cluster/AutoGrid) are the
+ * recommended API; these stay for ad-hoc markup and as documented escape hatches. */
 .container {
 	width: 100%;
 	max-width: var(--content-max);
@@ -121,9 +126,6 @@ pre {
 .spacer {
 	flex: 1;
 }
-.muted {
-	color: var(--text-muted);
-}
 .faint {
 	color: var(--text-faint);
 }
@@ -138,14 +140,6 @@ pre {
 }
 .nowrap {
 	white-space: nowrap;
-}
-/* Intrinsically responsive grid — no media queries: columns are at least
-   --col-min wide and fill the row, wrapping when they can't. Set --col-min to
-   tune. This adapts to the available space, so it works inside any container. */
-.auto-grid {
-	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--col-min, 14rem)), 1fr));
-	gap: var(--sp-4);
 }
 /* Opt a wrapper into container queries so descendants can respond to THIS box's
    width (not the viewport). Pair with `@container (…)` in a component's scope,
@@ -178,12 +172,10 @@ pre {
 	}
 }
 
-/* ---------- control modifiers ----------
- * The Button atom owns .btn + its variants in its scoped style. What stays
- * global are the icon-sizing rule (used by raw aria-hidden svgs too) and the
- * string-passed modifiers (.btn-icon / .btn-control*) that ride on a
- * Button-rendered element and so can't live in one component's scope. */
-.btn svg,
+/* ---------- icon sizing ----------
+ * Components own their own button/control styling in scope (Button, IconButton,
+ * Modal, Toaster, Dot, …). This single rule stays global because it also sizes
+ * raw decorative SVGs that callers drop in outside any component. */
 .icon,
 svg[aria-hidden='true'] {
 	flex: none;
@@ -192,198 +184,13 @@ svg[aria-hidden='true'] {
 	min-width: 1em;
 	min-height: 1em;
 }
-.btn-icon {
-	min-height: 2.25rem;
-	min-width: 2.25rem;
-	padding: var(--sp-2);
-}
-.btn-icon-inline {
-	min-height: 0;
-	min-width: 0;
-	padding: 0 var(--sp-1);
-	border: none;
-	background: none;
-	color: var(--text-muted);
-}
-.btn-icon-inline:hover:not(:disabled) {
-	border: none;
-	background: none;
-	color: var(--text);
-}
-.btn-icon-inline.hover-danger:hover:not(:disabled) {
-	color: var(--danger);
-}
-/* Uniform-height control: icon buttons, inputs and action buttons sharing a
-   toolbar/composer row line up exactly. Square icon variant: .btn-control-square. */
-.btn-control {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	gap: var(--sp-2);
-	height: var(--control-height);
-	min-height: var(--control-height);
-	padding: 0 var(--sp-3);
-	border: 1px solid var(--border-strong);
-	border-radius: var(--r-md);
-	background: var(--surface);
-	color: var(--text);
-	font-weight: var(--fw-medium);
-	font-size: var(--fs-sm);
-	line-height: 1;
-	white-space: nowrap;
-	transition:
-		background 0.12s var(--ease),
-		border-color 0.12s var(--ease),
-		opacity 0.12s var(--ease);
-	user-select: none;
-}
-.btn-control:hover:not(:disabled) {
-	border-color: var(--accent);
-}
-.btn-control:disabled {
-	opacity: 0.45;
-	cursor: not-allowed;
-}
-.btn-control.btn-primary {
-	background: var(--accent);
-	border-color: var(--accent);
-	color: var(--text-on-accent);
-}
-.btn-control.btn-primary:hover:not(:disabled) {
-	border-color: var(--accent);
-	filter: brightness(1.08);
-}
-.btn-control-square {
-	width: var(--control-height);
-	padding: 0;
-	flex: none;
-}
-
-/* ---------- modal / bottom sheet ---------- */
-.overlay {
-	position: fixed;
-	inset: 0;
-	background: rgba(0, 0, 0, 0.55);
-	z-index: var(--z-modal);
-	display: flex;
-	align-items: flex-end;
-	justify-content: center;
-}
-@media (min-width: 640px) {
-	.overlay {
-		align-items: center;
-		padding: var(--sp-6);
-	}
-}
-.sheet {
-	width: 100%;
-	max-width: 34rem;
-	max-height: calc(100dvh - var(--safe-top) - var(--sp-6));
-	display: flex;
-	flex-direction: column;
-	background: var(--bg-elevated);
-	border: 1px solid var(--border);
-	border-radius: var(--r-lg) var(--r-lg) 0 0;
-	box-shadow: var(--shadow-lg);
-	animation: sheet-up 0.18s var(--ease);
-	padding-bottom: var(--safe-bottom);
-}
-@media (min-width: 640px) {
-	.sheet {
-		border-radius: var(--r-lg);
-		padding-bottom: 0;
-	}
-}
-@keyframes sheet-up {
-	from {
-		transform: translateY(8%);
-		opacity: 0.4;
-	}
-}
-.sheet-head {
-	display: flex;
-	align-items: center;
-	gap: var(--sp-2);
-	padding: var(--sp-4);
-	border-bottom: 1px solid var(--border);
-}
-.sheet-title {
-	font-size: var(--fs-lg);
-	font-weight: var(--fw-semibold);
-}
-.sheet-body {
-	padding: var(--sp-4);
-	overflow-y: auto;
-	-webkit-overflow-scrolling: touch;
-}
-.sheet-foot {
-	display: flex;
-	gap: var(--sp-2);
-	padding: var(--sp-4);
-	border-top: 1px solid var(--border);
-}
-
-/* ---------- toast ---------- */
-.toast-wrap {
-	position: fixed;
-	left: 50%;
-	transform: translateX(-50%);
-	bottom: calc(var(--safe-bottom) + var(--sp-4));
-	z-index: var(--z-toast);
-	display: flex;
-	flex-direction: column;
-	gap: var(--sp-2);
-	width: calc(100% - var(--sp-8));
-	max-width: 30rem;
-	pointer-events: none;
-}
-.toast-wrap .toast {
-	pointer-events: auto;
-	width: 100%;
-	text-align: left;
-	color: inherit;
-	cursor: pointer;
-	background: var(--bg-elevated-2);
-	border: 1px solid var(--border-strong);
-	border-radius: var(--r-md);
-	padding: var(--sp-3) var(--sp-4);
-	box-shadow: var(--shadow-md);
-	font-size: var(--fs-sm);
-	animation: sheet-up 0.18s var(--ease);
-}
-.toast-wrap .toast-err {
-	border-color: var(--danger);
-	color: var(--danger);
-}
-.toast-wrap .toast-ok {
-	border-color: var(--accent);
-}
 
 /* ---------- misc ---------- */
-.empty {
-	text-align: center;
-	color: var(--text-faint);
-	padding: var(--sp-10) var(--sp-4);
-}
 .divider {
 	height: 1px;
 	background: var(--border);
 	border: 0;
 	margin: var(--sp-2) 0;
-}
-.spin {
-	width: 1.1rem;
-	height: 1.1rem;
-	border: 2px solid var(--border-strong);
-	border-top-color: var(--accent);
-	border-radius: 50%;
-	animation: spin 0.7s linear infinite;
-	display: inline-block;
-}
-@keyframes spin {
-	to {
-		transform: rotate(360deg);
-	}
 }
 .sr-only {
 	position: absolute;
@@ -482,12 +289,6 @@ svg[aria-hidden='true'] {
 	:focus-visible {
 		outline: 2px solid Highlight;
 		outline-offset: 2px;
-	}
-	/* Status tints/borders drawn with color-mix collapse to the system palette;
-	   force a readable border so badges/cards keep their edges. */
-	.btn-control,
-	.btn-icon {
-		forced-color-adjust: auto;
 	}
 }
 

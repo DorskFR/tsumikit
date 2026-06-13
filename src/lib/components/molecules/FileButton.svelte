@@ -34,9 +34,9 @@
 </script>
 
 <label
-	class="btn file-btn {klass}"
-	class:btn-primary={variant === 'primary'}
-	class:btn-ghost={variant === 'ghost'}
+	class="file-btn {klass}"
+	class:primary={variant === 'primary'}
+	class:ghost={variant === 'ghost'}
 	class:disabled
 >
 	<input
@@ -52,8 +52,50 @@
 </label>
 
 <style>
+	/* FileButton is a <label> (so the native file input stays inside it and
+	   keyboard-focusable), not a <button>, so it can't be the Button atom — it
+	   owns the canonical control look here, from the same tokens. */
 	.file-btn {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		gap: var(--sp-2);
+		padding: var(--sp-2) var(--sp-4);
+		min-height: 2.5rem;
+		border: 1px solid var(--border-strong);
+		border-radius: var(--r-md);
+		background: var(--surface);
+		color: var(--text);
+		font-weight: var(--fw-medium);
+		font-size: var(--fs-sm);
+		line-height: 1;
+		white-space: nowrap;
 		cursor: pointer;
+		user-select: none;
+		transition:
+			background 0.12s var(--ease),
+			border-color 0.12s var(--ease),
+			opacity 0.12s var(--ease);
+	}
+	.file-btn:hover:not(.disabled) {
+		border-color: var(--accent);
+	}
+	.file-btn.primary {
+		background: var(--accent);
+		border-color: var(--accent);
+		color: var(--text-on-accent);
+		font-weight: var(--fw-semibold);
+	}
+	.file-btn.primary:hover:not(.disabled) {
+		filter: brightness(1.08);
+	}
+	.file-btn.ghost {
+		background: transparent;
+		border-color: transparent;
+	}
+	.file-btn.ghost:hover:not(.disabled) {
+		background: var(--bg-elevated-2);
+		border-color: transparent;
 	}
 	/* The hidden input keeps focusability (sr-only, not display:none), so mirror
 	   its focus onto the label for a visible ring. */

@@ -10,8 +10,10 @@
 		variant?: 'default' | 'primary' | 'ghost' | 'danger';
 		size?: number;
 		// Borderless, compact icon affordance (chip-remove ✕, inline edit ✎) —
-		// no square `.btn-icon` box; just a muted glyph that brightens on hover.
+		// no square box; just a muted glyph that brightens on hover. Pair with
+		// `hoverDanger` to tint it red on hover (delete affordances).
 		inline?: boolean;
+		hoverDanger?: boolean;
 		class?: string;
 	};
 
@@ -22,6 +24,7 @@
 		variant = 'ghost',
 		size = 18,
 		inline = false,
+		hoverDanger = false,
 		disabled = false,
 		onclick,
 		class: klass = '',
@@ -30,7 +33,18 @@
 </script>
 
 <!-- Composition: the icon-only button is a Button (canonical control styling)
-     carrying the square `.btn-icon` modifier, wrapping an Icon. -->
-<Button {...rest} {variant} {disabled} {title} {onclick} class="{inline ? 'btn-icon-inline' : 'btn-icon'} {klass}" aria-label={label}>
+     in its icon variant, wrapping an Icon. -->
+<Button
+	{...rest}
+	{variant}
+	{disabled}
+	{title}
+	{onclick}
+	icon={!inline}
+	iconInline={inline}
+	{hoverDanger}
+	class={klass}
+	aria-label={label}
+>
 	<Icon name={icon} {size} />
 </Button>

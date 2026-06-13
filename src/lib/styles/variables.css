@@ -162,7 +162,7 @@
   --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.55);
 
   /* ---- Controls (CCT-250 item 1) — shared height for icon buttons + inputs
-	   so toolbars/composers line up. `.btn-control` (app.css) consumes it. */
+	   so toolbars/composers line up. Button's `control` variant consumes it. */
   --control-height: 2.75rem;
 
   /* ---- Layout ---- */

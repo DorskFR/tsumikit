@@ -224,7 +224,7 @@ function greet(name) {
 					<IconButton icon="star" label="Star" variant="primary" />
 					<IconButton icon="trash" label="Delete" variant="danger" />
 					<IconButton icon="x" label="Remove" inline />
-					<IconButton icon="trash" label="Remove" inline class="hover-danger" />
+					<IconButton icon="trash" label="Remove" inline hoverDanger />
 				</div>
 				<hr class="divider" />
 				<Text variant="caption">All registry glyphs (sized at 1em — they scale with text):</Text>
