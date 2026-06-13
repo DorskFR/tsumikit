@@ -7,6 +7,7 @@
 		Textarea,
 		Select,
 		Switch,
+		Checkbox,
 		Card,
 		Badge,
 		Chip,
@@ -18,10 +19,20 @@
 		Toggle,
 		OptionButton,
 		Modal,
+		Popover,
+		Menu,
+		Tabs,
+		RadioGroup,
+		DataTable,
+		toasts,
 		ThemePicker,
 		FontScalePicker,
 		theme,
-		type IconName
+		type IconName,
+		type MenuItem,
+		type TabItem,
+		type RadioOption,
+		type Column
 	} from '$lib';
 
 	// interactive demo state
@@ -35,6 +46,39 @@
 	let selectValue = $state('two');
 	let pickerValue = $state('a');
 	let modalOpen = $state(false);
+	let check1 = $state(true);
+	let check2 = $state(false);
+	let radioValue = $state('email');
+	let tabValue = $state<string | undefined>('overview');
+
+	const menuItems: MenuItem[] = [
+		{ label: 'Edit', icon: 'edit', onselect: () => toasts.show('Edit') },
+		{ label: 'Duplicate', icon: 'copy', onselect: () => toasts.show('Duplicated') },
+		{ label: 'Share', icon: 'external', onselect: () => toasts.ok('Shared') },
+		{ label: 'Delete', icon: 'trash', danger: true, onselect: () => toasts.error('Deleted') }
+	];
+	const tabs: TabItem[] = [
+		{ id: 'overview', label: 'Overview', icon: 'info' },
+		{ id: 'activity', label: 'Activity', icon: 'live' },
+		{ id: 'settings', label: 'Settings', icon: 'settings' }
+	];
+	const radioOptions: RadioOption[] = [
+		{ value: 'email', label: 'Email', hint: 'Daily digest' },
+		{ value: 'sms', label: 'SMS', hint: 'Urgent only' },
+		{ value: 'none', label: 'None', hint: 'No notifications', disabled: true }
+	];
+
+	type Row = { id: number; name: string; role: string; status: 'ok' | 'warn' | 'danger' };
+	const tableRows: Row[] = [
+		{ id: 1, name: 'api-gateway', role: 'service', status: 'ok' },
+		{ id: 2, name: 'worker-02', role: 'worker', status: 'warn' },
+		{ id: 3, name: 'cache-01', role: 'cache', status: 'danger' }
+	];
+	const tableCols: Column<Row>[] = [
+		{ key: 'name', label: 'Name' },
+		{ key: 'role', label: 'Role' },
+		{ key: 'status', label: 'Status', align: 'right' }
+	];
 
 	const allIcons: IconName[] = [
 		'search', 'back', 'check', 'x', 'plus', 'chevron-down', 'menu', 'archive',
@@ -267,6 +311,94 @@
 				</div>
 			</div>
 		</Card>
+	</section>
+
+	<!-- CHECKBOX / RADIO -->
+	<section class="section">
+		<Heading level={2}>Checkbox &amp; RadioGroup</Heading>
+		<Card>
+			<div class="form-grid">
+				<Field label="Checkboxes">
+					<div class="stack">
+						<Checkbox bind:checked={check1} label="Enabled" />
+						<Checkbox bind:checked={check2} label="Beta features" />
+						<Checkbox indeterminate label="Partially selected" />
+						<Checkbox disabled label="Disabled" />
+					</div>
+				</Field>
+				<Field label="Radio group">
+					<RadioGroup label="Notifications" options={radioOptions} bind:value={radioValue} />
+				</Field>
+			</div>
+		</Card>
+	</section>
+
+	<!-- POPOVER / MENU -->
+	<section class="section">
+		<Heading level={2}>Popover &amp; Menu <Badge tone="info">native top layer</Badge></Heading>
+		<Card>
+			<div class="row row-wrap">
+				<Popover label="Info popover">
+					{#snippet trigger()}<Icon name="info" size={18} />{/snippet}
+					<div style="padding: var(--sp-2)">
+						<Text variant="body">A native popover — renders in the top layer, light-dismiss + Escape for free.</Text>
+					</div>
+				</Popover>
+
+				<Menu label="Row actions" items={menuItems}>
+					{#snippet trigger()}<Icon name="more" size={18} />{/snippet}
+				</Menu>
+
+				<Text variant="caption" tone="muted">Open a menu and navigate with ↑/↓, Enter to select.</Text>
+			</div>
+		</Card>
+	</section>
+
+	<!-- TABS -->
+	<section class="section">
+		<Heading level={2}>Tabs</Heading>
+		<Card>
+			<Tabs {tabs} bind:value={tabValue} label="Demo tabs">
+				{#snippet panel(id)}
+					{#if id === 'overview'}
+						<Text variant="body">Overview panel — arrow keys move between tabs.</Text>
+					{:else if id === 'activity'}
+						<Text variant="body">Activity panel — roving tabindex keeps one tab tabbable.</Text>
+					{:else}
+						<Text variant="body">Settings panel — aria-controls links each tab to this panel.</Text>
+					{/if}
+				{/snippet}
+			</Tabs>
+		</Card>
+	</section>
+
+	<!-- TOASTS -->
+	<section class="section">
+		<Heading level={2}>Toasts</Heading>
+		<Card>
+			<div class="row row-wrap">
+				<Button onclick={() => toasts.show('Saved to drafts')}>Neutral</Button>
+				<Button variant="primary" onclick={() => toasts.ok('Changes published')}>Success</Button>
+				<Button variant="danger" onclick={() => toasts.error('Something went wrong')}>Error</Button>
+			</div>
+		</Card>
+	</section>
+
+	<!-- DATATABLE -->
+	<section class="section">
+		<Heading level={2}>DataTable <Badge>generic &lt;T&gt;</Badge></Heading>
+		<DataTable
+			columns={tableCols}
+			rows={tableRows}
+			rowKey={(r) => r.id}
+			onrowclick={(r) => toasts.show(`Row: ${r.name}`)}
+			cellSnippets={{ status }}
+		/>
+		{#snippet status(r: Row)}
+			<Badge tone={r.status === 'ok' ? 'ok' : r.status === 'warn' ? 'warn' : 'danger'}>
+				{r.status}
+			</Badge>
+		{/snippet}
 	</section>
 
 	<!-- CARDS + MODAL -->
