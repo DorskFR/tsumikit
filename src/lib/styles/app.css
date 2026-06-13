@@ -139,6 +139,19 @@ pre {
 .nowrap {
 	white-space: nowrap;
 }
+/* Intrinsically responsive grid — no media queries: columns are at least
+   --col-min wide and fill the row, wrapping when they can't. Set --col-min to
+   tune. This adapts to the available space, so it works inside any container. */
+.auto-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, var(--col-min, 14rem)), 1fr));
+	gap: var(--sp-4);
+}
+/* Opt a wrapper into container queries so descendants can respond to THIS box's
+   width (not the viewport). Pair with `@container (min-width: …)` in a scope. */
+.cq {
+	container-type: inline-size;
+}
 
 /* ---------- control modifiers ----------
  * The Button atom owns .btn + its variants in its scoped style. What stays
