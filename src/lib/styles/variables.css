@@ -10,6 +10,11 @@
  */
 
 :root {
+  /* Tell the UA our default surface is dark so native widgets (form controls,
+     scrollbars, the caret, spellcheck underlines) render their dark variant.
+     Light themes flip this in their own block. */
+  color-scheme: dark;
+
   /* ---- Palette (raw) ---- */
   --c-bg: #0f1115;
   --c-bg-elev: #171a21;
@@ -185,6 +190,7 @@
 }
 
 [data-theme="light"] {
+  color-scheme: light;
   --c-bg: #f6f7f9;
   --c-bg-elev: #ffffff;
   --c-bg-elev-2: #eef0f3;
@@ -217,6 +223,7 @@
 /* ---- Sepia / "Claude paper" theme (CCT-161 item 3) — warm cream paper,
    brown ink, solarized-ish accents. Same variable contract as light/dark. */
 [data-theme="sepia"] {
+  color-scheme: light;
   --c-bg: #f4ecd8;
   --c-bg-elev: #faf3e3;
   --c-bg-elev-2: #ece1c6;
@@ -579,6 +586,7 @@
    environments. Strong borders and dark, saturated accents keep every surface
    legible on white. */
 [data-theme="highcontrast"] {
+  color-scheme: light;
   --c-bg: #ffffff;
   --c-bg-elev: #ffffff;
   --c-bg-elev-2: #f0f0f0;

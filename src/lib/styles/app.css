@@ -391,3 +391,28 @@ svg[aria-hidden='true'] {
 		scroll-behavior: auto !important;
 	}
 }
+
+/* Forced colors (Windows High Contrast). The OS replaces our palette with its
+   own; our job is to not fight it and to keep affordances visible. Keep the
+   focus ring mapped to a system color, and make sure the focus outline shows
+   even where we'd normally rely on a token border. */
+@media (forced-colors: active) {
+	:focus-visible {
+		outline: 2px solid Highlight;
+		outline-offset: 2px;
+	}
+	/* Status tints/borders drawn with color-mix collapse to the system palette;
+	   force a readable border so badges/cards keep their edges. */
+	.dot,
+	.btn-control,
+	.btn-icon {
+		forced-color-adjust: auto;
+	}
+}
+
+/* Stronger separators when the user asks for more contrast. */
+@media (prefers-contrast: more) {
+	:root {
+		--border: var(--border-strong);
+	}
+}
