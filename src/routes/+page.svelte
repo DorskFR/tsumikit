@@ -112,7 +112,6 @@
 		<Text variant="caption" class="hide-sm">Svelte 5 · pure CSS · zero deps</Text>
 		<div class="spacer"></div>
 		<Link href="/shell" class="hide-sm">AppShell demo →</Link>
-		<FontScalePicker />
 		<ThemePicker />
 	</div>
 </header>
@@ -436,6 +435,23 @@
 						<Text variant="caption" class="mono">{t}</Text>
 					</div>
 				{/each}
+			</div>
+		</Card>
+	</section>
+
+	<!-- OPTIONAL: in-app text scaling -->
+	<section class="section">
+		<Heading level={2}>Text scaling <Badge>opt-in</Badge></Heading>
+		<Card>
+			<div class="row row-wrap">
+				<FontScalePicker />
+				<Text variant="caption" tone="muted">
+					Optional in-app text-size control (drives <code>--fs-scale</code>, text tokens only).
+					Most apps should rely on browser zoom and the user's OS/browser font-size instead —
+					the kit is <code>rem</code>-based and never resets the root size, so both are respected
+					out of the box. Reach for this only in reading-dense apps (chat, docs) that want to grow
+					body text while keeping chrome compact.
+				</Text>
 			</div>
 		</Card>
 	</section>

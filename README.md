@@ -62,15 +62,28 @@ import { Button, Field, Input, Modal, ThemePicker } from '@dorsk/uikit';
 ## Components
 
 **Atoms:** Text, Heading, Button, Input, Textarea, Select, Switch, Checkbox,
-Card, Badge, Chip, Link, Icon (open registry — pass a `children` snippet for any
-custom SVG).
+Slider, Card, Badge, Chip, Link, Icon (open registry — pass a `children` snippet
+for any custom SVG).
 
 **Molecules:** Field, IconButton, SelectButton, Toggle, OptionButton, Modal,
 Popover, Menu, Tabs, RadioGroup, Toaster, ThemePicker, FontScalePicker.
 
 **Organisms:** DataTable (generic `<T>`, typed columns + cell snippets).
 
-**Stores:** `theme`, `fontScale`, `toasts`. **Actions:** `autoresize`.
+**Layouts:** AppShell (responsive header/sidebar/main/footer — persistent
+sidebar on desktop, overlay drawer on mobile), Container.
+
+**Stores:** `theme`, `toasts`, `fontScale` (opt-in). **Actions:** `autoresize`.
+
+## Sizing & zoom
+
+The kit is **`rem`-based and never resets the root font-size**, so the user's
+browser/OS font-size preference and browser zoom scale everything
+proportionally with no code. That's the recommended path for magnification.
+
+`fontScale` / `<FontScalePicker>` is an **opt-in** extra (drives `--fs-scale`,
+text tokens only) for reading-dense apps that want larger body text while
+keeping chrome compact. It isn't wired into AppShell or any default.
 
 ## Built on the platform
 

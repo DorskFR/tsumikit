@@ -1,5 +1,11 @@
 import { browser } from '$app/environment';
 
+// OPT-IN. Most apps don't need this: the kit is rem-based and never resets the
+// root font-size, so the user's browser/OS font-size preference and browser
+// zoom already scale the UI correctly. Reach for this control only in
+// reading-dense apps (chat, docs, readers) that want to enlarge BODY TEXT while
+// keeping chrome compact — not wired into AppShell or any default.
+//
 // Global UI font scale. The control multiplies ONLY the font-size tokens
 // (--fs-scale, consumed by every --fs-* in variables.css) — NOT the document
 // root font-size. Scaling the root would grow every rem-based chrome dimension
