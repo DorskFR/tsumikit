@@ -51,7 +51,11 @@
 		text-align: left;
 		white-space: normal;
 	}
-	:global(.btn.opt-btn:hover:not(:disabled)) {
+	/* Hover only restyles UNselected cards. Excluding `.sel` matters because this
+	   rule is (0,4,0) — the `:not(:disabled)` pseudo-class pushes it above
+	   `.btn.opt-btn.sel` (0,3,0) — so without the guard it would strip a selected
+	   card's accent border + tint on hover, leaving a half-styled card. */
+	:global(.btn.opt-btn:hover:not(:disabled):not(.sel)) {
 		border-color: var(--border-strong);
 		background: var(--bg);
 	}
@@ -68,6 +72,14 @@
 		border-color: var(--oc);
 		background: color-mix(in srgb, var(--oc) 14%, var(--bg));
 		color: var(--oc);
+	}
+	/* Reassert the accent on a hovered selected card. Button's `.btn-ghost:hover`
+	   (0,3,0) ties with `.sel` and wins on source order, repainting the card with
+	   the neutral elevated hover bg + transparent border; this rule (0,5,0) beats
+	   it so the selection stays visible, slightly brightened for hover affordance. */
+	:global(.btn.opt-btn.sel:hover:not(:disabled)) {
+		border-color: var(--oc);
+		background: color-mix(in srgb, var(--oc) 20%, var(--bg));
 	}
 	/* The slotted hint text (a global `.faint`) tints toward the accent too. */
 	:global(.btn.opt-btn.sel .faint) {
