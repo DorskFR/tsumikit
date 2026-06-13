@@ -13,6 +13,9 @@
 		icon?: boolean;
 		iconInline?: boolean;
 		hoverDanger?: boolean;
+		// Async/busy state: shows a spinner, blocks clicks, sets aria-busy. Stays
+		// disabled-equivalent while true (so a double-submit can't fire).
+		loading?: boolean;
 		class?: string;
 		children?: Snippet;
 	};
@@ -25,6 +28,7 @@
 		icon = false,
 		iconInline = false,
 		hoverDanger = false,
+		loading = false,
 		type = 'button',
 		disabled = false,
 		title,
@@ -38,7 +42,8 @@
 <button
 	{...rest}
 	{type}
-	{disabled}
+	disabled={disabled || loading}
+	aria-busy={loading || undefined}
 	{title}
 	class="btn {klass}"
 	class:btn-primary={variant === 'primary'}
@@ -50,8 +55,10 @@
 	class:btn-icon={icon}
 	class:btn-icon-inline={iconInline}
 	class:hover-danger={hoverDanger}
+	class:loading
 	onclick={onclick}
 >
+	{#if loading}<span class="btn-spinner" aria-hidden="true"></span>{/if}
 	{@render children?.()}
 </button>
 
@@ -194,5 +201,28 @@
 	   to the accent; override per-instance with `style="--btn-on: var(--warn)"`. */
 	.btn[aria-pressed='true'] {
 		color: var(--btn-on, var(--accent));
+	}
+
+	/* Loading: keep full opacity (it's busy, not disabled-looking) + a wait cursor,
+	   and show a spinner in the current text color. */
+	.btn.loading {
+		cursor: wait;
+	}
+	.btn.loading:disabled {
+		opacity: 1;
+	}
+	.btn-spinner {
+		width: 0.9em;
+		height: 0.9em;
+		flex: none;
+		border: 2px solid currentColor;
+		border-top-color: transparent;
+		border-radius: 50%;
+		animation: btn-spin 0.6s linear infinite;
+	}
+	@keyframes btn-spin {
+		to {
+			transform: rotate(360deg);
+		}
 	}
 </style>

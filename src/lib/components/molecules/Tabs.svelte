@@ -3,6 +3,8 @@
 		id: string;
 		label: string;
 		icon?: import('$lib/components/atoms/Icon.svelte').IconName;
+		/** Greyed out, not selectable, skipped by keyboard navigation. */
+		disabled?: boolean;
 	}
 </script>
 
@@ -27,28 +29,40 @@
 		panel: Snippet<[string]>;
 	} = $props();
 
-	// Default to the first tab when no value is supplied.
+	// Default to the first selectable tab when no value is supplied.
 	$effect(() => {
-		if (value === undefined && tabs.length) value = tabs[0].id;
+		if (value === undefined) {
+			const first = tabs.find((t) => !t.disabled);
+			if (first) value = first.id;
+		}
 	});
 
 	let listEl = $state<HTMLDivElement | null>(null);
 	const baseId = `tabs-${Math.random().toString(36).slice(2, 8)}`;
 
 	function select(id: string, focus = false) {
+		if (tabs.find((t) => t.id === id)?.disabled) return;
 		value = id;
 		if (focus) {
 			queueMicrotask(() => listEl?.querySelector<HTMLButtonElement>(`#${baseId}-tab-${id}`)?.focus());
 		}
 	}
+	// Step to the next non-disabled tab in a direction, wrapping around.
+	function step(from: number, dir: 1 | -1): number {
+		for (let n = 1; n <= tabs.length; n++) {
+			const j = (from + dir * n + tabs.length * n) % tabs.length;
+			if (!tabs[j].disabled) return j;
+		}
+		return from;
+	}
 	function onkeydown(e: KeyboardEvent) {
 		const i = tabs.findIndex((t) => t.id === value);
 		if (i < 0) return;
 		let next = i;
-		if (e.key === 'ArrowRight') next = (i + 1) % tabs.length;
-		else if (e.key === 'ArrowLeft') next = (i - 1 + tabs.length) % tabs.length;
-		else if (e.key === 'Home') next = 0;
-		else if (e.key === 'End') next = tabs.length - 1;
+		if (e.key === 'ArrowRight') next = step(i, 1);
+		else if (e.key === 'ArrowLeft') next = step(i, -1);
+		else if (e.key === 'Home') next = tabs.findIndex((t) => !t.disabled);
+		else if (e.key === 'End') next = tabs.length - 1 - [...tabs].reverse().findIndex((t) => !t.disabled);
 		else return;
 		e.preventDefault();
 		select(tabs[next].id, true);
@@ -64,6 +78,7 @@
 				id="{baseId}-tab-{t.id}"
 				aria-selected={value === t.id}
 				aria-controls="{baseId}-panel"
+				disabled={t.disabled}
 				tabindex={value === t.id ? 0 : -1}
 				class="tab"
 				class:selected={value === t.id}
@@ -101,8 +116,12 @@
 			color 0.12s var(--ease),
 			border-color 0.12s var(--ease);
 	}
-	.tab:hover {
+	.tab:hover:not(:disabled) {
 		color: var(--text);
+	}
+	.tab:disabled {
+		opacity: 0.45;
+		cursor: not-allowed;
 	}
 	.tab.selected {
 		color: var(--accent);

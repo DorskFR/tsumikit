@@ -5,7 +5,7 @@
 	//   • info   → `mono` for paths/ids/code-ish metadata
 	//   • tag    → `removable` renders a dismiss button + fires `onremove`
 	// Polymorphic via `as` so it can be a static <span> or an interactive
-	// <button>. `Chip` is a thin deprecated alias kept for back-compat.
+	// <button>. `size="sm"` is the compact form for counts/dense rows.
 	import type { Snippet } from 'svelte';
 
 	type Tone = 'neutral' | 'ok' | 'warn' | 'danger' | 'info';
@@ -13,6 +13,7 @@
 	let {
 		tone = 'neutral',
 		as = 'span',
+		size = 'md',
 		mono = false,
 		removable = false,
 		onremove,
@@ -22,6 +23,7 @@
 	}: {
 		tone?: Tone;
 		as?: 'span' | 'button';
+		size?: 'sm' | 'md';
 		mono?: boolean;
 		removable?: boolean;
 		onremove?: (e: MouseEvent) => void;
@@ -38,6 +40,7 @@
 	class:badge-warn={tone === 'warn'}
 	class:badge-danger={tone === 'danger'}
 	class:badge-info={tone === 'info'}
+	class:badge-sm={size === 'sm'}
 	class:mono
 	class:interactive={as === 'button'}
 	{...rest}
@@ -70,6 +73,11 @@
 		border: 1px solid var(--border);
 		white-space: nowrap;
 		max-width: 100%;
+	}
+	.badge-sm {
+		padding: 0 0.4rem;
+		font-size: 0.6875rem;
+		gap: 0.15rem;
 	}
 	.badge-ok {
 		color: var(--ok);

@@ -14,12 +14,16 @@
 		onclose,
 		body,
 		footer,
+		size = 'md',
 		resizeKey
 	}: {
 		title: string;
 		onclose: () => void;
 		body: Snippet;
 		footer?: Snippet;
+		/** Desktop width preset (sm 24rem / md 34rem / lg 48rem). A `resizeKey`
+		 *  drag still overrides it. */
+		size?: 'sm' | 'md' | 'lg';
 		/** When set, the sheet is horizontally resizable on desktop and the chosen
 		 *  width persists under this localStorage key. */
 		resizeKey?: string;
@@ -104,7 +108,7 @@
 	}}
 	onclick={onDialogClick}
 >
-	<div class="sheet">
+	<div class="sheet" class:sheet-sm={size === 'sm'} class:sheet-lg={size === 'lg'}>
 		<div class="sheet-head">
 			<span id={titleId} class="sheet-title truncate">{title}</span>
 			<div class="spacer"></div>
@@ -167,9 +171,10 @@
 	}
 
 	.sheet {
+		--sw: 34rem; /* width preset; overridden by --sheet-w when resized */
 		position: relative;
 		width: 100%;
-		max-width: 34rem;
+		max-width: var(--sw);
 		max-height: calc(100dvh - var(--safe-top) - var(--sp-6));
 		display: flex;
 		flex-direction: column;
@@ -184,8 +189,14 @@
 		.sheet {
 			border-radius: var(--r-lg);
 			padding-bottom: 0;
-			width: var(--sheet-w, 34rem);
-			max-width: min(var(--sheet-w, 34rem), calc(100vw - 2rem));
+			width: var(--sheet-w, var(--sw));
+			max-width: min(var(--sheet-w, var(--sw)), calc(100vw - 2rem));
+		}
+		.sheet-sm {
+			--sw: 24rem;
+		}
+		.sheet-lg {
+			--sw: 48rem;
 		}
 	}
 	@keyframes sheet-up {
