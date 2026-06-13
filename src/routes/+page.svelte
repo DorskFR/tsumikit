@@ -21,6 +21,7 @@
 		OptionButton,
 		Modal,
 		CopyButton,
+		CodeBlock,
 		FileButton,
 		Dropzone,
 		Tooltip,
@@ -75,6 +76,26 @@
 		{ value: 'sms', label: 'SMS', hint: 'Urgent only' },
 		{ value: 'none', label: 'None', hint: 'No notifications', disabled: true }
 	];
+
+	const sampleCode = `// install and use
+import { Button, theme } from '@dorsk/uikit';
+
+function greet(name) {
+  return \`Hello, \${name}!\`;
+}`;
+
+	// Toy highlighter for the demo only — real apps plug in highlight.js / Prism
+	// (class-based output is auto-themed via the --syn-* token mapping).
+	function demoHighlight(src: string): string {
+		const esc = src.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+		return esc
+			.replace(/(\/\/[^\n]*)/g, '<span class="hljs-comment">$1</span>')
+			.replace(
+				/\b(import|from|function|return|const|let)\b/g,
+				'<span class="hljs-keyword">$1</span>'
+			)
+			.replace(/('[^']*'|`[^`]*`)/g, '<span class="hljs-string">$1</span>');
+	}
 
 	type Row = { id: number; name: string; role: string; status: 'ok' | 'warn' | 'danger' };
 	const tableRows: Row[] = [
@@ -447,6 +468,18 @@
 				/>
 			</div>
 		</Card>
+	</section>
+
+	<!-- CODE BLOCK -->
+	<section class="section">
+		<Heading level={2}>CodeBlock <Badge>BYO highlighter</Badge></Heading>
+		<div class="stack">
+			<CodeBlock code={sampleCode} lang="typescript" highlight={demoHighlight} showLineNumbers />
+			<Text variant="caption" tone="muted">
+				Plain (no highlighter, no line numbers):
+			</Text>
+			<CodeBlock code={`git clone …\nnpm install\nnpm run dev`} filename="setup.sh" />
+		</div>
 	</section>
 
 	<!-- FILE UPLOAD -->

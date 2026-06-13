@@ -419,6 +419,72 @@ svg[aria-hidden='true'] {
 	border: 0;
 }
 
+/* ---------- syntax-highlight token mapping ----------
+ * CodeBlock doesn't bundle a highlighter; it renders whatever HTML you pass.
+ * Class-based highlighters (highlight.js `hljs-*`, Prism `token.*`) are themed
+ * here by mapping their token classes onto the --syn-* theme tokens, so colors
+ * track every theme. This must be GLOBAL: Svelte scoped styles don't reach
+ * {@html} content. (Shiki emits inline colors instead — see the README for how
+ * to theme it via its css-variables theme.) */
+.hljs-keyword,
+.hljs-built_in,
+.hljs-type,
+.hljs-literal,
+.hljs-symbol,
+.hljs-selector-tag,
+.token.keyword,
+.token.builtin,
+.token.tag {
+	color: var(--syn-keyword);
+}
+.hljs-string,
+.hljs-char,
+.hljs-regexp,
+.token.string,
+.token.char,
+.token.regex,
+.token.attr-value {
+	color: var(--syn-string);
+}
+.hljs-number,
+.hljs-attr,
+.hljs-attribute,
+.hljs-variable,
+.hljs-template-variable,
+.token.number,
+.token.boolean,
+.token.attr-name {
+	color: var(--syn-number);
+}
+.hljs-comment,
+.hljs-quote,
+.token.comment,
+.token.prolog {
+	color: var(--syn-comment);
+	font-style: italic;
+}
+.hljs-title,
+.hljs-title.function_,
+.hljs-section,
+.hljs-name,
+.hljs-meta,
+.hljs-property,
+.token.function,
+.token.class-name {
+	color: var(--syn-function);
+}
+.hljs-punctuation,
+.token.punctuation,
+.token.operator {
+	color: var(--syn-punct);
+}
+.hljs-addition {
+	color: var(--syn-string);
+}
+.hljs-deletion {
+	color: var(--danger);
+}
+
 @media (prefers-reduced-motion: reduce) {
 	*,
 	*::before,

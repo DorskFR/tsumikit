@@ -62,11 +62,12 @@ import { Button, Field, Input, Modal, ThemePicker } from '@dorsk/uikit';
 ## Components
 
 **Atoms:** Text, Heading, Button, Input, Textarea, Select, Switch, Checkbox,
-Slider, Card, Badge, Chip, Link, Icon (open registry — pass a `children` snippet
-for any custom SVG).
+Slider, Progress, Card, Badge, Chip, Link, Icon (open registry — pass a
+`children` snippet for any custom SVG).
 
 **Molecules:** Field, IconButton, SelectButton, Toggle, OptionButton, Modal,
-Popover, Menu, Tabs, RadioGroup, Toaster, ThemePicker, FontScalePicker.
+Popover, Menu, Tabs, RadioGroup, Tooltip, Accordion, CopyButton, FileButton,
+Dropzone, CodeBlock, Toaster, ThemePicker, FontScalePicker.
 
 **Organisms:** DataTable (generic `<T>`, typed columns + cell snippets).
 
@@ -113,6 +114,34 @@ them in JS — less code, better a11y, fewer edge cases:
   **`prefers-reduced-motion`** disables animation globally.
 - **Intrinsic responsive layout**: `.auto-grid` (auto-fit + `minmax`) and `.cq`
   (container queries) adapt to available space, not just viewport breakpoints.
+
+## Syntax highlighting (CodeBlock)
+
+The kit ships **no** highlighter — that keeps it zero-dep and avoids shipping a
+big grammar bundle to every consumer. `CodeBlock` renders the chrome (language
+label, copy, line numbers, wrap, scroll) and takes code three ways: plain
+`code`, a `highlight={(code, lang) => htmlString}` callback, or pre-rendered
+`html`. Pick a highlighter per app:
+
+- **highlight.js** — class-based output (`hljs-*`). Recommended for this kit:
+  those classes are already mapped to the `--syn-*` theme tokens (in `app.css`),
+  so highlighted code re-themes with every theme for free. Import only the
+  languages you need to keep it lean.
+- **Prism** — also class-based (`token.*`), mapped the same way. Similar fit.
+- **Shiki** — VS Code-grade accuracy, but it emits *inline colors* from a fixed
+  theme, so it won't follow your themes out of the box. Use its
+  `css-variables` theme and map `--shiki-*` to your `--syn-*` tokens if you want
+  it themed. Best when you want exact editor fidelity over theme-following.
+
+```svelte
+<script>
+  import hljs from 'highlight.js/lib/core';
+  import ts from 'highlight.js/lib/languages/typescript';
+  hljs.registerLanguage('typescript', ts);
+  const hl = (code, lang) => hljs.highlight(code, { language: lang ?? 'typescript' }).value;
+</script>
+<CodeBlock {code} lang="typescript" highlight={hl} showLineNumbers />
+```
 
 ## Accessibility baseline
 

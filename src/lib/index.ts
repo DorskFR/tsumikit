@@ -45,6 +45,7 @@ export {
 export { default as CopyButton } from './components/molecules/CopyButton.svelte';
 export { default as FileButton } from './components/molecules/FileButton.svelte';
 export { default as Dropzone } from './components/molecules/Dropzone.svelte';
+export { default as CodeBlock } from './components/molecules/CodeBlock.svelte';
 export { default as Toaster } from './components/molecules/Toaster.svelte';
 export { toasts, type Toast, type ToastTone } from './stores/toast.svelte';
 export { default as ThemePicker } from './components/molecules/ThemePicker.svelte';
