@@ -71,7 +71,18 @@ Popover, Menu, Tabs, RadioGroup, Toaster, ThemePicker, FontScalePicker.
 **Organisms:** DataTable (generic `<T>`, typed columns + cell snippets).
 
 **Layouts:** AppShell (responsive header/sidebar/main/footer — persistent
-sidebar on desktop, overlay drawer on mobile), Container.
+sidebar on desktop, overlay drawer on mobile, optionally resizable), NavItem
+(collapses to an icon rail when the sidebar is narrow), Container.
+
+## Container queries
+
+AppShell's `main` and `sidebar` are query containers (`container-name: main` /
+`sidebar`), so components respond to **their box's** width, not the viewport.
+Use the `.cq-*` utilities (`.cq-hide`, `.cq-stack`, `.cq-truncate`,
+`.cq-hide-xs`) on children of any `.cq` container — e.g. wrap a button's label in
+`.cq-hide` and it becomes icon-only when its column is tight. `NavItem` uses the
+`sidebar` container to drop labels below ~8rem; `AppShell resizableSidebar` lets
+you drag the sidebar down to that icon rail (width persisted).
 
 **Stores:** `theme`, `toasts`, `fontScale` (opt-in). **Actions:** `autoresize`.
 
