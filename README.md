@@ -69,7 +69,7 @@ import { Button, Field, Input, Modal, ThemePicker } from '@dorsk/tsumikit';
 ## Components
 
 **Atoms:** Text, Heading, Button, Input, Textarea, Select, Switch, Checkbox,
-Slider, Progress, Card, Badge, Chip, Link, Icon (open registry — pass a
+Slider, Progress, Card, Badge, Dot, Link, Icon (open registry — pass a
 `children` snippet for any custom SVG).
 
 **Molecules:** Field, IconButton, SelectButton, Toggle, OptionButton, Modal,

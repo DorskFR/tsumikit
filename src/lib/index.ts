@@ -10,7 +10,7 @@ export { default as Badge } from './components/atoms/Badge.svelte';
 export { default as Button } from './components/atoms/Button.svelte';
 export { default as Card } from './components/atoms/Card.svelte';
 export { default as Checkbox } from './components/atoms/Checkbox.svelte';
-export { default as Chip } from './components/atoms/Chip.svelte';
+export { default as Dot } from './components/atoms/Dot.svelte';
 export { default as Heading } from './components/atoms/Heading.svelte';
 export type { IconName } from './components/atoms/Icon.svelte';
 export { default as Icon } from './components/atoms/Icon.svelte';

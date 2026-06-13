@@ -1,8 +1,11 @@
 <script lang="ts">
-	// Base badge/pill primitive. Owns the shape + tone palette from theme tokens.
+	// Inline label primitive — the project's single pill. Covers three jobs via
+	// props rather than separate components:
+	//   • state  → `tone` (neutral/ok/warn/danger/info) semantic palette
+	//   • info   → `mono` for paths/ids/code-ish metadata
+	//   • tag    → `removable` renders a dismiss button + fires `onremove`
 	// Polymorphic via `as` so it can be a static <span> or an interactive
-	// <button> (e.g. SubagentBadge). Specialized badges compose this and add only
-	// their specifics (per-machine hue, toggle state).
+	// <button>. `Chip` is a thin deprecated alias kept for back-compat.
 	import type { Snippet } from 'svelte';
 
 	type Tone = 'neutral' | 'ok' | 'warn' | 'danger' | 'info';
@@ -10,12 +13,18 @@
 	let {
 		tone = 'neutral',
 		as = 'span',
+		mono = false,
+		removable = false,
+		onremove,
 		class: klass = '',
 		children,
 		...rest
 	}: {
 		tone?: Tone;
 		as?: 'span' | 'button';
+		mono?: boolean;
+		removable?: boolean;
+		onremove?: (e: MouseEvent) => void;
 		class?: string;
 		children?: Snippet;
 		[key: string]: unknown;
@@ -29,9 +38,21 @@
 	class:badge-warn={tone === 'warn'}
 	class:badge-danger={tone === 'danger'}
 	class:badge-info={tone === 'info'}
+	class:mono
+	class:interactive={as === 'button'}
 	{...rest}
 >
 	{@render children?.()}
+	{#if removable}
+		<button
+			type="button"
+			class="remove"
+			aria-label="Remove"
+			onclick={(e) => onremove?.(e)}
+		>
+			×
+		</button>
+	{/if}
 </svelte:element>
 
 <style>
@@ -48,6 +69,7 @@
 		color: var(--text-muted);
 		border: 1px solid var(--border);
 		white-space: nowrap;
+		max-width: 100%;
 	}
 	.badge-ok {
 		color: var(--ok);
@@ -68,5 +90,37 @@
 		color: var(--info);
 		border-color: color-mix(in srgb, var(--info) 40%, transparent);
 		background: color-mix(in srgb, var(--info) 12%, transparent);
+	}
+	.mono {
+		font-family: var(--font-mono);
+		font-weight: var(--fw-normal);
+	}
+	.interactive {
+		cursor: pointer;
+		transition:
+			border-color 0.12s var(--ease),
+			color 0.12s var(--ease);
+	}
+	.interactive:hover {
+		border-color: var(--border-strong);
+		color: var(--text);
+	}
+	.remove {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		margin: 0 -0.15rem 0 0;
+		padding: 0 0.1rem;
+		border: 0;
+		background: none;
+		color: inherit;
+		font: inherit;
+		line-height: 1;
+		cursor: pointer;
+		opacity: 0.6;
+		transition: opacity 0.12s var(--ease);
+	}
+	.remove:hover {
+		opacity: 1;
 	}
 </style>

@@ -259,28 +259,6 @@ svg[aria-hidden='true'] {
 	flex: none;
 }
 
-/* ---------- status dots ---------- */
-.dot {
-	width: 0.55rem;
-	height: 0.55rem;
-	border-radius: var(--r-pill);
-	flex: none;
-	display: inline-block;
-}
-.dot-active {
-	background: var(--dot-active);
-	box-shadow: 0 0 6px var(--dot-active);
-}
-.dot-stale {
-	background: var(--dot-stale);
-}
-.dot-dead {
-	background: var(--dot-dead);
-}
-.dot-hibernated {
-	background: var(--dot-hibernated);
-}
-
 /* ---------- modal / bottom sheet ---------- */
 .overlay {
 	position: fixed;
@@ -507,7 +485,6 @@ svg[aria-hidden='true'] {
 	}
 	/* Status tints/borders drawn with color-mix collapse to the system palette;
 	   force a readable border so badges/cards keep their edges. */
-	.dot,
 	.btn-control,
 	.btn-icon {
 		forced-color-adjust: auto;

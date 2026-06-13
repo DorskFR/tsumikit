@@ -11,7 +11,7 @@
 		Slider,
 		Card,
 		Badge,
-		Chip,
+		Dot,
 		Link,
 		Icon,
 		Field,
@@ -207,7 +207,7 @@ function greet(name) {
 				<div class="row row-wrap">
 					<CopyButton text="npm i @dorsk/tsumikit" />
 					<CopyButton text="npm i @dorsk/tsumikit" variant="default" label="Copy install" />
-					<Chip mono>npm i @dorsk/tsumikit</Chip>
+					<Badge mono>npm i @dorsk/tsumikit</Badge>
 				</div>
 			</div>
 		</Card>
@@ -248,7 +248,7 @@ function greet(name) {
 
 	<!-- BADGES / CHIPS / LINKS / DOTS -->
 	<section class="section">
-		<Heading level={2}>Badge · Chip · Link · Dot</Heading>
+		<Heading level={2}>Badge · Link · Dot</Heading>
 		<Card>
 			<div class="stack">
 				<div class="row row-wrap">
@@ -259,19 +259,21 @@ function greet(name) {
 					<Badge tone="info">info</Badge>
 				</div>
 				<div class="row row-wrap">
-					<Chip>chip</Chip>
-					<Chip mono>~/path/to/file</Chip>
-					<Chip as="button">interactive chip</Chip>
+					<Badge mono>~/path/to/file</Badge>
+					<Badge as="button">interactive</Badge>
+					<Badge removable onremove={() => {}}>removable</Badge>
+					<Badge tone="info" removable onremove={() => {}}>typescript</Badge>
 				</div>
 				<div class="row row-wrap">
 					<Link href="https://svelte.dev" target="_blank" rel="noreferrer">Anchor link</Link>
 					<Link>Button-as-link</Link>
 				</div>
 				<div class="row row-wrap">
-					<span class="dot dot-active"></span> <Text variant="caption">active</Text>
-					<span class="dot dot-stale"></span> <Text variant="caption">stale</Text>
-					<span class="dot dot-dead"></span> <Text variant="caption">dead</Text>
-					<span class="dot dot-hibernated"></span> <Text variant="caption">hibernated</Text>
+					<Dot status="active" glow label="active" />
+					<Dot status="stale" label="stale" />
+					<Dot status="dead" label="dead" />
+					<Dot status="hibernated" label="hibernated" />
+					<Dot color="var(--accent)" label="custom" />
 				</div>
 			</div>
 		</Card>
@@ -534,7 +536,7 @@ function greet(name) {
 				<Text variant="caption" tone="muted">Cluster — wraps, never overflows:</Text>
 				<Cluster>
 					{#each ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta'] as t (t)}
-						<Chip>{t}</Chip>
+						<Badge>{t}</Badge>
 					{/each}
 				</Cluster>
 				<Text variant="caption" tone="muted">AutoGrid — columns adapt to available width (resize the window):</Text>
