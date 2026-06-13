@@ -57,6 +57,9 @@ export { default as DataTable, type Column } from './components/organisms/DataTa
 // ---- layouts ----
 export { default as AppShell } from './components/layouts/AppShell.svelte';
 export { default as Container } from './components/layouts/Container.svelte';
+export { default as Stack } from './components/layouts/Stack.svelte';
+export { default as Cluster } from './components/layouts/Cluster.svelte';
+export { default as AutoGrid } from './components/layouts/AutoGrid.svelte';
 export { default as NavItem } from './components/layouts/NavItem.svelte';
 
 // ---- stores / actions ----

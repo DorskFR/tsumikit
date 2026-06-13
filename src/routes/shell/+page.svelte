@@ -11,6 +11,9 @@
 		Link,
 		ThemePicker,
 		Card,
+		Stack,
+		Cluster,
+		AutoGrid,
 		type IconName
 	} from '$lib';
 
@@ -51,7 +54,7 @@
 	{/snippet}
 
 	<Container pad>
-		<div class="stack">
+		<Stack>
 			<Heading level={2}>{nav.find((n) => n.id === active)?.label}</Heading>
 			<Text variant="body" tone="muted">
 				Drag the sidebar's right edge: below ~8rem the nav collapses to an icon
@@ -63,22 +66,22 @@
 
 			<!-- Container-responsive toolbar: buttons degrade to icon-only when the
 			     MAIN container is tight. The labels are wrapped in .cq-hide. -->
-			<div class="row row-wrap toolbar">
+			<Cluster>
 				<Button variant="primary"><Icon name="plus" /> <span class="cq-hide">New file</span></Button>
 				<Button><Icon name="download" /> <span class="cq-hide">Export</span></Button>
 				<Button><Icon name="edit" /> <span class="cq-hide">Rename</span></Button>
 				<Button variant="danger"><Icon name="trash" /> <span class="cq-hide">Delete</span></Button>
-			</div>
+			</Cluster>
 
-			<div class="auto-grid" style="--col-min: 14rem">
+			<AutoGrid>
 				{#each Array(4) as _, i (i)}
 					<Card>
 						<Heading level={3} size="md">Card {i + 1}</Heading>
 						<Text variant="body" tone="muted">Grid reflows by available width (intrinsic auto-fit).</Text>
 					</Card>
 				{/each}
-			</div>
-		</div>
+			</AutoGrid>
+		</Stack>
 	</Container>
 </AppShell>
 

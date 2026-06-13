@@ -33,6 +33,9 @@
 		RadioGroup,
 		DataTable,
 		toasts,
+		Stack,
+		Cluster,
+		AutoGrid,
 		ThemePicker,
 		FontScalePicker,
 		theme,
@@ -520,6 +523,27 @@ function greet(name) {
 		<div class="row" style="margin-top: var(--sp-3)">
 			<Button variant="primary" onclick={() => (modalOpen = true)}>Open modal</Button>
 		</div>
+	</section>
+
+	<!-- LAYOUT -->
+	<section class="section">
+		<Heading level={2}>Layout: Stack · Cluster · AutoGrid</Heading>
+		<Card>
+			<Stack gap="var(--sp-4)">
+				<Text variant="caption" tone="muted">Cluster — wraps, never overflows:</Text>
+				<Cluster>
+					{#each ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta'] as t (t)}
+						<Chip>{t}</Chip>
+					{/each}
+				</Cluster>
+				<Text variant="caption" tone="muted">AutoGrid — columns adapt to available width (resize the window):</Text>
+				<AutoGrid min="10rem">
+					{#each Array(6) as _, i (i)}
+						<Card><Text weight="semibold">Cell {i + 1}</Text></Card>
+					{/each}
+				</AutoGrid>
+			</Stack>
+		</Card>
 	</section>
 
 	<!-- TOKENS -->

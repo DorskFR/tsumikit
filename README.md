@@ -73,7 +73,9 @@ Dropzone, CodeBlock, Toaster, ThemePicker, FontScalePicker.
 
 **Layouts:** AppShell (responsive header/sidebar/main/footer — persistent
 sidebar on desktop, overlay drawer on mobile, optionally resizable), NavItem
-(collapses to an icon rail when the sidebar is narrow), Container.
+(collapses to an icon rail when the sidebar is narrow), Container, Stack
+(vertical), Cluster (wrapping row), AutoGrid (intrinsically responsive columns —
+no media/container query needed).
 
 ## Container queries
 
