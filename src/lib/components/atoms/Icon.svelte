@@ -43,13 +43,15 @@
 
 	let {
 		name,
-		size = 16,
+		size,
 		label,
 		children,
 		...rest
 	}: {
 		/** Named glyph from the registry. Omit when supplying `children`. */
 		name?: IconName;
+		/** Explicit pixel size. Omit to track the surrounding text (1em) — best
+		 *  for icons sitting inline with a label. */
 		size?: number;
 		/** When set, the icon is exposed to AT with this label; otherwise it is
 		 *  decorative (aria-hidden) and the parent control carries the label. */
@@ -64,8 +66,7 @@
 
 <svg
 	class="icon"
-	width={size}
-	height={size}
+	style={size ? `font-size: ${size}px` : undefined}
 	viewBox="0 0 24 24"
 	fill={filled ? 'currentColor' : 'none'}
 	stroke={filled ? 'none' : 'currentColor'}

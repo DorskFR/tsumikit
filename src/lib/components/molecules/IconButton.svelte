@@ -20,7 +20,7 @@
 		label,
 		title = label,
 		variant = 'ghost',
-		size = 16,
+		size = 18,
 		inline = false,
 		disabled = false,
 		onclick,
