@@ -17,18 +17,73 @@
 		footer,
 		children,
 		sidebarWidth = '16rem',
-		navLabel = 'Main navigation'
+		navLabel = 'Main navigation',
+		resizableSidebar = false,
+		minSidebar = 64,
+		maxSidebar = 360,
+		sidebarWidthKey
 	}: {
 		header?: Snippet;
 		sidebar?: Snippet;
 		footer?: Snippet;
 		children: Snippet;
+		/** Initial / non-resizable desktop sidebar width (any CSS length). */
 		sidebarWidth?: string;
 		navLabel?: string;
+		/** Drag the sidebar's right edge on desktop to resize it. Below ~8rem the
+		 *  nav collapses to an icon rail automatically (see NavItem, driven by the
+		 *  `sidebar` container query — no JS state needed). */
+		resizableSidebar?: boolean;
+		minSidebar?: number;
+		maxSidebar?: number;
+		/** localStorage key to persist the resized width. */
+		sidebarWidthKey?: string;
 	} = $props();
 
 	let open = $state(false);
 	let isMobile = $state(false);
+
+	// --- resizable sidebar (desktop) ---
+	function loadW(): number | null {
+		if (!browser || !sidebarWidthKey) return null;
+		const n = Number(localStorage.getItem(sidebarWidthKey));
+		return Number.isFinite(n) && n >= minSidebar ? Math.min(n, maxSidebar) : null;
+	}
+	let sideW = $state<number | null>(loadW());
+	let dragging = $state(false);
+	let rafId = 0;
+	let lastX = 0;
+	function startDrag(e: PointerEvent) {
+		dragging = true;
+		lastX = e.clientX;
+		(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+		e.preventDefault();
+	}
+	function onDrag(e: PointerEvent) {
+		if (!dragging) return;
+		lastX = e.clientX;
+		if (rafId) return;
+		rafId = requestAnimationFrame(() => {
+			rafId = 0;
+			sideW = Math.round(Math.max(minSidebar, Math.min(lastX, maxSidebar)));
+		});
+	}
+	function endDrag(e: PointerEvent) {
+		if (!dragging) return;
+		dragging = false;
+		if (rafId) {
+			cancelAnimationFrame(rafId);
+			rafId = 0;
+		}
+		try {
+			(e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+		} catch {
+			/* already released */
+		}
+		if (browser && sidebarWidthKey && sideW != null) localStorage.setItem(sidebarWidthKey, String(sideW));
+	}
+	// The effective desktop width: a resized px value wins over the prop default.
+	const widthCss = $derived(resizableSidebar && sideW != null ? `${sideW}px` : sidebarWidth);
 
 	$effect(() => {
 		if (!browser) return;
@@ -57,7 +112,7 @@
 
 <svelte:window onkeydown={(e) => e.key === 'Escape' && (open = false)} />
 
-<div class="shell" style="--shell-sidebar-w: {sidebarWidth}">
+<div class="shell" class:dragging style="--shell-sidebar-w: {widthCss}">
 	<header class="shell-header">
 		{#if sidebar}
 			<IconButton
@@ -86,6 +141,18 @@
 			inert={isMobile && !open ? true : undefined}
 		>
 			{@render sidebar()}
+			{#if resizableSidebar}
+				<div
+					class="shell-sidebar-resize"
+					role="separator"
+					aria-label="Resize sidebar"
+					aria-orientation="vertical"
+					onpointerdown={startDrag}
+					onpointermove={onDrag}
+					onpointerup={endDrag}
+					onpointercancel={endDrag}
+				></div>
+			{/if}
 		</aside>
 	{/if}
 
@@ -177,6 +244,15 @@
 		display: block;
 	}
 
+	/* Resize handle lives only on the desktop persistent column. */
+	.shell-sidebar-resize {
+		display: none;
+	}
+	.shell.dragging {
+		user-select: none;
+		cursor: ew-resize;
+	}
+
 	/* Desktop: persistent sidebar column; hide drawer chrome. */
 	@media (min-width: 48rem) {
 		.shell {
@@ -187,7 +263,7 @@
 				'footer footer';
 		}
 		.shell-sidebar {
-			position: static;
+			position: relative; /* anchor the absolute resize handle */
 			grid-area: sidebar;
 			transform: none;
 			z-index: auto;
@@ -197,6 +273,32 @@
 		.shell-scrim,
 		:global(.shell-menu-btn) {
 			display: none !important;
+		}
+		.shell-sidebar-resize {
+			display: block;
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			right: 0;
+			width: 10px;
+			margin-right: -5px;
+			cursor: ew-resize;
+			touch-action: none;
+			z-index: 1;
+		}
+		.shell-sidebar-resize::after {
+			content: '';
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			right: 5px;
+			width: 1px;
+			background: transparent;
+			transition: background 0.12s var(--ease);
+		}
+		.shell-sidebar-resize:hover::after,
+		.shell.dragging .shell-sidebar-resize::after {
+			background: var(--accent);
 		}
 	}
 </style>

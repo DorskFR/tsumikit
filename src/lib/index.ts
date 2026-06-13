@@ -47,6 +47,7 @@ export { default as DataTable, type Column } from './components/organisms/DataTa
 // ---- layouts ----
 export { default as AppShell } from './components/layouts/AppShell.svelte';
 export { default as Container } from './components/layouts/Container.svelte';
+export { default as NavItem } from './components/layouts/NavItem.svelte';
 
 // ---- stores / actions ----
 export { theme, THEMES, type Mode } from './stores/theme.svelte';
