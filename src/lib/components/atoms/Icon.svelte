@@ -31,6 +31,7 @@
 		| 'star'
 		| 'stop'
 		| 'trash'
+		| 'upload'
 		| 'warning'
 		| 'x';
 
@@ -100,6 +101,8 @@
 		<path d="M3 6h18" /><path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" /><path d="M6 6v14a1 1 0 0 0 1 1h10a1 1 0 0 0 1-1V6" /><path d="M10 11v6" /><path d="M14 11v6" />
 	{:else if name === 'download'}
 		<path d="M12 3v12" /><path d="m7 10 5 5 5-5" /><path d="M4 19h16" />
+	{:else if name === 'upload'}
+		<path d="M12 15V3" /><path d="m7 8 5-5 5 5" /><path d="M4 19h16" />
 	{:else if name === 'copy'}
 		<rect x="9" y="9" width="12" height="12" rx="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" />
 	{:else if name === 'edit'}

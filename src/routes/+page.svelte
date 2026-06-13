@@ -21,6 +21,8 @@
 		OptionButton,
 		Modal,
 		CopyButton,
+		FileButton,
+		Dropzone,
 		Popover,
 		Menu,
 		Tabs,
@@ -410,6 +412,28 @@
 				{r.status}
 			</Badge>
 		{/snippet}
+	</section>
+
+	<!-- FILE UPLOAD -->
+	<section class="section">
+		<Heading level={2}>FileButton &amp; Dropzone</Heading>
+		<Card>
+			<div class="stack">
+				<div class="row row-wrap">
+					<FileButton
+						variant="primary"
+						label="Choose files"
+						multiple
+						onfiles={(f) => toasts.ok(`Picked ${f.length} file(s): ${f.map((x) => x.name).join(', ')}`)}
+					/>
+					<Text variant="caption" tone="muted">native picker, keyboard-focusable</Text>
+				</div>
+				<Dropzone
+					accept="image/*,.pdf"
+					onfiles={(f) => toasts.show(`Dropped ${f.length}: ${f.map((x) => x.name).join(', ')}`)}
+				/>
+			</div>
+		</Card>
 	</section>
 
 	<!-- CARDS + MODAL -->
