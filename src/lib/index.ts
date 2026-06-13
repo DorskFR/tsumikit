@@ -40,6 +40,9 @@ export { toasts, type Toast, type ToastTone } from './stores/toast.svelte';
 export { default as ThemePicker } from './components/molecules/ThemePicker.svelte';
 export { default as FontScalePicker } from './components/molecules/FontScalePicker.svelte';
 
+// ---- organisms ----
+export { default as DataTable, type Column } from './components/organisms/DataTable.svelte';
+
 // ---- stores / actions ----
 export { theme, THEMES, type Mode } from './stores/theme.svelte';
 export { fontScale, SCALE_LEVELS, type ScaleLevel } from './stores/fontscale.svelte';
