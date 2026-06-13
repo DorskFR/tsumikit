@@ -121,7 +121,7 @@ them in JS — less code, better a11y, fewer edge cases:
 - **`color-scheme`** per theme so native widgets/scrollbars match; **`@media
   (forced-colors)`** (Windows High Contrast) and **`prefers-contrast`** support;
   **`prefers-reduced-motion`** disables animation globally.
-- **Intrinsic responsive layout**: `.auto-grid` (auto-fit + `minmax`) and `.cq`
+- **Intrinsic responsive layout**: `<AutoGrid>` (auto-fit + `minmax`) and `.cq`
   (container queries) adapt to available space, not just viewport breakpoints.
 
 ## Syntax highlighting (CodeBlock)
