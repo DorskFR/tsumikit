@@ -118,7 +118,14 @@
 	.fs-2xl {
 		font-size: var(--fs-2xl);
 	}
+	/* `text-overflow: ellipsis` is a no-op on an inline box, so a truncated bare
+	   <Text> (default as="span") would overrun its container instead of clipping.
+	   inline-block gives it a block formatting context so the ellipsis applies,
+	   while max-width keeps it from overflowing the parent; on block elements
+	   (as="p"/"div") these are harmless. */
 	.truncate {
+		display: inline-block;
+		max-width: 100%;
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
