@@ -29,6 +29,7 @@ export { default as OptionButton } from './components/molecules/OptionButton.sve
 export { default as Modal } from './components/molecules/Modal.svelte';
 export { default as Popover } from './components/molecules/Popover.svelte';
 export { default as Menu, type MenuItem } from './components/molecules/Menu.svelte';
+export { default as Tabs, type TabItem } from './components/molecules/Tabs.svelte';
 export { default as ThemePicker } from './components/molecules/ThemePicker.svelte';
 export { default as FontScalePicker } from './components/molecules/FontScalePicker.svelte';
 
