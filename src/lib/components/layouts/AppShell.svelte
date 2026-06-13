@@ -115,13 +115,16 @@
 <div class="shell" class:dragging style="--shell-sidebar-w: {widthCss}">
 	<header class="shell-header">
 		{#if sidebar}
-			<IconButton
-				class="shell-menu-btn"
-				icon="menu"
-				label="Toggle navigation"
-				aria-expanded={open}
-				onclick={() => (open = !open)}
-			/>
+			<!-- Wrapper owned here so the responsive hide is a scoped rule on our own
+			     element, not a :global reach into the IconButton's button. -->
+			<div class="shell-menu-btn">
+				<IconButton
+					icon="menu"
+					label="Toggle navigation"
+					aria-expanded={open}
+					onclick={() => (open = !open)}
+				/>
+			</div>
 		{/if}
 		{@render header?.()}
 	</header>
@@ -190,6 +193,10 @@
 		background: color-mix(in srgb, var(--bg) 88%, transparent);
 		backdrop-filter: blur(8px);
 		border-bottom: 1px solid var(--border);
+	}
+	.shell-menu-btn {
+		display: inline-flex;
+		align-items: center;
 	}
 	.shell-main {
 		grid-area: main;
@@ -272,7 +279,7 @@
 			border-right: 1px solid var(--border);
 		}
 		.shell-scrim,
-		:global(.shell-menu-btn) {
+		.shell-menu-btn {
 			display: none !important;
 		}
 		.shell-sidebar-resize {

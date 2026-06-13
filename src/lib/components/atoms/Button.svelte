@@ -188,4 +188,11 @@
 	.btn-icon-inline.hover-danger:hover:not(:disabled) {
 		color: var(--danger);
 	}
+
+	/* Two-state (toggle) buttons — e.g. an IconButton with `pressed`. Reacts to
+	   the native aria-pressed that flows through, so no extra class. Tint defaults
+	   to the accent; override per-instance with `style="--btn-on: var(--warn)"`. */
+	.btn[aria-pressed='true'] {
+		color: var(--btn-on, var(--accent));
+	}
 </style>

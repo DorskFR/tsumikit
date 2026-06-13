@@ -4,6 +4,7 @@
 	// engines from tokens. The track shows a filled portion up to the current
 	// value, and an optional `output` displays the value with a correct
 	// for-association. `bind:value` and all native attrs/events pass through.
+	// Recolor per-instance via `--slider-accent` (defaults to the theme accent).
 	import type { HTMLInputAttributes } from 'svelte/elements';
 
 	let {
@@ -73,7 +74,7 @@
 		border-radius: var(--r-pill);
 		background: linear-gradient(
 			to right,
-			var(--accent) var(--pct),
+			var(--slider-accent, var(--accent)) var(--pct),
 			var(--bg-elevated-2) var(--pct)
 		);
 	}
@@ -85,7 +86,7 @@
 	input[type='range']::-moz-range-progress {
 		height: 0.35rem;
 		border-radius: var(--r-pill);
-		background: var(--accent);
+		background: var(--slider-accent, var(--accent));
 	}
 	/* Thumb */
 	input[type='range']::-webkit-slider-thumb {
@@ -95,7 +96,7 @@
 		width: 1.2rem;
 		height: 1.2rem;
 		border-radius: 50%;
-		background: var(--accent);
+		background: var(--slider-accent, var(--accent));
 		border: 2px solid var(--bg);
 		box-shadow: var(--shadow-sm);
 		transition: transform 0.1s var(--ease);
@@ -104,7 +105,7 @@
 		width: 1.2rem;
 		height: 1.2rem;
 		border-radius: 50%;
-		background: var(--accent);
+		background: var(--slider-accent, var(--accent));
 		border: 2px solid var(--bg);
 		box-shadow: var(--shadow-sm);
 	}

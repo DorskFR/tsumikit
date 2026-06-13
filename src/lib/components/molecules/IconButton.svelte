@@ -14,6 +14,10 @@
 		// `hoverDanger` to tint it red on hover (delete affordances).
 		inline?: boolean;
 		hoverDanger?: boolean;
+		// Two-state icon toggle (star/pin/favourite): sets `aria-pressed` and tints
+		// the glyph with the accent when on. Override the tint per-instance with
+		// `style="--btn-on: var(--warn)"`.
+		pressed?: boolean;
 		class?: string;
 	};
 
@@ -25,6 +29,7 @@
 		size = 18,
 		inline = false,
 		hoverDanger = false,
+		pressed,
 		disabled = false,
 		onclick,
 		class: klass = '',
@@ -43,6 +48,7 @@
 	icon={!inline}
 	iconInline={inline}
 	{hoverDanger}
+	aria-pressed={pressed}
 	class={klass}
 	aria-label={label}
 >
