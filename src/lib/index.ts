@@ -17,6 +17,7 @@ export { default as Card } from './components/atoms/Card.svelte';
 export { default as Badge } from './components/atoms/Badge.svelte';
 export { default as Chip } from './components/atoms/Chip.svelte';
 export { default as Link } from './components/atoms/Link.svelte';
+export { default as Checkbox } from './components/atoms/Checkbox.svelte';
 export { default as Icon } from './components/atoms/Icon.svelte';
 export type { IconName } from './components/atoms/Icon.svelte';
 
@@ -30,6 +31,10 @@ export { default as Modal } from './components/molecules/Modal.svelte';
 export { default as Popover } from './components/molecules/Popover.svelte';
 export { default as Menu, type MenuItem } from './components/molecules/Menu.svelte';
 export { default as Tabs, type TabItem } from './components/molecules/Tabs.svelte';
+export {
+	default as RadioGroup,
+	type RadioOption
+} from './components/molecules/RadioGroup.svelte';
 export { default as ThemePicker } from './components/molecules/ThemePicker.svelte';
 export { default as FontScalePicker } from './components/molecules/FontScalePicker.svelte';
 
