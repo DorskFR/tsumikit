@@ -95,6 +95,8 @@ Use the `.cq-*` utilities (`.cq-hide`, `.cq-stack`, `.cq-truncate`,
 you drag the sidebar down to that icon rail (width persisted).
 
 **Stores:** `theme`, `toasts`, `fontScale` (opt-in). **Actions:** `autoresize`.
+**Helpers:** `copyToClipboard(text)` — async Clipboard API with an
+insecure-context fallback; returns whether it succeeded.
 
 ## Sizing & zoom
 

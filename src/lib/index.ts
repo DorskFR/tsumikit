@@ -6,6 +6,7 @@
 // then use the components below.
 
 export { autoresize } from './autoresize';
+export { copyToClipboard } from './clipboard';
 export { default as Badge } from './components/atoms/Badge.svelte';
 export { default as Button } from './components/atoms/Button.svelte';
 export { default as Card } from './components/atoms/Card.svelte';

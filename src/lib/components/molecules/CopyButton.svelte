@@ -6,6 +6,7 @@
 	// the result for screen readers. Dependency-free.
 	import Button from '$lib/components/atoms/Button.svelte';
 	import Icon from '$lib/components/atoms/Icon.svelte';
+	import { copyToClipboard } from '$lib/clipboard';
 
 	let {
 		text,
@@ -31,7 +32,7 @@
 	let timer: ReturnType<typeof setTimeout> | undefined;
 
 	async function copy() {
-		const ok = await writeClipboard(text);
+		const ok = await copyToClipboard(text);
 		copied = ok;
 		status = ok ? copiedLabel : 'Copy failed';
 		clearTimeout(timer);
@@ -39,31 +40,6 @@
 			copied = false;
 			status = '';
 		}, resetMs);
-	}
-
-	async function writeClipboard(value: string): Promise<boolean> {
-		try {
-			if (navigator.clipboard?.writeText) {
-				await navigator.clipboard.writeText(value);
-				return true;
-			}
-		} catch {
-			/* fall through to legacy path */
-		}
-		// Fallback for insecure contexts / older browsers.
-		try {
-			const ta = document.createElement('textarea');
-			ta.value = value;
-			ta.style.position = 'fixed';
-			ta.style.opacity = '0';
-			document.body.appendChild(ta);
-			ta.select();
-			const ok = document.execCommand('copy');
-			document.body.removeChild(ta);
-			return ok;
-		} catch {
-			return false;
-		}
 	}
 </script>
 
