@@ -8,7 +8,7 @@
   "homepage": "https://dorskfr.github.io/tsumikit",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/dorskfr/tsumikit.git"
+    "url": "git+https://github.com/DorskFR/tsumikit.git"
   },
   "keywords": [
     "svelte",
