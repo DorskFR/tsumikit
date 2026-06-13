@@ -61,14 +61,28 @@
 		(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
 		e.preventDefault();
 	}
+	// Coalesce pointermoves to one width update per frame. Pointer events fire
+	// faster than the display refresh, and each width change reflows the sheet +
+	// repaints its shadow — writing once per rAF caps that to the frame rate.
+	let rafId = 0;
+	let lastX = 0;
 	function onResize(e: PointerEvent) {
 		if (!resizing) return;
-		const next = startW + (e.clientX - startX) * 2; // centered: edge tracks cursor
-		width = Math.round(Math.max(MIN_W, Math.min(next, MAX_W, window.innerWidth - 32)));
+		lastX = e.clientX;
+		if (rafId) return;
+		rafId = requestAnimationFrame(() => {
+			rafId = 0;
+			const next = startW + (lastX - startX) * 2; // centered: edge tracks cursor
+			width = Math.round(Math.max(MIN_W, Math.min(next, MAX_W, window.innerWidth - 32)));
+		});
 	}
 	function endResize(e: PointerEvent) {
 		if (!resizing) return;
 		resizing = false;
+		if (rafId) {
+			cancelAnimationFrame(rafId);
+			rafId = 0;
+		}
 		try {
 			(e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
 		} catch {
@@ -182,6 +196,12 @@
 	}
 	.modal.resizing .sheet {
 		user-select: none;
+		/* Make per-frame width changes cheap to paint: hint the animated property,
+		   isolate layout/paint to the sheet, and drop the heavy blurred shadow
+		   (40px blur) for a light one while dragging. */
+		will-change: width;
+		contain: layout paint;
+		box-shadow: var(--shadow-sm);
 	}
 
 	.sheet-head {
