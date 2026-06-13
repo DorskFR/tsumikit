@@ -148,9 +148,34 @@ pre {
 	gap: var(--sp-4);
 }
 /* Opt a wrapper into container queries so descendants can respond to THIS box's
-   width (not the viewport). Pair with `@container (min-width: …)` in a scope. */
+   width (not the viewport). Pair with `@container (…)` in a component's scope,
+   or with the .cq-* utilities below. */
 .cq {
 	container-type: inline-size;
+}
+/* Container-responsive utilities — they react to the nearest ancestor query
+   container (any `.cq`, or an AppShell region), NOT the viewport. Put them on
+   children of a container so a component degrades when ITS box is tight,
+   wherever it lives. The breakpoints are container widths. */
+@container (max-width: 30rem) {
+	.cq-hide {
+		display: none !important;
+	} /* e.g. wrap a button's label to drop it → icon-only */
+	.cq-stack {
+		flex-direction: column !important;
+		align-items: stretch !important;
+	}
+	.cq-truncate {
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		min-width: 0;
+	}
+}
+@container (max-width: 18rem) {
+	.cq-hide-xs {
+		display: none !important;
+	}
 }
 
 /* ---------- control modifiers ----------

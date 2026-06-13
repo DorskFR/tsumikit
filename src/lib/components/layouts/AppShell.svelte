@@ -127,6 +127,10 @@
 	.shell-main {
 		grid-area: main;
 		min-width: 0; /* let content shrink instead of overflowing the grid */
+		/* A query container named `main` so content components can respond to the
+		   content width (which changes when the sidebar is resized), not the
+		   viewport. */
+		container: main / inline-size;
 	}
 	.shell-footer {
 		grid-area: footer;
@@ -150,6 +154,9 @@
 		padding: var(--sp-3);
 		padding-top: max(var(--sp-3), var(--safe-top));
 		padding-bottom: max(var(--sp-3), var(--safe-bottom));
+		/* A query container named `sidebar` so nav items collapse to an icon rail
+		   based on the sidebar's own width (see NavItem). */
+		container: sidebar / inline-size;
 		transform: translateX(-100%);
 		transition: transform 0.2s var(--ease);
 	}
