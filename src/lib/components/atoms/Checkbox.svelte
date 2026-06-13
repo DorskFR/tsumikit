@@ -8,6 +8,7 @@
 	let {
 		checked = $bindable(false),
 		indeterminate = false,
+		invalid = false,
 		label,
 		class: klass = '',
 		el = $bindable(null),
@@ -15,6 +16,8 @@
 	}: HTMLInputAttributes & {
 		checked?: boolean;
 		indeterminate?: boolean;
+		/** Error state: danger box border + aria-invalid. */
+		invalid?: boolean;
 		label: string;
 		el?: HTMLInputElement | null;
 	} = $props();
@@ -26,7 +29,7 @@
 </script>
 
 <label class="checkbox {klass}">
-	<input bind:this={el} type="checkbox" bind:checked {...rest} />
+	<input bind:this={el} type="checkbox" bind:checked {...rest} aria-invalid={invalid || undefined} />
 	<span class="box" aria-hidden="true"></span>
 	<span class="label-text">{label}</span>
 </label>
@@ -89,6 +92,9 @@
 	input:focus-visible + .box {
 		outline: 2px solid var(--accent);
 		outline-offset: 2px;
+	}
+	input[aria-invalid='true']:not(:checked):not(:indeterminate) + .box {
+		border-color: var(--danger);
 	}
 	input:disabled ~ * {
 		opacity: 0.45;

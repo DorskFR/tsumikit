@@ -6,10 +6,11 @@
 
 	let {
 		checked = false,
+		invalid = false,
 		label,
 		class: klass = '',
 		...rest
-	}: HTMLButtonAttributes & { checked?: boolean; label: string } = $props();
+	}: HTMLButtonAttributes & { checked?: boolean; invalid?: boolean; label: string } = $props();
 </script>
 
 <button
@@ -19,6 +20,7 @@
 	class:on={checked}
 	role="switch"
 	aria-checked={checked}
+	aria-invalid={invalid || undefined}
 	aria-label={label}
 >
 	<span class="knob"></span>
@@ -60,5 +62,8 @@
 	.switch:disabled {
 		opacity: 0.45;
 		cursor: not-allowed;
+	}
+	.switch[aria-invalid='true']:not(.on) {
+		border-color: var(--danger);
 	}
 </style>

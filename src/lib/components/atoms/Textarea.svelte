@@ -11,6 +11,10 @@
 	type Props = HTMLTextareaAttributes & {
 		mono?: boolean;
 		autoresize?: boolean;
+		size?: 'sm' | 'md';
+		/** Error state: danger border + aria-invalid (also styles if a consumer
+		 *  sets aria-invalid directly). */
+		invalid?: boolean;
 		class?: string;
 		value?: HTMLTextareaAttributes['value'];
 		el?: HTMLTextAreaElement | null;
@@ -19,6 +23,8 @@
 	let {
 		mono = false,
 		autoresize = false,
+		size = 'md',
+		invalid = false,
 		class: klass = '',
 		value = $bindable(),
 		el = $bindable(null),
@@ -31,12 +37,22 @@
 		bind:this={el}
 		class="textarea {klass}"
 		class:mono
+		class:textarea-sm={size === 'sm'}
 		bind:value
 		use:autoresizeAction={typeof value === 'string' ? value : ''}
 		{...rest}
+		aria-invalid={invalid || undefined}
 	></textarea>
 {:else}
-	<textarea bind:this={el} class="textarea {klass}" class:mono bind:value {...rest}></textarea>
+	<textarea
+		bind:this={el}
+		class="textarea {klass}"
+		class:mono
+		class:textarea-sm={size === 'sm'}
+		bind:value
+		{...rest}
+		aria-invalid={invalid || undefined}
+	></textarea>
 {/if}
 
 <style>
@@ -55,6 +71,15 @@
 	.textarea:focus {
 		outline: none;
 		border-color: var(--accent);
+	}
+	.textarea-sm {
+		padding: var(--sp-2);
+		font-size: var(--fs-sm);
+		min-height: 4rem;
+	}
+	.textarea[aria-invalid='true'],
+	.textarea[aria-invalid='true']:focus {
+		border-color: var(--danger);
 	}
 	.mono {
 		font-family: var(--font-mono);

@@ -17,6 +17,8 @@
 
 	type Props = HTMLSelectAttributes & {
 		variant?: 'default' | 'ghost';
+		/** Error state: danger border + aria-invalid. */
+		invalid?: boolean;
 		class?: string;
 		value?: HTMLSelectAttributes['value'];
 		children?: Snippet;
@@ -24,6 +26,7 @@
 
 	let {
 		variant = 'default',
+		invalid = false,
 		class: klass = '',
 		value = $bindable(),
 		children,
@@ -32,12 +35,12 @@
 </script>
 
 {#if variant === 'ghost'}
-	<select class="select ghost {klass}" bind:value {...rest}>
+	<select class="select ghost {klass}" bind:value {...rest} aria-invalid={invalid || undefined}>
 		{@render children?.()}
 	</select>
 {:else}
 	<div class="select-wrap {klass}">
-		<select class="select" bind:value {...rest}>
+		<select class="select" bind:value {...rest} aria-invalid={invalid || undefined}>
 			{@render children?.()}
 		</select>
 		<span class="select-chevron" aria-hidden="true">
@@ -70,6 +73,10 @@
 	.select:focus {
 		outline: none;
 		border-color: var(--accent);
+	}
+	.select[aria-invalid='true'],
+	.select[aria-invalid='true']:focus {
+		border-color: var(--danger);
 	}
 	.select-chevron {
 		position: absolute;
