@@ -9,6 +9,7 @@
 	// ships beyond Chromium; the popover semantics above are the hard part and
 	// are broadly supported today.)
 	import type { Snippet } from 'svelte';
+	import { place } from '$lib/floating';
 
 	type Placement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
 
@@ -45,34 +46,19 @@
 	let triggerEl = $state<HTMLButtonElement | null>(null);
 	let panelEl = $state<HTMLDivElement | null>(null);
 
-	function place() {
-		if (!triggerEl || !panelEl) return;
-		const t = triggerEl.getBoundingClientRect();
-		const p = panelEl.getBoundingClientRect();
-		const vw = document.documentElement.clientWidth;
-		const vh = document.documentElement.clientHeight;
-
-		let top = placement.startsWith('bottom') ? t.bottom + gap : t.top - p.height - gap;
-		let left = placement.endsWith('end') ? t.right - p.width : t.left;
-
-		// Flip vertically / clamp horizontally to stay on screen.
-		if (top + p.height > vh && t.top - p.height - gap > 0) top = t.top - p.height - gap;
-		if (top < 0) top = gap;
-		left = Math.max(gap, Math.min(left, vw - p.width - gap));
-
-		panelEl.style.top = `${Math.round(top)}px`;
-		panelEl.style.left = `${Math.round(left)}px`;
+	function reposition() {
+		if (triggerEl && panelEl) place(triggerEl, panelEl, placement, gap);
 	}
 
 	function onToggle(e: ToggleEvent) {
 		if (e.newState === 'open') {
-			place();
-			addEventListener('scroll', place, true);
-			addEventListener('resize', place);
+			reposition();
+			addEventListener('scroll', reposition, true);
+			addEventListener('resize', reposition);
 			onopen?.();
 		} else {
-			removeEventListener('scroll', place, true);
-			removeEventListener('resize', place);
+			removeEventListener('scroll', reposition, true);
+			removeEventListener('resize', reposition);
 			onclose?.();
 		}
 	}

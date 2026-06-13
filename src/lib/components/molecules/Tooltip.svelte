@@ -2,9 +2,14 @@
 	// Lightweight tooltip. Shows on hover (after a short delay) and on keyboard
 	// focus of the trigger; hides on blur / mouseleave / Escape. The trigger is
 	// any snippet; an action wires `aria-describedby` onto its first focusable
-	// element so screen readers announce the text. CSS-positioned above the
-	// trigger (centered). Dependency-free.
+	// element so screen readers announce the text.
+	//
+	// The bubble renders in the browser top layer (Popover API, `manual` so it
+	// only opens/closes under our control) and is positioned by the shared
+	// `place()` helper — so, like Popover, it escapes ancestor overflow/transform
+	// clipping and flips/clamps to stay in the viewport. Dependency-free.
 	import type { Snippet } from 'svelte';
+	import { place } from '$lib/floating';
 
 	let {
 		text,
@@ -19,16 +24,29 @@
 	} = $props();
 
 	const id = `tip-${Math.random().toString(36).slice(2, 8)}`;
-	let open = $state(false);
+	let wrapEl = $state<HTMLElement | null>(null);
+	let tipEl = $state<HTMLElement | null>(null);
 	let timer: ReturnType<typeof setTimeout> | undefined;
+
+	function reposition() {
+		if (wrapEl && tipEl) place(wrapEl, tipEl, `${placement}-center`, 6);
+	}
 
 	function show() {
 		clearTimeout(timer);
-		timer = setTimeout(() => (open = true), delay);
+		timer = setTimeout(() => {
+			if (!tipEl || tipEl.matches(':popover-open')) return; // re-entry guard
+			tipEl.showPopover(); // top layer — displayed before we measure it
+			reposition();
+			addEventListener('scroll', reposition, true);
+			addEventListener('resize', reposition);
+		}, delay);
 	}
 	function hide() {
 		clearTimeout(timer);
-		open = false;
+		if (tipEl?.matches(':popover-open')) tipEl.hidePopover();
+		removeEventListener('scroll', reposition, true);
+		removeEventListener('resize', reposition);
 	}
 
 	const FOCUSABLE = 'a[href],button,input,select,textarea,[tabindex]';
@@ -59,23 +77,22 @@
 	}
 </script>
 
-<span class="tip-wrap" use:tooltip>
+<span class="tip-wrap" bind:this={wrapEl} use:tooltip>
 	{@render trigger()}
-	<span {id} role="tooltip" class="tip tip-{placement}" class:open aria-hidden={!open}>
-		{text}
-	</span>
+</span>
+
+<span bind:this={tipEl} {id} role="tooltip" popover="manual" class="tip">
+	{text}
 </span>
 
 <style>
 	.tip-wrap {
-		position: relative;
 		display: inline-flex;
 	}
 	.tip {
-		position: absolute;
-		left: 50%;
-		transform: translateX(-50%) scale(0.96);
-		z-index: var(--z-toast);
+		position: fixed;
+		margin: 0;
+		inset: auto; /* JS sets top/left; the popover lives in the top layer */
 		max-width: 16rem;
 		width: max-content;
 		padding: var(--sp-1) var(--sp-2);
@@ -87,20 +104,16 @@
 		font-size: var(--fs-xs);
 		line-height: 1.4;
 		white-space: normal;
-		pointer-events: none;
-		opacity: 0;
-		transition:
-			opacity 0.12s var(--ease),
-			transform 0.12s var(--ease);
+		pointer-events: none; /* non-interactive: never steals hover/clicks */
 	}
-	.tip-top {
-		bottom: calc(100% + 6px);
+	/* Fade/scale in when shown (skipped under reduced-motion via the global rule). */
+	.tip:popover-open {
+		animation: tip-in 0.12s var(--ease);
 	}
-	.tip-bottom {
-		top: calc(100% + 6px);
-	}
-	.tip.open {
-		opacity: 1;
-		transform: translateX(-50%) scale(1);
+	@keyframes tip-in {
+		from {
+			opacity: 0;
+			transform: scale(0.96);
+		}
 	}
 </style>
