@@ -23,6 +23,9 @@
 		CopyButton,
 		FileButton,
 		Dropzone,
+		Tooltip,
+		Progress,
+		Accordion,
 		Popover,
 		Menu,
 		Tabs,
@@ -412,6 +415,38 @@
 				{r.status}
 			</Badge>
 		{/snippet}
+	</section>
+
+	<!-- TOOLTIP / PROGRESS / ACCORDION -->
+	<section class="section">
+		<Heading level={2}>Tooltip · Progress · Accordion</Heading>
+		<Card>
+			<div class="stack">
+				<div class="row row-wrap">
+					<Tooltip text="Tooltips appear on hover and keyboard focus, dismiss with Escape.">
+						{#snippet trigger()}<Button>Hover or focus me</Button>{/snippet}
+					</Tooltip>
+					<Tooltip text="Also works on icon buttons." placement="bottom">
+						{#snippet trigger()}<IconButton icon="info" label="Info" />{/snippet}
+					</Tooltip>
+				</div>
+				<div class="stack">
+					<Progress value={65} label="Upload progress" />
+					<Progress label="Working…" />
+				</div>
+				{#snippet c1()}<Text variant="body">Built on native &lt;details&gt; — zero JS, full keyboard support.</Text>{/snippet}
+				{#snippet c2()}<Text variant="body">With <code>multiple=false</code> it uses the platform's exclusive-accordion (one open at a time).</Text>{/snippet}
+				{#snippet c3()}<Text variant="body">The chevron rotates via a CSS transition on <code>[open]</code>.</Text>{/snippet}
+				<Accordion
+					multiple={false}
+					items={[
+						{ id: 'a', title: 'What is it?', content: c1, open: true },
+						{ id: 'b', title: 'Single-open mode', content: c2 },
+						{ id: 'c', title: 'Styling', content: c3 }
+					]}
+				/>
+			</div>
+		</Card>
 	</section>
 
 	<!-- FILE UPLOAD -->
