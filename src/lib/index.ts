@@ -18,6 +18,7 @@ export { default as Badge } from './components/atoms/Badge.svelte';
 export { default as Chip } from './components/atoms/Chip.svelte';
 export { default as Link } from './components/atoms/Link.svelte';
 export { default as Checkbox } from './components/atoms/Checkbox.svelte';
+export { default as Slider } from './components/atoms/Slider.svelte';
 export { default as Icon } from './components/atoms/Icon.svelte';
 export type { IconName } from './components/atoms/Icon.svelte';
 

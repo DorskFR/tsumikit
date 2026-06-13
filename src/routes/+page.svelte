@@ -8,6 +8,7 @@
 		Select,
 		Switch,
 		Checkbox,
+		Slider,
 		Card,
 		Badge,
 		Chip,
@@ -50,6 +51,7 @@
 	let check2 = $state(false);
 	let radioValue = $state('email');
 	let tabValue = $state<string | undefined>('overview');
+	let sliderValue = $state(40);
 
 	const menuItems: MenuItem[] = [
 		{ label: 'Edit', icon: 'edit', onselect: () => toasts.show('Edit') },
@@ -268,6 +270,9 @@
 						<Switch checked={switchOn} label="Toggle setting" onclick={() => (switchOn = !switchOn)} />
 						<Text variant="caption">{switchOn ? 'On' : 'Off'}</Text>
 					</div>
+				</Field>
+				<Field label="Slider" for="f-slider" class="span-2">
+					<Slider id="f-slider" bind:value={sliderValue} label="Volume" showValue format={(v) => `${v}%`} />
 				</Field>
 			</div>
 		</Card>
