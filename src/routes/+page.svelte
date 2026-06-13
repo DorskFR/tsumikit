@@ -20,6 +20,7 @@
 		Toggle,
 		OptionButton,
 		Modal,
+		CopyButton,
 		Popover,
 		Menu,
 		Tabs,
@@ -173,6 +174,11 @@
 					<Button control variant="primary">Control primary</Button>
 				</div>
 				<Button block variant="primary">Block button</Button>
+				<div class="row row-wrap">
+					<CopyButton text="npm i @dorsk/uikit" />
+					<CopyButton text="npm i @dorsk/uikit" variant="default" label="Copy install" />
+					<Chip mono>npm i @dorsk/uikit</Chip>
+				</div>
 			</div>
 		</Card>
 	</section>
