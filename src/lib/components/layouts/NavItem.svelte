@@ -76,6 +76,7 @@
 	}
 	.nav-label {
 		flex: 1;
+		min-width: 0; /* allow the label to shrink/ellipsis instead of overflowing */
 		overflow: hidden;
 		text-overflow: ellipsis;
 	}

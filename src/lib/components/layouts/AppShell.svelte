@@ -215,6 +215,7 @@
 		width: min(var(--shell-sidebar-w), 82vw);
 		z-index: var(--z-drawer);
 		overflow-y: auto;
+		overflow-x: hidden; /* overflow-y:auto would otherwise make x auto too */
 		-webkit-overflow-scrolling: touch;
 		background: var(--bg-elevated);
 		border-right: 1px solid var(--border);
@@ -281,7 +282,6 @@
 			bottom: 0;
 			right: 0;
 			width: 10px;
-			margin-right: -5px;
 			cursor: ew-resize;
 			touch-action: none;
 			z-index: 1;
@@ -291,7 +291,7 @@
 			position: absolute;
 			top: 0;
 			bottom: 0;
-			right: 5px;
+			right: 0;
 			width: 1px;
 			background: transparent;
 			transition: background 0.12s var(--ease);
