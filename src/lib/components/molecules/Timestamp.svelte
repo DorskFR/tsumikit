@@ -1,9 +1,10 @@
 <script lang="ts">
-	// A timestamp you can read four ways and inspect in one place. Inline it
-	// renders in the chosen `mode` (ISO / local / clock / relative); by default
-	// clicking it opens a popover that lays out the same instant as ISO-UTC,
-	// local, relative, the IANA zone and the unix epoch — so the one value
-	// answers "when, exactly?" without leaving the row. The popover is read-only
+	// A timestamp you can read five ways and inspect in one place. Inline it
+	// renders in the chosen `mode` (date / time / datetime / relative / iso),
+	// in the viewer's zone or UTC via the `utc` flag; by default clicking it
+	// opens a popover that lays out the same instant as ISO-UTC, local, relative,
+	// the IANA zone and the unix epoch — so the one value answers "when,
+	// exactly?" without leaving the row. The popover is read-only
 	// unless you opt into `selectable`, which adds buttons to switch the inline
 	// display mode (handy in a demo / settings surface, rarely in a data row).
 	//
@@ -19,26 +20,35 @@
 		toDate,
 		toEpochSeconds,
 		toISO,
-		toLocal,
+		toLocale,
 		type TimeInput,
 		type TimestampMode
 	} from '$lib/timestamp';
 
 	type Tone = 'inherit' | 'default' | 'muted' | 'faint' | 'danger' | 'accent';
+	type Size = 'xs' | 'sm' | 'base' | 'md' | 'lg' | 'xl' | '2xl';
 
 	let {
 		value,
-		mode = 'iso',
+		mode = 'datetime',
+		utc = false,
 		details = true,
 		selectable = false,
 		mono = false,
 		tone = 'muted',
+		size,
 		tickMs = 30_000
 	}: {
-		/** The instant: a Date, epoch milliseconds, or an ISO/parseable string. */
-		value: TimeInput;
-		/** Inline display mode. Default 'iso'. */
+		/** The instant: a Date, epoch milliseconds, or an ISO/parseable string.
+		 *  null/undefined (or unparseable input) renders an inert "—". */
+		value: TimeInput | null | undefined;
+		/** Inline display mode. Default 'datetime'. */
 		mode?: TimestampMode;
+		/** Render the date/time/datetime modes in UTC rather than the viewer's
+		 *  zone. Default false. Ignored by 'iso' (always UTC) and 'relative'
+		 *  (zoneless). Handy for calendar-date fields, where a local midnight-UTC
+		 *  value would otherwise show the wrong day. */
+		utc?: boolean;
 		/** Click to open the details popover (UTC / local / relative / zone /
 		 *  epoch). Default true. When false, renders as a bare inline <time>. */
 		details?: boolean;
@@ -50,6 +60,9 @@
 		/** Text colour, mirroring <Text> tones. Default 'muted' — timestamps read
 		 *  as subdued metadata; pass 'inherit' to blend with surrounding copy. */
 		tone?: Tone;
+		/** Font size, mirroring <Text> sizes (maps to --fs-* tokens). Omit to
+		 *  inherit the surrounding size. */
+		size?: Size;
 		/** How often relative mode re-renders so "3m ago" stays fresh. */
 		tickMs?: number;
 	} = $props();
@@ -70,24 +83,28 @@
 	});
 
 	const date = $derived(toDate(value));
-	const label = $derived(formatTimestamp(value, current, now));
+	const label = $derived(formatTimestamp(value, current, now, utc));
 	// datetime= wants a valid ISO string; omit it entirely on bad input.
 	const machine = $derived(date ? toISO(date) : undefined);
 	const showPopover = $derived(details || selectable);
 	const cls = $derived(`ts tone-${tone}${mono ? ' mono' : ''}`);
+	// Size maps straight onto the --fs-* scale; null leaves font-size unset so the
+	// timestamp inherits its surrounding run.
+	const sizeVar = $derived(size ? `var(--fs-${size})` : null);
 
 	const MODES: { id: TimestampMode; name: string }[] = [
-		{ id: 'iso', name: 'ISO' },
-		{ id: 'local', name: 'Local' },
+		{ id: 'date', name: 'Date' },
 		{ id: 'time', name: 'Time' },
-		{ id: 'relative', name: 'Relative' }
+		{ id: 'datetime', name: 'Date+time' },
+		{ id: 'relative', name: 'Relative' },
+		{ id: 'iso', name: 'ISO' }
 	];
 
 	const rows = $derived(
 		date
 			? [
 					{ k: 'UTC', v: toISO(date) },
-					{ k: 'Local', v: toLocal(date) },
+					{ k: 'Local', v: toLocale(date, 'datetime') },
 					{ k: 'Relative', v: relativeTime(date, now) },
 					{ k: 'Time zone', v: localTimeZone() },
 					{ k: 'Unix', v: String(toEpochSeconds(date)) }
@@ -98,11 +115,11 @@
 
 {#if !date}
 	<!-- Unparseable input: degrade to an inert dash rather than empty text. -->
-	<time class="{cls} ts-invalid">—</time>
+	<time class="{cls} ts-invalid" style:font-size={sizeVar}>—</time>
 {:else if showPopover}
 	<Popover label="Timestamp details" placement="bottom-start" bare>
 		{#snippet trigger()}
-			<time class="{cls} ts-trigger" datetime={machine}>{label}</time>
+			<time class="{cls} ts-trigger" style:font-size={sizeVar} datetime={machine}>{label}</time>
 		{/snippet}
 		<div class="ts-panel">
 			{#if selectable}
@@ -129,7 +146,7 @@
 		</div>
 	</Popover>
 {:else}
-	<time class={cls} datetime={machine}>{label}</time>
+	<time class={cls} style:font-size={sizeVar} datetime={machine}>{label}</time>
 {/if}
 
 <style>

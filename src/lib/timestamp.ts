@@ -7,11 +7,20 @@
 
 export type TimeInput = Date | number | string;
 
-/** How the timestamp text renders inline. */
-export type TimestampMode = 'iso' | 'local' | 'time' | 'relative';
+/**
+ * Which slice of the instant the inline text shows. Orthogonal to the zone:
+ * `date`/`time`/`datetime` honour the `utc` flag, while `iso` is always UTC
+ * (by definition) and `relative` is zoneless.
+ */
+export type TimestampMode = 'date' | 'time' | 'datetime' | 'relative' | 'iso';
 
-/** Coerce a loose input to a Date, or null when it can't be parsed. */
-export function toDate(value: TimeInput): Date | null {
+/**
+ * Coerce a loose input to a Date, or null when it's missing or can't be parsed.
+ * Accepting null/undefined lets callers pass an optional field straight through
+ * — the empty case lands on the same "no date" path as bad input.
+ */
+export function toDate(value: TimeInput | null | undefined): Date | null {
+	if (value == null) return null;
 	const d = value instanceof Date ? value : new Date(value);
 	return Number.isNaN(d.getTime()) ? null : d;
 }
@@ -21,15 +30,30 @@ export function toISO(d: Date): string {
 	return d.toISOString();
 }
 
-/** Locale date+time in the viewer's zone — `6/14/2026, 4:30:00 PM`. */
-export function toLocal(d: Date): string {
-	return d.toLocaleString();
-}
-
-/** Clock only, zero-padded `HH:MM:SS`, in the viewer's local zone. */
-export function toClock(d: Date): string {
-	const p = (n: number) => String(n).padStart(2, '0');
-	return `${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;
+/**
+ * Locale-formatted date and/or time, in the viewer's zone or UTC. The single
+ * `Intl`-backed formatter behind the `date`/`time`/`datetime` modes — splitting
+ * the slice (what) from the zone (where) so a date-only field can render `utc`
+ * without the off-by-one a local midnight-UTC value otherwise shows.
+ */
+export function toLocale(
+	d: Date,
+	parts: 'date' | 'time' | 'datetime' = 'datetime',
+	utc = false,
+): string {
+	const opts: Intl.DateTimeFormatOptions = {};
+	if (utc) opts.timeZone = 'UTC';
+	if (parts !== 'time') {
+		opts.year = 'numeric';
+		opts.month = 'numeric';
+		opts.day = 'numeric';
+	}
+	if (parts !== 'date') {
+		opts.hour = '2-digit';
+		opts.minute = '2-digit';
+		opts.second = '2-digit';
+	}
+	return new Intl.DateTimeFormat(undefined, opts).format(d);
 }
 
 /** Unix epoch in whole seconds. */
@@ -47,7 +71,10 @@ export function localTimeZone(): string {
  * falling back to a locale date once past ~30 days. Future instants read
  * "in 3m" etc. `now` is injectable so callers (and tests) control the clock.
  */
-export function relativeTime(value: TimeInput, now: number = Date.now()): string {
+export function relativeTime(
+	value: TimeInput | null | undefined,
+	now: number = Date.now(),
+): string {
 	const d = toDate(value);
 	if (!d) return '';
 	const deltaMs = now - d.getTime();
@@ -65,17 +92,26 @@ export function relativeTime(value: TimeInput, now: number = Date.now()): string
 	return d.toLocaleDateString();
 }
 
-/** Render a date in the chosen inline mode. Returns '' for unparseable input. */
-export function formatTimestamp(value: TimeInput, mode: TimestampMode, now?: number): string {
+/**
+ * Render a date in the chosen inline mode. `utc` selects UTC over the viewer's
+ * zone for the date/time/datetime modes (ignored by `iso`, always UTC, and
+ * `relative`, zoneless). Returns '' for unparseable input.
+ */
+export function formatTimestamp(
+	value: TimeInput | null | undefined,
+	mode: TimestampMode,
+	now?: number,
+	utc = false,
+): string {
 	const d = toDate(value);
 	if (!d) return '';
 	switch (mode) {
 		case 'iso':
 			return toISO(d);
-		case 'local':
-			return toLocal(d);
+		case 'date':
 		case 'time':
-			return toClock(d);
+		case 'datetime':
+			return toLocale(d, mode, utc);
 		case 'relative':
 			return relativeTime(d, now);
 	}

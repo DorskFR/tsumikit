@@ -517,14 +517,19 @@ function greet(name) {
 		<Card>
 			<div class="stack">
 				<Text variant="caption">
-					Renders an instant in one of four modes (ISO, local, clock, relative), subdued by
-					default. Click it for a read-only popover with the same instant as UTC, relative, your
-					time zone and the unix epoch. Opt into <code>selectable</code> to let viewers switch
-					the inline mode.
+					Renders an instant in one of five modes (date, time, datetime, relative, iso), subdued
+					by default. The <code>date</code>/<code>time</code>/<code>datetime</code> modes follow
+					the viewer's zone unless you pass <code>utc</code>. Click it for a read-only popover
+					with the same instant as UTC, relative, your time zone and the unix epoch. Opt into
+					<code>selectable</code> to let viewers switch the inline mode.
 				</Text>
 				<div class="stack">
-					<Text variant="body">iso: <Timestamp value="2026-06-14T07:30:00Z" /></Text>
-					<Text variant="body">local: <Timestamp value="2026-06-14T07:30:00Z" mode="local" /></Text>
+					<Text variant="body">datetime: <Timestamp value="2026-06-14T07:30:00Z" /></Text>
+					<Text variant="body">date: <Timestamp value="2026-06-14T07:30:00Z" mode="date" /></Text>
+					<Text variant="body">
+						date (utc): <Timestamp value="2026-06-14T07:30:00Z" mode="date" utc />
+					</Text>
+					<Text variant="body">iso: <Timestamp value="2026-06-14T07:30:00Z" mode="iso" /></Text>
 					<Text variant="body">time: <Timestamp value="2026-06-14T07:30:00Z" mode="time" /></Text>
 					<Text variant="body">
 						relative: <Timestamp value={Date.now() - 7 * 86_400_000} mode="relative" />
