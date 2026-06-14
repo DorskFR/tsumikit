@@ -1,11 +1,16 @@
 <script lang="ts">
+	import type { Snippet } from 'svelte';
 	import type { HTMLButtonAttributes } from 'svelte/elements';
 	import Button from '$lib/components/atoms/Button.svelte';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import type { IconName } from '$lib/components/atoms/Icon.svelte';
 
 	type IconButtonProps = HTMLButtonAttributes & {
-		icon: IconName;
+		/** Named glyph from the registry. Omit when supplying `children`. */
+		icon?: IconName;
+		/** Raw SVG markup (24×24 viewBox) — overrides `icon`. Pass a
+		 *  lucide-svelte component's contents to render any off-registry icon. */
+		children?: Snippet;
 		label: string;
 		variant?: 'default' | 'primary' | 'ghost' | 'danger';
 		size?: number;
@@ -23,6 +28,7 @@
 
 	let {
 		icon,
+		children,
 		label,
 		title = label,
 		variant = 'ghost',
@@ -52,5 +58,9 @@
 	class={klass}
 	aria-label={label}
 >
-	<Icon name={icon} {size} />
+	{#if children}
+		<Icon {size}>{@render children()}</Icon>
+	{:else}
+		<Icon name={icon} {size} />
+	{/if}
 </Button>

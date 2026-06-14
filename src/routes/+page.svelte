@@ -115,10 +115,16 @@ function greet(name) {
 	];
 
 	const allIcons: IconName[] = [
-		'search', 'back', 'check', 'x', 'plus', 'chevron-down', 'menu', 'archive',
-		'trash', 'download', 'copy', 'edit', 'folder', 'link', 'external', 'markdown',
-		'image', 'fork', 'more', 'settings', 'retry', 'stop', 'star', 'live', 'send',
-		'filter', 'info', 'warning', 'tag'
+		'back', 'arrow-right', 'arrow-up', 'arrow-down', 'chevron-up', 'chevron-down',
+		'chevron-left', 'chevron-right', 'menu', 'more', 'external', 'log-out',
+		'plus', 'minus', 'check', 'x', 'search', 'filter', 'copy', 'edit', 'trash',
+		'save', 'download', 'upload', 'send', 'share', 'retry', 'settings',
+		'play', 'pause', 'stop',
+		'file', 'file-text', 'folder', 'archive', 'image', 'markdown', 'list', 'grid',
+		'link', 'tag', 'bookmark', 'star', 'heart', 'fork', 'live', 'eye', 'eye-off',
+		'lock', 'unlock', 'bell', 'mail', 'calendar', 'clock', 'home', 'user', 'users',
+		'sun', 'moon', 'loader',
+		'info', 'warning', 'help', 'check-circle', 'x-circle', 'alert-circle'
 	];
 
 	const tokens = [
