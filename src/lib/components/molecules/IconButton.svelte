@@ -6,8 +6,11 @@
 	import type { IconName } from '$lib/components/atoms/Icon.svelte';
 
 	type IconButtonProps = HTMLButtonAttributes & {
-		/** Named glyph from the registry. Omit when supplying `children`. */
+		/** Named glyph from the registry (rendered as SVG). */
 		icon?: IconName;
+		/** Off-registry glyph such as an emoji, rendered as text as-is. Use instead
+		 *  of `icon` when the glyph isn't in the registry. */
+		emoji?: string;
 		/** Raw SVG markup (24×24 viewBox) — overrides `icon`. Pass a
 		 *  lucide-svelte component's contents to render any off-registry icon. */
 		children?: Snippet;
@@ -32,6 +35,7 @@
 
 	let {
 		icon,
+		emoji,
 		children,
 		label,
 		title = label,
@@ -50,7 +54,7 @@
 </script>
 
 <!-- Composition: the icon-only button is a Button (canonical control styling)
-     in its icon variant, wrapping an Icon. -->
+     in its icon variant, wrapping an Icon (or a text emoji glyph). -->
 <Button
 	{...rest}
 	{variant}
@@ -68,7 +72,21 @@
 >
 	{#if children}
 		<Icon {size}>{@render children()}</Icon>
-	{:else}
+	{:else if emoji}
+		<span class="emoji" style="font-size: {size * 1.35}px" aria-hidden="true">{emoji}</span>
+	{:else if icon}
 		<Icon name={icon} {size} />
 	{/if}
 </Button>
+
+<style>
+	/* Off-registry glyph (emoji) rendered as text rather than an SVG. Sized off the
+	   `size` prop (×1.35, since an emoji reads small next to an SVG glyph of the
+	   same px) and centered so it shares the button's tap target. */
+	.emoji {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		line-height: 1;
+	}
+</style>

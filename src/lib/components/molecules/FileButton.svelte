@@ -2,13 +2,14 @@
 	// File-picker button. A real <input type="file"> visually hidden inside a
 	// <label> styled as a button — so it's keyboard-focusable and works with zero
 	// JS to open the dialog. Emits the chosen files via `onfiles`. Dependency-free.
-	import Icon, { isIconName } from '$lib/components/atoms/Icon.svelte';
+	import Icon from '$lib/components/atoms/Icon.svelte';
 	import type { IconName } from '$lib/components/atoms/Icon.svelte';
 
 	let {
 		onfiles,
 		label = 'Choose file',
-		icon = '📎',
+		icon,
+		emoji = '📎',
 		iconOnly = false,
 		accept,
 		multiple = false,
@@ -19,9 +20,12 @@
 	}: {
 		onfiles: (files: File[]) => void;
 		label?: string;
-		/** A registered glyph name (rendered as SVG) or any string such as an
-		 *  emoji (rendered as text). Defaults to the 📎 paperclip emoji. */
-		icon?: IconName | (string & {});
+		/** A registered glyph name (rendered as SVG). Use `emoji` for an
+		 *  off-registry glyph. */
+		icon?: IconName;
+		/** Off-registry glyph such as an emoji, rendered as text as-is. Defaults to
+		 *  the 📎 paperclip emoji; ignored when `icon` is set. */
+		emoji?: string;
 		/** Hide the label visually, showing only the icon. The label is kept for
 		 *  assistive tech (and used as the accessible name). */
 		iconOnly?: boolean;
@@ -61,10 +65,10 @@
 		{disabled}
 		onchange={onchange}
 	/>
-	{#if isIconName(icon)}
+	{#if icon}
 		<Icon name={icon} />
-	{:else}
-		<span class="emoji" aria-hidden="true">{icon}</span>
+	{:else if emoji}
+		<span class="emoji" aria-hidden="true">{emoji}</span>
 	{/if}
 	<span class:sr-only={iconOnly}>{label}</span>
 </label>
