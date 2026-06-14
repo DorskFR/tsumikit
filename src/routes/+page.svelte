@@ -214,6 +214,7 @@ function greet(name) {
 				<div class="row row-wrap">
 					<Button size="sm">Small</Button>
 					<Button size="md">Medium</Button>
+					<Button size="lg">Large</Button>
 					<Button control>Control height</Button>
 					<Button control variant="primary">Control primary</Button>
 				</div>

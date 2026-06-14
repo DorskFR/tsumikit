@@ -8,7 +8,7 @@
 		// adds a subtle fill on hover. For stateful controls — an "on"/active toggle
 		// (`accent`), or cost/severity states (`info`, `warn`).
 		tone?: 'none' | 'accent' | 'info' | 'warn' | 'danger';
-		size?: 'sm' | 'md';
+		size?: 'sm' | 'md' | 'lg';
 		control?: boolean;
 		block?: boolean;
 		// Square 2.25rem icon-only tap target (IconButton). `iconInline` is the
@@ -59,6 +59,7 @@
 	class:btn-ghost={variant === 'ghost'}
 	class:btn-danger={variant === 'danger'}
 	class:btn-sm={size === 'sm'}
+	class:btn-lg={size === 'lg'}
 	class:btn-control={control}
 	class:btn-block={block}
 	class:btn-icon={icon}
@@ -138,6 +139,11 @@
 		min-height: 2rem;
 		padding: var(--sp-1) var(--sp-3);
 		font-size: var(--fs-xs);
+	}
+	.btn-lg {
+		min-height: 3rem;
+		padding: var(--sp-3) var(--sp-5);
+		font-size: var(--fs-base);
 	}
 	.btn-block {
 		width: 100%;

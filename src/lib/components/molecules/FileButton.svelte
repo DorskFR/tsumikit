@@ -14,6 +14,7 @@
 		multiple = false,
 		disabled = false,
 		variant = 'default',
+		size = 'md',
 		class: klass = ''
 	}: {
 		onfiles: (files: File[]) => void;
@@ -28,6 +29,9 @@
 		multiple?: boolean;
 		disabled?: boolean;
 		variant?: 'default' | 'primary' | 'ghost';
+		/** Match the Button atom's sizes so a FileButton lines up with buttons in
+		 *  the same row. */
+		size?: 'sm' | 'md' | 'lg';
 		class?: string;
 	} = $props();
 
@@ -43,6 +47,8 @@
 	class="file-btn {klass}"
 	class:primary={variant === 'primary'}
 	class:ghost={variant === 'ghost'}
+	class:sm={size === 'sm'}
+	class:lg={size === 'lg'}
 	class:icon-only={iconOnly}
 	class:disabled
 	aria-label={iconOnly ? label : undefined}
@@ -91,6 +97,17 @@
 	}
 	.file-btn:hover:not(.disabled) {
 		border-color: var(--accent);
+	}
+	/* Size variants mirror the Button atom (sm 2rem / md 2.5rem / lg 3rem). */
+	.file-btn.sm {
+		min-height: 2rem;
+		padding: var(--sp-1) var(--sp-3);
+		font-size: var(--fs-xs);
+	}
+	.file-btn.lg {
+		min-height: 3rem;
+		padding: var(--sp-3) var(--sp-5);
+		font-size: var(--fs-base);
 	}
 	/* icon-only: square it up and drop the label gap. */
 	.file-btn.icon-only {
