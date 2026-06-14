@@ -128,7 +128,11 @@
 	}
 	.textarea {
 		width: 100%;
-		padding: var(--sp-3);
+		/* Horizontal padding matches Input/Button; vertical padding is tighter
+		   (--sp-2) so a single line-box + border actually fits the 2.5rem floor —
+		   --sp-3 top+bottom would overshoot it and a `rows={1}` textarea would
+		   render taller than the buttons it sits beside. */
+		padding: var(--sp-2) var(--sp-3);
 		background: var(--bg);
 		border: 1px solid var(--border-strong);
 		border-radius: var(--r-md);
@@ -139,6 +143,7 @@
 		/* Match the single-row height of Button/Input so a `rows={1}` textarea
 		   lines up with them; the native `rows` attribute grows it from here. */
 		min-height: 2.5rem;
+		line-height: var(--lh-tight);
 		font-family: inherit;
 	}
 	.textarea:focus {
@@ -146,7 +151,7 @@
 		border-color: var(--accent);
 	}
 	.textarea-sm {
-		padding: var(--sp-2);
+		padding: var(--sp-1) var(--sp-2);
 		font-size: var(--fs-sm);
 		min-height: 2rem;
 	}
