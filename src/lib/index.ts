@@ -54,6 +54,7 @@ export {
 export { default as SelectButton } from './components/molecules/SelectButton.svelte';
 export { default as Tabs, type TabItem } from './components/molecules/Tabs.svelte';
 export { default as ThemePicker } from './components/molecules/ThemePicker.svelte';
+export { default as Timestamp } from './components/molecules/Timestamp.svelte';
 export { default as Toaster } from './components/molecules/Toaster.svelte';
 export { default as Toggle } from './components/molecules/Toggle.svelte';
 export { default as Tooltip } from './components/molecules/Tooltip.svelte';
@@ -64,4 +65,11 @@ export { fontScale, SCALE_LEVELS, type ScaleLevel } from './stores/fontscale.sve
 // ---- stores / actions ----
 export { type Mode, THEMES, theme } from './stores/theme.svelte';
 export { type Toast, type ToastTone, toasts } from './stores/toast.svelte';
+export {
+	formatTimestamp,
+	localTimeZone,
+	relativeTime,
+	type TimeInput,
+	type TimestampMode,
+} from './timestamp';
 export { type TruncateMode, type TruncateOptions, truncate } from './truncate';

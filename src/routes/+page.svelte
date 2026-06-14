@@ -26,6 +26,7 @@
 		Dropzone,
 		Tooltip,
 		Truncate,
+		Timestamp,
 		Progress,
 		Accordion,
 		Popover,
@@ -504,6 +505,38 @@ function greet(name) {
 					</Text>
 					<Text variant="body">
 						fits (no tooltip): <Truncate text="short" max={20} />
+					</Text>
+				</div>
+			</div>
+		</Card>
+	</section>
+
+	<!-- TIMESTAMP -->
+	<section class="section">
+		<Heading level={2}>Timestamp <Badge>subdued · click for UTC / epoch / zone</Badge></Heading>
+		<Card>
+			<div class="stack">
+				<Text variant="caption">
+					Renders an instant in one of four modes (ISO, local, clock, relative), subdued by
+					default. Click it for a read-only popover with the same instant as UTC, relative, your
+					time zone and the unix epoch. Opt into <code>selectable</code> to let viewers switch
+					the inline mode.
+				</Text>
+				<div class="stack">
+					<Text variant="body">iso: <Timestamp value="2026-06-14T07:30:00Z" /></Text>
+					<Text variant="body">local: <Timestamp value="2026-06-14T07:30:00Z" mode="local" /></Text>
+					<Text variant="body">time: <Timestamp value="2026-06-14T07:30:00Z" mode="time" /></Text>
+					<Text variant="body">
+						relative: <Timestamp value={Date.now() - 7 * 86_400_000} mode="relative" />
+					</Text>
+					<Text variant="body">
+						mono: <Timestamp value="2026-06-14T07:30:00Z" mono />
+					</Text>
+					<Text variant="body">
+						selectable: <Timestamp value="2026-06-14T07:30:00Z" mode="relative" selectable />
+					</Text>
+					<Text variant="body">
+						no popover: <Timestamp value="2026-06-14T07:30:00Z" details={false} />
 					</Text>
 				</div>
 			</div>
