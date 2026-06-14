@@ -5,6 +5,11 @@
 	// switches to the monospace family. `autoresize` opts into the grow-with-
 	// content action without the call-site wiring `use:` itself. `bind:el`
 	// exposes the underlying element for focus/measure.
+	//
+	// `resize` replaces the native (un-themeable) resize grip with our own drag
+	// handle on the top or bottom edge, styled like the Modal/AppShell grips: a
+	// centered pill that's a thicker portion of the border. `autoresize` wins —
+	// content-driven sizing leaves no manual handle.
 	import type { HTMLTextareaAttributes } from 'svelte/elements';
 	import { autoresize as autoresizeAction } from '$lib/autoresize';
 
@@ -12,6 +17,9 @@
 		mono?: boolean;
 		autoresize?: boolean;
 		size?: 'sm' | 'md';
+		/** Manual resize handle edge, or 'none' to disable. Ignored when
+		 *  `autoresize` is set. Defaults to a bottom handle. */
+		resize?: 'none' | 'top' | 'bottom';
 		/** Error state: danger border + aria-invalid (also styles if a consumer
 		 *  sets aria-invalid directly). */
 		invalid?: boolean;
@@ -24,38 +32,100 @@
 		mono = false,
 		autoresize = false,
 		size = 'md',
+		resize = 'bottom',
 		invalid = false,
 		class: klass = '',
 		value = $bindable(),
 		el = $bindable(null),
 		...rest
 	}: Props = $props();
+
+	const showHandle = $derived(!autoresize && resize !== 'none');
+
+	// --- manual resize drag (mirrors AppShell/Modal: rAF-throttled pointer drag) ---
+	let dragging = $state(false);
+	let rafId = 0;
+	let startY = 0;
+	let startH = 0;
+	let lastY = 0;
+
+	function startDrag(e: PointerEvent) {
+		if (!el) return;
+		dragging = true;
+		startY = lastY = e.clientY;
+		startH = el.offsetHeight;
+		(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+		e.preventDefault();
+	}
+	function onDrag(e: PointerEvent) {
+		if (!dragging || !el) return;
+		lastY = e.clientY;
+		if (rafId) return;
+		rafId = requestAnimationFrame(() => {
+			rafId = 0;
+			if (!el) return;
+			// Top handle grows upward (drag up = taller), bottom grows downward.
+			const delta = resize === 'top' ? startY - lastY : lastY - startY;
+			el.style.height = `${Math.max(0, startH + delta)}px`;
+		});
+	}
+	function endDrag(e: PointerEvent) {
+		if (!dragging) return;
+		dragging = false;
+		if (rafId) {
+			cancelAnimationFrame(rafId);
+			rafId = 0;
+		}
+		try {
+			(e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+		} catch {
+			/* already released */
+		}
+	}
 </script>
 
-{#if autoresize}
-	<textarea
-		bind:this={el}
-		class="textarea {klass}"
-		class:mono
-		class:textarea-sm={size === 'sm'}
-		bind:value
-		use:autoresizeAction={typeof value === 'string' ? value : ''}
-		{...rest}
-		aria-invalid={invalid || undefined}
-	></textarea>
-{:else}
-	<textarea
-		bind:this={el}
-		class="textarea {klass}"
-		class:mono
-		class:textarea-sm={size === 'sm'}
-		bind:value
-		{...rest}
-		aria-invalid={invalid || undefined}
-	></textarea>
-{/if}
+<div class="textarea-wrap" class:dragging>
+	{#if autoresize}
+		<textarea
+			bind:this={el}
+			class="textarea {klass}"
+			class:mono
+			class:textarea-sm={size === 'sm'}
+			bind:value
+			use:autoresizeAction={typeof value === 'string' ? value : ''}
+			{...rest}
+			aria-invalid={invalid || undefined}
+		></textarea>
+	{:else}
+		<textarea
+			bind:this={el}
+			class="textarea {klass}"
+			class:mono
+			class:textarea-sm={size === 'sm'}
+			bind:value
+			{...rest}
+			aria-invalid={invalid || undefined}
+		></textarea>
+	{/if}
+	{#if showHandle}
+		<div
+			class="resize-handle resize-{resize}"
+			onpointerdown={startDrag}
+			onpointermove={onDrag}
+			onpointerup={endDrag}
+			onpointercancel={endDrag}
+			role="separator"
+			aria-orientation="horizontal"
+			aria-label="Resize"
+		></div>
+	{/if}
+</div>
 
 <style>
+	.textarea-wrap {
+		position: relative;
+		display: flex;
+	}
 	.textarea {
 		width: 100%;
 		padding: var(--sp-3);
@@ -64,8 +134,11 @@
 		border-radius: var(--r-md);
 		color: var(--text);
 		transition: border-color 0.12s var(--ease);
-		resize: vertical;
-		min-height: 5rem;
+		/* Custom handle replaces the native grip; never show the native one. */
+		resize: none;
+		/* Match the single-row height of Button/Input so a `rows={1}` textarea
+		   lines up with them; the native `rows` attribute grows it from here. */
+		min-height: 2.5rem;
 		font-family: inherit;
 	}
 	.textarea:focus {
@@ -75,7 +148,7 @@
 	.textarea-sm {
 		padding: var(--sp-2);
 		font-size: var(--fs-sm);
-		min-height: 4rem;
+		min-height: 2rem;
 	}
 	.textarea[aria-invalid='true'],
 	.textarea[aria-invalid='true']:focus {
@@ -83,5 +156,44 @@
 	}
 	.mono {
 		font-family: var(--font-mono);
+	}
+
+	/* Drag handle: a thin full-width strip on an edge, with a centered pill grip
+	   (a thicker portion of the border) that brightens to the accent on hover /
+	   while dragging — mirroring the Modal and AppShell resize grips. */
+	.resize-handle {
+		position: absolute;
+		left: 0;
+		right: 0;
+		height: 12px;
+		cursor: ns-resize;
+		touch-action: none;
+	}
+	.resize-bottom {
+		bottom: 0;
+	}
+	.resize-top {
+		top: 0;
+	}
+	.resize-handle::after {
+		content: '';
+		position: absolute;
+		left: 50%;
+		transform: translateX(-50%);
+		width: 28px;
+		height: 3px;
+		border-radius: 999px;
+		background: var(--border-strong);
+		transition: background 0.12s var(--ease);
+	}
+	.resize-bottom::after {
+		bottom: 3px;
+	}
+	.resize-top::after {
+		top: 3px;
+	}
+	.resize-handle:hover::after,
+	.dragging .resize-handle::after {
+		background: var(--accent);
 	}
 </style>

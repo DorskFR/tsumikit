@@ -98,10 +98,11 @@
 		padding: var(--sp-2);
 		aspect-ratio: 1;
 	}
-	/* Emoji glyph tracks the text size like the SVG Icon does (1em). */
+	/* Emoji glyph is bumped above the text size — at 1em a paperclip is hard to
+	   read, so render it a touch larger for legibility. */
 	.emoji {
 		display: inline-flex;
-		font-size: 1em;
+		font-size: 1.35em;
 		line-height: 1;
 	}
 	.file-btn.primary {
