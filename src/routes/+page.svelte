@@ -118,7 +118,7 @@ function greet(name) {
 		'search', 'back', 'check', 'x', 'plus', 'chevron-down', 'menu', 'archive',
 		'trash', 'download', 'copy', 'edit', 'folder', 'link', 'external', 'markdown',
 		'image', 'fork', 'more', 'settings', 'retry', 'stop', 'star', 'live', 'send',
-		'filter', 'info', 'warning'
+		'filter', 'info', 'warning', 'tag'
 	];
 
 	const tokens = [

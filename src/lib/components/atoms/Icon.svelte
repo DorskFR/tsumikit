@@ -30,6 +30,7 @@
 		| 'settings'
 		| 'star'
 		| 'stop'
+		| 'tag'
 		| 'trash'
 		| 'upload'
 		| 'warning'
@@ -127,6 +128,8 @@
 		<path d="M21 12a9 9 0 1 1-2.64-6.36" /><path d="M21 3v6h-6" />
 	{:else if name === 'stop'}
 		<rect x="6" y="6" width="12" height="12" rx="1.5" />
+	{:else if name === 'tag'}
+		<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z" /><path d="M7.5 7.5h.01" />
 	{:else if name === 'star'}
 		<path d="M12 2.5l2.9 5.9 6.5.95-4.7 4.58 1.1 6.47L12 17.9l-5.8 3.05 1.1-6.47-4.7-4.58 6.5-.95z" />
 	{:else if name === 'live'}
