@@ -25,6 +25,7 @@
 		FileButton,
 		Dropzone,
 		Tooltip,
+		Truncate,
 		Progress,
 		Accordion,
 		Popover,
@@ -472,6 +473,33 @@ function greet(name) {
 						{ id: 'c', title: 'Styling', content: c3 }
 					]}
 				/>
+			</div>
+		</Card>
+	</section>
+
+	<!-- TRUNCATE -->
+	<section class="section">
+		<Heading level={2}>Truncate <Badge>char-count · hover reveal</Badge></Heading>
+		<Card>
+			<div class="stack">
+				<Text variant="caption">
+					Character-count truncation (the counterpart to <code>&lt;Text truncate&gt;</code>'s CSS
+					ellipsis). Hover or focus a truncated value to reveal the full text.
+				</Text>
+				<div class="stack">
+					<Text variant="body">
+						middle: <Truncate text="0x71C7656EC7ab88b098defB751B7401B5f6d8976F" max={16} mode="middle" />
+					</Text>
+					<Text variant="body">
+						end: <Truncate text="a-very-long-resource-identifier-that-keeps-going" max={20} />
+					</Text>
+					<Text variant="body">
+						start: <Truncate text="/srv/app/var/logs/2026/06/14/request-trace.log" max={22} mode="start" />
+					</Text>
+					<Text variant="body">
+						fits (no tooltip): <Truncate text="short" max={20} />
+					</Text>
+				</div>
 			</div>
 		</Card>
 	</section>

@@ -57,9 +57,11 @@ export { default as ThemePicker } from './components/molecules/ThemePicker.svelt
 export { default as Toaster } from './components/molecules/Toaster.svelte';
 export { default as Toggle } from './components/molecules/Toggle.svelte';
 export { default as Tooltip } from './components/molecules/Tooltip.svelte';
+export { default as Truncate } from './components/molecules/Truncate.svelte';
 // ---- organisms ----
 export { type Column, default as DataTable } from './components/organisms/DataTable.svelte';
 export { fontScale, SCALE_LEVELS, type ScaleLevel } from './stores/fontscale.svelte';
 // ---- stores / actions ----
 export { type Mode, THEMES, theme } from './stores/theme.svelte';
 export { type Toast, type ToastTone, toasts } from './stores/toast.svelte';
+export { type TruncateMode, type TruncateOptions, truncate } from './truncate';
