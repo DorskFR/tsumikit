@@ -293,14 +293,18 @@
 			touch-action: none;
 			z-index: 1;
 		}
+		/* Persistent grip hint (mirrors the Modal): a small pill centered on the
+		   handle, brightening to the accent on hover / while dragging. */
 		.shell-sidebar-resize::after {
 			content: '';
 			position: absolute;
-			top: 0;
-			bottom: 0;
-			right: 0;
-			width: 1px;
-			background: transparent;
+			top: 50%;
+			right: 1px;
+			transform: translateY(-50%);
+			width: 3px;
+			height: 28px;
+			border-radius: 999px;
+			background: var(--border-strong);
 			transition: background 0.12s var(--ease);
 		}
 		.shell-sidebar-resize:hover::after,

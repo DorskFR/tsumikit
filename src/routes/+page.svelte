@@ -595,6 +595,16 @@ function greet(name) {
 				<Text variant="body" tone="muted">Hover/press affordance. Click to open the modal.</Text>
 			</Card>
 		</div>
+		<div class="card-row" style="margin-top: var(--sp-4)">
+			<Card stacked>
+				<Heading level={3} size="md">Stacked card</Heading>
+				<Text variant="body" tone="muted">Looks like a pile — two layers peek out bottom-right.</Text>
+			</Card>
+			<Card stacked stackTone="info">
+				<Heading level={3} size="md">Stacked (info)</Heading>
+				<Text variant="body" tone="muted">Back layers tinted with the info/blue hue.</Text>
+			</Card>
+		</div>
 		<div class="row" style="margin-top: var(--sp-3)">
 			<Button variant="primary" onclick={() => (modalOpen = true)}>Open modal</Button>
 		</div>
