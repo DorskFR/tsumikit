@@ -8,8 +8,12 @@
 	//
 	// `resize` replaces the native (un-themeable) resize grip with our own drag
 	// handle on the top or bottom edge, styled like the Modal/AppShell grips: a
-	// centered pill that's a thicker portion of the border. `autoresize` wins —
-	// content-driven sizing leaves no manual handle.
+	// centered pill that's a thicker portion of the border.
+	//
+	// With `autoresize`, only a `top` handle is offered and it sets a manual
+	// *floor* (min-height) rather than a fixed height: the textarea still grows
+	// with content, but dragging up reserves extra space. (A bottom handle makes
+	// no sense alongside content-driven sizing, so it's suppressed.)
 	import type { HTMLTextareaAttributes } from 'svelte/elements';
 	import { autoresize as autoresizeAction } from '$lib/autoresize';
 
@@ -17,8 +21,9 @@
 		mono?: boolean;
 		autoresize?: boolean;
 		size?: 'sm' | 'md';
-		/** Manual resize handle edge, or 'none' to disable. Ignored when
-		 *  `autoresize` is set. Defaults to a bottom handle. */
+		/** Manual resize handle edge, or 'none' to disable. Defaults to a bottom
+		 *  handle. With `autoresize`, only `top` is honored and it drags a
+		 *  min-height floor (the textarea still grows with content). */
 		resize?: 'none' | 'top' | 'bottom';
 		/** Error state: danger border + aria-invalid (also styles if a consumer
 		 *  sets aria-invalid directly). */
@@ -40,7 +45,9 @@
 		...rest
 	}: Props = $props();
 
-	const showHandle = $derived(!autoresize && resize !== 'none');
+	// With autoresize, only the top handle (a min-height floor) is meaningful.
+	const handleEdge = $derived(autoresize ? (resize === 'top' ? 'top' : 'none') : resize);
+	const showHandle = $derived(handleEdge !== 'none');
 
 	// --- manual resize drag (mirrors AppShell/Modal: rAF-throttled pointer drag) ---
 	let dragging = $state(false);
@@ -65,8 +72,16 @@
 			rafId = 0;
 			if (!el) return;
 			// Top handle grows upward (drag up = taller), bottom grows downward.
-			const delta = resize === 'top' ? startY - lastY : lastY - startY;
-			el.style.height = `${Math.max(0, startH + delta)}px`;
+			const delta = handleEdge === 'top' ? startY - lastY : lastY - startY;
+			const next = Math.max(0, startH + delta);
+			if (autoresize) {
+				// Set a min-height floor and let the autoresize action re-measure
+				// (content still wins the lower bound). Dispatch input to re-run it.
+				el.style.minHeight = `${next}px`;
+				el.dispatchEvent(new Event('input'));
+			} else {
+				el.style.height = `${next}px`;
+			}
 		});
 	}
 	function endDrag(e: PointerEvent) {
@@ -109,7 +124,7 @@
 	{/if}
 	{#if showHandle}
 		<div
-			class="resize-handle resize-{resize}"
+			class="resize-handle resize-{handleEdge}"
 			onpointerdown={startDrag}
 			onpointermove={onDrag}
 			onpointerup={endDrag}

@@ -353,6 +353,15 @@ function greet(name) {
 				<Field label="Textarea (resize from top)" for="f-area-3" class="span-2">
 					<Textarea id="f-area-3" rows={2} resize="top" placeholder="Drag the top grip" />
 				</Field>
+				<Field label="Textarea (autoresize + top handle floor)" for="f-area-4" class="span-2">
+					<Textarea
+						id="f-area-4"
+						autoresize
+						resize="top"
+						rows={1}
+						placeholder="One row, grows as you type — drag the top grip to reserve more space"
+					/>
+				</Field>
 				<Field label="Switch" class="span-2">
 					<div class="row">
 						<Switch checked={switchOn} label="Toggle setting" onclick={() => (switchOn = !switchOn)} />
