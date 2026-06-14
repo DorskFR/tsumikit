@@ -6,11 +6,15 @@
 		value,
 		max = 100,
 		label,
+		tone = 'accent',
 		class: klass = ''
 	}: {
 		value?: number;
 		max?: number;
 		label?: string;
+		// Fill colour. `accent` is the default brand fill; the semantic tones
+		// retint the bar for severity (e.g. usage meters going warm/hot).
+		tone?: 'accent' | 'success' | 'warn' | 'danger';
 		class?: string;
 	} = $props();
 
@@ -19,7 +23,7 @@
 </script>
 
 <div
-	class="progress {klass}"
+	class="progress tone-{tone} {klass}"
 	class:indeterminate
 	role="progressbar"
 	aria-label={label}
@@ -40,9 +44,18 @@
 	}
 	.bar {
 		height: 100%;
-		background: var(--accent);
+		background: var(--fill, var(--accent));
 		border-radius: inherit;
 		transition: width 0.2s var(--ease);
+	}
+	.tone-success {
+		--fill: var(--ok);
+	}
+	.tone-warn {
+		--fill: var(--warn);
+	}
+	.tone-danger {
+		--fill: var(--danger);
 	}
 	.progress.indeterminate .bar {
 		width: 40%;

@@ -19,6 +19,10 @@
 		variant?: 'default' | 'ghost';
 		/** Error state: danger border + aria-invalid. */
 		invalid?: boolean;
+		/** Compact inline form: smaller padding + font for dense toolbars/headers. */
+		compact?: boolean;
+		/** Draw the custom chevron (default). Set false for a bare inline select. */
+		chevron?: boolean;
 		class?: string;
 		value?: HTMLSelectAttributes['value'];
 		children?: Snippet;
@@ -27,6 +31,8 @@
 	let {
 		variant = 'default',
 		invalid = false,
+		compact = false,
+		chevron = true,
 		class: klass = '',
 		value = $bindable(),
 		children,
@@ -39,13 +45,21 @@
 		{@render children?.()}
 	</select>
 {:else}
-	<div class="select-wrap {klass}">
-		<select class="select" bind:value {...rest} aria-invalid={invalid || undefined}>
+	<div class="select-wrap {klass}" class:no-chevron={!chevron}>
+		<select
+			class="select"
+			class:compact
+			bind:value
+			{...rest}
+			aria-invalid={invalid || undefined}
+		>
 			{@render children?.()}
 		</select>
-		<span class="select-chevron" aria-hidden="true">
-			<Icon name="chevron-down" size={16} />
-		</span>
+		{#if chevron}
+			<span class="select-chevron" aria-hidden="true">
+				<Icon name="chevron-down" size={16} />
+			</span>
+		{/if}
 	</div>
 {/if}
 
@@ -69,6 +83,18 @@
 		appearance: none;
 		-webkit-appearance: none;
 		padding-right: calc(var(--sp-3) + 1.25rem);
+	}
+	/* No custom chevron: reclaim the reserved right padding. */
+	.select-wrap.no-chevron .select {
+		padding-right: var(--sp-3);
+	}
+	/* Compact inline form for dense headers/toolbars. */
+	.select.compact {
+		padding: var(--sp-1) var(--sp-2);
+		font-size: var(--fs-xs);
+	}
+	.select-wrap:not(.no-chevron) .select.compact {
+		padding-right: calc(var(--sp-2) + 1rem);
 	}
 	.select:focus {
 		outline: none;

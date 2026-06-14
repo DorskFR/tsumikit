@@ -4,6 +4,10 @@
 
 	type ButtonProps = HTMLButtonAttributes & {
 		variant?: 'default' | 'primary' | 'ghost' | 'danger';
+		// Semantic state tint layered on top of the variant: tints text/border and
+		// adds a subtle fill on hover. For stateful controls — an "on"/active toggle
+		// (`accent`), or cost/severity states (`info`, `warn`).
+		tone?: 'none' | 'accent' | 'info' | 'warn' | 'danger';
 		size?: 'sm' | 'md';
 		control?: boolean;
 		block?: boolean;
@@ -11,6 +15,9 @@
 		// borderless, compact variant (chip-remove ✕, inline edit ✎); pair with
 		// `hoverDanger` to tint it red on hover (delete affordances).
 		icon?: boolean;
+		// Larger 2.5rem outlined square icon-chip (header/toolbar action). Pairs
+		// with `tone` for tinted severity chips (back/archive/interrupt/more).
+		chip?: boolean;
 		iconInline?: boolean;
 		hoverDanger?: boolean;
 		// Async/busy state: shows a spinner, blocks clicks, sets aria-busy. Stays
@@ -22,10 +29,12 @@
 
 	let {
 		variant = 'default',
+		tone = 'none',
 		size = 'md',
 		control = false,
 		block = false,
 		icon = false,
+		chip = false,
 		iconInline = false,
 		hoverDanger = false,
 		loading = false,
@@ -53,6 +62,11 @@
 	class:btn-control={control}
 	class:btn-block={block}
 	class:btn-icon={icon}
+	class:btn-chip={chip}
+	class:btn-tone-accent={tone === 'accent'}
+	class:btn-tone-info={tone === 'info'}
+	class:btn-tone-warn={tone === 'warn'}
+	class:btn-tone-danger={tone === 'danger'}
 	class:btn-icon-inline={iconInline}
 	class:hover-danger={hoverDanger}
 	class:loading
@@ -127,6 +141,46 @@
 	}
 	.btn-block {
 		width: 100%;
+	}
+
+	/* Semantic state tones — tint text + border, subtle fill on hover. Layered on
+	   the neutral/ghost variant; each defines --btn-tone so one ruleset paints. */
+	.btn-tone-accent {
+		--btn-tone: var(--accent);
+	}
+	.btn-tone-info {
+		--btn-tone: var(--info);
+	}
+	.btn-tone-warn {
+		--btn-tone: var(--warn);
+	}
+	.btn-tone-danger {
+		--btn-tone: var(--danger);
+	}
+	.btn-tone-accent,
+	.btn-tone-info,
+	.btn-tone-warn,
+	.btn-tone-danger {
+		color: var(--btn-tone);
+		border-color: color-mix(in srgb, var(--btn-tone) 50%, var(--border));
+	}
+	.btn-tone-accent:hover:not(:disabled),
+	.btn-tone-info:hover:not(:disabled),
+	.btn-tone-warn:hover:not(:disabled),
+	.btn-tone-danger:hover:not(:disabled) {
+		background: color-mix(in srgb, var(--btn-tone) 14%, transparent);
+		border-color: var(--btn-tone);
+	}
+
+	/* Icon-chip: larger square outlined tap target for header/toolbar actions.
+	   Combines with a tone for tinted severity chips. */
+	.btn-chip {
+		min-height: 2.5rem;
+		min-width: 2.5rem;
+		height: 2.5rem;
+		width: 2.5rem;
+		padding: 0;
+		border-radius: var(--r-md);
 	}
 
 	/* Uniform-height control: icon buttons, inputs and action buttons that share a

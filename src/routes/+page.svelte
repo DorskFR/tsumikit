@@ -181,6 +181,8 @@ function greet(name) {
 					<Text tone="muted">muted</Text>
 					<Text tone="faint">faint</Text>
 					<Text tone="accent">accent</Text>
+					<Text tone="success">success</Text>
+					<Text tone="warn">warn</Text>
 					<Text tone="danger">danger</Text>
 				</div>
 				<div class="row row-wrap">
@@ -188,6 +190,10 @@ function greet(name) {
 					<Text weight="medium">medium</Text>
 					<Text weight="semibold">semibold</Text>
 					<Text weight="bold">bold</Text>
+				</div>
+				<div class="row row-wrap">
+					<Text numeric>numeric 1234.50%</Text>
+					<Text>default 1234.50%</Text>
 				</div>
 			</div>
 		</Card>
@@ -211,6 +217,12 @@ function greet(name) {
 					<Button control>Control height</Button>
 					<Button control variant="primary">Control primary</Button>
 				</div>
+				<div class="row row-wrap">
+					<Button tone="accent">Notify on</Button>
+					<Button tone="info">Cold</Button>
+					<Button tone="warn">Warning</Button>
+					<Button tone="warn" control>Send <Text numeric>0:09</Text></Button>
+				</div>
 				<Button block variant="primary">Block button</Button>
 				<div class="row row-wrap">
 					<CopyButton text="npm i @dorsk/tsumikit" />
@@ -233,6 +245,12 @@ function greet(name) {
 					<IconButton icon="trash" label="Delete" variant="danger" />
 					<IconButton icon="x" label="Remove" inline />
 					<IconButton icon="trash" label="Remove" inline hoverDanger />
+				</div>
+				<div class="row row-wrap">
+					<IconButton icon="chevron-left" label="Back" chip variant="default" />
+					<IconButton icon="star" label="Pin" chip variant="default" tone="accent" />
+					<IconButton icon="bell" label="Archive" chip variant="default" tone="warn" />
+					<IconButton icon="trash" label="Interrupt" chip variant="default" tone="danger" hoverDanger />
 				</div>
 				<hr class="divider" />
 				<Text variant="caption">All registry glyphs (sized at 1em — they scale with text):</Text>
@@ -273,6 +291,13 @@ function greet(name) {
 					<Badge tone="info" removable onremove={() => {}}>typescript</Badge>
 				</div>
 				<div class="row row-wrap">
+					<Badge uppercase>uppercase</Badge>
+					<Badge uppercase tone="ok" size="sm">stable</Badge>
+					<Badge as="button" tone="info" active>active count 3</Badge>
+					<Badge as="button" tone="ok" active size="sm">on</Badge>
+					<Badge as="button" tone="info">off</Badge>
+				</div>
+				<div class="row row-wrap">
 					<Link href="https://svelte.dev" target="_blank" rel="noreferrer">Anchor link</Link>
 					<Link>Button-as-link</Link>
 				</div>
@@ -303,6 +328,13 @@ function greet(name) {
 				</Field>
 				<Field label="Select" for="f-select">
 					<Select id="f-select" bind:value={selectValue}>
+						<option value="one">Option one</option>
+						<option value="two">Option two</option>
+						<option value="three">Option three</option>
+					</Select>
+				</Field>
+				<Field label="Select (compact, no chevron)" for="f-select-mini">
+					<Select id="f-select-mini" compact chevron={false} bind:value={selectValue}>
 						<option value="one">Option one</option>
 						<option value="two">Option two</option>
 						<option value="three">Option three</option>
@@ -467,6 +499,9 @@ function greet(name) {
 				</div>
 				<div class="stack">
 					<Progress value={65} label="Upload progress" />
+					<Progress value={45} tone="success" label="Healthy usage" />
+					<Progress value={78} tone="warn" label="Warm usage" />
+					<Progress value={94} tone="danger" label="Hot usage" />
 					<Progress label="Working…" />
 				</div>
 				{#snippet c1()}<Text variant="body">Built on native &lt;details&gt; — zero JS, full keyboard support.</Text>{/snippet}

@@ -14,6 +14,7 @@
 		tone = 'inherit',
 		weight,
 		size,
+		numeric = false,
 		truncate = false,
 		class: klass = '',
 		children,
@@ -23,9 +24,12 @@
 		// body: default reading text · label: form-label · caption: small meta ·
 		// code: monospace. Omit for inline glue that should inherit its parent.
 		variant?: 'body' | 'label' | 'caption' | 'code';
-		tone?: 'inherit' | 'default' | 'muted' | 'faint' | 'danger' | 'accent';
+		tone?: 'inherit' | 'default' | 'muted' | 'faint' | 'success' | 'warn' | 'danger' | 'accent';
 		weight?: 'normal' | 'medium' | 'semibold' | 'bold';
 		size?: Size;
+		// Tabular figures: digits share a fixed advance width so counts/percentages
+		// don't jitter as they change. Use for counters, timers, metrics.
+		numeric?: boolean;
 		truncate?: boolean;
 		class?: string;
 		children?: Snippet;
@@ -37,7 +41,7 @@
 	this={as}
 	class="text {variant ? `v-${variant}` : ''} tone-{tone} {weight ? `fw-${weight}` : ''} {size
 		? `fs-${size}`
-		: ''} {truncate ? 'truncate' : ''} {klass}"
+		: ''} {numeric ? 'numeric' : ''} {truncate ? 'truncate' : ''} {klass}"
 	{...rest}
 >
 	{@render children?.()}
@@ -76,6 +80,12 @@
 	}
 	.tone-faint {
 		color: var(--text-faint);
+	}
+	.tone-success {
+		color: var(--ok);
+	}
+	.tone-warn {
+		color: var(--warn);
 	}
 	.tone-danger {
 		color: var(--danger);
@@ -117,6 +127,10 @@
 	}
 	.fs-2xl {
 		font-size: var(--fs-2xl);
+	}
+	.numeric {
+		font-variant-numeric: tabular-nums;
+		font-feature-settings: 'tnum';
 	}
 	/* `text-overflow: ellipsis` is a no-op on an inline box, so a truncated bare
 	   <Text> (default as="span") would overrun its container instead of clipping.

@@ -15,6 +15,8 @@
 		as = 'span',
 		size = 'md',
 		mono = false,
+		uppercase = false,
+		active = false,
 		removable = false,
 		onremove,
 		class: klass = '',
@@ -25,6 +27,11 @@
 		as?: 'span' | 'button';
 		size?: 'sm' | 'md';
 		mono?: boolean;
+		// Uppercase, letter-spaced label — for status tags/eyebrows.
+		uppercase?: boolean;
+		// Interactive "on" state for a toggle/count badge (`as="button"`): fills the
+		// pill with its tone instead of just tinting the border.
+		active?: boolean;
 		removable?: boolean;
 		onremove?: (e: MouseEvent) => void;
 		class?: string;
@@ -42,6 +49,8 @@
 	class:badge-info={tone === 'info'}
 	class:badge-sm={size === 'sm'}
 	class:mono
+	class:uppercase
+	class:active
 	class:interactive={as === 'button'}
 	{...rest}
 >
@@ -103,6 +112,30 @@
 		font-family: var(--font-mono);
 		font-weight: var(--fw-normal);
 	}
+	.uppercase {
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+		font-weight: var(--fw-semibold);
+	}
+	/* Interactive "on" state: fill the pill with its tone. Falls back to the
+	   neutral accent when no semantic tone is set. */
+	.active {
+		color: var(--text-on-accent);
+		background: var(--badge-fill, var(--accent));
+		border-color: var(--badge-fill, var(--accent));
+	}
+	.badge-ok.active {
+		--badge-fill: var(--ok);
+	}
+	.badge-warn.active {
+		--badge-fill: var(--warn);
+	}
+	.badge-danger.active {
+		--badge-fill: var(--danger);
+	}
+	.badge-info.active {
+		--badge-fill: var(--info);
+	}
 	.interactive {
 		cursor: pointer;
 		transition:
@@ -112,6 +145,11 @@
 	.interactive:hover {
 		border-color: var(--border-strong);
 		color: var(--text);
+	}
+	.interactive.active:hover {
+		color: var(--text-on-accent);
+		border-color: var(--badge-fill, var(--accent));
+		filter: brightness(1.08);
 	}
 	.remove {
 		display: inline-flex;

@@ -13,6 +13,10 @@
 		children?: Snippet;
 		label: string;
 		variant?: 'default' | 'primary' | 'ghost' | 'danger';
+		// Semantic state tint (forwarded to Button). Pairs well with `chip`.
+		tone?: 'none' | 'accent' | 'info' | 'warn' | 'danger';
+		// Larger 2.5rem outlined square icon-chip (header/toolbar actions).
+		chip?: boolean;
 		size?: number;
 		// Borderless, compact icon affordance (chip-remove ✕, inline edit ✎) —
 		// no square box; just a muted glyph that brightens on hover. Pair with
@@ -32,6 +36,8 @@
 		label,
 		title = label,
 		variant = 'ghost',
+		tone = 'none',
+		chip = false,
 		size = 18,
 		inline = false,
 		hoverDanger = false,
@@ -48,10 +54,12 @@
 <Button
 	{...rest}
 	{variant}
+	{tone}
+	{chip}
 	{disabled}
 	{title}
 	{onclick}
-	icon={!inline}
+	icon={!inline && !chip}
 	iconInline={inline}
 	{hoverDanger}
 	aria-pressed={pressed}
