@@ -87,6 +87,11 @@
 
 	export type IconName = keyof typeof ICONS;
 
+	/** True when `s` is a registered glyph name (vs. e.g. a raw emoji string). */
+	export function isIconName(s: string): s is IconName {
+		return s in ICONS;
+	}
+
 	// Glyphs that read better filled than stroked.
 	const FILLED = new Set<IconName>(['stop', 'star', 'live']);
 </script>

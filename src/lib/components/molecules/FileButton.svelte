@@ -2,13 +2,14 @@
 	// File-picker button. A real <input type="file"> visually hidden inside a
 	// <label> styled as a button — so it's keyboard-focusable and works with zero
 	// JS to open the dialog. Emits the chosen files via `onfiles`. Dependency-free.
-	import Icon from '$lib/components/atoms/Icon.svelte';
+	import Icon, { isIconName } from '$lib/components/atoms/Icon.svelte';
 	import type { IconName } from '$lib/components/atoms/Icon.svelte';
 
 	let {
 		onfiles,
 		label = 'Choose file',
-		icon = 'upload',
+		icon = '📎',
+		iconOnly = false,
 		accept,
 		multiple = false,
 		disabled = false,
@@ -17,7 +18,12 @@
 	}: {
 		onfiles: (files: File[]) => void;
 		label?: string;
-		icon?: IconName;
+		/** A registered glyph name (rendered as SVG) or any string such as an
+		 *  emoji (rendered as text). Defaults to the 📎 paperclip emoji. */
+		icon?: IconName | (string & {});
+		/** Hide the label visually, showing only the icon. The label is kept for
+		 *  assistive tech (and used as the accessible name). */
+		iconOnly?: boolean;
 		accept?: string;
 		multiple?: boolean;
 		disabled?: boolean;
@@ -37,7 +43,9 @@
 	class="file-btn {klass}"
 	class:primary={variant === 'primary'}
 	class:ghost={variant === 'ghost'}
+	class:icon-only={iconOnly}
 	class:disabled
+	aria-label={iconOnly ? label : undefined}
 >
 	<input
 		class="sr-only"
@@ -47,8 +55,12 @@
 		{disabled}
 		onchange={onchange}
 	/>
-	<Icon name={icon} />
-	<span>{label}</span>
+	{#if isIconName(icon)}
+		<Icon name={icon} />
+	{:else}
+		<span class="emoji" aria-hidden="true">{icon}</span>
+	{/if}
+	<span class:sr-only={iconOnly}>{label}</span>
 </label>
 
 <style>
@@ -79,6 +91,18 @@
 	}
 	.file-btn:hover:not(.disabled) {
 		border-color: var(--accent);
+	}
+	/* icon-only: square it up and drop the label gap. */
+	.file-btn.icon-only {
+		gap: 0;
+		padding: var(--sp-2);
+		aspect-ratio: 1;
+	}
+	/* Emoji glyph tracks the text size like the SVG Icon does (1em). */
+	.emoji {
+		display: inline-flex;
+		font-size: 1em;
+		line-height: 1;
 	}
 	.file-btn.primary {
 		background: var(--accent);
