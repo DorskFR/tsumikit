@@ -617,6 +617,12 @@ function greet(name) {
 						<Card><Text weight="semibold">Cell {i + 1}</Text></Card>
 					{/each}
 				</AutoGrid>
+				<Text variant="caption" tone="muted">AutoGrid — capped column width (max), left-packed instead of stretching:</Text>
+				<AutoGrid min="12rem" max="16rem">
+					{#each Array(3) as _, i (i)}
+						<Card><Text weight="semibold">Fixed {i + 1}</Text></Card>
+					{/each}
+				</AutoGrid>
 			</Stack>
 		</Card>
 	</section>
