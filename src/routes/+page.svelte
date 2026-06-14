@@ -622,6 +622,21 @@ function greet(name) {
 					accept="image/*,.pdf"
 					onfiles={(f) => toasts.show(`Dropped ${f.length}: ${f.map((x) => x.name).join(', ')}`)}
 				/>
+				<Text variant="caption" tone="muted">overlay mode — wraps content, drop UI shows only while dragging a file over it</Text>
+				<Dropzone
+					overlay
+					accept="image/*,.pdf"
+					label="Drop files to attach"
+					onfiles={(f) => toasts.show(`Dropped ${f.length}: ${f.map((x) => x.name).join(', ')}`)}
+				>
+					<Card padding="lg">
+						<Heading level={3} size="md">Drawer-like surface</Heading>
+						<Text variant="body" tone="muted">Buttons and content stay clickable. Drag a file anywhere over this card.</Text>
+						<div class="row" style="margin-top: var(--sp-3)">
+							<Button onclick={() => toasts.ok('Click still works')}>A button</Button>
+						</div>
+					</Card>
+				</Dropzone>
 			</div>
 		</Card>
 	</section>
