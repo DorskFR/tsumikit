@@ -7,12 +7,15 @@
 	import Button from '$lib/components/atoms/Button.svelte';
 	import Select from '$lib/components/atoms/Select.svelte';
 
+	type Option = { value: string; label: string };
+
 	let {
 		glyph,
 		label,
 		title,
 		value,
 		options,
+		groups,
 		onchange,
 		class: klass = ''
 	}: {
@@ -21,7 +24,11 @@
 		label: string;
 		title?: string;
 		value: string;
-		options: { value: string; label: string }[];
+		// Flat option list. Ignored when `groups` is given.
+		options?: Option[];
+		// Sectioned options, rendered as native <optgroup> blocks (TSU-1). Used by
+		// the theme picker to split light/dark; falls back to `options` otherwise.
+		groups?: { label: string; options: Option[] }[];
 		onchange: (value: string) => void;
 		class?: string;
 	} = $props();
@@ -38,9 +45,19 @@
 			{value}
 			onchange={(e) => onchange((e.currentTarget as HTMLSelectElement).value)}
 		>
-			{#each options as o (o.value)}
-				<option value={o.value}>{o.label}</option>
-			{/each}
+			{#if groups}
+				{#each groups as g (g.label)}
+					<optgroup label={g.label}>
+						{#each g.options as o (o.value)}
+							<option value={o.value}>{o.label}</option>
+						{/each}
+					</optgroup>
+				{/each}
+			{:else}
+				{#each options ?? [] as o (o.value)}
+					<option value={o.value}>{o.label}</option>
+				{/each}
+			{/if}
 		</Select>
 	</Button>
 </span>
