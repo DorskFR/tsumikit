@@ -8,7 +8,16 @@
 
 	let { class: klass = '' }: { class?: string } = $props();
 
-	const options = THEMES.map((t) => ({ value: t.id, label: `${t.icon}  ${t.label}` }));
+	// Split the registry into light/dark sections (TSU-1) so the long list is
+	// scannable. `<optgroup>` keeps native popup/keyboard behaviour for free.
+	const toOption = (t: (typeof THEMES)[number]) => ({
+		value: t.id,
+		label: `${t.icon}  ${t.label}`
+	});
+	const groups = [
+		{ label: '— light', options: THEMES.filter((t) => t.mode === 'light').map(toOption) },
+		{ label: '— dark', options: THEMES.filter((t) => t.mode === 'dark').map(toOption) }
+	];
 </script>
 
 <SelectButton
@@ -17,6 +26,6 @@
 	label="Theme"
 	title={`Theme: ${theme.label}`}
 	value={theme.current}
-	{options}
+	{groups}
 	onchange={(v) => theme.set(v as (typeof THEMES)[number]['id'])}
 />
