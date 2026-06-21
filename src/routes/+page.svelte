@@ -521,6 +521,11 @@ function greet(name) {
 					<Progress value={45} tone="success" label="Healthy usage" />
 					<Progress value={78} tone="warn" label="Warm usage" />
 					<Progress value={94} tone="danger" label="Hot usage" />
+					<Progress value={72} size="sm" label="Thin inline row" />
+					<Progress value={58} gradient label="Storage meter (gradient)" />
+					<Progress value={40} striped label="Unpacking (striped)" />
+					<Progress value={40} gradient striped size="sm" label="Thin gradient striped" />
+					<Progress indeterminate striped label="Importing…" />
 					<Progress label="Working…" />
 				</div>
 				{#snippet c1()}<Text variant="body">Built on native &lt;details&gt; — zero JS, full keyboard support.</Text>{/snippet}
