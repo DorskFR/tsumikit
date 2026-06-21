@@ -58,6 +58,10 @@ export {
 	default as RadioGroup,
 	type RadioOption,
 } from './components/molecules/RadioGroup.svelte';
+export {
+	default as SegmentedControl,
+	type SegmentOption,
+} from './components/molecules/SegmentedControl.svelte';
 export { default as SelectButton } from './components/molecules/SelectButton.svelte';
 export { default as Tabs, type TabItem } from './components/molecules/Tabs.svelte';
 export { default as ThemePicker } from './components/molecules/ThemePicker.svelte';
