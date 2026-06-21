@@ -39,6 +39,7 @@
 		Cluster,
 		AutoGrid,
 		Metric,
+		EmptyState,
 		ThemePicker,
 		FontScalePicker,
 		theme,
@@ -347,6 +348,38 @@ function greet(name) {
 				</AutoGrid>
 			</div>
 		</Card>
+	</section>
+
+	<!-- EMPTY STATE -->
+	<section class="section">
+		<Heading level={2}>EmptyState</Heading>
+		<AutoGrid min="280px">
+			<Card>
+				<EmptyState
+					icon="search"
+					title="No results"
+					description="No albums match your filters. Try broadening the search or clearing filters."
+					actionLabel="Clear filters"
+					onAction={() => {}}
+				/>
+			</Card>
+			<Card>
+				<EmptyState
+					icon="archive"
+					title="Your library is empty"
+					description="Add an artist or album to start building your collection."
+					tone="info"
+				/>
+			</Card>
+			<Card>
+				<EmptyState
+					icon="settings"
+					title="Nothing here yet"
+					description="This section hasn't been set up."
+					compact
+				/>
+			</Card>
+		</AutoGrid>
 	</section>
 
 	<!-- FORM ATOMS -->

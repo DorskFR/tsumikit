@@ -39,6 +39,7 @@ export {
 export { default as CodeBlock } from './components/molecules/CodeBlock.svelte';
 export { default as CopyButton } from './components/molecules/CopyButton.svelte';
 export { default as Dropzone } from './components/molecules/Dropzone.svelte';
+export { default as EmptyState } from './components/molecules/EmptyState.svelte';
 // ---- molecules ----
 export { default as Field } from './components/molecules/Field.svelte';
 export { default as FileButton } from './components/molecules/FileButton.svelte';
