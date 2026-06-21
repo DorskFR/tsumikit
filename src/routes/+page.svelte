@@ -38,6 +38,7 @@
 		Stack,
 		Cluster,
 		AutoGrid,
+		Metric,
 		ThemePicker,
 		FontScalePicker,
 		theme,
@@ -309,6 +310,41 @@ function greet(name) {
 					<Dot status="hibernated" label="hibernated" />
 					<Dot color="var(--accent)" label="custom" />
 				</div>
+			</div>
+		</Card>
+	</section>
+
+	<!-- METRIC / STATTILE -->
+	<section class="section">
+		<Heading level={2}>Metric · StatTile</Heading>
+		<Card>
+			<div class="stack">
+				<AutoGrid min="200px">
+					<Metric label="Tracks" value={1284} icon="file" />
+					<Metric
+						label="Size"
+						value="42.7"
+						unit="GB"
+						icon="archive"
+						tone="info"
+					/>
+					<Metric
+						label="Quality"
+						value="FLAC"
+						sub="lossless · 16-bit"
+						icon="check"
+						tone="ok"
+						tintValue
+					/>
+					<Metric
+						label="Added"
+						value={37}
+						unit="this week"
+						sub="+12% vs last week"
+						icon="plus"
+						tone="warn"
+					/>
+				</AutoGrid>
 			</div>
 		</Card>
 	</section>
