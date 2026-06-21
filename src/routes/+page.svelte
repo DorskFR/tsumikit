@@ -33,6 +33,8 @@
 		Menu,
 		Tabs,
 		RadioGroup,
+		SegmentedControl,
+		type SegmentOption,
 		DataTable,
 		toasts,
 		Stack,
@@ -66,7 +68,20 @@
 	let check2 = $state(false);
 	let radioValue = $state('email');
 	let tabValue = $state<string | undefined>('overview');
+	let filterValue = $state<string | undefined>('all');
+	let viewValue = $state<string | undefined>('grid');
 	let sliderValue = $state(40);
+
+	const libFilters: SegmentOption[] = [
+		{ value: 'all', label: 'All', count: 742 },
+		{ value: 'monitored', label: 'Monitored', count: 646 },
+		{ value: 'missing', label: 'Missing', count: 120 },
+		{ value: 'cutoff', label: 'Cutoff unmet', count: 31 }
+	];
+	const viewModes: SegmentOption[] = [
+		{ value: 'grid', label: 'Grid', icon: 'grid' },
+		{ value: 'list', label: 'List', icon: 'list' }
+	];
 
 	const menuItems: MenuItem[] = [
 		{ label: 'Edit', icon: 'edit', onselect: () => toasts.show('Edit') },
@@ -481,6 +496,44 @@ function greet(name) {
 					<Text variant="caption" tone="muted">selected: {pickerValue}</Text>
 				</div>
 			</div>
+		</Card>
+	</section>
+
+	<!-- SEGMENTED CONTROL -->
+	<section class="section">
+		<Heading level={2}>SegmentedControl</Heading>
+		<Card>
+			<Stack gap="var(--sp-4)">
+				<Field label="Filter pills with counts">
+					<Cluster gap="var(--sp-3)" align="center">
+						<SegmentedControl
+							options={libFilters}
+							bind:value={filterValue}
+							label="Library filter"
+						/>
+						<Text variant="caption" tone="muted">selected: {filterValue}</Text>
+					</Cluster>
+				</Field>
+				<Field label="Icon view toggle">
+					<Cluster gap="var(--sp-3)" align="center">
+						<SegmentedControl
+							variant="icon"
+							options={viewModes}
+							bind:value={viewValue}
+							label="View mode"
+						/>
+						<Text variant="caption" tone="muted">view: {viewValue}</Text>
+					</Cluster>
+				</Field>
+				<Field label="Compact (size=sm)">
+					<SegmentedControl
+						size="sm"
+						options={libFilters}
+						bind:value={filterValue}
+						label="Library filter compact"
+					/>
+				</Field>
+			</Stack>
 		</Card>
 	</section>
 
