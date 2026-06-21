@@ -45,6 +45,11 @@ export { default as FileButton } from './components/molecules/FileButton.svelte'
 export { default as FontScalePicker } from './components/molecules/FontScalePicker.svelte';
 export { default as IconButton } from './components/molecules/IconButton.svelte';
 export { default as Menu, type MenuItem } from './components/molecules/Menu.svelte';
+export {
+	default as Metric,
+	// StatTile is an alias for Metric — same component, dashboard-friendly name.
+	default as StatTile,
+} from './components/molecules/Metric.svelte';
 export { default as Modal } from './components/molecules/Modal.svelte';
 export { default as OptionButton } from './components/molecules/OptionButton.svelte';
 export { default as Popover } from './components/molecules/Popover.svelte';
