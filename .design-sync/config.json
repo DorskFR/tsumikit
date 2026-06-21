@@ -1,0 +1,7 @@
+{
+  "projectId": "a4c6ceb9-0aa2-482b-ad7d-af7b6c25f91a",
+  "shape": "package",
+  "pkg": "@dorsk/tsumikit",
+  "readmeHeader": ".design-sync/conventions.md",
+  "note": "CSS-tokens-only trial sync. tsumikit is a Svelte 5 design system; live components cannot render in the React-based claude.ai/design runtime, so only the styling layer (styles.css/app.css/variables.css + tokens) is uploaded."
+}
