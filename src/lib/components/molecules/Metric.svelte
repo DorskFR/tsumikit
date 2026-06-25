@@ -49,7 +49,14 @@
 		<span class="metric-label">{label}</span>
 		{#if icon || iconChildren}
 			<span class="metric-chip" aria-hidden="true">
-				<Icon name={icon}>{@render iconChildren?.()}</Icon>
+				<!-- Only forward a children snippet when a custom icon was actually
+				     provided; otherwise Icon's `children` branch always wins and the
+				     registry `name` glyph never renders (empty chip). -->
+				{#if iconChildren}
+					<Icon name={icon}>{@render iconChildren()}</Icon>
+				{:else}
+					<Icon name={icon} />
+				{/if}
 			</span>
 		{/if}
 	</div>
