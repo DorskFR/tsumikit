@@ -36,6 +36,11 @@
 		SegmentedControl,
 		type SegmentOption,
 		DataTable,
+		FilterSearchBar,
+		type Schema,
+		type Query,
+		compilePredicate,
+		toSql,
 		toasts,
 		Stack,
 		Cluster,
@@ -131,6 +136,38 @@ function greet(name) {
 		{ key: 'role', label: 'Role' },
 		{ key: 'status', label: 'Status', align: 'right' }
 	];
+
+	// ── FilterSearchBar demo: schema + live filtering over tableRows ──────────
+	const searchSchema: Schema = {
+		fields: [
+			{ name: 'name', label: 'Name', type: 'string' },
+			{
+				name: 'role',
+				label: 'Role',
+				type: 'enum',
+				options: [
+					{ value: 'service', label: 'service' },
+					{ value: 'worker', label: 'worker' },
+					{ value: 'cache', label: 'cache' }
+				]
+			},
+			{
+				name: 'status',
+				label: 'Status',
+				type: 'enum',
+				options: [
+					{ value: 'ok', label: 'ok' },
+					{ value: 'warn', label: 'warn' },
+					{ value: 'danger', label: 'danger' }
+				]
+			},
+			{ name: 'id', label: 'ID', type: 'number' }
+		]
+	};
+	let searchValue = $state('');
+	let searchQuery = $state<Query>({ nodes: [] });
+	const searchResults = $derived(tableRows.filter(compilePredicate(searchQuery)));
+	const searchSql = $derived(toSql(searchQuery, 'nodes'));
 
 	const allIcons: IconName[] = [
 		'back', 'arrow-right', 'arrow-up', 'arrow-down', 'chevron-up', 'chevron-down',
@@ -623,6 +660,38 @@ function greet(name) {
 				{r.status}
 			</Badge>
 		{/snippet}
+	</section>
+
+	<!-- FILTER SEARCH BAR -->
+	<section class="section">
+		<Heading level={2}>FilterSearchBar <Badge tone="info">organism</Badge></Heading>
+		<Text tone="muted">
+			YouTrack-style structured search. Type <code>role:worker</code>, <code>status=ok</code>, or
+			free text — drive it from the dropdown or type the query language by hand. The bar owns the
+			query (emits an AST); the host runs it and renders results.
+		</Text>
+		<Card>
+			<div class="stack">
+				<FilterSearchBar
+					schema={searchSchema}
+					bind:value={searchValue}
+					placeholder={'name:api role:worker status=ok'}
+					onchange={(q) => (searchQuery = q)}
+				/>
+				<div class="row row-wrap">
+					{#each ['role:worker', 'status=danger', 'name:cache', 'id>=2'] as ex (ex)}
+						<Badge as="button" tone="neutral" onclick={() => (searchValue = ex)}>{ex}</Badge>
+					{/each}
+				</div>
+				<DataTable
+					columns={tableCols}
+					rows={searchResults}
+					rowKey={(r) => r.id}
+					empty="No rows match the query."
+				/>
+				<CodeBlock code={searchSql} lang="sql" />
+			</div>
+		</Card>
 	</section>
 
 	<!-- TOOLTIP / PROGRESS / ACCORDION -->

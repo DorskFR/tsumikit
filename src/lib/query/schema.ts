@@ -1,0 +1,111 @@
+// ─────────────────────────────────────────────────────────────────────────
+// Layer 1 — the schema / field registry.
+//
+// The single source of truth that drives BOTH the autocomplete UI and the
+// backend compiler. For each searchable field we declare its type, aliases,
+// the operators it allows and a value provider (static enum or async lookup).
+// Nothing here is UI: it's plain data a host app supplies.
+// ─────────────────────────────────────────────────────────────────────────
+
+export type FieldType = 'string' | 'enum' | 'id' | 'date' | 'number' | 'bool';
+
+/** A comparison operator. `code` is how it serialises in the textual query. */
+export type OperatorId =
+	| 'contains'
+	| 'not_contains'
+	| 'eq'
+	| 'ne'
+	| 'gt'
+	| 'gte'
+	| 'lt'
+	| 'lte'
+	| 'in'
+	| 'range';
+
+export interface Operator {
+	id: OperatorId;
+	/** Human label shown in the operator dropdown (YouTrack "一致する" etc.). */
+	label: string;
+	/** Textual form used by the code parser/serialiser, e.g. `>=`, `:`, `!:`. */
+	code: string;
+	/** Types this operator can apply to. */
+	types: FieldType[];
+	/** range/in take two / many values. */
+	arity?: 'one' | 'two' | 'many';
+}
+
+// The full operator catalogue. The order here is the order shown in dropdowns.
+export const OPERATORS: Operator[] = [
+	{ id: 'contains', label: 'includes', code: ':', types: ['string'] },
+	{ id: 'not_contains', label: 'does not include', code: '!:', types: ['string'] },
+	{ id: 'eq', label: 'is', code: '=', types: ['enum', 'id', 'number', 'bool', 'date'] },
+	{ id: 'ne', label: 'is not', code: '!=', types: ['enum', 'id', 'number', 'bool', 'date'] },
+	{ id: 'gt', label: 'greater than', code: '>', types: ['number', 'date'] },
+	{ id: 'gte', label: 'greater or equal', code: '>=', types: ['number', 'date'] },
+	{ id: 'lt', label: 'less than', code: '<', types: ['number', 'date'] },
+	{ id: 'lte', label: 'less or equal', code: '<=', types: ['number', 'date'] },
+	{ id: 'in', label: 'any of', code: 'in', types: ['enum', 'id'], arity: 'many' },
+	{ id: 'range', label: 'in range', code: '..', types: ['date', 'number'], arity: 'two' },
+];
+
+export interface ValueOption {
+	value: string;
+	label: string;
+	/** Optional secondary line (e.g. an email under a username). */
+	hint?: string;
+}
+
+/** Resolves candidate values for a field given the user's partial input. */
+export type ValueProvider = (query: string) => ValueOption[] | Promise<ValueOption[]>;
+
+export interface FieldDef {
+	/** Canonical name, used in the serialised query (e.g. `artist`). */
+	name: string;
+	/** Display label (e.g. `Artist`). */
+	label: string;
+	type: FieldType;
+	/** Alternate spellings accepted by the parser (e.g. `by` → assignee). */
+	aliases?: string[];
+	/** Static options, or omit and supply `provider` for async lookups. */
+	options?: ValueOption[];
+	provider?: ValueProvider;
+	/** Placeholder shown in the value step of the dropdown. */
+	valuePlaceholder?: string;
+}
+
+export interface Schema {
+	fields: FieldDef[];
+}
+
+/** Operators legal for a given field, in catalogue order. */
+export function operatorsFor(field: FieldDef): Operator[] {
+	return OPERATORS.filter((op) => op.types.includes(field.type));
+}
+
+/** The default operator picked when a user selects a field (YouTrack-like). */
+export function defaultOperator(field: FieldDef): Operator {
+	return operatorsFor(field)[0];
+}
+
+export function findField(schema: Schema, token: string): FieldDef | undefined {
+	const t = token.toLowerCase();
+	return schema.fields.find(
+		(f) => f.name.toLowerCase() === t || f.aliases?.some((a) => a.toLowerCase() === t),
+	);
+}
+
+export function operatorByCode(code: string): Operator | undefined {
+	return OPERATORS.find((op) => op.code === code);
+}
+
+export function operatorById(id: OperatorId): Operator | undefined {
+	return OPERATORS.find((op) => op.id === id);
+}
+
+/** Resolve a field's value options (sync wrapper that always returns a promise). */
+export async function resolveValues(field: FieldDef, query: string): Promise<ValueOption[]> {
+	if (field.provider) return field.provider(query);
+	const opts = field.options ?? [];
+	const q = query.toLowerCase();
+	return q ? opts.filter((o) => o.label.toLowerCase().includes(q)) : opts;
+}
