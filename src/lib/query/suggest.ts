@@ -44,12 +44,43 @@ export interface SuggestState {
 	items: Suggestion[];
 }
 
-/** The whitespace-delimited token under the caret (quotes count as non-ws). */
+/**
+ * The token under the caret. Whitespace ends a token EXCEPT inside an open
+ * quote, so a quoted value containing spaces (`album:"ok computer`) stays one
+ * token and keeps the caret in the value step rather than collapsing to an
+ * empty token (which would wrongly re-offer fields). A closed quote followed by
+ * whitespace starts a fresh token (so the next `field:` can be chained).
+ */
 export function activeToken(s: string, pos: number): { start: number; end: number; raw: string } {
-	let start = pos;
-	while (start > 0 && !/\s/.test(s[start - 1])) start--;
+	// Walk from the start so we can track quote state; the last unquoted
+	// whitespace before the caret is the token boundary.
+	let start = 0;
+	let inQuote = false;
+	let q = '';
+	for (let i = 0; i < pos; i++) {
+		const c = s[i];
+		if (inQuote) {
+			if (c === q) inQuote = false;
+		} else if (c === '"' || c === "'") {
+			inQuote = true;
+			q = c;
+		} else if (/\s/.test(c)) {
+			start = i + 1;
+		}
+	}
+	// Extend forward through the rest of the token, still respecting quotes.
 	let end = pos;
-	while (end < s.length && !/\s/.test(s[end])) end++;
+	for (let i = pos; i < s.length; i++) {
+		const c = s[i];
+		if (!inQuote && /\s/.test(c)) break;
+		if (inQuote) {
+			if (c === q) inQuote = false;
+		} else if (c === '"' || c === "'") {
+			inQuote = true;
+			q = c;
+		}
+		end = i + 1;
+	}
 	return { start, end, raw: s.slice(start, end) };
 }
 
