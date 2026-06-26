@@ -69,6 +69,14 @@ export interface FieldDef {
 	/** Static options, or omit and supply `provider` for async lookups. */
 	options?: ValueOption[];
 	provider?: ValueProvider;
+	/**
+	 * Restrict the operators offered for this field to exactly this set (in
+	 * catalogue order). When omitted, all operators legal for the field's `type`
+	 * are offered. Use this to mirror a backend registry's per-field whitelist so
+	 * the dropdown — and the parser's legal-op check — match what the server
+	 * actually accepts.
+	 */
+	operators?: OperatorId[];
 	/** Placeholder shown in the value step of the dropdown. */
 	valuePlaceholder?: string;
 }
@@ -77,8 +85,15 @@ export interface Schema {
 	fields: FieldDef[];
 }
 
-/** Operators legal for a given field, in catalogue order. */
+/** Operators legal for a given field, in catalogue order. When the field
+ *  declares an explicit `operators` whitelist that takes precedence over the
+ *  type-derived set (the whitelist is authoritative); otherwise every operator
+ *  legal for the field's `type` is returned. */
 export function operatorsFor(field: FieldDef): Operator[] {
+	if (field.operators) {
+		const allow = new Set(field.operators);
+		return OPERATORS.filter((op) => allow.has(op.id));
+	}
 	return OPERATORS.filter((op) => op.types.includes(field.type));
 }
 
