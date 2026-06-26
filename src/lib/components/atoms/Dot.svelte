@@ -39,12 +39,12 @@
 </script>
 
 {#if label}
-	<span class="dot-row {klass}" {...rest}>
+	<span class="dot-row {klass}" data-tsu="Dot" {...rest}>
 		<span class="dot" class:glow style="--dot-color:{resolved}"></span>
 		<Text variant="caption">{label}</Text>
 	</span>
 {:else}
-	<span class="dot {klass}" class:glow style="--dot-color:{resolved}" {...rest}></span>
+	<span class="dot {klass}" class:glow style="--dot-color:{resolved}" data-tsu="Dot" {...rest}></span>
 {/if}
 
 <style>

@@ -20,7 +20,7 @@
 	} = $props();
 </script>
 
-<div class="nav-section" {...rest}>
+<div class="nav-section" data-tsu="NavSection" {...rest}>
 	{#if label}
 		<div class="nav-section-label">{label}</div>
 	{/if}

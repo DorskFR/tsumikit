@@ -71,6 +71,7 @@
 
 <svelte:element
 	this={as}
+	data-tsu="AutoGrid"
 	class="autogrid-c {klass}"
 	class:capped={maxCols != null}
 	{style}

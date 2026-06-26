@@ -49,6 +49,7 @@
 
 <label
 	class="file-btn {klass}"
+	data-tsu="FileButton"
 	class:primary={variant === 'primary'}
 	class:ghost={variant === 'ghost'}
 	class:sm={size === 'sm'}

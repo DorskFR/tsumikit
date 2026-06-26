@@ -104,6 +104,7 @@
 {#if overlay}
 	<div
 		class="dz-host"
+		data-tsu="Dropzone"
 		class:over
 		class:disabled
 		role="presentation"
@@ -123,6 +124,7 @@
 {:else}
 	<div
 		class="dz"
+		data-tsu="Dropzone"
 		class:over
 		class:disabled
 		role="button"

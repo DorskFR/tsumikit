@@ -30,6 +30,7 @@
 
 <svelte:element
 	this={as}
+	data-tsu="Container"
 	class="container ct {klass}"
 	class:pad
 	class:full={fullWidth}

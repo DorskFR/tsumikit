@@ -11,6 +11,7 @@
 </script>
 
 <SelectButton
+	data-tsu="FontScalePicker"
 	class={klass}
 	glyph="A"
 	label="Text size"

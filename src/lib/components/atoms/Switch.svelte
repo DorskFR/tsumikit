@@ -14,6 +14,7 @@
 </script>
 
 <button
+	data-tsu="Switch"
 	{...rest}
 	type="button"
 	class="switch {klass}"

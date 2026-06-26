@@ -39,11 +39,11 @@
 			     full-text tooltip (wired by Tooltip onto the first focusable child)
 			     isn't mouse-only; the span is otherwise non-interactive. -->
 			<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-			<span class="trunc" tabindex="0">{shown}</span>
+			<span class="trunc" data-tsu="Truncate" tabindex="0">{shown}</span>
 		{/snippet}
 	</Tooltip>
 {:else}
-	<span class="trunc">{shown}</span>
+	<span class="trunc" data-tsu="Truncate">{shown}</span>
 {/if}
 
 <style>

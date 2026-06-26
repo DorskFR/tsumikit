@@ -41,6 +41,7 @@
 </script>
 
 <div
+	data-tsu="Progress"
 	class="progress tone-{tone} size-{size} {klass}"
 	class:indeterminate
 	class:gradient

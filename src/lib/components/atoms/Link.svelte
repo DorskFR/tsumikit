@@ -13,9 +13,9 @@
 </script>
 
 {#if href}
-	<a {href} class="link {klass}" {...rest}>{@render children?.()}</a>
+	<a {href} class="link {klass}" data-tsu="Link" {...rest}>{@render children?.()}</a>
 {:else}
-	<button type="button" class="link {klass}" {...rest}>{@render children?.()}</button>
+	<button type="button" class="link {klass}" data-tsu="Link" {...rest}>{@render children?.()}</button>
 {/if}
 
 <style>

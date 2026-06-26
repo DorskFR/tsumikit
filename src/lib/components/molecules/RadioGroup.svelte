@@ -27,7 +27,7 @@
 	} = $props();
 </script>
 
-<div role="radiogroup" aria-label={label} class="radio-group {klass}">
+<div role="radiogroup" aria-label={label} class="radio-group {klass}" data-tsu="RadioGroup">
 	{#each options as o (o.value)}
 		<label class="radio" class:disabled={o.disabled}>
 			<input type="radio" {name} value={o.value} bind:group={value} disabled={o.disabled} />

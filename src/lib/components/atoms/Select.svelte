@@ -41,11 +41,11 @@
 </script>
 
 {#if variant === 'ghost'}
-	<select class="select ghost {klass}" bind:value {...rest} aria-invalid={invalid || undefined}>
+	<select class="select ghost {klass}" data-tsu="Select" bind:value {...rest} aria-invalid={invalid || undefined}>
 		{@render children?.()}
 	</select>
 {:else}
-	<div class="select-wrap {klass}" class:no-chevron={!chevron}>
+	<div class="select-wrap {klass}" class:no-chevron={!chevron} data-tsu="Select">
 		<select
 			class="select"
 			class:compact

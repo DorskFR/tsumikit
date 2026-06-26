@@ -67,7 +67,7 @@
 </script>
 
 <Popover {label} {placement} {trigger} onopen={() => queueMicrotask(() => focusAt(0))}>
-	<div bind:this={listEl} role="menu" aria-label={label} class="menu" tabindex="-1" {onkeydown}>
+	<div bind:this={listEl} role="menu" aria-label={label} class="menu" data-tsu="Menu" tabindex="-1" {onkeydown}>
 		{#each items as item (item.label)}
 			<button
 				type="button"

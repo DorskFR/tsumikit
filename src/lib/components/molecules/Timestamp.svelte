@@ -115,11 +115,11 @@
 
 {#if !date}
 	<!-- Unparseable input: degrade to an inert dash rather than empty text. -->
-	<time class="{cls} ts-invalid" style:font-size={sizeVar}>—</time>
+	<time class="{cls} ts-invalid" data-tsu="Timestamp" style:font-size={sizeVar}>—</time>
 {:else if showPopover}
 	<Popover label="Timestamp details" placement="bottom-start" bare>
 		{#snippet trigger()}
-			<time class="{cls} ts-trigger" style:font-size={sizeVar} datetime={machine}>{label}</time>
+			<time class="{cls} ts-trigger" data-tsu="Timestamp" style:font-size={sizeVar} datetime={machine}>{label}</time>
 		{/snippet}
 		<div class="ts-panel">
 			{#if selectable}
@@ -146,7 +146,7 @@
 		</div>
 	</Popover>
 {:else}
-	<time class={cls} style:font-size={sizeVar} datetime={machine}>{label}</time>
+	<time class={cls} data-tsu="Timestamp" style:font-size={sizeVar} datetime={machine}>{label}</time>
 {/if}
 
 <style>

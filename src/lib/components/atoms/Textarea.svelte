@@ -99,7 +99,7 @@
 	}
 </script>
 
-<div class="textarea-wrap" class:dragging>
+<div class="textarea-wrap" class:dragging data-tsu="Textarea">
 	{#if autoresize}
 		<textarea
 			bind:this={el}

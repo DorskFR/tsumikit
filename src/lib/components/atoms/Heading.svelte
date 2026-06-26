@@ -28,7 +28,7 @@
 	const fs = $derived(size ?? DEFAULT_SIZE[level]);
 </script>
 
-<svelte:element this={`h${level}`} class="heading fs-{fs} tone-{tone} {klass}" {...rest}>
+<svelte:element this={`h${level}`} data-tsu="Heading" class="heading fs-{fs} tone-{tone} {klass}" {...rest}>
 	{@render children?.()}
 </svelte:element>
 

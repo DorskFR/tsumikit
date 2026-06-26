@@ -21,6 +21,7 @@
 </script>
 
 <SelectButton
+	data-tsu="ThemePicker"
 	class={klass}
 	glyph={theme.icon}
 	label="Theme"

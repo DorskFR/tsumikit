@@ -48,6 +48,7 @@
 
 <svelte:element
 	this={as}
+	data-tsu="Card"
 	class="card {klass}"
 	class:pad-none={padding === 'none'}
 	class:pad-sm={padding === 'sm'}

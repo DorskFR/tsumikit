@@ -80,7 +80,7 @@
 	});
 </script>
 
-<div class="dt-scroll">
+<div class="dt-scroll" data-tsu="DataTable">
 	<table class="dt" class:sticky={stickyHeader}>
 		<thead>
 			<tr>

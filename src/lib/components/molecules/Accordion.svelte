@@ -32,7 +32,7 @@
 	const groupName = $derived(multiple ? undefined : gid);
 </script>
 
-<div class="accordion {klass}">
+<div class="accordion {klass}" data-tsu="Accordion">
 	{#each items as item (item.id)}
 		<details name={groupName} open={item.open}>
 			<summary>
