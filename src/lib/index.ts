@@ -72,6 +72,40 @@ export { default as Tooltip } from './components/molecules/Tooltip.svelte';
 export { default as Truncate } from './components/molecules/Truncate.svelte';
 // ---- organisms ----
 export { type Column, default as DataTable } from './components/organisms/DataTable.svelte';
+export { default as FilterSearchBar } from './components/organisms/FilterSearchBar.svelte';
+// ---- query core (headless: schema / parser / AST / suggest / compilers) ----
+export {
+	activeToken,
+	compilePredicate,
+	defaultOperator,
+	type FieldDef,
+	type FieldType,
+	type FilterNode,
+	filters,
+	findField,
+	freeText,
+	OPERATORS,
+	type Operator,
+	type OperatorId,
+	operatorByCode,
+	operatorById,
+	operatorsFor,
+	parse,
+	type Query,
+	type QueryNode,
+	resolveValues,
+	type Schema,
+	type Suggestion,
+	type SuggestKind,
+	type SuggestState,
+	serialize,
+	serializeFilter,
+	suggest,
+	type TextNode,
+	toSql,
+	type ValueOption,
+	type ValueProvider,
+} from './query';
 export { fontScale, SCALE_LEVELS, type ScaleLevel } from './stores/fontscale.svelte';
 // ---- stores / actions ----
 export { type Mode, THEMES, theme } from './stores/theme.svelte';
