@@ -26,6 +26,7 @@
 
 <svelte:element
 	this={as}
+	data-tsu="Stack"
 	class="stack-c {klass}"
 	style:gap
 	style:align-items={align}

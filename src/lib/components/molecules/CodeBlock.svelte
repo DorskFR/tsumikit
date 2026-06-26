@@ -41,7 +41,7 @@
 	const hasHeader = $derived(!!(filename || lang || copy));
 </script>
 
-<figure class="codeblock {klass}">
+<figure class="codeblock {klass}" data-tsu="CodeBlock">
 	{#if hasHeader}
 		<figcaption class="cb-head">
 			<span class="cb-name">{filename ?? lang ?? ''}</span>

@@ -49,6 +49,7 @@
 </script>
 
 <button
+	data-tsu="Button"
 	{...rest}
 	{type}
 	disabled={disabled || loading}

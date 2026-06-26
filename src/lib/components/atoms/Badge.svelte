@@ -42,6 +42,7 @@
 
 <svelte:element
 	this={as}
+	data-tsu="Badge"
 	class="badge {klass}"
 	class:badge-ok={tone === 'ok'}
 	class:badge-warn={tone === 'warn'}

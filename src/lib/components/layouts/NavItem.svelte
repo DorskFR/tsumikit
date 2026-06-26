@@ -44,6 +44,7 @@
 
 <svelte:element
 	this={href ? 'a' : 'button'}
+	data-tsu="NavItem"
 	{href}
 	type={href ? undefined : 'button'}
 	class="nav-item"

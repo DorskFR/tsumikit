@@ -77,7 +77,7 @@
 	}
 </script>
 
-<span class="tip-wrap" bind:this={wrapEl} use:tooltip>
+<span class="tip-wrap" data-tsu="Tooltip" bind:this={wrapEl} use:tooltip>
 	{@render trigger()}
 </span>
 

@@ -28,6 +28,7 @@
 </script>
 
 <button
+	data-tsu="Toggle"
 	{...rest}
 	{type}
 	{disabled}

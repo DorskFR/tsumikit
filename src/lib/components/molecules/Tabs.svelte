@@ -69,7 +69,7 @@
 	}
 </script>
 
-<div class="tabs">
+<div class="tabs" data-tsu="Tabs">
 	<div bind:this={listEl} role="tablist" aria-label={label} tabindex="-1" class="tablist" {onkeydown}>
 		{#each tabs as t (t.id)}
 			<button

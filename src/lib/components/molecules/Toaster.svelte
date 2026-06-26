@@ -7,7 +7,7 @@
 	import Icon from '$lib/components/atoms/Icon.svelte';
 </script>
 
-<div class="toaster" role="status" aria-live="polite" aria-relevant="additions">
+<div class="toaster" role="status" aria-live="polite" aria-relevant="additions" data-tsu="Toaster">
 	{#each toasts.items as t (t.id)}
 		<button
 			type="button"

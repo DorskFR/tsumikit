@@ -42,6 +42,7 @@
 </script>
 
 <Card
+	data-tsu="Metric"
 	class="metric metric-{tone} {tintValue ? 'metric-tint' : ''} {klass}"
 	{...rest}
 >

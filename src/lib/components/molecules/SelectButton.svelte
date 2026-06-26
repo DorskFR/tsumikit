@@ -17,7 +17,8 @@
 		options,
 		groups,
 		onchange,
-		class: klass = ''
+		class: klass = '',
+		...rest
 	}: {
 		// Visible content of the button (a letter like "A" or an emoji icon).
 		glyph: string;
@@ -31,12 +32,13 @@
 		groups?: { label: string; options: Option[] }[];
 		onchange: (value: string) => void;
 		class?: string;
+		[key: string]: unknown;
 	} = $props();
 </script>
 
 <!-- The wrapper (owned here, so styled scoped) is the positioning context that
      clips the transparent overlaid <select>; the icon Button shows through. -->
-<span class="select-button {klass}">
+<span class="select-button {klass}" data-tsu="SelectButton" {...rest}>
 	<Button variant="ghost" icon {title} aria-label={label}>
 		<span aria-hidden="true">{glyph}</span>
 		<Select

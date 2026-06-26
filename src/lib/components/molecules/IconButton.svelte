@@ -56,6 +56,7 @@
 <!-- Composition: the icon-only button is a Button (canonical control styling)
      in its icon variant, wrapping an Icon (or a text emoji glyph). -->
 <Button
+	data-tsu="IconButton"
 	{...rest}
 	{variant}
 	{tone}

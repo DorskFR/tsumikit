@@ -30,6 +30,7 @@
 
 <input
 	bind:this={el}
+	data-tsu="Input"
 	class="input {klass}"
 	class:mono
 	class:input-sm={size === 'sm'}

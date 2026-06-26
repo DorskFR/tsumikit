@@ -44,6 +44,7 @@
 </script>
 
 <Button
+	data-tsu="CopyButton"
 	{variant}
 	class={klass}
 	onclick={copy}

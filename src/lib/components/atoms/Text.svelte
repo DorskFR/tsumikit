@@ -39,6 +39,7 @@
 
 <svelte:element
 	this={as}
+	data-tsu="Text"
 	class="text {variant ? `v-${variant}` : ''} tone-{tone} {weight ? `fw-${weight}` : ''} {size
 		? `fs-${size}`
 		: ''} {numeric ? 'numeric' : ''} {truncate ? 'truncate' : ''} {klass}"

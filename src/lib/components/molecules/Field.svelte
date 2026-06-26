@@ -22,7 +22,7 @@
 	} = $props();
 </script>
 
-<div class="field {klass}">
+<div class="field {klass}" data-tsu="Field">
 	{#if label}
 		{#if forId}
 			<label class="label" for={forId}>{label}</label>

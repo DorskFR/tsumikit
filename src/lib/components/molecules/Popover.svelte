@@ -66,6 +66,7 @@
 
 <button
 	bind:this={triggerEl}
+	data-tsu="Popover"
 	type="button"
 	class="pop-trigger {triggerClass}"
 	class:bare

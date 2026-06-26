@@ -36,7 +36,7 @@
 	);
 </script>
 
-<div class="slider {klass}" style="--pct: {pct}%">
+<div class="slider {klass}" style="--pct: {pct}%" data-tsu="Slider">
 	<input
 		bind:this={el}
 		{id}

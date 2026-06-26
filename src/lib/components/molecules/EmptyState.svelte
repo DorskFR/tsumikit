@@ -45,7 +45,7 @@
 	} = $props();
 </script>
 
-<div class="empty empty-{tone} {compact ? 'empty-compact' : ''} {klass}" {...rest}>
+<div class="empty empty-{tone} {compact ? 'empty-compact' : ''} {klass}" data-tsu="EmptyState" {...rest}>
 	{#if icon || iconChildren}
 		<span class="empty-chip" aria-hidden="true">
 			<Icon name={icon}>{@render iconChildren?.()}</Icon>

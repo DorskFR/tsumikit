@@ -98,6 +98,7 @@
 
 <dialog
 	bind:this={dialogEl}
+	data-tsu="Modal"
 	class="modal"
 	class:resizing
 	aria-labelledby={titleId}

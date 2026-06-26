@@ -26,6 +26,7 @@
 </script>
 
 <button
+	data-tsu="OptionButton"
 	{...rest}
 	{type}
 	{disabled}

@@ -124,6 +124,7 @@
 </script>
 
 <svg
+	data-tsu="Icon"
 	class="icon"
 	style={size ? `font-size: ${size}px` : undefined}
 	viewBox="0 0 24 24"

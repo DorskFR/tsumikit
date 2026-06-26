@@ -94,6 +94,7 @@
 	aria-label={label}
 	tabindex="-1"
 	class="seg seg-{variant} seg-{size} {klass}"
+	data-tsu="SegmentedControl"
 	{onkeydown}
 >
 	{#each options as o (o.value)}

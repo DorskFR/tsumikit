@@ -28,7 +28,7 @@
 	});
 </script>
 
-<label class="checkbox {klass}">
+<label class="checkbox {klass}" data-tsu="Checkbox">
 	<input bind:this={el} type="checkbox" bind:checked {...rest} aria-invalid={invalid || undefined} />
 	<span class="box" aria-hidden="true"></span>
 	<span class="label-text">{label}</span>

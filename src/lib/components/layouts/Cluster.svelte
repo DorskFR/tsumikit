@@ -28,6 +28,7 @@
 
 <svelte:element
 	this={as}
+	data-tsu="Cluster"
 	class="cluster-c {klass}"
 	style:gap
 	style:align-items={align}

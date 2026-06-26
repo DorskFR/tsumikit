@@ -112,7 +112,7 @@
 
 <svelte:window onkeydown={(e) => e.key === 'Escape' && (open = false)} />
 
-<div class="shell" class:dragging style="--shell-sidebar-w: {widthCss}">
+<div class="shell" class:dragging style="--shell-sidebar-w: {widthCss}" data-tsu="AppShell">
 	<header class="shell-header">
 		{#if sidebar}
 			<!-- Wrapper owned here so the responsive hide is a scoped rule on our own
