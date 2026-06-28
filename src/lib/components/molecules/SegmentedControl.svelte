@@ -31,6 +31,9 @@
 		variant = 'pill',
 		size = 'md',
 		label = 'Options',
+		// `mobile` hides segment labels below the mobile breakpoint, collapsing
+		// labelled segments to centered icon-only squares (aria-label preserved).
+		collapseLabels = 'never',
 		class: klass = '',
 		// Custom rendering per option (overrides the built-in label/count/icon).
 		option: optionSnippet
@@ -40,6 +43,7 @@
 		variant?: 'pill' | 'icon';
 		size?: 'sm' | 'md';
 		label?: string;
+		collapseLabels?: 'never' | 'mobile';
 		class?: string;
 		option?: Snippet<[SegmentOption, boolean]>;
 	} = $props();
@@ -94,6 +98,7 @@
 	aria-label={label}
 	tabindex="-1"
 	class="seg seg-{variant} seg-{size} {klass}"
+	class:seg-collapse-mobile={collapseLabels === 'mobile'}
 	data-tsu="SegmentedControl"
 	{onkeydown}
 >
@@ -107,6 +112,7 @@
 			aria-label={variant === 'icon' && !o.label ? o.value : o.label}
 			tabindex={selected ? 0 : -1}
 			class="seg-item"
+			class:has-label={!!o.label}
 			class:selected
 			disabled={o.disabled}
 			onclick={() => select(o.value)}
@@ -168,6 +174,32 @@
 	.seg-icon.seg-sm .seg-item {
 		padding: 0.25rem;
 		font-size: var(--fs-sm);
+	}
+	/* A labelled icon segment renders <icon><label>, so it must keep the normal
+	   icon/label gap and the roomier pill padding — only true icon-only segments
+	   collapse to the square gap:0 layout above. */
+	.seg-icon .seg-item.has-label {
+		gap: var(--sp-2);
+		padding: 0.3rem var(--sp-3);
+	}
+	.seg-icon.seg-sm .seg-item.has-label {
+		padding: 0.2rem var(--sp-2);
+	}
+
+	/* collapseLabels='mobile': below the breakpoint, drop the label text and
+	   tighten labelled segments back to a square icon button. The aria-label on
+	   the button preserves the accessible name. */
+	@media (max-width: 47.999rem) {
+		.seg-collapse-mobile .seg-item.has-label .seg-label {
+			display: none;
+		}
+		.seg-collapse-mobile .seg-item.has-label {
+			gap: 0;
+			padding: 0.35rem;
+		}
+		.seg-collapse-mobile.seg-sm .seg-item.has-label {
+			padding: 0.25rem;
+		}
 	}
 
 	.seg-item:hover:not(:disabled):not(.selected) {

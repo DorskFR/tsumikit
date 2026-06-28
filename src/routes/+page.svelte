@@ -85,9 +85,14 @@
 		{ value: 'cutoff', label: 'Cutoff unmet', count: 31 }
 	];
 	const viewModes: SegmentOption[] = [
-		{ value: 'grid', label: 'Grid', icon: 'grid' },
-		{ value: 'list', label: 'List', icon: 'list' }
+		{ value: 'grid', icon: 'grid' },
+		{ value: 'list', icon: 'list' }
 	];
+	const scopeModes: SegmentOption[] = [
+		{ value: 'album', label: 'By album', icon: 'grid' },
+		{ value: 'artist', label: 'By artist', icon: 'list' }
+	];
+	let scopeValue = $state<string | undefined>('album');
 
 	const menuItems: MenuItem[] = [
 		{ label: 'Edit', icon: 'edit', onselect: () => toasts.show('Edit') },
@@ -574,6 +579,18 @@ function greet(name) {
 							label="View mode"
 						/>
 						<Text variant="caption" tone="muted">view: {viewValue}</Text>
+					</Cluster>
+				</Field>
+				<Field label="Icon + label (collapseLabels='mobile' — text hides under 48rem)">
+					<Cluster gap="var(--sp-3)" align="center">
+						<SegmentedControl
+							variant="icon"
+							collapseLabels="mobile"
+							options={scopeModes}
+							bind:value={scopeValue}
+							label="Scope"
+						/>
+						<Text variant="caption" tone="muted">scope: {scopeValue}</Text>
 					</Cluster>
 				</Field>
 				<Field label="Compact (size=sm)">
