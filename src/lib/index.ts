@@ -20,6 +20,7 @@ export { default as Link } from './components/atoms/Link.svelte';
 export { default as Progress } from './components/atoms/Progress.svelte';
 export { default as Select } from './components/atoms/Select.svelte';
 export { default as Slider } from './components/atoms/Slider.svelte';
+export { default as Spinner } from './components/atoms/Spinner.svelte';
 export { default as Switch } from './components/atoms/Switch.svelte';
 // ---- atoms ----
 export { default as Text } from './components/atoms/Text.svelte';
