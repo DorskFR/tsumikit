@@ -360,6 +360,13 @@ function greet(name) {
 					<Badge as="button" tone="info">off</Badge>
 				</div>
 				<div class="row row-wrap">
+					<Badge border={false}>soft</Badge>
+					<Badge border={false} tone="ok">ok</Badge>
+					<Badge border={false} tone="warn">warn</Badge>
+					<Badge border={false} tone="danger">danger</Badge>
+					<Badge border={false} tone="info" size="sm">3</Badge>
+				</div>
+				<div class="row row-wrap">
 					<Link href="https://svelte.dev" target="_blank" rel="noreferrer">Anchor link</Link>
 					<Link>Button-as-link</Link>
 				</div>

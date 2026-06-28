@@ -16,6 +16,7 @@
 		size = 'md',
 		mono = false,
 		uppercase = false,
+		border = true,
 		active = false,
 		removable = false,
 		onremove,
@@ -29,6 +30,9 @@
 		mono?: boolean;
 		// Uppercase, letter-spaced label — for status tags/eyebrows.
 		uppercase?: boolean;
+		// Borderless "soft" variant: tone-tinted fill pill with no ring. The
+		// default (`true`) keeps the outlined look for backwards compatibility.
+		border?: boolean;
 		// Interactive "on" state for a toggle/count badge (`as="button"`): fills the
 		// pill with its tone instead of just tinting the border.
 		active?: boolean;
@@ -51,6 +55,7 @@
 	class:badge-sm={size === 'sm'}
 	class:mono
 	class:uppercase
+	class:borderless={!border}
 	class:active
 	class:interactive={as === 'button'}
 	{...rest}
@@ -108,6 +113,11 @@
 		color: var(--info);
 		border-color: color-mix(in srgb, var(--info) 40%, transparent);
 		background: color-mix(in srgb, var(--info) 12%, transparent);
+	}
+	/* Soft variant: drop the ring, keep the tinted fill. Transparent (not
+	   `border: 0`) so layout/baseline matches the outlined default exactly. */
+	.borderless {
+		border-color: transparent;
 	}
 	.mono {
 		font-family: var(--font-mono);
