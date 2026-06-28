@@ -14,6 +14,7 @@
 		Dot,
 		Link,
 		Icon,
+		Spinner,
 		Field,
 		IconButton,
 		SelectButton,
@@ -174,9 +175,9 @@ function greet(name) {
 		'chevron-left', 'chevron-right', 'menu', 'more', 'external', 'log-out',
 		'plus', 'minus', 'check', 'x', 'search', 'filter', 'copy', 'edit', 'trash',
 		'save', 'download', 'upload', 'send', 'share', 'retry', 'settings',
-		'play', 'pause', 'stop',
+		'play', 'pause', 'stop', 'music', 'tv', 'film', 'disc',
 		'file', 'file-text', 'folder', 'archive', 'image', 'markdown', 'list', 'grid',
-		'link', 'tag', 'bookmark', 'star', 'heart', 'fork', 'live', 'eye', 'eye-off',
+		'link', 'unlink', 'text-cursor', 'tag', 'bookmark', 'star', 'heart', 'fork', 'live', 'eye', 'eye-off',
 		'lock', 'unlock', 'bell', 'mail', 'calendar', 'clock', 'home', 'user', 'users',
 		'sun', 'moon', 'loader',
 		'info', 'warning', 'help', 'check-circle', 'x-circle', 'alert-circle'
@@ -322,6 +323,12 @@ function greet(name) {
 					<Icon label="Heart" size={22}>
 						<path d="M12 21s-7-4.5-9.5-8.5A5 5 0 0 1 12 6a5 5 0 0 1 9.5 6.5C19 16.5 12 21 12 21z" />
 					</Icon>
+				</div>
+				<Text variant="caption">Spinner (halts under prefers-reduced-motion):</Text>
+				<div class="row">
+					<Spinner size={18} />
+					<Spinner size={28} />
+					<Icon name="loader" spin size={22} label="Loading" />
 				</div>
 			</div>
 		</Card>
