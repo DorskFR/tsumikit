@@ -417,6 +417,21 @@ function greet(name) {
 						tone="warn"
 					/>
 				</AutoGrid>
+				<hr class="divider" />
+				<Text variant="caption">
+					Surface variants — tiles (via Metric) and panels (via Card) opt into the
+					same theme-aware shade by prop, no <code>:global</code> override:
+				</Text>
+				<AutoGrid min="200px">
+					<Metric label="Base" value="base" icon="file" />
+					<Metric label="Raised" value="raised" icon="file" surface="raised" />
+					<Metric label="Sunken" value="sunken" icon="file" surface="sunken" />
+				</AutoGrid>
+				<div class="row row-wrap">
+					<Card surface="base" padding="sm"><Text variant="caption">surface base</Text></Card>
+					<Card surface="raised" padding="sm"><Text variant="caption">surface raised</Text></Card>
+					<Card surface="sunken" padding="sm"><Text variant="caption">surface sunken</Text></Card>
+				</div>
 			</div>
 		</Card>
 	</section>

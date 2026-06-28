@@ -22,6 +22,9 @@
 		tone = 'neutral',
 		// Tint the value itself with the tone (not just the chip).
 		tintValue = false,
+		// Theme-aware surface shade, forwarded to the composed Card so tiles can
+		// opt into the same shade as sibling panels (no app-level :global override).
+		surface = 'base',
 		class: klass = '',
 		// Raw SVG markup for a custom icon — passed through to `Icon` so any glyph
 		// outside the registry can fill the chip.
@@ -35,6 +38,7 @@
 		icon?: IconName;
 		tone?: Tone;
 		tintValue?: boolean;
+		surface?: 'base' | 'raised' | 'sunken';
 		class?: string;
 		iconChildren?: Snippet;
 		[key: string]: unknown;
@@ -44,6 +48,7 @@
 <Card
 	data-tsu="Metric"
 	class="metric metric-{tone} {tintValue ? 'metric-tint' : ''} {klass}"
+	{surface}
 	{...rest}
 >
 	<div class="metric-head">

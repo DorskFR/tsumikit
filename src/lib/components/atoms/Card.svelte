@@ -19,6 +19,7 @@
 		tap = false,
 		as = 'div',
 		padding = 'md',
+		surface = 'base',
 		stacked = false,
 		stackTone = 'neutral',
 		stackY = 8,
@@ -31,6 +32,7 @@
 		tap?: boolean;
 		as?: 'div' | 'button' | 'a' | 'li' | 'section' | 'form';
 		padding?: 'none' | 'sm' | 'md' | 'lg';
+		surface?: 'base' | 'raised' | 'sunken';
 		stacked?: boolean;
 		stackTone?: Tone;
 		stackY?: number;
@@ -53,6 +55,8 @@
 	class:pad-none={padding === 'none'}
 	class:pad-sm={padding === 'sm'}
 	class:pad-lg={padding === 'lg'}
+	class:surface-raised={surface === 'raised'}
+	class:surface-sunken={surface === 'sunken'}
 	class:card-tap={tap}
 	class:card-stacked={stacked}
 	class:stack-ok={stacked && stackTone === 'ok'}
@@ -71,6 +75,15 @@
 		border: 1px solid var(--border);
 		border-radius: var(--r-lg);
 		padding: var(--sp-4);
+	}
+	/* Theme-aware surface shade, selected by prop so it adapts across themes
+	   instead of being overridden with app-level :global hacks. `base` is the
+	   default (.card already paints --bg-elevated). */
+	.surface-raised {
+		background: var(--surface);
+	}
+	.surface-sunken {
+		background: var(--bg-elevated-2);
 	}
 	.pad-none {
 		padding: 0;
