@@ -76,18 +76,23 @@ export { type Column, default as DataTable } from './components/organisms/DataTa
 export { default as FilterSearchBar } from './components/organisms/FilterSearchBar.svelte';
 // ---- query core (headless: schema / parser / AST / suggest / compilers) ----
 export {
+	type AndNode,
 	activeToken,
 	compilePredicate,
 	defaultOperator,
+	type ExprNode,
 	type FieldDef,
 	type FieldType,
 	type FilterNode,
 	filters,
 	findField,
 	freeText,
+	type LeafNode,
+	type NotNode,
 	OPERATORS,
 	type Operator,
 	type OperatorId,
+	type OrNode,
 	operatorByCode,
 	operatorById,
 	operatorsFor,
@@ -106,6 +111,7 @@ export {
 	toSql,
 	type ValueOption,
 	type ValueProvider,
+	walk,
 } from './query';
 export { fontScale, SCALE_LEVELS, type ScaleLevel } from './stores/fontscale.svelte';
 // ---- stores / actions ----

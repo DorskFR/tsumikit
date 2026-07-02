@@ -2,23 +2,59 @@
 // AST consumers: serialise back to the textual query (for the code editor and
 // the URL), compile to a human-readable SQL-ish WHERE (to prove the filter
 // "properly propagates to backend & database"), and compile to a JS predicate
-// (our fake in-memory backend).
+// (our fake in-memory backend). All three walk the boolean expression tree with
+// correct precedence / grouping / short-circuiting.
 // ─────────────────────────────────────────────────────────────────────────
 
-import { type FilterNode, filters, freeText, type Query } from './ast';
+import type { ExprNode, FilterNode, Query } from './ast';
 import { operatorById } from './schema';
 
 function quoteIfNeeded(v: string): string {
 	return /[\s,()]/.test(v) || v === '' ? `"${v}"` : v;
 }
 
+// ── Serialiser (AST → canonical textual query, round-trips through parse) ────
+
+/** Precedence rank: higher binds tighter. Leaves are atomic. */
+function rank(node: ExprNode): number {
+	switch (node.kind) {
+		case 'or':
+			return 1;
+		case 'and':
+			return 2;
+		case 'not':
+			return 3;
+		default:
+			return 4; // leaf
+	}
+}
+
+/** Serialise `node`, wrapping in parens when its precedence is below `min`. */
+function serializeNode(node: ExprNode, min: number): string {
+	const s = serializeBare(node);
+	return rank(node) < min ? `(${s})` : s;
+}
+
+function serializeBare(node: ExprNode): string {
+	switch (node.kind) {
+		case 'filter':
+			return serializeFilter(node);
+		case 'text':
+			return node.value;
+		case 'not':
+			// Child must bind at least as tight as NOT, else parenthesise.
+			return `NOT ${serializeNode(node.child, 3)}`;
+		case 'and':
+			// Children need to sit above OR precedence; AND itself is implicit (space).
+			return node.children.map((c) => serializeNode(c, 2)).join(' ');
+		case 'or':
+			return node.children.map((c) => serializeNode(c, 1)).join(' OR ');
+	}
+}
+
 /** AST → canonical textual query (round-trips through the parser). */
 export function serialize(q: Query): string {
-	const parts: string[] = [];
-	for (const f of filters(q)) parts.push(serializeFilter(f));
-	const text = freeText(q);
-	if (text) parts.push(text);
-	return parts.join(' ');
+	return q.root ? serializeBare(q.root) : '';
 }
 
 export function serializeFilter(f: FilterNode): string {
@@ -41,32 +77,44 @@ const SQL_OP: Record<string, string> = {
 	lte: '<=',
 };
 
-export function toSql(q: Query, table = 'tracks'): string {
-	const clauses: string[] = [];
-	for (const f of filters(q)) {
-		const col = f.field;
-		const v = (s: string) => `'${s.replace(/'/g, "''")}'`;
-		switch (f.op) {
-			case 'contains':
-				clauses.push(`${col} ILIKE '%${f.values[0]}%'`);
-				break;
-			case 'not_contains':
-				clauses.push(`${col} NOT ILIKE '%${f.values[0]}%'`);
-				break;
-			case 'in':
-				clauses.push(`${col} IN (${f.values.map(v).join(', ')})`);
-				break;
-			case 'range':
-				clauses.push(`${col} BETWEEN ${v(f.values[0])} AND ${v(f.values[1])}`);
-				break;
-			default:
-				clauses.push(`${col} ${SQL_OP[f.op]} ${v(f.values[0] ?? '')}`);
-		}
+function sqlLiteral(s: string): string {
+	return `'${s.replace(/'/g, "''")}'`;
+}
+
+function filterToSql(f: FilterNode): string {
+	const col = f.field;
+	switch (f.op) {
+		case 'contains':
+			return `${col} ILIKE '%${f.values[0]}%'`;
+		case 'not_contains':
+			return `${col} NOT ILIKE '%${f.values[0]}%'`;
+		case 'in':
+			return `${col} IN (${f.values.map(sqlLiteral).join(', ')})`;
+		case 'range':
+			return `${col} BETWEEN ${sqlLiteral(f.values[0])} AND ${sqlLiteral(f.values[1])}`;
+		default:
+			return `${col} ${SQL_OP[f.op]} ${sqlLiteral(f.values[0] ?? '')}`;
 	}
-	const text = freeText(q);
-	if (text)
-		clauses.push(`to_tsvector(title) @@ plainto_tsquery(${`'${text.replace(/'/g, "''")}'`})`);
-	const where = clauses.length ? clauses.join('\n  AND ') : 'TRUE';
+}
+
+/** Serialise a node to a SQL boolean expression, parenthesising sub-groups. */
+function nodeToSql(node: ExprNode): string {
+	switch (node.kind) {
+		case 'filter':
+			return filterToSql(node);
+		case 'text':
+			return `to_tsvector(title) @@ plainto_tsquery(${sqlLiteral(node.value)})`;
+		case 'not':
+			return `NOT (${nodeToSql(node.child)})`;
+		case 'and':
+			return node.children.map((c) => `(${nodeToSql(c)})`).join(' AND ');
+		case 'or':
+			return node.children.map((c) => `(${nodeToSql(c)})`).join(' OR ');
+	}
+}
+
+export function toSql(q: Query, table = 'tracks'): string {
+	const where = q.root ? nodeToSql(q.root) : 'TRUE';
 	return `SELECT * FROM ${table}\nWHERE ${where};`;
 }
 
@@ -115,18 +163,59 @@ function matchFilter(f: FilterNode, row: Row): boolean {
 	}
 }
 
-export function compilePredicate(q: Query): (row: Row) => boolean {
-	const fs = filters(q);
-	const text = freeText(q).toLowerCase();
-	return (row: Row) => {
-		for (const f of fs) {
-			if (f.values.every((v) => v === '')) continue; // ignore incomplete clauses
-			if (!matchFilter(f, row)) return false;
-		}
-		if (text) {
+/**
+ * Is this leaf still incomplete (mid-typing)? Such leaves are neutral — they
+ * neither match nor reject — so a half-written clause never changes the result
+ * set, matching the old flat-AND "ignore incomplete clauses" behaviour.
+ */
+function isIncomplete(node: ExprNode): boolean {
+	if (node.kind === 'filter') return node.values.every((v) => v === '');
+	if (node.kind === 'text') return node.value.trim() === '';
+	return false;
+}
+
+/** Evaluate a node against a row. `null` = neutral (skip / don't constrain). */
+function evalNode(node: ExprNode, row: Row): boolean | null {
+	if (isIncomplete(node)) return null;
+	switch (node.kind) {
+		case 'filter':
+			return matchFilter(node, row);
+		case 'text': {
 			const hay = Object.values(row).join(' ').toLowerCase();
-			if (!hay.includes(text)) return false;
+			return hay.includes(node.value.trim().toLowerCase());
 		}
-		return true;
+		case 'not': {
+			const inner = evalNode(node.child, row);
+			return inner === null ? null : !inner;
+		}
+		case 'and': {
+			let sawReal = false;
+			for (const c of node.children) {
+				const r = evalNode(c, row);
+				if (r === null) continue; // neutral
+				sawReal = true;
+				if (!r) return false;
+			}
+			return sawReal ? true : null;
+		}
+		case 'or': {
+			let sawReal = false;
+			for (const c of node.children) {
+				const r = evalNode(c, row);
+				if (r === null) continue;
+				sawReal = true;
+				if (r) return true;
+			}
+			return sawReal ? false : null;
+		}
+	}
+}
+
+export function compilePredicate(q: Query): (row: Row) => boolean {
+	const root = q.root;
+	return (row: Row) => {
+		if (!root) return true;
+		const r = evalNode(root, row);
+		return r === null ? true : r;
 	};
 }
