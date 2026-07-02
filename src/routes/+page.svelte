@@ -171,7 +171,7 @@ function greet(name) {
 		]
 	};
 	let searchValue = $state('');
-	let searchQuery = $state<Query>({ nodes: [] });
+	let searchQuery = $state<Query>({ root: null });
 	const searchResults = $derived(tableRows.filter(compilePredicate(searchQuery)));
 	const searchSql = $derived(toSql(searchQuery, 'nodes'));
 

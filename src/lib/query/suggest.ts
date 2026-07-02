@@ -45,15 +45,20 @@ export interface SuggestState {
 }
 
 /**
- * The token under the caret. Whitespace ends a token EXCEPT inside an open
- * quote, so a quoted value containing spaces (`album:"ok computer`) stays one
- * token and keeps the caret in the value step rather than collapsing to an
- * empty token (which would wrongly re-offer fields). A closed quote followed by
- * whitespace starts a fresh token (so the next `field:` can be chained).
+ * The token under the caret. Whitespace — and boolean grouping parens `(` `)` —
+ * end a token EXCEPT inside an open quote, so a quoted value containing spaces
+ * (`album:"ok computer`) stays one token and keeps the caret in the value step
+ * rather than collapsing to an empty token (which would wrongly re-offer
+ * fields). Breaking on parens means `(artist:` offers operators for a clean
+ * `artist`, and autocomplete fires at the right spot inside a group.
  */
+function isBoundary(c: string): boolean {
+	return /\s/.test(c) || c === '(' || c === ')';
+}
+
 export function activeToken(s: string, pos: number): { start: number; end: number; raw: string } {
 	// Walk from the start so we can track quote state; the last unquoted
-	// whitespace before the caret is the token boundary.
+	// boundary before the caret is the token start.
 	let start = 0;
 	let inQuote = false;
 	let q = '';
@@ -64,7 +69,7 @@ export function activeToken(s: string, pos: number): { start: number; end: numbe
 		} else if (c === '"' || c === "'") {
 			inQuote = true;
 			q = c;
-		} else if (/\s/.test(c)) {
+		} else if (isBoundary(c)) {
 			start = i + 1;
 		}
 	}
@@ -72,7 +77,7 @@ export function activeToken(s: string, pos: number): { start: number; end: numbe
 	let end = pos;
 	for (let i = pos; i < s.length; i++) {
 		const c = s[i];
-		if (!inQuote && /\s/.test(c)) break;
+		if (!inQuote && isBoundary(c)) break;
 		if (inQuote) {
 			if (c === q) inQuote = false;
 		} else if (c === '"' || c === "'") {
@@ -83,6 +88,10 @@ export function activeToken(s: string, pos: number): { start: number; end: numbe
 	}
 	return { start, end, raw: s.slice(start, end) };
 }
+
+// The boolean connectives are not fields/operators/values; when the caret sits
+// on one there is nothing to autocomplete (the next token gets fresh fields).
+const CONNECTIVES = new Set(['AND', 'OR', 'NOT']);
 
 /** Split a token into field / operator-code / value parts (earliest op wins). */
 function splitToken(raw: string): { field: string; opCode: string | null; value: string } {
@@ -186,6 +195,10 @@ export async function suggest(
 	if (raw === '') return fieldSuggestions(schema, '', span);
 
 	const { field: fieldFrag, opCode, value } = splitToken(raw);
+
+	// The caret is parked on a bare boolean connective (`AND`/`OR`/`NOT`) — not a
+	// field, so suppress the dropdown until the next token begins.
+	if (opCode === null && CONNECTIVES.has(fieldFrag.toUpperCase())) return null;
 	const field = findField(schema, fieldFrag);
 
 	// No operator typed yet.
