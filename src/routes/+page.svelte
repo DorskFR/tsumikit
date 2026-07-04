@@ -752,6 +752,23 @@ function greet(name) {
 					<Tooltip text="Also works on icon buttons." placement="bottom">
 						{#snippet trigger()}<IconButton icon="info" label="Info" />{/snippet}
 					</Tooltip>
+					<!-- Rich hovercard: `content` snippet + persist-on-hover — move into the
+					     panel to select text or click the copy button. -->
+					<Tooltip placement="bottom">
+						{#snippet trigger()}
+							<button type="button" class="status-dot" aria-label="api-gateway status"></button>
+						{/snippet}
+						{#snippet content()}
+							<dl class="tip-kv">
+								<dt>service</dt>
+								<dd>api-gateway</dd>
+								<dt>region</dt>
+								<dd>ap-northeast-1</dd>
+								<dt>build</dt>
+								<dd><code>7f3c9e2</code> <CopyButton text="7f3c9e2" /></dd>
+							</dl>
+						{/snippet}
+					</Tooltip>
 				</div>
 				<div class="stack">
 					<Progress value={65} label="Upload progress" />
@@ -1053,6 +1070,34 @@ function greet(name) {
 	   global — the parent's scoped hash doesn't reach a child's root element. */
 	:global(.span-2) {
 		grid-column: 1 / -1;
+	}
+	/* Rich-tooltip demo: a status dot trigger + a key/value debug panel. */
+	.status-dot {
+		display: inline-block;
+		width: 0.75rem;
+		height: 0.75rem;
+		padding: 0;
+		border: 0;
+		border-radius: var(--r-pill);
+		background: var(--ok);
+		align-self: center;
+		cursor: help;
+	}
+	.tip-kv {
+		display: grid;
+		grid-template-columns: auto 1fr;
+		gap: var(--sp-1) var(--sp-3);
+		margin: 0;
+	}
+	.tip-kv dt {
+		color: var(--text-muted);
+	}
+	.tip-kv dd {
+		margin: 0;
+		display: inline-flex;
+		align-items: center;
+		gap: var(--sp-1);
+		font-family: var(--font-mono);
 	}
 	.icon-grid {
 		display: grid;
