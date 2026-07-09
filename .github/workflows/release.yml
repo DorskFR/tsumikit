@@ -16,13 +16,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+      # Node 24 bundles npm >= 11.5.1, which trusted publishing needs — no fragile
+      # in-place `npm install -g npm@latest` (it can leave a broken sigstore dep).
       - uses: actions/setup-node@v6
         with:
-          node-version: 22
+          node-version: 24
           registry-url: 'https://registry.npmjs.org'
           cache: npm
-      # Trusted publishing needs npm >= 11.5.1 (newer than the bundled version).
-      - run: npm install -g npm@latest
       - run: npm ci
       - run: npm run package
-      - run: npm publish
+      # Idempotent: skip if this version is already on the registry so a re-run
+      # (or a hand-published first version) goes green instead of erroring.
+      - name: Publish
+        run: |
+          name=$(node -p "require('./package.json').name")
+          version=$(node -p "require('./package.json').version")
+          if npm view "$name@$version" version >/dev/null 2>&1; then
+            echo "$name@$version already published — skipping."
+          else
+            npm publish
+          fi
