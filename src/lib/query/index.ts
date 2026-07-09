@@ -15,6 +15,12 @@ export type {
 	TextNode,
 } from './ast';
 export { filters, freeText, walk } from './ast';
+export {
+	autoQuoteEdit,
+	backspaceEmptyQuotes,
+	closingQuoteExit,
+	insideQuoteAtCaret,
+} from './edit';
 export { parse } from './parser';
 export { compilePredicate, serialize, serializeFilter, toSql } from './query';
 export type {

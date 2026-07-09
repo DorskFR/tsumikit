@@ -20,6 +20,11 @@
 	import Badge from '$lib/components/atoms/Badge.svelte';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import { filters, freeText, type Query } from '$lib/query/ast';
+	import {
+		autoQuoteEdit,
+		backspaceEmptyQuotes,
+		closingQuoteExit
+	} from '$lib/query/edit';
 	import { findField, operatorById, type Schema } from '$lib/query/schema';
 	import { parse } from '$lib/query/parser';
 	import { suggest, type SuggestState } from '$lib/query/suggest';
@@ -29,6 +34,7 @@
 		value = $bindable(''),
 		placeholder = 'artist:"Daft Punk" AND year>=2000',
 		showChips = true,
+		autoQuote = true,
 		onchange,
 		onsubmit
 	}: {
@@ -38,6 +44,12 @@
 		placeholder?: string;
 		/** Render the parsed, removable filter chips under the bar. */
 		showChips?: boolean;
+		/**
+		 * When a string field's value step opens (`title:`), auto-insert a `""`
+		 * pair with the caret inside so multi-word values stay together; Tab exits
+		 * the quotes. Set false for bare typing where spaces split the value.
+		 */
+		autoQuote?: boolean;
 		/** Fires the parsed AST on every change — feed this to your backend. */
 		onchange?: (query: Query, raw: string) => void;
 		/** Fires on Enter / clear / chip-remove with the raw query string. */
@@ -64,6 +76,28 @@
 		return findField(schema, fieldName)?.label ?? fieldName;
 	}
 
+	function setCaret(pos: number) {
+		queueMicrotask(() => {
+			if (!el) return;
+			el.focus();
+			el.setSelectionRange(pos, pos);
+		});
+	}
+
+	function oninput(e: Event) {
+		if (autoQuote && el && (e as InputEvent).inputType?.startsWith('insert')) {
+			const pos = el.selectionStart ?? value.length;
+			const edit = autoQuoteEdit(schema, value, pos);
+			if (edit) {
+				value = edit.value;
+				setCaret(edit.pos);
+				queueMicrotask(refresh);
+				return;
+			}
+		}
+		refresh();
+	}
+
 	async function refresh() {
 		if (!el) return;
 		const pos = el.selectionStart ?? value.length;
@@ -81,18 +115,51 @@
 		if (!s) return;
 		const [a, b] = menu.span;
 		value = value.slice(0, a) + s.insert + value.slice(b);
+		let caret = s.caret;
+		// A field/operator pick that opens a string field's value step gets the
+		// same auto-quotes as manual typing.
+		if (autoQuote && s.advance) {
+			const edit = autoQuoteEdit(schema, value, caret);
+			if (edit) {
+				value = edit.value;
+				caret = edit.pos;
+			}
+		}
 		// Restore caret after the inserted text, then re-run suggestions if the
 		// step advanced (field → operator → value) so the flow keeps going.
 		queueMicrotask(() => {
 			if (!el) return;
 			el.focus();
-			el.setSelectionRange(s.caret, s.caret);
+			el.setSelectionRange(caret, caret);
 			if (s.advance) refresh();
 			else open = false;
 		});
 	}
 
 	function onkeydown(e: KeyboardEvent) {
+		if (autoQuote && el) {
+			const pos = el.selectionStart ?? value.length;
+			if (e.key === 'Tab') {
+				// Inside auto-quotes Tab exits them (takes priority over accepting a
+				// dropdown item); elsewhere it falls through to accept.
+				const exit = closingQuoteExit(value, pos);
+				if (exit !== null) {
+					e.preventDefault();
+					open = false;
+					setCaret(exit);
+					return;
+				}
+			} else if (e.key === 'Backspace') {
+				const edit = backspaceEmptyQuotes(value, pos);
+				if (edit) {
+					e.preventDefault();
+					value = edit.value;
+					setCaret(edit.pos);
+					queueMicrotask(refresh);
+					return;
+				}
+			}
+		}
 		if (!open || !menu) {
 			if (e.key === 'Enter') submit();
 			return;
@@ -150,7 +217,7 @@
 			spellcheck="false"
 			autocomplete="off"
 			{placeholder}
-			oninput={refresh}
+			{oninput}
 			onclick={refresh}
 			onkeyup={(e) => {
 				if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') refresh();
