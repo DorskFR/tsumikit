@@ -57,9 +57,11 @@
 	} = $props();
 
 	let el = $state<HTMLInputElement | null>(null);
+	let menuEl = $state<HTMLDivElement | null>(null);
 	let menu = $state<SuggestState | null>(null);
 	let active = $state(0);
 	let open = $state(false);
+	let keyboardNavigation = $state(false);
 	let reqId = 0;
 
 	// Parsed view (drives the removable chips + the onchange AST).
@@ -70,6 +72,16 @@
 	// Emit the AST whenever the parse result changes.
 	$effect(() => {
 		onchange?.(ast, value);
+	});
+
+	// Keep keyboard navigation visible without moving the menu under the pointer
+	// when the active option changes because of hover.
+	$effect(() => {
+		active;
+		if (!keyboardNavigation || !open || !menuEl) return;
+		menuEl
+			.querySelector<HTMLElement>('.fsb__opt.is-active')
+			?.scrollIntoView({ block: 'nearest' });
 	});
 
 	function labelFor(fieldName: string): string {
@@ -106,6 +118,7 @@
 		if (id !== reqId) return; // a newer keystroke won
 		menu = next;
 		active = 0;
+		keyboardNavigation = false;
 		open = !!next && next.items.length > 0;
 	}
 
@@ -167,10 +180,12 @@
 		switch (e.key) {
 			case 'ArrowDown':
 				e.preventDefault();
+				keyboardNavigation = true;
 				active = (active + 1) % menu.items.length;
 				break;
 			case 'ArrowUp':
 				e.preventDefault();
+				keyboardNavigation = true;
 				active = (active - 1 + menu.items.length) % menu.items.length;
 				break;
 			case 'Enter':
@@ -243,7 +258,7 @@
 	</div>
 
 	{#if open && menu}
-		<div class="fsb__menu" role="listbox" aria-label={kindLabel[menu.kind]}>
+		<div bind:this={menuEl} class="fsb__menu" role="listbox" aria-label={kindLabel[menu.kind]}>
 			<div class="fsb__menu-head">{kindLabel[menu.kind]}</div>
 			{#each menu.items as item, i (item.insert + i)}
 				<button
@@ -253,7 +268,10 @@
 					role="option"
 					aria-selected={i === active}
 					onmousedown={(e) => e.preventDefault()}
-					onmouseenter={() => (active = i)}
+					onmouseenter={() => {
+						keyboardNavigation = false;
+						active = i;
+					}}
 					onclick={() => accept(i)}
 				>
 					<span class="fsb__opt-label">{item.label}</span>
