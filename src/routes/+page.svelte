@@ -38,6 +38,7 @@
 		type SegmentOption,
 		DataTable,
 		FilterSearchBar,
+		FilterInput,
 		type Schema,
 		type Query,
 		compilePredicate,
@@ -172,6 +173,8 @@ function greet(name) {
 	};
 	let searchValue = $state('');
 	let searchQuery = $state<Query>({ root: null });
+	// FilterInput single-field demo: no below-bar chips, an inline badge instead.
+	let singleValue = $state('');
 	const searchResults = $derived(tableRows.filter(compilePredicate(searchQuery)));
 	const searchSql = $derived(toSql(searchQuery, 'nodes'));
 
@@ -737,6 +740,25 @@ function greet(name) {
 				/>
 				<CodeBlock code={searchSql} lang="sql" />
 			</div>
+		</Card>
+
+		<Text tone="muted">
+			<code>FilterInput</code> is the headless primitive underneath — same schema-driven dropdown, but
+			single-field with no below-bar chips. Its <code>inline</code> snippet renders custom nodes inside
+			the bar (here, a badge per parsed filter):
+		</Text>
+		<Card>
+			<FilterInput
+				schema={searchSchema}
+				bind:value={singleValue}
+				placeholder={'role:worker'}
+			>
+				{#snippet inline({ filters: fs })}
+					{#each fs as f (f.span[0])}
+						<Badge tone="info">{f.field}: {f.values.join(', ') || '∅'}</Badge>
+					{/each}
+				{/snippet}
+			</FilterInput>
 		</Card>
 	</section>
 

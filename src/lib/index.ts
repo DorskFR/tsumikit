@@ -44,6 +44,10 @@ export { default as EmptyState } from './components/molecules/EmptyState.svelte'
 // ---- molecules ----
 export { default as Field } from './components/molecules/Field.svelte';
 export { default as FileButton } from './components/molecules/FileButton.svelte';
+export {
+	default as FilterInput,
+	type FilterInputContext,
+} from './components/molecules/FilterInput.svelte';
 export { default as FontScalePicker } from './components/molecules/FontScalePicker.svelte';
 export { default as IconButton } from './components/molecules/IconButton.svelte';
 export { default as Menu, type MenuItem } from './components/molecules/Menu.svelte';
