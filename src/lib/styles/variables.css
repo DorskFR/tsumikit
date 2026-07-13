@@ -73,6 +73,9 @@
   --text-muted: var(--c-text-muted);
   --text-faint: var(--c-text-faint);
   --text-on-accent: var(--c-accent-ink);
+  /* Adaptive ink for filled positive actions: dark canvas ink on bright greens,
+     light canvas ink on the darker greens used by light themes. */
+  --text-on-success: var(--bg);
 
   --accent: var(--c-accent);
   --accent-dim: var(--c-accent-dim);

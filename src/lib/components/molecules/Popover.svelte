@@ -13,7 +13,7 @@
 
 	type Placement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
 	type TriggerVariant = 'default' | 'primary' | 'ghost' | 'danger';
-	type TriggerTone = 'none' | 'accent' | 'info' | 'warn' | 'danger';
+	type TriggerTone = 'none' | 'accent' | 'success' | 'info' | 'warn' | 'danger';
 	type TriggerSize = 'sm' | 'md' | 'lg';
 
 	let {
@@ -101,6 +101,7 @@
 	class:trigger-control={control}
 	class:trigger-block={block}
 	class:trigger-tone-accent={tone === 'accent'}
+	class:trigger-tone-success={tone === 'success'}
 	class:trigger-tone-info={tone === 'info'}
 	class:trigger-tone-warn={tone === 'warn'}
 	class:trigger-tone-danger={tone === 'danger'}
@@ -212,6 +213,9 @@
 	.pop-trigger.trigger-tone-accent {
 		--pop-trigger-tone: var(--accent);
 	}
+	.pop-trigger.trigger-tone-success {
+		--pop-trigger-tone: var(--ok);
+	}
 	.pop-trigger.trigger-tone-info {
 		--pop-trigger-tone: var(--info);
 	}
@@ -222,6 +226,7 @@
 		--pop-trigger-tone: var(--danger);
 	}
 	.pop-trigger.trigger-tone-accent,
+	.pop-trigger.trigger-tone-success,
 	.pop-trigger.trigger-tone-info,
 	.pop-trigger.trigger-tone-warn,
 	.pop-trigger.trigger-tone-danger {
@@ -229,11 +234,22 @@
 		border-color: color-mix(in srgb, var(--pop-trigger-tone) 50%, var(--border));
 	}
 	.pop-trigger.trigger-tone-accent:hover:not(:disabled),
+	.pop-trigger.trigger-tone-success:hover:not(:disabled),
 	.pop-trigger.trigger-tone-info:hover:not(:disabled),
 	.pop-trigger.trigger-tone-warn:hover:not(:disabled),
 	.pop-trigger.trigger-tone-danger:hover:not(:disabled) {
 		background: color-mix(in srgb, var(--pop-trigger-tone) 14%, transparent);
 		border-color: var(--pop-trigger-tone);
+	}
+	.pop-trigger.trigger-primary.trigger-tone-success {
+		background: var(--ok);
+		border-color: var(--ok);
+		color: var(--text-on-success);
+	}
+	.pop-trigger.trigger-primary.trigger-tone-success:hover:not(:disabled) {
+		background: var(--ok);
+		border-color: var(--ok);
+		filter: brightness(1.08);
 	}
 	.pop-trigger:disabled {
 		opacity: 0.45;
