@@ -32,6 +32,7 @@ export { default as Cluster } from './components/layouts/Cluster.svelte';
 export { default as Container } from './components/layouts/Container.svelte';
 export { default as NavItem } from './components/layouts/NavItem.svelte';
 export { default as NavSection } from './components/layouts/NavSection.svelte';
+export { default as ResizablePanel } from './components/layouts/ResizablePanel.svelte';
 export { default as Stack } from './components/layouts/Stack.svelte';
 export {
 	type AccordionItem,
