@@ -15,6 +15,7 @@
 		Stack,
 		Cluster,
 		AutoGrid,
+		ResizablePanel,
 		type IconName
 	} from '$lib';
 	import { base } from '$app/paths';
@@ -47,6 +48,7 @@
 	];
 	let active = $state('overview');
 	const allItems = navGroups.flatMap((g) => g.items);
+	const files = ['src/lib/index.ts', 'src/routes/+page.svelte', 'README.md'];
 </script>
 
 <AppShell resizableSidebar minSidebar={64} maxSidebar={320} sidebarWidthKey="tsumikit-shell-sidebar">
@@ -109,6 +111,35 @@
 					</Card>
 				{/each}
 			</AutoGrid>
+
+			<Heading level={2}>ResizablePanel</Heading>
+			<Text variant="body" tone="muted">
+				This embedded example places the panel on the right. Drag its edge or focus the separator
+				and use the arrow keys, Home, or End. The bottom control collapses it to a usable rail.
+			</Text>
+			<div class="panel-demo">
+				<ResizablePanel
+					side="right"
+					label="Changed files"
+					width={260}
+					minWidth={180}
+					maxWidth={420}
+					widthKey="tsumikit-shell-files-panel"
+				>
+					{#snippet panel()}
+						<div class="file-panel">
+							<Heading level={3} size="md">Changed files</Heading>
+							{#each files as file (file)}
+								<button type="button" class="file-row"><Icon name="file" /> {file}</button>
+							{/each}
+						</div>
+					{/snippet}
+					<div class="preview">
+						<Text variant="caption" tone="faint">Preview</Text>
+						<Heading level={3} size="md">Select a file to inspect its changes</Heading>
+					</div>
+				</ResizablePanel>
+			</div>
 		</Stack>
 	</Container>
 </AppShell>
@@ -118,5 +149,39 @@
 		display: flex;
 		flex-direction: column;
 		gap: 2px;
+	}
+	.panel-demo {
+		display: grid;
+		height: 22rem;
+		overflow: hidden;
+		border: 1px solid var(--border);
+		border-radius: var(--r-md);
+	}
+	.file-panel,
+	.preview {
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp-3);
+		padding: var(--sp-4);
+	}
+	.file-row {
+		display: flex;
+		align-items: center;
+		gap: var(--sp-2);
+		width: 100%;
+		padding: var(--sp-2);
+		color: var(--text-muted);
+		font: inherit;
+		font-size: var(--fs-sm);
+		text-align: left;
+		background: transparent;
+		border: 0;
+		border-radius: var(--r-sm);
+		cursor: pointer;
+	}
+	.file-row:hover,
+	.file-row:focus-visible {
+		color: var(--text);
+		background: var(--surface);
 	}
 </style>
