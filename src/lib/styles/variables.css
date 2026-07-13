@@ -161,8 +161,13 @@
   --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.45);
   --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.55);
 
-  /* ---- Controls (CCT-250 item 1) — shared height for icon buttons + inputs
-	   so toolbars/composers line up. Button's `control` variant consumes it. */
+  /* ---- Controls ----
+	   `size="sm"` is the compact toolbar contract shared by Button, Popover and
+	   SegmentedControl. `control` is the roomier uniform-height contract used by
+	   Button and other composer controls. Both remain rem-based for zoom. */
+  --control-height-compact: 2rem;
+  --control-height-default: 2.5rem;
+  --control-height-large: 3rem;
   --control-height: 2.75rem;
 
   /* ---- Layout ---- */

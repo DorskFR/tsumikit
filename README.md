@@ -108,6 +108,27 @@ proportionally with no code. That's the recommended path for magnification.
 text tokens only) for reading-dense apps that want larger body text while
 keeping chrome compact. It isn't wired into AppShell or any default.
 
+### Toolbar control heights
+
+`size="sm"` is the shared compact-toolbar contract for `Button`, `Popover`
+triggers, and `SegmentedControl`. Each renders an exact
+`--control-height-compact` outer box, so mixed controls share a vertical center:
+
+```svelte
+<SegmentedControl size="sm" {options} bind:value />
+<Popover size="sm" variant="default" label="More actions">
+  {#snippet trigger()}More{/snippet}
+  <!-- panel content -->
+</Popover>
+<Button size="sm">Apply</Button>
+```
+
+`Popover` owns that single semantic trigger button; pass `variant`, `tone`,
+`size`, `control`, `block`, and `disabled` directly instead of rendering a
+`Button` inside its `trigger` snippet. Omitting these props preserves the
+original ghost icon-button default. Use `control` on `Button` or `Popover` when
+the roomier shared `--control-height` composer contract is required.
+
 ## Built on the platform
 
 Interactive components lean on modern web features rather than reimplementing
