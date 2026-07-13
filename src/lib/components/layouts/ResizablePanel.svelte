@@ -2,6 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import { browser } from '$lib/env';
 	import Icon from '$lib/components/atoms/Icon.svelte';
+	import { parseStoredCollapsed, parseStoredWidth } from './resizable-panel-persistence';
 
 	let {
 		panel,
@@ -64,12 +65,18 @@
 		restored = true;
 		if (!widthKey) return;
 
-		const savedWidth = Number(localStorage.getItem(widthKey));
-		if (Number.isFinite(savedWidth)) panelWidth = savedWidth;
+		const savedWidth = parseStoredWidth(
+			localStorage.getItem(widthKey),
+			boundedMin,
+			boundedMax
+		);
+		if (savedWidth !== undefined) panelWidth = savedWidth;
 
 		if (persistCollapsed) {
-			const savedCollapsed = localStorage.getItem(`${widthKey}:collapsed`);
-			if (savedCollapsed !== null) collapsed = savedCollapsed === 'true';
+			const savedCollapsed = parseStoredCollapsed(
+				localStorage.getItem(`${widthKey}:collapsed`)
+			);
+			if (savedCollapsed !== undefined) collapsed = savedCollapsed;
 		}
 	});
 
