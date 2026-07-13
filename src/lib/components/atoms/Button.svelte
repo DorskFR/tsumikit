@@ -6,8 +6,8 @@
 		variant?: 'default' | 'primary' | 'ghost' | 'danger';
 		// Semantic state tint layered on top of the variant: tints text/border and
 		// adds a subtle fill on hover. For stateful controls — an "on"/active toggle
-		// (`accent`), or cost/severity states (`info`, `warn`).
-		tone?: 'none' | 'accent' | 'info' | 'warn' | 'danger';
+		// (`accent`), positive actions (`success`), or cost/severity states.
+		tone?: 'none' | 'accent' | 'success' | 'info' | 'warn' | 'danger';
 		size?: 'sm' | 'md' | 'lg';
 		control?: boolean;
 		block?: boolean;
@@ -66,6 +66,7 @@
 	class:btn-icon={icon}
 	class:btn-chip={chip}
 	class:btn-tone-accent={tone === 'accent'}
+	class:btn-tone-success={tone === 'success'}
 	class:btn-tone-info={tone === 'info'}
 	class:btn-tone-warn={tone === 'warn'}
 	class:btn-tone-danger={tone === 'danger'}
@@ -156,6 +157,9 @@
 	.btn-tone-accent {
 		--btn-tone: var(--accent);
 	}
+	.btn-tone-success {
+		--btn-tone: var(--ok);
+	}
 	.btn-tone-info {
 		--btn-tone: var(--info);
 	}
@@ -166,6 +170,7 @@
 		--btn-tone: var(--danger);
 	}
 	.btn-tone-accent,
+	.btn-tone-success,
 	.btn-tone-info,
 	.btn-tone-warn,
 	.btn-tone-danger {
@@ -173,6 +178,7 @@
 		border-color: color-mix(in srgb, var(--btn-tone) 50%, var(--border));
 	}
 	.btn-tone-accent:hover:not(:disabled),
+	.btn-tone-success:hover:not(:disabled),
 	.btn-tone-info:hover:not(:disabled),
 	.btn-tone-warn:hover:not(:disabled),
 	.btn-tone-danger:hover:not(:disabled) {
@@ -232,6 +238,26 @@
 	}
 	.btn-control.btn-primary:hover:not(:disabled) {
 		border-color: var(--accent);
+		filter: brightness(1.08);
+	}
+	.btn-control.btn-tone-success {
+		color: var(--ok);
+		border-color: color-mix(in srgb, var(--ok) 50%, var(--border));
+	}
+	.btn-control.btn-tone-success:hover:not(:disabled) {
+		background: color-mix(in srgb, var(--ok) 14%, transparent);
+		border-color: var(--ok);
+	}
+	/* A positive primary action uses success as its fill, not merely as the
+	   neutral tint. This follows the control override so both heights match. */
+	.btn-primary.btn-tone-success {
+		background: var(--ok);
+		border-color: var(--ok);
+		color: var(--text-on-success);
+	}
+	.btn-primary.btn-tone-success:hover:not(:disabled) {
+		background: var(--ok);
+		border-color: var(--ok);
 		filter: brightness(1.08);
 	}
 

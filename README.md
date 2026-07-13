@@ -129,6 +129,10 @@ triggers, and `SegmentedControl`. Each renders an exact
 original ghost icon-button default. Use `control` on `Button` or `Popover` when
 the roomier shared `--control-height` composer contract is required.
 
+Button and Popover share the same semantic tones. For a confirmed positive
+action, `tone="success"` gives neutral controls a success tint; combine it with
+`variant="primary"` for a filled success action without consumer CSS.
+
 ## Built on the platform
 
 Interactive components lean on modern web features rather than reimplementing
