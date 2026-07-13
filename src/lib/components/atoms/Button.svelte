@@ -89,7 +89,7 @@
 		justify-content: center;
 		gap: var(--sp-2);
 		padding: var(--sp-2) var(--sp-4);
-		min-height: 2.5rem;
+		min-height: var(--control-height-default);
 		border: 1px solid var(--border-strong);
 		border-radius: var(--r-md);
 		background: var(--surface);
@@ -137,12 +137,13 @@
 		border-color: transparent;
 	}
 	.btn-sm {
-		min-height: 2rem;
+		height: var(--control-height-compact);
+		min-height: var(--control-height-compact);
 		padding: var(--sp-1) var(--sp-3);
 		font-size: var(--fs-xs);
 	}
 	.btn-lg {
-		min-height: 3rem;
+		min-height: var(--control-height-large);
 		padding: var(--sp-3) var(--sp-5);
 		font-size: var(--fs-base);
 	}

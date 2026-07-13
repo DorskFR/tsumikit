@@ -1,7 +1,8 @@
 <script lang="ts">
-	import type { Snippet } from 'svelte';
+	import { onDestroy, type Snippet } from 'svelte';
 	import { browser } from '$lib/env';
 	import Icon from '$lib/components/atoms/Icon.svelte';
+	import { createFrameBatcher } from './resizable-panel-frame.js';
 	import { parseStoredCollapsed, parseStoredWidth } from './resizable-panel-persistence';
 
 	let {
@@ -89,6 +90,14 @@
 		if (persist) persistWidth();
 	}
 
+	const pointerWidths = createFrameBatcher<number>(
+		(callback) => requestAnimationFrame(callback),
+		(handle) => cancelAnimationFrame(handle),
+		(nextWidth) => setWidth(nextWidth, false)
+	);
+
+	onDestroy(() => pointerWidths.discard());
+
 	function toggle() {
 		collapsed = !collapsed;
 		if (browser && widthKey && persistCollapsed) {
@@ -109,18 +118,22 @@
 
 	function resize(event: PointerEvent) {
 		if (!resizing) return;
-		setWidth(widthFromPointer(event.clientX), false);
+		pointerWidths.schedule(widthFromPointer(event.clientX));
 	}
 
 	function finishResize(event: PointerEvent) {
 		if (!resizing) return;
+		const finalWidth = Math.round(
+			Math.max(boundedMin, Math.min(widthFromPointer(event.clientX), boundedMax))
+		);
+		pointerWidths.flush(finalWidth);
 		resizing = false;
 		try {
 			(event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId);
 		} catch {
 			// Pointer capture may already have been released by the browser.
 		}
-		persistWidth();
+		if (browser && widthKey) localStorage.setItem(widthKey, String(finalWidth));
 	}
 
 	function resizeWithKeyboard(event: KeyboardEvent) {
@@ -191,7 +204,6 @@
 			onclick={toggle}
 		>
 			<Icon name={toggleIcon} size={20} />
-			{#if !collapsed}<span>{toggleLabel}</span>{/if}
 		</button>
 	</aside>
 
@@ -200,7 +212,6 @@
 
 <style>
 	.panel-layout {
-		--panel-collapsed-width: var(--control-height);
 		position: relative;
 		display: grid;
 		grid-template-columns: var(--panel-current-width) minmax(0, 1fr);
@@ -216,7 +227,7 @@
 		--panel-current-width: var(--panel-width);
 	}
 	.panel-layout.collapsed {
-		--panel-current-width: var(--panel-collapsed-width);
+		--panel-current-width: 0px;
 	}
 	.panel {
 		position: relative;
@@ -250,22 +261,27 @@
 		overflow: auto;
 	}
 	.collapse-control {
+		position: absolute;
+		right: calc(-1 * var(--control-height));
+		bottom: var(--sp-3);
+		z-index: 3;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		gap: var(--sp-2);
-		width: 100%;
-		min-height: var(--control-height);
-		margin-top: auto;
-		padding: var(--sp-2) var(--sp-3);
+		width: var(--control-height);
+		height: var(--control-height);
+		padding: 0;
 		color: var(--text-muted);
 		font: inherit;
-		font-size: var(--fs-sm);
-		font-weight: var(--fw-medium);
 		background: var(--bg-elevated-2);
-		border: 0;
-		border-top: 1px solid var(--border);
+		border: 1px solid var(--border);
+		border-radius: var(--r-sm);
+		box-shadow: var(--shadow-sm);
 		cursor: pointer;
+	}
+	.right .collapse-control {
+		right: auto;
+		left: calc(-1 * var(--control-height));
 	}
 	.collapse-control:hover {
 		color: var(--text);
@@ -280,7 +296,7 @@
 		position: absolute;
 		top: 0;
 		right: -6px;
-		bottom: var(--control-height);
+		bottom: 0;
 		z-index: 2;
 		width: 12px;
 		padding: 0;
@@ -317,7 +333,7 @@
 	}
 
 	/* In a narrow host, the expanded panel overlays the main area instead of
-	   squeezing it. The bottom control remains visible as a persistent rail. */
+	   squeezing it. */
 	@container resizable-panel (max-width: 40rem) {
 		.panel-layout {
 			display: block;
@@ -339,11 +355,6 @@
 		}
 		.main {
 			height: 100%;
-			padding-left: var(--panel-collapsed-width);
-		}
-		.right .main {
-			padding-right: var(--panel-collapsed-width);
-			padding-left: 0;
 		}
 	}
 

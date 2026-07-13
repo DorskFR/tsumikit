@@ -22,6 +22,7 @@
 	// Space/Enter (or click) activate. `value` is bindable.
 	import type { Snippet } from 'svelte';
 	import Icon from '$lib/components/atoms/Icon.svelte';
+	import { nextEnabledSegment } from './segmented-control-keyboard.js';
 
 	let {
 		options,
@@ -68,25 +69,10 @@
 			);
 		}
 	}
-	// Step to the next non-disabled option in a direction, wrapping around.
-	function step(from: number, dir: 1 | -1): number {
-		const n = options.length;
-		for (let k = 1; k <= n; k++) {
-			const j = (((from + dir * k) % n) + n) % n;
-			if (!options[j].disabled) return j;
-		}
-		return from;
-	}
 	function onkeydown(e: KeyboardEvent) {
 		const i = options.findIndex((o) => o.value === value);
-		if (i < 0) return;
-		let next = i;
-		if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = step(i, 1);
-		else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = step(i, -1);
-		else if (e.key === 'Home') next = options.findIndex((o) => !o.disabled);
-		else if (e.key === 'End')
-			next = options.length - 1 - [...options].reverse().findIndex((o) => !o.disabled);
-		else return;
+		const next = nextEnabledSegment(options, i, e.key);
+		if (next === undefined) return;
 		e.preventDefault();
 		select(options[next].value, true);
 	}
@@ -164,6 +150,15 @@
 	.seg-sm .seg-item {
 		padding: 0.2rem var(--sp-2);
 		font-size: var(--fs-xs);
+	}
+	/* Compact toolbar contract: the outer interactive box exactly matches
+	   Button size="sm" and Popover size="sm". */
+	.seg-sm {
+		height: var(--control-height-compact);
+		min-height: var(--control-height-compact);
+	}
+	.seg-sm .seg-item {
+		height: 100%;
 	}
 	.seg-icon .seg-item {
 		gap: 0;

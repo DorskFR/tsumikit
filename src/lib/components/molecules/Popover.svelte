@@ -12,6 +12,9 @@
 	import { place } from '$lib/floating';
 
 	type Placement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
+	type TriggerVariant = 'default' | 'primary' | 'ghost' | 'danger';
+	type TriggerTone = 'none' | 'accent' | 'info' | 'warn' | 'danger';
+	type TriggerSize = 'sm' | 'md' | 'lg';
 
 	let {
 		placement = 'bottom-start',
@@ -21,6 +24,12 @@
 		children,
 		triggerClass = '',
 		bare = false,
+		variant,
+		tone = 'none',
+		size,
+		control = false,
+		block = false,
+		disabled = false,
 		onopen,
 		onclose
 	}: {
@@ -38,9 +47,22 @@
 		/** Drop the default ghost-icon chrome so the trigger is an unstyled button
 		 *  you fully own (pair with `triggerClass`). */
 		bare?: boolean;
+		/** Button-compatible trigger chrome. Omitting every chrome prop preserves
+		 *  the original ghost icon-button trigger. */
+		variant?: TriggerVariant;
+		tone?: TriggerTone;
+		size?: TriggerSize;
+		/** Use the shared `--control-height` toolbar/composer contract. */
+		control?: boolean;
+		block?: boolean;
+		disabled?: boolean;
 		onopen?: () => void;
 		onclose?: () => void;
 	} = $props();
+
+	const canonicalChrome = $derived(
+		variant !== undefined || tone !== 'none' || size !== undefined || control || block
+	);
 
 	const id = `pop-${Math.random().toString(36).slice(2, 8)}`;
 	let triggerEl = $state<HTMLButtonElement | null>(null);
@@ -70,8 +92,21 @@
 	type="button"
 	class="pop-trigger {triggerClass}"
 	class:bare
+	class:canonical={canonicalChrome}
+	class:trigger-primary={variant === 'primary'}
+	class:trigger-ghost={variant === 'ghost'}
+	class:trigger-danger={variant === 'danger'}
+	class:trigger-sm={size === 'sm'}
+	class:trigger-lg={size === 'lg'}
+	class:trigger-control={control}
+	class:trigger-block={block}
+	class:trigger-tone-accent={tone === 'accent'}
+	class:trigger-tone-info={tone === 'info'}
+	class:trigger-tone-warn={tone === 'warn'}
+	class:trigger-tone-danger={tone === 'danger'}
 	popovertarget={id}
 	aria-label={label}
+	{disabled}
 >
 	{@render trigger()}
 </button>
@@ -107,18 +142,114 @@
 			background 0.12s var(--ease),
 			border-color 0.12s var(--ease);
 	}
-	.pop-trigger:hover {
+	.pop-trigger:hover:not(:disabled) {
 		background: var(--bg-elevated-2);
+	}
+	/* Supplying canonical chrome props opts into the same dimensions, variants
+	   and state tones as Button while keeping this one native trigger element. */
+	.pop-trigger.canonical {
+		min-width: 0;
+		min-height: var(--control-height-default);
+		padding: var(--sp-2) var(--sp-4);
+		border-color: var(--border-strong);
+		background: var(--surface);
+		font-weight: var(--fw-medium);
+		font-size: var(--fs-sm);
+		line-height: 1;
+		user-select: none;
+		white-space: nowrap;
+	}
+	.pop-trigger.canonical:hover:not(:disabled) {
+		border-color: var(--accent);
+		background: var(--surface);
+	}
+	.pop-trigger.trigger-primary {
+		background: var(--accent);
+		border-color: var(--accent);
+		color: var(--text-on-accent);
+		font-weight: var(--fw-semibold);
+	}
+	.pop-trigger.trigger-primary:hover:not(:disabled) {
+		background: var(--accent);
+		border-color: var(--accent);
+		filter: brightness(1.08);
+	}
+	.pop-trigger.trigger-ghost {
+		background: transparent;
+		border-color: transparent;
+	}
+	.pop-trigger.trigger-ghost:hover:not(:disabled) {
+		background: var(--bg-elevated-2);
+		border-color: transparent;
+	}
+	.pop-trigger.trigger-danger {
+		color: var(--danger);
+		border-color: color-mix(in srgb, var(--danger) 50%, var(--border));
+	}
+	.pop-trigger.trigger-danger:hover:not(:disabled) {
+		background: color-mix(in srgb, var(--danger) 14%, transparent);
+		border-color: var(--danger);
+	}
+	.pop-trigger.trigger-sm {
+		height: var(--control-height-compact);
+		min-height: var(--control-height-compact);
+		padding: var(--sp-1) var(--sp-3);
+		font-size: var(--fs-xs);
+	}
+	.pop-trigger.trigger-lg {
+		min-height: var(--control-height-large);
+		padding: var(--sp-3) var(--sp-5);
+		font-size: var(--fs-base);
+	}
+	.pop-trigger.trigger-control {
+		height: var(--control-height);
+		min-height: var(--control-height);
+		padding: 0 var(--sp-3);
+	}
+	.pop-trigger.trigger-block {
+		width: 100%;
+	}
+	.pop-trigger.trigger-tone-accent {
+		--pop-trigger-tone: var(--accent);
+	}
+	.pop-trigger.trigger-tone-info {
+		--pop-trigger-tone: var(--info);
+	}
+	.pop-trigger.trigger-tone-warn {
+		--pop-trigger-tone: var(--warn);
+	}
+	.pop-trigger.trigger-tone-danger {
+		--pop-trigger-tone: var(--danger);
+	}
+	.pop-trigger.trigger-tone-accent,
+	.pop-trigger.trigger-tone-info,
+	.pop-trigger.trigger-tone-warn,
+	.pop-trigger.trigger-tone-danger {
+		color: var(--pop-trigger-tone);
+		border-color: color-mix(in srgb, var(--pop-trigger-tone) 50%, var(--border));
+	}
+	.pop-trigger.trigger-tone-accent:hover:not(:disabled),
+	.pop-trigger.trigger-tone-info:hover:not(:disabled),
+	.pop-trigger.trigger-tone-warn:hover:not(:disabled),
+	.pop-trigger.trigger-tone-danger:hover:not(:disabled) {
+		background: color-mix(in srgb, var(--pop-trigger-tone) 14%, transparent);
+		border-color: var(--pop-trigger-tone);
+	}
+	.pop-trigger:disabled {
+		opacity: 0.45;
+		cursor: not-allowed;
 	}
 	/* `bare`: strip the chrome down to a plain button the consumer styles. */
 	.pop-trigger.bare {
+		height: auto;
 		min-height: 0;
 		min-width: 0;
+		width: auto;
 		padding: 0;
 		border: 0;
 		background: none;
 	}
-	.pop-trigger.bare:hover {
+	.pop-trigger.bare:hover:not(:disabled) {
 		background: none;
 	}
 	.pop-panel {
