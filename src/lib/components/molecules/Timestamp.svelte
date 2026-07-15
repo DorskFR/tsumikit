@@ -32,6 +32,7 @@
 		value,
 		mode = 'datetime',
 		utc = false,
+		precision = false,
 		details = true,
 		selectable = false,
 		mono = false,
@@ -49,6 +50,9 @@
 		 *  (zoneless). Handy for calendar-date fields, where a local midnight-UTC
 		 *  value would otherwise show the wrong day. */
 		utc?: boolean;
+		/** Relative mode only: render two units ("1d 15h", "1h 55m") instead of a
+		 *  single rounded unit. Default false. */
+		precision?: boolean;
 		/** Click to open the details popover (UTC / local / relative / zone /
 		 *  epoch). Default true. When false, renders as a bare inline <time>. */
 		details?: boolean;
@@ -83,7 +87,7 @@
 	});
 
 	const date = $derived(toDate(value));
-	const label = $derived(formatTimestamp(value, current, now, utc));
+	const label = $derived(formatTimestamp(value, current, now, utc, precision));
 	// datetime= wants a valid ISO string; omit it entirely on bad input.
 	const machine = $derived(date ? toISO(date) : undefined);
 	const showPopover = $derived(details || selectable);
@@ -105,7 +109,7 @@
 			? [
 					{ k: 'UTC', v: toISO(date) },
 					{ k: 'Local', v: toLocale(date, 'datetime') },
-					{ k: 'Relative', v: relativeTime(date, now) },
+					{ k: 'Relative', v: relativeTime(date, now, true) },
 					{ k: 'Time zone', v: localTimeZone() },
 					{ k: 'Unix', v: String(toEpochSeconds(date)) }
 				]

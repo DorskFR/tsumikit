@@ -66,14 +66,25 @@ export function localTimeZone(): string {
 	return Intl.DateTimeFormat().resolvedOptions().timeZone;
 }
 
+const MIN = 60;
+const HOUR = 60 * MIN;
+const DAY = 24 * HOUR;
+
 /**
  * "3m ago", "2h ago", "5d ago" — past-relative, coarsening as it ages and
  * falling back to a locale date once past ~30 days. Future instants read
  * "in 3m" etc. `now` is injectable so callers (and tests) control the clock.
+ *
+ * The single-unit form **rounds to the nearest** unit (not truncating), so an
+ * instant 1d 15h away reads "in 2d" rather than the misleading "in 1d", and the
+ * rounding carries across boundaries (23h40m → "1d"). Pass `precision` for the
+ * two-unit form — "1d 15h", "1h 55m" — which keeps the coarse unit exact and
+ * shows the remainder instead of rounding it away.
  */
 export function relativeTime(
 	value: TimeInput | null | undefined,
 	now: number = Date.now(),
+	precision = false,
 ): string {
 	const d = toDate(value);
 	if (!d) return '';
@@ -82,12 +93,30 @@ export function relativeTime(
 	const secs = Math.floor(Math.abs(deltaMs) / 1000);
 	const suffix = (s: string) => (future ? `in ${s}` : `${s} ago`);
 
-	if (secs < 60) return suffix(`${secs}s`);
-	const mins = Math.floor(secs / 60);
+	if (secs < MIN) return suffix(`${secs}s`);
+	if (secs >= 30 * DAY) return d.toLocaleDateString();
+
+	if (precision) {
+		if (secs < HOUR) {
+			const m = Math.floor(secs / MIN);
+			const s = secs % MIN;
+			return suffix(s ? `${m}m ${s}s` : `${m}m`);
+		}
+		if (secs < DAY) {
+			const h = Math.floor(secs / HOUR);
+			const m = Math.floor((secs % HOUR) / MIN);
+			return suffix(m ? `${h}h ${m}m` : `${h}h`);
+		}
+		const days = Math.floor(secs / DAY);
+		const h = Math.floor((secs % DAY) / HOUR);
+		return suffix(h ? `${days}d ${h}h` : `${days}d`);
+	}
+
+	const mins = Math.round(secs / MIN);
 	if (mins < 60) return suffix(`${mins}m`);
-	const hrs = Math.floor(mins / 60);
+	const hrs = Math.round(secs / HOUR);
 	if (hrs < 24) return suffix(`${hrs}h`);
-	const days = Math.floor(hrs / 24);
+	const days = Math.round(secs / DAY);
 	if (days < 30) return suffix(`${days}d`);
 	return d.toLocaleDateString();
 }
@@ -102,6 +131,7 @@ export function formatTimestamp(
 	mode: TimestampMode,
 	now?: number,
 	utc = false,
+	precision = false,
 ): string {
 	const d = toDate(value);
 	if (!d) return '';
@@ -113,6 +143,6 @@ export function formatTimestamp(
 		case 'datetime':
 			return toLocale(d, mode, utc);
 		case 'relative':
-			return relativeTime(d, now);
+			return relativeTime(d, now, precision);
 	}
 }
