@@ -13,6 +13,8 @@
 	let {
 		selected = false,
 		row = false,
+		align = 'center',
+		block = false,
 		type = 'button',
 		disabled = false,
 		class: klass = '',
@@ -21,6 +23,11 @@
 	}: HTMLButtonAttributes & {
 		selected?: boolean;
 		row?: boolean;
+		/** Horizontal content alignment. `start` gives a left-aligned list-row
+		 *  variant (pair with `block` for a full-width menu item). */
+		align?: 'center' | 'start';
+		/** Stretch to fill the container width (full-width list/menu row). */
+		block?: boolean;
 		children?: Snippet;
 	} = $props();
 </script>
@@ -32,6 +39,8 @@
 	{disabled}
 	class="opt {klass}"
 	class:row
+	class:align-start={align === 'start'}
+	class:block
 	class:selected
 	aria-pressed={selected}
 >
@@ -70,6 +79,16 @@
 		gap: var(--sp-2);
 		color: var(--text-muted);
 		font-weight: var(--fw-medium);
+	}
+	.opt.block {
+		width: 100%;
+	}
+	/* Left-aligned list-row variant: content packs to the start on both axes. */
+	.opt.align-start {
+		align-items: flex-start;
+	}
+	.opt.row.align-start {
+		justify-content: flex-start;
 	}
 	.opt.selected {
 		--oc: var(--opt-accent, var(--accent));

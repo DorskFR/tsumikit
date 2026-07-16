@@ -30,6 +30,10 @@
 		// the glyph with the accent when on. Override the tint per-instance with
 		// `style="--btn-on: var(--warn)"`.
 		pressed?: boolean;
+		// Render as a link (`<a href>`) while keeping icon-button chrome — e.g. an
+		// open-on-GitHub action. Forwarded to Button; `href` implies `as="a"`.
+		as?: 'button' | 'a';
+		href?: string;
 		class?: string;
 	};
 

@@ -16,7 +16,9 @@
 		widthKey,
 		collapsed = $bindable(false),
 		persistCollapsed = true,
-		resizeStep = 16
+		resizeStep = 16,
+		handlePlacement = 'bottom',
+		stickyHandle = true
 	}: {
 		/** Content shown while the panel is expanded. */
 		panel: Snippet;
@@ -38,12 +40,19 @@
 		persistCollapsed?: boolean;
 		/** Pixels added or removed by each resize-separator arrow key press. */
 		resizeStep?: number;
+		/** Anchor the collapse handle at the top or bottom of the panel edge. */
+		handlePlacement?: 'top' | 'bottom';
+		/** Keep the collapse handle in view when the panel scrolls past the
+		 *  viewport, repositioning on scroll/resize via requestAnimationFrame. */
+		stickyHandle?: boolean;
 	} = $props();
 
 	let root: HTMLDivElement;
+	let handleEl = $state<HTMLButtonElement | null>(null);
 	let panelWidth = $state<number>();
 	let resizing = $state(false);
 	let restored = false;
+	let stickyShift = $state(0);
 
 	const boundedMin = $derived(Math.max(1, Math.min(minWidth, maxWidth)));
 	const boundedMax = $derived(Math.max(boundedMin, maxWidth));
@@ -95,6 +104,55 @@
 		(handle) => cancelAnimationFrame(handle),
 		(nextWidth) => setWidth(nextWidth, false)
 	);
+
+	// Keep the collapse handle within the viewport (and its panel) while a long
+	// panel scrolls past the fold. Scroll fires often, so coalesce recomputes
+	// into one per animation frame.
+	let stickyFrame: number | undefined;
+
+	function computeSticky() {
+		if (!stickyHandle || !root || !handleEl) {
+			stickyShift = 0;
+			return;
+		}
+		const bounds = root.getBoundingClientRect();
+		const viewport = window.innerHeight || document.documentElement.clientHeight;
+		const handleHeight = handleEl.offsetHeight;
+		const margin = 8;
+		const naturalTop =
+			handlePlacement === 'top'
+				? bounds.top + margin
+				: bounds.bottom - margin - handleHeight;
+		const panelLo = bounds.top + margin;
+		const panelHi = bounds.bottom - margin - handleHeight;
+		const inViewport = Math.min(Math.max(naturalTop, margin), viewport - margin - handleHeight);
+		const clamped = Math.min(Math.max(inViewport, panelLo), Math.max(panelLo, panelHi));
+		stickyShift = Math.round(clamped - naturalTop);
+	}
+
+	function scheduleSticky() {
+		if (!browser || stickyFrame !== undefined) return;
+		stickyFrame = requestAnimationFrame(() => {
+			stickyFrame = undefined;
+			computeSticky();
+		});
+	}
+
+	$effect(() => {
+		if (!browser || !stickyHandle) {
+			stickyShift = 0;
+			return;
+		}
+		computeSticky();
+		addEventListener('scroll', scheduleSticky, true);
+		addEventListener('resize', scheduleSticky);
+		return () => {
+			removeEventListener('scroll', scheduleSticky, true);
+			removeEventListener('resize', scheduleSticky);
+			if (stickyFrame !== undefined) cancelAnimationFrame(stickyFrame);
+			stickyFrame = undefined;
+		};
+	});
 
 	onDestroy(() => pointerWidths.discard());
 
@@ -196,14 +254,18 @@
 		{/if}
 
 		<button
+			bind:this={handleEl}
 			type="button"
 			class="collapse-control"
+			class:top={handlePlacement === 'top'}
+			class:bottom={handlePlacement === 'bottom'}
 			aria-label={toggleLabel}
 			aria-expanded={!collapsed}
 			title={toggleLabel}
+			style="transform: translateY({stickyShift}px)"
 			onclick={toggle}
 		>
-			<Icon name={toggleIcon} size={20} />
+			<Icon name={toggleIcon} size={14} />
 		</button>
 	</aside>
 
@@ -260,32 +322,45 @@
 		min-height: 0;
 		overflow: auto;
 	}
+	/* Subtle chevron handle anchored to the panel's inner edge — never a filled
+	   button, never overlapping the neighbouring main content. It stays visible
+	   when collapsed (the panel is 0px wide) because it lives on the layout edge,
+	   and its `transform` is nudged by the sticky logic to track the viewport. */
 	.collapse-control {
 		position: absolute;
-		right: calc(-1 * var(--control-height));
-		bottom: var(--sp-3);
+		left: var(--sp-1);
 		z-index: 3;
-		display: flex;
+		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		width: var(--control-height);
-		height: var(--control-height);
+		width: 18px;
+		height: 30px;
 		padding: 0;
-		color: var(--text-muted);
+		color: var(--text-faint);
 		font: inherit;
-		background: var(--bg-elevated-2);
-		border: 1px solid var(--border);
+		background: transparent;
+		border: 1px solid transparent;
 		border-radius: var(--r-sm);
-		box-shadow: var(--shadow-sm);
 		cursor: pointer;
+		transition:
+			color 0.12s var(--ease),
+			background 0.12s var(--ease),
+			border-color 0.12s var(--ease);
+	}
+	.collapse-control.top {
+		top: var(--sp-2);
+	}
+	.collapse-control.bottom {
+		bottom: var(--sp-2);
 	}
 	.right .collapse-control {
-		right: auto;
-		left: calc(-1 * var(--control-height));
+		left: auto;
+		right: var(--sp-1);
 	}
 	.collapse-control:hover {
 		color: var(--text);
-		background: var(--surface);
+		background: var(--bg-elevated-2);
+		border-color: var(--border);
 	}
 	.collapse-control:focus-visible,
 	.resize-handle:focus-visible {

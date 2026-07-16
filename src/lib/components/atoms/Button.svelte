@@ -11,6 +11,16 @@
 		size?: 'sm' | 'md' | 'lg';
 		control?: boolean;
 		block?: boolean;
+		// Fill the available width of a flex/Cluster row (flex: 1). `block` stretches
+		// to 100% (grid/stack); `grow` shares a flex row with siblings.
+		grow?: boolean;
+		// Render as a link (`<a href>`) while keeping button chrome — for navigations
+		// and open-in-new-tab actions that shouldn't be a bare <a>. Setting `href`
+		// implies `as="a"`.
+		as?: 'button' | 'a';
+		href?: string;
+		target?: string;
+		rel?: string;
 		// Square 2.25rem icon-only tap target (IconButton). `iconInline` is the
 		// borderless, compact variant (chip-remove ✕, inline edit ✎); pair with
 		// `hoverDanger` to tint it red on hover (delete affordances).
@@ -33,6 +43,9 @@
 		size = 'md',
 		control = false,
 		block = false,
+		grow = false,
+		as = 'button',
+		href,
 		icon = false,
 		chip = false,
 		iconInline = false,
@@ -46,16 +59,27 @@
 		children,
 		...rest
 	}: ButtonProps = $props();
+
+	// A link-flavoured Button is a real <a>; native `disabled`/`type` don't apply,
+	// so a disabled link is expressed via aria-disabled + inert pointer handling.
+	const tag = $derived(href !== undefined || as === 'a' ? 'a' : 'button');
+	const inactive = $derived(disabled || loading);
+	const elementAttrs = $derived(
+		tag === 'a'
+			? { href, 'aria-disabled': inactive || undefined }
+			: { type, disabled: inactive }
+	);
 </script>
 
-<button
+<svelte:element
+	this={tag}
 	data-tsu="Button"
 	{...rest}
-	{type}
-	disabled={disabled || loading}
+	{...elementAttrs}
 	aria-busy={loading || undefined}
 	{title}
 	class="btn {klass}"
+	class:btn-grow={grow}
 	class:btn-primary={variant === 'primary'}
 	class:btn-ghost={variant === 'ghost'}
 	class:btn-danger={variant === 'danger'}
@@ -77,7 +101,7 @@
 >
 	{#if loading}<span class="btn-spinner" aria-hidden="true"></span>{/if}
 	{@render children?.()}
-</button>
+</svelte:element>
 
 <style>
 	/* The canonical control: owns its variants/sizes/modifiers from theme tokens.
@@ -150,6 +174,19 @@
 	}
 	.btn-block {
 		width: 100%;
+	}
+	.btn-grow {
+		flex: 1 1 0;
+	}
+	/* Link-flavoured Button: keep button chrome, drop the anchor's default link
+	   look, and make a disabled link truly inert. */
+	a.btn {
+		text-decoration: none;
+	}
+	a.btn[aria-disabled='true'] {
+		opacity: 0.45;
+		pointer-events: none;
+		cursor: not-allowed;
 	}
 
 	/* Semantic state tones — tint text + border, subtle fill on hover. Layered on
