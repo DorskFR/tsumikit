@@ -31,6 +31,7 @@
 		// accessible name only); `pill` keeps the labelled filter-pill layout.
 		variant = 'pill',
 		size = 'md',
+		control = false,
 		label = 'Options',
 		// `mobile` hides segment labels below the mobile breakpoint, collapsing
 		// labelled segments to centered icon-only squares (aria-label preserved).
@@ -43,6 +44,9 @@
 		value?: string;
 		variant?: 'pill' | 'icon';
 		size?: 'sm' | 'md';
+		/** Adopt the shared `--control-height` toolbar contract (like Popover/Button
+		 *  `control`) so the whole segmented control height-matches its siblings. */
+		control?: boolean;
 		label?: string;
 		collapseLabels?: 'never' | 'mobile';
 		class?: string;
@@ -84,6 +88,7 @@
 	aria-label={label}
 	tabindex="-1"
 	class="seg seg-{variant} seg-{size} {klass}"
+	class:seg-control={control}
 	class:seg-collapse-mobile={collapseLabels === 'mobile'}
 	data-tsu="SegmentedControl"
 	{onkeydown}
@@ -158,6 +163,14 @@
 		min-height: var(--control-height-compact);
 	}
 	.seg-sm .seg-item {
+		height: 100%;
+	}
+	/* Shared toolbar/composer height contract — matches Button/Popover `control`. */
+	.seg-control {
+		height: var(--control-height);
+		min-height: var(--control-height);
+	}
+	.seg-control .seg-item {
 		height: 100%;
 	}
 	.seg-icon .seg-item {

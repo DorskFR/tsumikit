@@ -15,12 +15,18 @@
 	import type { HTMLSelectAttributes } from 'svelte/elements';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 
-	type Props = HTMLSelectAttributes & {
+	// `size` shadows the native option-count attribute (unused in token layouts) to
+	// expose the sm|md height scale instead.
+	type Props = Omit<HTMLSelectAttributes, 'size'> & {
 		variant?: 'default' | 'ghost';
 		/** Error state: danger border + aria-invalid. */
 		invalid?: boolean;
-		/** Compact inline form: smaller padding + font for dense toolbars/headers. */
+		/** Compact inline form: smaller padding + font for dense toolbars/headers.
+		 *  Deprecated alias for `size="sm"` (kept for backward compatibility). */
 		compact?: boolean;
+		/** Size scale matching Button/SegmentedControl: `sm` also adopts the shared
+		 *  `--control-height-compact` toolbar height so it lines up with siblings. */
+		size?: 'sm' | 'md';
 		/** Draw the custom chevron (default). Set false for a bare inline select. */
 		chevron?: boolean;
 		class?: string;
@@ -32,12 +38,15 @@
 		variant = 'default',
 		invalid = false,
 		compact = false,
+		size = 'md',
 		chevron = true,
 		class: klass = '',
 		value = $bindable(),
 		children,
 		...rest
 	}: Props = $props();
+
+	const small = $derived(compact || size === 'sm');
 </script>
 
 {#if variant === 'ghost'}
@@ -48,7 +57,8 @@
 	<div class="select-wrap {klass}" class:no-chevron={!chevron} data-tsu="Select">
 		<select
 			class="select"
-			class:compact
+			class:compact={small}
+			class:select-sm={size === 'sm'}
 			bind:value
 			{...rest}
 			aria-invalid={invalid || undefined}
@@ -95,6 +105,11 @@
 	}
 	.select-wrap:not(.no-chevron) .select.compact {
 		padding-right: calc(var(--sp-2) + 1rem);
+	}
+	/* Toolbar contract: size="sm" shares the compact control height so it lines up
+	   with Button size="sm", Popover size="sm" and SegmentedControl size="sm". */
+	.select.select-sm {
+		height: var(--control-height-compact);
 	}
 	.select:focus {
 		outline: none;

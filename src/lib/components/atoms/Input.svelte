@@ -9,6 +9,9 @@
 	type Props = Omit<HTMLInputAttributes, 'size'> & {
 		mono?: boolean;
 		size?: 'sm' | 'md';
+		/** Fill the available width of a flex/Cluster row (flex: 1) instead of
+		 *  needing a raw `style="flex:1"` at the call-site. */
+		grow?: boolean;
 		/** Error state: danger border + aria-invalid (also styles if a consumer
 		 *  sets aria-invalid directly). */
 		invalid?: boolean;
@@ -20,6 +23,7 @@
 	let {
 		mono = false,
 		size = 'md',
+		grow = false,
 		invalid = false,
 		class: klass = '',
 		value = $bindable(),
@@ -34,6 +38,7 @@
 	class="input {klass}"
 	class:mono
 	class:input-sm={size === 'sm'}
+	class:input-grow={grow}
 	bind:value
 	{...rest}
 	aria-invalid={invalid || undefined}
@@ -56,6 +61,11 @@
 	.input-sm {
 		padding: var(--sp-2);
 		font-size: var(--fs-sm);
+	}
+	.input-grow {
+		flex: 1 1 0;
+		width: auto;
+		min-width: 0;
 	}
 	.input[aria-invalid='true'] {
 		border-color: var(--danger);
