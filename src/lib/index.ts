@@ -38,6 +38,10 @@ export {
 	type AccordionItem,
 	default as Accordion,
 } from './components/molecules/Accordion.svelte';
+export {
+	type BreadcrumbItem,
+	default as Breadcrumb,
+} from './components/molecules/Breadcrumb.svelte';
 export { default as CodeBlock } from './components/molecules/CodeBlock.svelte';
 export { default as CopyButton } from './components/molecules/CopyButton.svelte';
 export { default as Dropzone } from './components/molecules/Dropzone.svelte';
