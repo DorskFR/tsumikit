@@ -30,6 +30,7 @@
 		Timestamp,
 		Progress,
 		Accordion,
+		Breadcrumb,
 		Popover,
 		Menu,
 		Tabs,
@@ -287,6 +288,14 @@ function greet(name) {
 					<Button tone="warn">Warning</Button>
 					<Button tone="warn" control>Send <Text numeric>0:09</Text></Button>
 				</div>
+				<Text variant="caption">Variant × tone matrix (primary keeps a readable on-accent label):</Text>
+				{#each ['default', 'primary', 'ghost', 'danger'] as const as v}
+					<div class="row row-wrap">
+						{#each ['none', 'accent', 'success', 'info', 'warn', 'danger'] as const as t}
+							<Button variant={v} tone={t}>{v}/{t}</Button>
+						{/each}
+					</div>
+				{/each}
 				<Button block variant="primary">Block button</Button>
 				<div class="row row-wrap">
 					<CopyButton text="npm i @dorsk/tsumikit" />
@@ -679,6 +688,34 @@ function greet(name) {
 					{/if}
 				{/snippet}
 			</Tabs>
+		</Card>
+	</section>
+
+	<!-- BREADCRUMB -->
+	<section class="section">
+		<Heading level={2}>Breadcrumb</Heading>
+		<Card>
+			<Stack gap="var(--sp-3)">
+				<Breadcrumb
+					items={[
+						{ label: 'Musique', href: '#' },
+						{ label: 'Artist', href: '#' },
+						{ label: 'Album', href: '#' },
+						{ label: 'Track' }
+					]}
+				/>
+				<Breadcrumb
+					char="/"
+					maxItems={3}
+					items={[
+						{ label: 'Home', href: '#' },
+						{ label: 'Library', href: '#' },
+						{ label: 'Artist', href: '#' },
+						{ label: 'Album', href: '#' },
+						{ label: 'Track' }
+					]}
+				/>
+			</Stack>
 		</Card>
 	</section>
 

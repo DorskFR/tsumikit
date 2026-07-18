@@ -297,6 +297,25 @@
 		border-color: var(--ok);
 		filter: brightness(1.08);
 	}
+	/* Other tones on a primary action tint the accent fill rather than repaint the
+	   text, so the on-accent foreground stays readable (bare tone-as-text would be
+	   accent-on-accent). success keeps its own filled guard above. */
+	.btn-primary.btn-tone-accent,
+	.btn-primary.btn-tone-info,
+	.btn-primary.btn-tone-warn,
+	.btn-primary.btn-tone-danger {
+		background: color-mix(in srgb, var(--btn-tone) 35%, var(--accent));
+		border-color: color-mix(in srgb, var(--btn-tone) 35%, var(--accent));
+		color: var(--text-on-accent);
+	}
+	.btn-primary.btn-tone-accent:hover:not(:disabled),
+	.btn-primary.btn-tone-info:hover:not(:disabled),
+	.btn-primary.btn-tone-warn:hover:not(:disabled),
+	.btn-primary.btn-tone-danger:hover:not(:disabled) {
+		background: color-mix(in srgb, var(--btn-tone) 35%, var(--accent));
+		border-color: color-mix(in srgb, var(--btn-tone) 35%, var(--accent));
+		filter: brightness(1.08);
+	}
 
 	/* Icon-only buttons (IconButton). Square box = consistent 2.25rem tap target. */
 	.btn-icon {
