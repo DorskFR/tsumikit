@@ -118,6 +118,7 @@ export {
 	suggest,
 	type TextNode,
 	toSql,
+	type ValueContext,
 	type ValueOption,
 	type ValueProvider,
 	walk,

@@ -14,8 +14,9 @@ import {
 	operatorsFor,
 	resolveValues,
 	type Schema,
+	type ValueContext,
 	type ValueOption,
-} from './schema';
+} from './schema.ts';
 
 // Longest first so `>=`/`!:` win over `>`/`:`.
 const OP_CODES = ['!:', '!=', '>=', '<=', ':', '=', '>', '<'];
@@ -215,7 +216,8 @@ export async function suggest(
 	if (!field) return null;
 
 	// Operator present → suggest values (async; filtered by what's typed).
-	const opts = await resolveValues(field, unquote(value));
+	const context: ValueContext = { rawQuery: s, span, caret: pos };
+	const opts = await resolveValues(field, unquote(value), context);
 	if (opts.length === 0) return null;
 	return buildValueState(field, opCode, span, opts);
 }

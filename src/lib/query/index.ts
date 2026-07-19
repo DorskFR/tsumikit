@@ -29,6 +29,7 @@ export type {
 	Operator,
 	OperatorId,
 	Schema,
+	ValueContext,
 	ValueOption,
 	ValueProvider,
 } from './schema';

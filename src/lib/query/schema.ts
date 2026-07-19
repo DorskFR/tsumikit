@@ -55,8 +55,26 @@ export interface ValueOption {
 	hint?: string;
 }
 
+/**
+ * Extra context handed to a {@link ValueProvider} alongside the value fragment:
+ * the full raw query, the active replacement span (`[start, end)` offsets of the
+ * text a chosen suggestion would replace) and the caret position. Optional so
+ * existing providers that only read the fragment keep working unchanged.
+ */
+export interface ValueContext {
+	/** The full query string the fragment was extracted from. */
+	rawQuery: string;
+	/** `[start, end)` offsets of the token region a suggestion would replace. */
+	span: [number, number];
+	/** Absolute caret index within `rawQuery`. */
+	caret: number;
+}
+
 /** Resolves candidate values for a field given the user's partial input. */
-export type ValueProvider = (query: string) => ValueOption[] | Promise<ValueOption[]>;
+export type ValueProvider = (
+	query: string,
+	context?: ValueContext,
+) => ValueOption[] | Promise<ValueOption[]>;
 
 export interface FieldDef {
 	/** Canonical name, used in the serialised query (e.g. `artist`). */
@@ -118,8 +136,12 @@ export function operatorById(id: OperatorId): Operator | undefined {
 }
 
 /** Resolve a field's value options (sync wrapper that always returns a promise). */
-export async function resolveValues(field: FieldDef, query: string): Promise<ValueOption[]> {
-	if (field.provider) return field.provider(query);
+export async function resolveValues(
+	field: FieldDef,
+	query: string,
+	context?: ValueContext,
+): Promise<ValueOption[]> {
+	if (field.provider) return field.provider(query, context);
 	const opts = field.options ?? [];
 	const q = query.toLowerCase();
 	return q ? opts.filter((o) => o.label.toLowerCase().includes(q)) : opts;
