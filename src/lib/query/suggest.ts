@@ -16,7 +16,7 @@ import {
 	type Schema,
 	type ValueContext,
 	type ValueOption,
-} from './schema.ts';
+} from './schema';
 
 // Longest first so `>=`/`!:` win over `>`/`:`.
 const OP_CODES = ['!:', '!=', '>=', '<=', ':', '=', '>', '<'];
