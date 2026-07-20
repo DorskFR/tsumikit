@@ -8,7 +8,7 @@
 	// would overflow. (CSS anchor positioning would replace the JS here once it
 	// ships beyond Chromium; the popover semantics above are the hard part and
 	// are broadly supported today.)
-	import type { Snippet } from 'svelte';
+	import { tick, type Snippet } from 'svelte';
 	import { place } from '$lib/floating';
 
 	type Placement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
@@ -67,13 +67,22 @@
 	const id = `pop-${Math.random().toString(36).slice(2, 8)}`;
 	let triggerEl = $state<HTMLButtonElement | null>(null);
 	let panelEl = $state<HTMLDivElement | null>(null);
+	// Panel content is mounted only after the first open, then kept alive so
+	// reopening is instant. The panel element itself always renders — the native
+	// `popovertarget` wiring needs its id present in the DOM at all times.
+	let opened = $state(false);
 
 	function reposition() {
 		if (triggerEl && panelEl) place(triggerEl, panelEl, placement, gap);
 	}
 
-	function onToggle(e: ToggleEvent) {
+	async function onToggle(e: ToggleEvent) {
 		if (e.newState === 'open') {
+			const firstOpen = !opened;
+			opened = true;
+			// On the first open the content snippet mounts this tick; measure the
+			// panel only once it has, so placement accounts for its real size.
+			if (firstOpen) await tick();
 			reposition();
 			addEventListener('scroll', reposition, true);
 			addEventListener('resize', reposition);
@@ -121,7 +130,9 @@
 	aria-label={label}
 	ontoggle={onToggle}
 >
-	{@render children()}
+	{#if opened}
+		{@render children()}
+	{/if}
 </div>
 
 <style>
