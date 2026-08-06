@@ -43,9 +43,13 @@
 	function select(id: string, focus = false) {
 		if (tabs.find((t) => t.id === id)?.disabled) return;
 		value = id;
-		if (focus) {
-			queueMicrotask(() => listEl?.querySelector<HTMLButtonElement>(`#${baseId}-tab-${id}`)?.focus());
-		}
+		queueMicrotask(() => {
+			const el = listEl?.querySelector<HTMLButtonElement>(`#${baseId}-tab-${id}`);
+			// The list scrolls when it is too narrow, so keyboard selection has to
+			// bring the tab back into view or it moves somewhere unseen.
+			el?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+			if (focus) el?.focus();
+		});
 	}
 	// Step to the next non-disabled tab in a direction, wrapping around.
 	function step(from: number, dir: 1 | -1): number {
@@ -99,9 +103,13 @@
 		display: flex;
 		gap: var(--sp-1);
 		border-bottom: 1px solid var(--border);
+		overflow-x: auto;
+		scrollbar-width: thin;
 	}
 	.tab {
 		display: inline-flex;
+		flex: 0 0 auto;
+		white-space: nowrap;
 		align-items: center;
 		gap: var(--sp-2);
 		padding: var(--sp-2) var(--sp-3);
