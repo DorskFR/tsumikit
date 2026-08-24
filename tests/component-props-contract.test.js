@@ -6,14 +6,15 @@ import test from 'node:test';
 const component = (name) =>
 	readFile(new URL(`../src/lib/components/${name}`, import.meta.url), 'utf8');
 
-const [cluster, select, input, button, iconButton, segmented, option] = await Promise.all([
+const [cluster, select, input, button, iconButton, segmented, option, autoGrid] = await Promise.all([
 	component('layouts/Cluster.svelte'),
 	component('atoms/Select.svelte'),
 	component('atoms/Input.svelte'),
 	component('atoms/Button.svelte'),
 	component('molecules/IconButton.svelte'),
 	component('molecules/SegmentedControl.svelte'),
-	component('molecules/OptionButton.svelte')
+	component('molecules/OptionButton.svelte'),
+	component('layouts/AutoGrid.svelte')
 ]);
 
 test('Cluster size cascades --control-height and grow shares row width', () => {
@@ -60,4 +61,9 @@ test('OptionButton adds a left-aligned full-width row variant', () => {
 	assert.match(option, /block\?: boolean/);
 	assert.match(option, /\.opt\.block\s*{[^}]*width: 100%;/s);
 	assert.match(option, /\.opt\.row\.align-start\s*{[^}]*justify-content: flex-start;/s);
+});
+
+test('AutoGrid fill keeps empty tracks so columns count by min', () => {
+	assert.match(autoGrid, /fill\?: boolean/);
+	assert.match(autoGrid, /max != null \|\| fill \? 'auto-fill' : 'auto-fit'/);
 });

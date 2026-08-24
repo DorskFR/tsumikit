@@ -11,7 +11,12 @@
 	// `max` caps each column's width: instead of growing to fill the row (the
 	// default `1fr`), columns top out at `max` and the grid left-packs them
 	// (auto-fill + justify-content:start) so a 3-item and a 4-item section both
-	// show uniform fixed-width columns rather than stretching to fill. `align`
+	// show uniform fixed-width columns rather than stretching to fill. Beware:
+	// auto-fill counts tracks by a definite `max`, so column count only grows
+	// when another `max`-wide track fits — a narrow container can end up with
+	// one capped column and dead space. `fill` keeps empty tracks (auto-fill)
+	// without capping width: tracks are counted by `min`, so density rises
+	// monotonically with space and sparse rows don't stretch to fill. `align`
 	// controls cross-axis alignment of items within their row; it defaults to
 	// `start` so cards don't stretch to the tallest sibling.
 	import type { Snippet } from 'svelte';
@@ -20,6 +25,7 @@
 		as = 'div',
 		min = '14rem',
 		max,
+		fill = false,
 		gap = 'var(--sp-4)',
 		maxCols,
 		align = 'start',
@@ -33,6 +39,10 @@
 		/** Maximum column width. When set, columns stop growing at this width and
 		 * the grid left-packs uniform tracks instead of stretching to fill. */
 		max?: string;
+		/** Keep empty tracks (auto-fill) without capping column width: columns are
+		 * counted by `min`, so count grows monotonically with available space and
+		 * sparse rows don't stretch to fill. Ignored when `max` is set. */
+		fill?: boolean;
 		gap?: string;
 		maxCols?: number;
 		/** Cross-axis alignment of items in their row (align-items). Defaults to `start`. */
@@ -49,7 +59,7 @@
 	let track = $derived(max != null ? max : '1fr');
 	// auto-fill keeps capped tracks from stretching to fill the row; auto-fit
 	// (the default) collapses empty tracks so columns expand to use the space.
-	let mode = $derived(max != null ? 'auto-fill' : 'auto-fit');
+	let mode = $derived(max != null || fill ? 'auto-fill' : 'auto-fit');
 	// Left-pack capped grids by default so columns don't drift to fill the row.
 	let justifyValue = $derived(justify ?? (max != null ? 'start' : null));
 
