@@ -1,7 +1,10 @@
 <script lang="ts">
 	// Application frame: sticky header, optional sidebar, main content, optional
 	// footer — all supplied as snippets. Responsive by default:
-	//   • desktop (≥ 48rem): the sidebar is a persistent grid column.
+	//   • desktop (≥ 64rem): the sidebar is a persistent grid column.
+	//   • tablet (48–64rem): the column narrows to an icon rail
+	//     (--shell-rail-w, default 4.5rem); the `sidebar` container query lets
+	//     nav content collapse to icons.
 	//   • mobile: the sidebar becomes an off-canvas drawer that slides in over a
 	//     scrim; AppShell renders the hamburger toggle for you (shown only on
 	//     mobile), locks body scroll while open, closes on Escape / scrim click,
@@ -172,7 +175,7 @@
 	.shell {
 		min-height: 100dvh;
 		display: grid;
-		grid-template-columns: 1fr;
+		grid-template-columns: minmax(0, 1fr);
 		grid-template-rows: auto 1fr auto;
 		grid-template-areas:
 			'header'
@@ -264,7 +267,7 @@
 	/* Desktop: persistent sidebar column; hide drawer chrome. */
 	@media (min-width: 48rem) {
 		.shell {
-			grid-template-columns: var(--shell-sidebar-w) 1fr;
+			grid-template-columns: var(--shell-sidebar-w) minmax(0, 1fr);
 			grid-template-areas:
 				'header header'
 				'sidebar main'
@@ -310,6 +313,20 @@
 		.shell-sidebar-resize:hover::after,
 		.shell.dragging .shell-sidebar-resize::after {
 			background: var(--accent);
+		}
+	}
+
+	/* Tablet: the persistent column narrows to an icon rail so the content and
+	   header keep room; the `sidebar` container query collapses nav content. */
+	@media (min-width: 48rem) and (max-width: 63.999rem) {
+		.shell {
+			grid-template-columns: var(--shell-rail-w, 4.5rem) minmax(0, 1fr);
+		}
+		.shell-sidebar {
+			width: auto;
+		}
+		.shell-sidebar-resize {
+			display: none;
 		}
 	}
 </style>
