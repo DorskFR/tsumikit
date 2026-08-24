@@ -48,7 +48,11 @@
 <div class="empty empty-{tone} {compact ? 'empty-compact' : ''} {klass}" data-tsu="EmptyState" {...rest}>
 	{#if icon || iconChildren}
 		<span class="empty-chip" aria-hidden="true">
-			<Icon name={icon}>{@render iconChildren?.()}</Icon>
+			{#if iconChildren}
+				<Icon>{@render iconChildren()}</Icon>
+			{:else}
+				<Icon name={icon} />
+			{/if}
 		</span>
 	{/if}
 	<p class="empty-title">{title}</p>
