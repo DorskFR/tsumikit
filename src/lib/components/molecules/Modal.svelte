@@ -21,9 +21,9 @@
 		onclose: () => void;
 		body: Snippet;
 		footer?: Snippet;
-		/** Desktop width preset (sm 24rem / md 34rem / lg 48rem). A `resizeKey`
-		 *  drag still overrides it. */
-		size?: 'sm' | 'md' | 'lg';
+		/** Desktop width preset (sm 24rem / md 34rem / lg 48rem / xl 72rem). A
+		 *  `resizeKey` drag still overrides it. */
+		size?: 'sm' | 'md' | 'lg' | 'xl';
 		/** When set, the sheet is horizontally resizable on desktop and the chosen
 		 *  width persists under this localStorage key. */
 		resizeKey?: string;
@@ -32,7 +32,7 @@
 	const titleId = `modal-title-${Math.random().toString(36).slice(2, 8)}`;
 
 	const MIN_W = 544; // 34rem at 16px base
-	const MAX_W = 1100;
+	const MAX_W = 1680;
 
 	function loadWidth(): number | null {
 		if (!browser || !resizeKey) return null;
@@ -109,7 +109,12 @@
 	}}
 	onclick={onDialogClick}
 >
-	<div class="sheet" class:sheet-sm={size === 'sm'} class:sheet-lg={size === 'lg'}>
+	<div
+		class="sheet"
+		class:sheet-sm={size === 'sm'}
+		class:sheet-lg={size === 'lg'}
+		class:sheet-xl={size === 'xl'}
+	>
 		<div class="sheet-head">
 			<span id={titleId} class="sheet-title truncate">{title}</span>
 			<div class="spacer"></div>
@@ -199,6 +204,9 @@
 		.sheet-lg {
 			--sw: 48rem;
 		}
+		.sheet-xl {
+			--sw: 72rem;
+		}
 	}
 	@keyframes sheet-up {
 		from {
@@ -255,17 +263,34 @@
 			touch-action: none;
 			z-index: 2;
 		}
+		/* Full-height edge line that lights up on hover, so the affordance is
+		   findable without knowing it exists. */
+		.sheet-resize::before {
+			content: '';
+			position: absolute;
+			top: 0;
+			bottom: 0;
+			right: 6px;
+			width: 2px;
+			border-radius: 999px;
+			background: transparent;
+			transition: background 0.12s var(--ease);
+		}
 		.sheet-resize::after {
 			content: '';
 			position: absolute;
 			top: 50%;
-			right: 6px;
+			right: 5px;
 			transform: translateY(-50%);
-			width: 3px;
-			height: 28px;
+			width: 4px;
+			height: 44px;
 			border-radius: 999px;
 			background: var(--border-strong);
 			transition: background 0.12s var(--ease);
+		}
+		.sheet-resize:hover::before,
+		.modal.resizing .sheet-resize::before {
+			background: color-mix(in srgb, var(--accent) 45%, transparent);
 		}
 		.sheet-resize:hover::after,
 		.modal.resizing .sheet-resize::after {
