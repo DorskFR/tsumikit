@@ -36,6 +36,7 @@
 		Tabs,
 		RadioGroup,
 		SegmentedControl,
+		SegmentedProgress,
 		type SegmentOption,
 		DataTable,
 		FilterSearchBar,
@@ -840,6 +841,23 @@ function greet(name) {
 					<Progress value={40} gradient striped size="sm" label="Thin gradient striped" />
 					<Progress indeterminate striped label="Importing…" />
 					<Progress label="Working…" />
+					<SegmentedProgress
+						label="Series completion by season"
+						segments={[
+							{ value: 10, max: 10, tone: 'success', label: 'Season 1 · 10/10' },
+							{ value: 6, max: 13, tone: 'warn', label: 'Season 2 · 6/13' },
+							{ value: 0, max: 8, tone: 'muted', label: 'Season 3 · 0/8' }
+						]}
+					/>
+					<SegmentedProgress
+						size="sm"
+						label="Thin segmented"
+						segments={[
+							{ value: 4, max: 4, tone: 'success' },
+							{ value: 2, max: 6, tone: 'warn' },
+							{ value: 5, max: 5, tone: 'success' }
+						]}
+					/>
 				</div>
 				{#snippet c1()}<Text variant="body">Built on native &lt;details&gt; — zero JS, full keyboard support.</Text>{/snippet}
 				{#snippet c2()}<Text variant="body">With <code>multiple=false</code> it uses the platform's exclusive-accordion (one open at a time).</Text>{/snippet}

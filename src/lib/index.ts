@@ -18,6 +18,10 @@ export { default as Icon } from './components/atoms/Icon.svelte';
 export { default as Input } from './components/atoms/Input.svelte';
 export { default as Link } from './components/atoms/Link.svelte';
 export { default as Progress } from './components/atoms/Progress.svelte';
+export {
+	default as SegmentedProgress,
+	type ProgressSegment,
+} from './components/atoms/SegmentedProgress.svelte';
 export { default as Select } from './components/atoms/Select.svelte';
 export { default as Slider } from './components/atoms/Slider.svelte';
 export { default as Spinner } from './components/atoms/Spinner.svelte';
