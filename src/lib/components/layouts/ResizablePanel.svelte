@@ -367,13 +367,18 @@
 		outline: 2px solid var(--accent);
 		outline-offset: -2px;
 	}
+	/* The handle overhangs the panel edge by 6px, but never past the host
+	   container: when the panel fills it (edge at the window border), the
+	   overhang would land off-screen and be ungrabbable, so the shift clamps to
+	   the leftover space and the lost overhang is added back inside instead. */
 	.resize-handle {
+		--handle-shift: max(-6px, calc(var(--panel-current-width) - 100cqw));
 		position: absolute;
 		top: 0;
-		right: -6px;
+		right: var(--handle-shift);
 		bottom: 0;
 		z-index: 2;
-		width: 12px;
+		width: calc(18px + var(--handle-shift));
 		padding: 0;
 		background: transparent;
 		border: 0;
@@ -382,7 +387,7 @@
 	}
 	.right .resize-handle {
 		right: auto;
-		left: -6px;
+		left: var(--handle-shift);
 	}
 	.resize-handle::after {
 		content: '';
@@ -427,6 +432,11 @@
 		}
 		.collapsed .panel {
 			box-shadow: none;
+		}
+		/* The 85cqw cap guarantees free space beside the panel, but the clamp
+		   above reads --panel-current-width, which the cap may exceed. */
+		.resize-handle {
+			--handle-shift: -6px;
 		}
 		.main {
 			height: 100%;

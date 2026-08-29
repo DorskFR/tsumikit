@@ -31,6 +31,16 @@ test('collapse handle placement is selectable and sticks to the viewport via rAF
 	assert.match(source, /style="transform: translateY\({stickyShift}px\)"/);
 });
 
+test('resize handle overhang clamps to the container so it stays grabbable at full width', () => {
+	assert.match(
+		source,
+		/--handle-shift: max\(-6px, calc\(var\(--panel-current-width\) - 100cqw\)\);/
+	);
+	assert.match(source, /\.resize-handle\s*{[^}]*right: var\(--handle-shift\);/s);
+	assert.match(source, /\.resize-handle\s*{[^}]*width: calc\(18px \+ var\(--handle-shift\)\);/s);
+	assert.match(source, /\.right \.resize-handle\s*{[^}]*left: var\(--handle-shift\);/s);
+});
+
 test('resize handle spans the full panel edge and pointer updates use frame batching', () => {
 	assert.match(source, /\.resize-handle\s*{[^}]*top: 0;[^}]*bottom: 0;/s);
 	assert.match(source, /pointerWidths\.schedule\(widthFromPointer\(event\.clientX\)\)/);
