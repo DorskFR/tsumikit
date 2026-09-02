@@ -21,6 +21,8 @@
 		Toggle,
 		OptionButton,
 		Modal,
+		ConfirmModal,
+		Pagination,
 		CopyButton,
 		CodeBlock,
 		FileButton,
@@ -52,6 +54,9 @@
 		Metric,
 		EmptyState,
 		Callout,
+		SectionHeader,
+		KeyValue,
+		LoadMore,
 		ThemePicker,
 		FontScalePicker,
 		theme,
@@ -82,6 +87,15 @@
 	let selectValue = $state('two');
 	let pickerValue = $state('a');
 	let modalOpen = $state(false);
+	let confirmOpen = $state(false);
+	let confirmFails = $state(false);
+	let demoPage = $state(3);
+	let demoOffset = $state(40);
+	async function demoConfirm() {
+		await new Promise((r) => setTimeout(r, 900));
+		if (confirmFails) throw new Error('The server said no. Try again.');
+		toasts.ok('Confirmed');
+	}
 	let check1 = $state(true);
 	let check2 = $state(false);
 	let radioValue = $state('email');
@@ -557,6 +571,46 @@ function greet(name) {
 					{/snippet}
 				</Callout>
 			</div>
+		</Stack>
+	</section>
+
+	<!-- SECTION HEADER / KEY VALUE / LOAD MORE -->
+	<section class="section">
+		<Heading level={2}>SectionHeader · KeyValue · LoadMore</Heading>
+		<Stack gap="var(--sp-4)">
+			<SectionHeader title="Recent sessions" subtitle="last 24h" count={12} divider>
+				{#snippet actions()}
+					<Button size="sm">View all</Button>
+				{/snippet}
+			</SectionHeader>
+			<SectionHeader label="Blocked" count={4} uppercase hue={12} level={3} collapsible>
+				<Text variant="caption">Group rows render here while open.</Text>
+			</SectionHeader>
+			<SectionHeader title="Failed" icon="warning" tone="danger" count={2} level={3} size="sm" />
+			<Card title="Host" subtitle="sakura" gap="var(--sp-3)">
+				{#snippet actions()}
+					<Button size="sm" variant="ghost">Edit</Button>
+				{/snippet}
+				<KeyValue
+					columns={2}
+					rows={[
+						{ label: 'Running', value: 3, tone: 'ok' },
+						{ label: 'Queued', value: 0 },
+						{ label: 'Image', value: 'cctui-worker:0.7.3', mono: true, hint: 'pulled 2h ago' },
+						{ label: 'Load', value: '1.42', tone: 'warn' }
+					]}
+				/>
+				<KeyValue dense align="end" rows={[{ label: 'Tokens', value: 128000 }, { label: 'Cost', value: '$0.42' }]} />
+				{#snippet footer()}
+					<LoadMore state="idle" onload={() => toasts.show('Loading more…')} />
+				{/snippet}
+			</Card>
+			<Cluster gap="var(--sp-3)">
+				<LoadMore state="loading" />
+				<LoadMore state="error" onload={() => toasts.show('Retrying…')} />
+				<LoadMore state="done" />
+				<LoadMore pill label="Load older" onload={() => toasts.show('Loading older…')} />
+			</Cluster>
 		</Stack>
 	</section>
 
@@ -1154,6 +1208,25 @@ function greet(name) {
 		</div>
 	</section>
 
+	<!-- CONFIRM MODAL + PAGINATION -->
+	<section class="section">
+		<Heading level={2}>ConfirmModal &amp; Pagination</Heading>
+		<Card>
+			<Stack gap="var(--sp-4)">
+				<div class="row row-wrap">
+					<Button tone="danger" onclick={() => (confirmOpen = true)}>Delete library…</Button>
+					<Checkbox bind:checked={confirmFails} label="Make the confirm fail" />
+				</div>
+				<Text variant="caption" tone="muted">Page mode — bind:page + pageCount:</Text>
+				<Pagination bind:page={demoPage} pageCount={12} />
+				<Text variant="caption" tone="muted">Offset mode, small, with range — bind:offset + limit + total:</Text>
+				<Pagination bind:offset={demoOffset} limit={20} total={412} size="sm" showRange />
+				<Text variant="caption" tone="muted">Compact collapse under 24rem of container width:</Text>
+				<div style="max-width: 18rem"><Pagination bind:page={demoPage} pageCount={12} /></div>
+			</Stack>
+		</Card>
+	</section>
+
 	<!-- LAYOUT -->
 	<section class="section">
 		<Heading level={2}>Layout: Stack · Cluster · AutoGrid</Heading>
@@ -1225,6 +1298,15 @@ function greet(name) {
 		</Text>
 	</footer>
 </main>
+
+<ConfirmModal
+	bind:open={confirmOpen}
+	title="Delete library?"
+	message="This removes the library and all of its items. This cannot be undone."
+	tone="danger"
+	confirmLabel="Delete"
+	onconfirm={demoConfirm}
+/>
 
 {#if modalOpen}
 	<Modal title="Example dialog" onclose={() => (modalOpen = false)} resizeKey="tsumikit-demo-modal">

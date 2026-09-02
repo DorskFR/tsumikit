@@ -53,6 +53,7 @@ export {
 } from './components/molecules/Breadcrumb.svelte';
 export { default as Callout } from './components/molecules/Callout.svelte';
 export { default as CodeBlock } from './components/molecules/CodeBlock.svelte';
+export { default as ConfirmModal } from './components/molecules/ConfirmModal.svelte';
 export { default as CopyButton } from './components/molecules/CopyButton.svelte';
 export { default as Dropzone } from './components/molecules/Dropzone.svelte';
 export { default as EmptyState } from './components/molecules/EmptyState.svelte';
@@ -65,6 +66,12 @@ export {
 } from './components/molecules/FilterInput.svelte';
 export { default as FontScalePicker } from './components/molecules/FontScalePicker.svelte';
 export { default as IconButton } from './components/molecules/IconButton.svelte';
+export {
+	default as KeyValue,
+	type KeyValueRow,
+	type KeyValueTone,
+} from './components/molecules/KeyValue.svelte';
+export { default as LoadMore } from './components/molecules/LoadMore.svelte';
 export { default as Menu, type MenuItem } from './components/molecules/Menu.svelte';
 export {
 	default as Metric,
@@ -73,11 +80,13 @@ export {
 } from './components/molecules/Metric.svelte';
 export { default as Modal } from './components/molecules/Modal.svelte';
 export { default as OptionButton } from './components/molecules/OptionButton.svelte';
+export { default as Pagination } from './components/molecules/Pagination.svelte';
 export { default as Popover } from './components/molecules/Popover.svelte';
 export {
 	default as RadioGroup,
 	type RadioOption,
 } from './components/molecules/RadioGroup.svelte';
+export { default as SectionHeader } from './components/molecules/SectionHeader.svelte';
 export {
 	default as SegmentedControl,
 	type SegmentOption,
