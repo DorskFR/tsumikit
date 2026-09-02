@@ -63,6 +63,14 @@
 	} from '$lib';
 	import { base } from '$app/paths';
 
+	theme.register({
+		id: 'showcase-plum',
+		label: 'Showcase Plum',
+		icon: '✺',
+		themeColor: '#1c1224',
+		mode: 'dark'
+	});
+
 	// interactive demo state
 	let switchOn = $state(true);
 	let toggleA = $state(true);
@@ -231,6 +239,8 @@ function greet(name) {
 		One token contract, themeable atoms &amp; molecules. Current theme:
 		<Text weight="semibold" tone="accent">{theme.label}</Text>. Try the pickers
 		top-right — every section below re-themes live and scales with the text control.
+		<Text weight="semibold">Showcase Plum</Text> is not built in: this page calls
+		<code>theme.register()</code> and ships its own <code>[data-theme]</code> block.
 	</Text>
 
 	<!-- TYPOGRAPHY -->
@@ -1239,6 +1249,34 @@ function greet(name) {
 {/if}
 
 <style>
+	:global([data-theme='showcase-plum']) {
+		color-scheme: dark;
+		--c-bg: #1c1224;
+		--c-bg-elev: #251831;
+		--c-bg-elev-2: #2f1f3d;
+		--c-surface: #2a1c37;
+		--c-border: #3e2b4f;
+		--c-border-strong: #533b68;
+		--c-text: #efe6f6;
+		--c-text-muted: #b3a2c4;
+		--c-text-faint: #7f6f90;
+		--c-accent: #e39bff;
+		--c-accent-ink: #1c1224;
+		--c-accent-dim: #8b5aa6;
+		--c-blue: #7fb2ff;
+		--c-amber: #f0b35c;
+		--c-red: #ff7a90;
+		--c-green: #7fd9a2;
+		--c-violet: #c59cff;
+		--c-gold: #f0b35c;
+		--c-teal: #63d3d3;
+		--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.45);
+		--shadow-md: 0 6px 20px rgba(0, 0, 0, 0.55);
+		--shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.65);
+		--mach-bg-sl: 45% 24%;
+		--mach-fg-sl: 70% 82%;
+		--mach-border-sl: 45% 40%;
+	}
 	.top {
 		position: sticky;
 		top: 0;

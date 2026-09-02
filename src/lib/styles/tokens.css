@@ -1,0 +1,207 @@
+/*
+ * TOKENS — the theme-less contract. `:root` defines every token the kit reads:
+ * raw palette (--c-*), semantic aliases (--bg, --text, --accent, …), type scale,
+ * spacing, radii, shadows, z-index, safe-area insets and fonts.
+ *
+ * Import this alone when you ship your own palette and do not want the built-in
+ * theme blocks (those live in themes.css; variables.css = both).
+ */
+
+:root {
+  /* Tell the UA our default surface is dark so native widgets (form controls,
+     scrollbars, the caret, spellcheck underlines) render their dark variant.
+     Light themes flip this in their own block. */
+  color-scheme: dark;
+
+  /* ---- Palette (raw) ---- */
+  --c-bg: #0f1115;
+  --c-bg-elev: #171a21;
+  --c-bg-elev-2: #1f232c;
+  --c-surface: #21262f;
+  --c-border: #2c323d;
+  --c-border-strong: #3a414e;
+  --c-text: #e6e9ef;
+  --c-text-muted: #9aa3b2;
+  --c-text-faint: #6b7384;
+
+  --c-accent: #5ad6a0;
+  --c-accent-ink: #04130c;
+  --c-accent-dim: #2a6e54;
+
+  --c-blue: #5aa9ff;
+  --c-amber: #f0b454;
+  --c-red: #f0716b;
+  --c-green: #5ad6a0;
+  --c-violet: #b48ef0;
+  --c-gold: #f0b454;
+  --c-teal: #4fd6cf;
+
+  /* ---- Role colors (CCT-161) — uniform message theming, all derived from
+	   palette tokens so each theme adapts. Used for role badges + bubble tints. */
+  --role-user: var(--c-green);
+  --role-assistant: var(--c-blue);
+  --role-system: var(--c-violet);
+  --role-tool: var(--c-gold);
+  --role-mcp: var(--c-teal);
+  /* compact/clear boundary — neutral "paper white" so it reads as structure */
+  --role-boundary: var(--c-text-muted);
+
+  /* ---- Markdown / syntax-highlight tokens (CCT-161) — themeable ---- */
+  --md-text: var(--c-text-muted); /* base prose: grayish */
+  --md-strong: var(--c-text); /* bold: bright white-ish */
+  --md-code: var(--c-blue); /* inline code: bold blue */
+  --md-code-bg: color-mix(in srgb, var(--c-blue) 14%, var(--c-bg));
+  --md-heading: var(--c-text);
+  --syn-keyword: var(--c-violet);
+  --syn-string: var(--c-green);
+  --syn-number: var(--c-amber);
+  --syn-comment: var(--c-text-faint);
+  --syn-function: var(--c-blue);
+  --syn-punct: var(--c-text-muted);
+
+  /* ---- Semantic ---- */
+  --bg: var(--c-bg);
+  --bg-elevated: var(--c-bg-elev);
+  --bg-elevated-2: var(--c-bg-elev-2);
+  --surface: var(--c-surface);
+  --border: var(--c-border);
+  --border-strong: var(--c-border-strong);
+
+  --text: var(--c-text);
+  --text-muted: var(--c-text-muted);
+  --text-faint: var(--c-text-faint);
+  --text-on-accent: var(--c-accent-ink);
+  /* Adaptive ink for filled positive actions: dark canvas ink on bright greens,
+     light canvas ink on the darker greens used by light themes. */
+  --text-on-success: var(--bg);
+
+  --accent: var(--c-accent);
+  --accent-dim: var(--c-accent-dim);
+  --link: var(--c-blue);
+
+  --ok: var(--c-green);
+  --warn: var(--c-amber);
+  --danger: var(--c-red);
+  --info: var(--c-blue);
+
+  /* status dots */
+  --dot-active: var(--c-green);
+  --dot-stale: var(--c-amber);
+  --dot-dead: var(--c-text-faint);
+  --dot-hibernated: var(--c-red);
+
+  /* attention highlight (needs-input row) */
+  --attention-bg: color-mix(in srgb, var(--c-amber) 12%, transparent);
+  --attention-bar: var(--c-amber);
+
+  /* machine-badge tinting (CCT-271, fixed CCT-272) — the hue is per-machine
+	   (name hash or operator override, --mh, set on the badge element), but the
+	   saturation/lightness come from the theme as `<sat%> <light%>` PAIRS. The
+	   badge composes `hsl(var(--mh) var(--mach-*-sl))` itself, so both vars
+	   resolve on the element where --mh lives. (Composing the full hsl() here at
+	   :root would break: --mh is undefined at :root, so the token is invalid and
+	   inherits down invalid → white badges.) Dark themes default here; light
+	   themes flip to dark-text-on-pale-tint in their [data-theme] block. */
+  --mach-bg-sl: 45% 22%;
+  --mach-fg-sl: 70% 80%;
+  --mach-border-sl: 45% 35%;
+
+  /* ---- Typography ---- */
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    "Helvetica Neue", Arial, sans-serif;
+  --font-mono:
+    ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", Menlo, Consolas,
+    monospace;
+
+  /* Text-scale factor (CCT-305). The UI font control multiplies ONLY the
+	   font-size tokens by this — not the root font-size — so bumping the size up
+	   enlarges text (chat, session text, badges, labels) meaningfully while the
+	   chrome (button heights, padding, spacing, the px-pinned header) stays put.
+	   Previously the control scaled the document root font-size, which grew every
+	   rem-based chrome dimension in lockstep so text "barely grew" relative to the
+	   ballooning UI. Default 1 = no scaling. */
+  --fs-scale: 1;
+
+  --fs-xs: calc(0.75rem * var(--fs-scale)); /* 12 */
+  --fs-sm: calc(0.8125rem * var(--fs-scale)); /* 13 */
+  --fs-base: calc(0.9375rem * var(--fs-scale)); /* 15 */
+  --fs-md: calc(1rem * var(--fs-scale)); /* 16 */
+  --fs-lg: calc(1.125rem * var(--fs-scale)); /* 18 */
+  --fs-xl: calc(1.375rem * var(--fs-scale)); /* 22 */
+  --fs-2xl: calc(1.75rem * var(--fs-scale)); /* 28 */
+
+  --fw-normal: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+
+  --lh-tight: 1.25;
+  --lh-normal: 1.5;
+
+  /* ---- Spacing (4px base) ---- */
+  --sp-0: 0;
+  --sp-1: 0.25rem;
+  --sp-2: 0.5rem;
+  --sp-3: 0.75rem;
+  --sp-4: 1rem;
+  --sp-5: 1.25rem;
+  --sp-6: 1.5rem;
+  --sp-8: 2rem;
+  --sp-10: 2.5rem;
+  --sp-12: 3rem;
+
+  /* ---- Radii ---- */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-pill: 999px;
+
+  /* ---- Elevation ---- */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.55);
+
+  /* ---- Controls ----
+	   `size="sm"` is the compact toolbar contract shared by Button, Popover and
+	   SegmentedControl. `control` is the roomier uniform-height contract used by
+	   Button and other composer controls. Both remain rem-based for zoom. */
+  --control-height-compact: 2rem;
+  --control-height-default: 2.5rem;
+  --control-height-large: 3rem;
+  --control-height: 2.75rem;
+  /* Square box scale for icon-only controls (IconButton, Button `box`/`square`,
+	   SelectButton, Popover trigger, CopyButton, FileButton). md is the classic
+	   2.25rem icon button; sm/lg reuse the control heights so a boxed control
+	   lines up with text controls in the same row. */
+  --box-xs: 1.5rem;
+  --box-sm: var(--control-height-compact);
+  --box-md: 2.25rem;
+  --box-lg: var(--control-height-default);
+  /* Minimum hit area on coarse pointers (WCAG 2.5.8); px so it never shrinks
+	   under a small root font-size. */
+  --touch-target: 44px;
+
+  /* ---- Layout ---- */
+  /* Fixed (px, not rem): the header is chrome that must NOT scale with the
+	   UI font slider it hosts (CCT-264) — a rem header-h would grow under the
+	   slider and reflow it mid-drag. Pinning here keeps the bar height, the
+	   content clearance, and the sticky offsets that key off it all consistent
+	   with the fixed toolbar. */
+  --header-h: 52px;
+  --nav-h: 3.5rem;
+  --content-max: 56rem;
+  --z-header: 50;
+  --z-nav: 50;
+  --z-drawer: 100;
+  --z-modal: 200;
+  --z-toast: 300;
+
+  /* safe-area insets (phones with notch / gesture bar / bottom address bar) */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}

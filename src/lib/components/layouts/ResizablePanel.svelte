@@ -1,8 +1,9 @@
 <script lang="ts">
-	import { onDestroy, type Snippet } from 'svelte';
+	import type { Snippet } from 'svelte';
 	import { browser } from '$lib/env';
 	import Icon from '$lib/components/atoms/Icon.svelte';
-	import { createFrameBatcher } from './resizable-panel-frame.js';
+	import Scrim from '$lib/components/atoms/Scrim.svelte';
+	import { resizeHandle, resolveLength } from './resizable-panel-frame.js';
 	import { parseStoredCollapsed, parseStoredWidth } from './resizable-panel-persistence';
 
 	let {
@@ -18,23 +19,31 @@
 		persistCollapsed = true,
 		resizeStep = 16,
 		handlePlacement = 'bottom',
-		stickyHandle = true
+		stickyHandle = true,
+		mode = 'inline',
+		open = $bindable(false),
+		onclose,
+		scrim,
+		fullWidthBelow,
+		clampToViewport = true
 	}: {
 		/** Content shown while the panel is expanded. */
 		panel: Snippet;
-		/** Main content beside the panel. */
-		children: Snippet;
+		/** Main content beside the panel (optional in overlay mode). */
+		children?: Snippet;
 		/** Physical edge occupied by the panel. */
 		side?: 'left' | 'right';
-		/** Accessible name for the panel landmark. */
+		/** Accessible name for the panel landmark / dialog. */
 		label?: string;
 		/** Initial expanded width in pixels. */
 		width?: number;
-		minWidth?: number;
-		maxWidth?: number;
+		/** Pixel number or CSS length (`'12rem'`, `'30vw'`). */
+		minWidth?: number | string;
+		/** Pixel number or CSS length (`'40rem'`, `'90vw'`). */
+		maxWidth?: number | string;
 		/** localStorage key used to restore the expanded width. */
 		widthKey?: string;
-		/** Bindable collapsed state. */
+		/** Bindable collapsed state (inline mode). */
 		collapsed?: boolean;
 		/** Persist collapsed state as `${widthKey}:collapsed`. */
 		persistCollapsed?: boolean;
@@ -45,23 +54,69 @@
 		/** Keep the collapse handle in view when the panel scrolls past the
 		 *  viewport, repositioning on scroll/resize via requestAnimationFrame. */
 		stickyHandle?: boolean;
+		/** `inline` shares the row with `children`; `overlay` fixes the panel to
+		 *  its viewport edge as a non-modal drawer above the page. */
+		mode?: 'inline' | 'overlay';
+		/** Bindable drawer visibility (overlay mode). */
+		open?: boolean;
+		/** Overlay mode: Escape, scrim click or the edge control closed the drawer. */
+		onclose?: () => void;
+		/** Overlay mode: dim the page behind the drawer; clicking it closes (default true). */
+		scrim?: boolean;
+		/** Overlay mode: viewport width (CSS length) under which the drawer spans
+		 *  the full viewport and hides its resize handle and scrim. */
+		fullWidthBelow?: string;
+		/** Overlay mode: cap the width at the viewport and re-clamp on window resize. */
+		clampToViewport?: boolean;
 	} = $props();
 
 	let root: HTMLDivElement;
+	let panelEl = $state<HTMLElement | null>(null);
 	let handleEl = $state<HTMLButtonElement | null>(null);
 	let panelWidth = $state<number>();
 	let resizing = $state(false);
 	let restored = false;
 	let stickyShift = $state(0);
+	let viewportWidth = $state<number>();
+	let lengthTick = $state(0);
+	let fullBleed = $state(false);
 
-	const boundedMin = $derived(Math.max(1, Math.min(minWidth, maxWidth)));
-	const boundedMax = $derived(Math.max(boundedMin, maxWidth));
+	const overlay = $derived(mode === 'overlay');
+	const shown = $derived(overlay ? open : !collapsed);
+	const showScrim = $derived(overlay && open && (scrim ?? true));
+
+	function measureLength(css: string) {
+		if (!browser || !root) return undefined;
+		console.count('measure ' + css);
+		const probe = document.createElement('div');
+		probe.style.cssText = `position:absolute;visibility:hidden;pointer-events:none;width:${css}`;
+		root.appendChild(probe);
+		const measured = probe.getBoundingClientRect().width;
+		probe.remove();
+		return measured;
+	}
+
+	const minPx = $derived.by(() => {
+		void lengthTick;
+		return resolveLength(minWidth, measureLength) ?? 180;
+	});
+	const maxPx = $derived.by(() => {
+		void lengthTick;
+		return resolveLength(maxWidth, measureLength) ?? 480;
+	});
+	const viewportCap = $derived(
+		overlay && clampToViewport && viewportWidth ? viewportWidth : Number.POSITIVE_INFINITY
+	);
+	const boundedMin = $derived(Math.max(1, Math.min(minPx, maxPx, viewportCap)));
+	const boundedMax = $derived(Math.max(boundedMin, Math.min(maxPx, viewportCap)));
 	const currentWidth = $derived(
 		Math.round(Math.max(boundedMin, Math.min(panelWidth ?? width, boundedMax)))
 	);
-	const toggleLabel = $derived(collapsed ? `Expand ${label}` : `Collapse ${label}`);
+	const toggleLabel = $derived(
+		overlay ? `Close ${label}` : collapsed ? `Expand ${label}` : `Collapse ${label}`
+	);
 	const toggleIcon = $derived(
-		collapsed
+		!overlay && collapsed
 			? side === 'left'
 				? 'chevron-right'
 				: 'chevron-left'
@@ -73,6 +128,7 @@
 	$effect(() => {
 		if (!browser || restored) return;
 		restored = true;
+		lengthTick += 1;
 		if (!widthKey) return;
 
 		const savedWidth = parseStoredWidth(
@@ -90,20 +146,62 @@
 		}
 	});
 
-	function persistWidth() {
-		if (browser && widthKey) localStorage.setItem(widthKey, String(currentWidth));
+	$effect(() => {
+		if (!browser) return;
+		const sync = () => {
+			console.count('sync');
+			viewportWidth = window.innerWidth;
+			lengthTick += 1;
+		};
+		sync();
+		addEventListener('resize', sync);
+		return () => removeEventListener('resize', sync);
+	});
+
+	$effect(() => {
+		if (!browser || !overlay || !fullWidthBelow) {
+			fullBleed = false;
+			return;
+		}
+		console.count('bleed');
+		const query = matchMedia(`(max-width: ${fullWidthBelow})`);
+		const sync = () => {
+			fullBleed = query.matches;
+		};
+		sync();
+		query.addEventListener('change', sync);
+		return () => query.removeEventListener('change', sync);
+	});
+
+	$effect(() => {
+		if (!browser || !overlay || !open) return;
+		console.count('escape');
+		const onKeydown = (event: KeyboardEvent) => {
+			if (event.key !== 'Escape' || event.defaultPrevented) return;
+			event.preventDefault();
+			close();
+		};
+		document.addEventListener('keydown', onKeydown);
+		return () => document.removeEventListener('keydown', onKeydown);
+	});
+
+	$effect(() => {
+		if (!browser || !overlay || !open || !panelEl) return;
+		console.count('focus');
+		const previous = document.activeElement as HTMLElement | null;
+		if (!panelEl.contains(previous)) panelEl.focus({ preventScroll: true });
+		return () => {
+			if (previous?.isConnected && document.activeElement === document.body) previous.focus();
+		};
+	});
+
+	function persistWidth(nextWidth: number) {
+		if (browser && widthKey) localStorage.setItem(widthKey, String(nextWidth));
 	}
 
-	function setWidth(nextWidth: number, persist = true) {
+	function setWidth(nextWidth: number) {
 		panelWidth = Math.round(Math.max(boundedMin, Math.min(nextWidth, boundedMax)));
-		if (persist) persistWidth();
 	}
-
-	const pointerWidths = createFrameBatcher<number>(
-		(callback) => requestAnimationFrame(callback),
-		(handle) => cancelAnimationFrame(handle),
-		(nextWidth) => setWidth(nextWidth, false)
-	);
 
 	// Keep the collapse handle within the viewport (and its panel) while a long
 	// panel scrolls past the fold. Scroll fires often, so coalesce recomputes
@@ -111,7 +209,7 @@
 	let stickyFrame: number | undefined;
 
 	function computeSticky() {
-		if (!stickyHandle || !root || !handleEl) {
+		if (!stickyHandle || overlay || !root || !handleEl) {
 			stickyShift = 0;
 			return;
 		}
@@ -139,7 +237,7 @@
 	}
 
 	$effect(() => {
-		if (!browser || !stickyHandle) {
+		if (!browser || !stickyHandle || overlay) {
 			stickyShift = 0;
 			return;
 		}
@@ -154,68 +252,21 @@
 		};
 	});
 
-	onDestroy(() => pointerWidths.discard());
+	function close() {
+		if (!open) return;
+		open = false;
+		onclose?.();
+	}
 
 	function toggle() {
+		if (overlay) {
+			close();
+			return;
+		}
 		collapsed = !collapsed;
 		if (browser && widthKey && persistCollapsed) {
 			localStorage.setItem(`${widthKey}:collapsed`, String(collapsed));
 		}
-	}
-
-	function widthFromPointer(clientX: number) {
-		const bounds = root.getBoundingClientRect();
-		return side === 'left' ? clientX - bounds.left : bounds.right - clientX;
-	}
-
-	function startResize(event: PointerEvent) {
-		resizing = true;
-		(event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
-		event.preventDefault();
-	}
-
-	function resize(event: PointerEvent) {
-		if (!resizing) return;
-		pointerWidths.schedule(widthFromPointer(event.clientX));
-	}
-
-	function finishResize(event: PointerEvent) {
-		if (!resizing) return;
-		const finalWidth = Math.round(
-			Math.max(boundedMin, Math.min(widthFromPointer(event.clientX), boundedMax))
-		);
-		pointerWidths.flush(finalWidth);
-		resizing = false;
-		try {
-			(event.currentTarget as HTMLElement).releasePointerCapture(event.pointerId);
-		} catch {
-			// Pointer capture may already have been released by the browser.
-		}
-		if (browser && widthKey) localStorage.setItem(widthKey, String(finalWidth));
-	}
-
-	function resizeWithKeyboard(event: KeyboardEvent) {
-		let nextWidth: number | undefined;
-		const direction = side === 'left' ? 1 : -1;
-
-		switch (event.key) {
-			case 'ArrowLeft':
-				nextWidth = currentWidth - resizeStep * direction;
-				break;
-			case 'ArrowRight':
-				nextWidth = currentWidth + resizeStep * direction;
-				break;
-			case 'Home':
-				nextWidth = boundedMin;
-				break;
-			case 'End':
-				nextWidth = boundedMax;
-				break;
-		}
-
-		if (nextWidth === undefined) return;
-		event.preventDefault();
-		setWidth(nextWidth);
 	}
 </script>
 
@@ -224,52 +275,74 @@
 	class="panel-layout"
 	class:left={side === 'left'}
 	class:right={side === 'right'}
-	class:collapsed
+	class:collapsed={!overlay && collapsed}
+	class:overlay
+	class:full-bleed={fullBleed}
 	class:resizing
 	style="--panel-width: {currentWidth}px"
 	data-tsu="ResizablePanel"
 >
-	<aside aria-label={label} class="panel">
-		{#if !collapsed}
-			<div class="panel-content">{@render panel()}</div>
-			<!-- The separator role is interactive when focusable and wired to the
-			     required arrow/Home/End keyboard behavior. -->
-			<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-			<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
-			<div
-				class="resize-handle"
-				role="separator"
-				tabindex="0"
-				aria-label={`Resize ${label}`}
-				aria-orientation="vertical"
-				aria-valuemin={boundedMin}
-				aria-valuemax={boundedMax}
-				aria-valuenow={currentWidth}
-				onkeydown={resizeWithKeyboard}
-				onpointerdown={startResize}
-				onpointermove={resize}
-				onpointerup={finishResize}
-				onpointercancel={finishResize}
-			></div>
-		{/if}
+	{#if showScrim}
+		<Scrim onclose={close} hideBelow={fullWidthBelow} label={`Close ${label}`} />
+	{/if}
 
-		<button
-			bind:this={handleEl}
-			type="button"
-			class="collapse-control"
-			class:top={handlePlacement === 'top'}
-			class:bottom={handlePlacement === 'bottom'}
-			aria-label={toggleLabel}
-			aria-expanded={!collapsed}
-			title={toggleLabel}
-			style="transform: translateY({stickyShift}px)"
-			onclick={toggle}
+	{#if !overlay || open}
+		<svelte:element
+			this={overlay ? 'div' : 'aside'}
+			bind:this={panelEl}
+			aria-label={label}
+			class="panel"
+			role={overlay ? 'dialog' : undefined}
+			aria-modal={overlay ? 'false' : undefined}
+			tabindex={overlay ? -1 : undefined}
 		>
-			<Icon name={toggleIcon} size={14} />
-		</button>
-	</aside>
+			{#if shown}
+				<div class="panel-content">{@render panel()}</div>
+				<!-- The separator role is interactive when focusable and wired to the
+				     required arrow/Home/End keyboard behavior by the resizeHandle action. -->
+				<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+				<div
+					class="resize-handle"
+					role="separator"
+					tabindex="0"
+					aria-label={`Resize ${label}`}
+					aria-orientation="vertical"
+					aria-valuemin={boundedMin}
+					aria-valuemax={boundedMax}
+					aria-valuenow={currentWidth}
+					use:resizeHandle={{
+						side,
+						min: boundedMin,
+						max: boundedMax,
+						step: resizeStep,
+						measure: () => currentWidth,
+						onwidth: setWidth,
+						oncommit: persistWidth,
+						onactive: (active) => (resizing = active)
+					}}
+				></div>
+			{/if}
 
-	<div class="main">{@render children()}</div>
+			<button
+				bind:this={handleEl}
+				type="button"
+				class="collapse-control"
+				class:top={handlePlacement === 'top'}
+				class:bottom={handlePlacement === 'bottom'}
+				aria-label={toggleLabel}
+				aria-expanded={overlay ? undefined : !collapsed}
+				title={toggleLabel}
+				style="transform: translateY({stickyShift}px)"
+				onclick={toggle}
+			>
+				<Icon name={toggleIcon} size={14} />
+			</button>
+		</svelte:element>
+	{/if}
+
+	{#if children}
+		<div class="main">{@render children()}</div>
+	{/if}
 </div>
 
 <style>
@@ -443,9 +516,54 @@
 		}
 	}
 
+	/* Overlay mode: a fixed non-modal drawer on the viewport edge. The page
+	   (`.main`) flows as normal underneath; the handle overhang is a viewport
+	   edge, so the container clamp does not apply. */
+	.panel-layout.overlay {
+		display: block;
+		container: none;
+	}
+	.overlay .panel {
+		position: fixed;
+		inset-block: 0;
+		left: 0;
+		z-index: var(--z-drawer);
+		width: min(var(--panel-current-width), 100vw);
+		box-shadow: var(--shadow-md);
+		outline: none;
+		animation: panel-slide-left 0.18s var(--ease);
+	}
+	.overlay.right .panel {
+		right: 0;
+		left: auto;
+		animation-name: panel-slide-right;
+	}
+	.overlay .resize-handle {
+		--handle-shift: -6px;
+	}
+	.overlay.full-bleed .panel {
+		width: 100vw;
+		border: 0;
+		box-shadow: none;
+	}
+	.overlay.full-bleed .resize-handle {
+		display: none;
+	}
+	@keyframes panel-slide-left {
+		from {
+			transform: translateX(-100%);
+		}
+	}
+	@keyframes panel-slide-right {
+		from {
+			transform: translateX(100%);
+		}
+	}
+
 	@media (prefers-reduced-motion: reduce) {
 		.panel {
 			transition: none;
+			animation: none;
 		}
 	}
 </style>

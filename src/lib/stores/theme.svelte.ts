@@ -1,9 +1,10 @@
 import { browser } from '$lib/env';
 
-// Theme registry — the single list the picker and the store both read. Adding a
-// theme = one entry here + one [data-theme="id"] block in variables.css. Nothing
-// else changes. `themeColor` drives the mobile browser-chrome <meta theme-color>;
-// `mode` groups the theme into the picker's light/dark sections (TSU-1).
+// Theme registry. Built-ins live in THEMES (+ one [data-theme="id"] block in
+// styles/themes.css); consumers append their own with theme.register() and ship
+// the matching block in their own stylesheet. `themeColor` drives the mobile
+// browser-chrome <meta theme-color>; `mode` groups the theme into the picker's
+// light/dark sections.
 const KEY = 'tsumikit-theme';
 
 export const THEMES = [
@@ -56,53 +57,82 @@ export const THEMES = [
 
 export type Mode = (typeof THEMES)[number]['id'];
 export type ThemeMode = (typeof THEMES)[number]['mode'];
-type ThemeOption = (typeof THEMES)[number];
-
-const ORDER: Mode[] = THEMES.map((t) => t.id);
-
-function isMode(value: string | null): value is Mode {
-	return THEMES.some((t) => t.id === value);
+export type ThemeId = Mode | (string & {});
+export interface ThemeDef {
+	id: ThemeId;
+	label: string;
+	mode: ThemeMode;
+	icon?: string;
+	themeColor?: string;
 }
-function optionFor(mode: Mode): ThemeOption {
-	return THEMES.find((t) => t.id === mode) ?? THEMES[0];
-}
+
+const FALLBACK_ICON = '◈';
 
 class Theme {
-	current = $state<Mode>('dark');
+	current = $state<ThemeId>('dark');
+	readonly fallbackIcon = FALLBACK_ICON;
+	private registered = $state<ThemeDef[]>([]);
+	private fallback: ThemeId = 'dark';
+	private saved: string | null = null;
 
 	constructor() {
 		if (browser) {
-			const saved = localStorage.getItem(KEY);
-			this.current = isMode(saved) ? saved : 'dark';
-			this.apply();
+			this.saved = localStorage.getItem(KEY);
+			this.resolve();
 		}
+	}
+	get all(): readonly ThemeDef[] {
+		const byId = new Map<string, ThemeDef>();
+		for (const t of THEMES) byId.set(t.id, t);
+		for (const t of this.registered) byId.set(t.id, t);
+		return [...byId.values()];
+	}
+	has(id: string | null | undefined): id is ThemeId {
+		return id != null && this.all.some((t) => t.id === id);
+	}
+	register(defs: ThemeDef | ThemeDef[]) {
+		const list = Array.isArray(defs) ? defs : [defs];
+		this.registered = [...this.registered.filter((r) => !list.some((d) => d.id === r.id)), ...list];
+		this.resolve();
+	}
+	setDefault(id: ThemeId) {
+		this.fallback = id;
+		this.resolve();
+	}
+	private resolve() {
+		this.current = this.has(this.saved) ? this.saved : this.fallback;
+		this.apply();
 	}
 	private apply() {
 		if (!browser) return;
 		document.documentElement.setAttribute('data-theme', this.current);
-		document
-			.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
-			?.setAttribute('content', this.option.themeColor);
+		const color = this.option.themeColor;
+		if (color)
+			document
+				.querySelector<HTMLMetaElement>('meta[name="theme-color"]')
+				?.setAttribute('content', color);
 	}
-	get option(): ThemeOption {
-		return optionFor(this.current);
+	get option(): ThemeDef {
+		return this.all.find((t) => t.id === this.current) ?? this.all[0];
 	}
 	get label(): string {
 		return this.option.label;
 	}
 	get icon(): string {
-		return this.option.icon;
+		return this.option.icon ?? FALLBACK_ICON;
 	}
-	get next(): ThemeOption {
-		const i = ORDER.indexOf(this.current);
-		return optionFor(ORDER[(i + 1) % ORDER.length]);
+	get next(): ThemeDef {
+		const all = this.all;
+		const i = all.findIndex((t) => t.id === this.current);
+		return all[(i + 1) % all.length];
 	}
 	toggle() {
 		this.set(this.next.id);
 	}
-	set(mode: Mode) {
+	set(mode: ThemeId) {
+		this.saved = mode;
 		this.current = mode;
-		if (browser) localStorage.setItem(KEY, this.current);
+		if (browser) localStorage.setItem(KEY, mode);
 		this.apply();
 	}
 }

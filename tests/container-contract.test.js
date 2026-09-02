@@ -4,7 +4,7 @@ import test from 'node:test';
 
 const [component, css] = await Promise.all([
 	readFile(new URL('../src/lib/components/layouts/Container.svelte', import.meta.url), 'utf8'),
-	readFile(new URL('../src/lib/styles/app.css', import.meta.url), 'utf8')
+	readFile(new URL('../src/lib/styles/utilities.css', import.meta.url), 'utf8')
 ]);
 
 test('defaults keep the centered --content-max column with --sp-4 safe-area gutters', () => {

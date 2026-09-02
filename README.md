@@ -57,14 +57,90 @@ import { Button, Field, Input, Modal, ThemePicker } from '@dorsk/tsumikit';
 
 ## Theming
 
-- 17 themes ship (dark, light, sepia, **colorblind** — Okabe-Ito —, plus mocha,
-  dracula, nord, tokyonight, gruvbox, solarized, rosepine, onedark, everforest,
-  monokai, amoled, highcontrast).
-- A new theme = one entry in `THEMES` (`stores/theme.svelte.ts`) + one
-  `[data-theme="id"]` block in `variables.css`. Nothing else changes.
+- 23 themes ship (light, highcontrast, gruvboxlight, solarizedlight,
+  everforestlight, rosepinedawn, latte, nordlight, tokyoday, kanagawalotus,
+  sepia, dark, **colorblind** — Okabe-Ito —, mocha, dracula, nord, tokyonight,
+  gruvbox, solarized, rosepine, onedark, everforest, monokai, amoled).
 - `<ThemePicker />` and `<FontScalePicker />` wire the stores to the UI. Theme
   is persisted to `localStorage` and applied with no flash (head snippet in
   `app.html`) and updates the mobile `<meta name="theme-color">`.
+
+### Stylesheets
+
+`@dorsk/tsumikit/styles/app.css` is a shell over five files you can import
+individually, in this order:
+
+```css
+@import '@dorsk/tsumikit/styles/tokens.css';
+@import '@dorsk/tsumikit/styles/themes.css'; /* optional */
+@import '@dorsk/tsumikit/styles/reset.css';
+@import '@dorsk/tsumikit/styles/utilities.css';
+@import '@dorsk/tsumikit/styles/syntax.css';
+@import './brand.css';
+```
+
+| export | contents |
+| --- | --- |
+| `styles/tokens.css` | `:root` only — every token the kit reads (`--c-*` palette, `--bg`/`--text`/`--accent` aliases, type scale, spacing, radii, shadows, fonts, `--control-height`, …). Theme-less. |
+| `styles/themes.css` | the built-in `[data-theme="id"]` blocks, one per `THEMES` entry. |
+| `styles/reset.css` | reset + element defaults. |
+| `styles/utilities.css` | `.container`, `.stack`, `.row`, `.sr-only`, icon sizing, … |
+| `styles/syntax.css` | highlight.js / Prism class → `--syn-*` mapping. |
+
+`styles/variables.css` = `tokens.css` + `themes.css` (kept for compatibility).
+Nothing is wrapped in `@layer`: kit rules are unlayered so component-scoped
+styles cascade exactly as before, and a consumer stylesheet imported **after**
+the kit wins on source order at equal specificity. Do not put brand overrides
+inside a `@layer` of your own — layered rules lose to the kit's unlayered ones.
+
+### Your own theme, without vendoring
+
+```ts
+// +layout.ts (or any module that runs before first render)
+import { theme } from '@dorsk/tsumikit';
+theme.register({ id: 'kusaritoi', label: 'Kusaritoi', icon: '鎖', themeColor: '#2a2a2a', mode: 'dark' });
+theme.setDefault('kusaritoi');
+```
+
+```css
+/* brand.css — imported after the kit stylesheet(s) */
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono&display=swap');
+:root { --font-mono: 'JetBrains Mono', ui-monospace, monospace; }
+
+[data-theme='kusaritoi'] {
+  color-scheme: dark;
+  --c-bg: #2a2a2a;         --c-bg-elev: #323232;    --c-bg-elev-2: #3a3a3a;
+  --c-surface: #323232;    --c-border: #484848;     --c-border-strong: #585858;
+  --c-text: #e8e8e8;       --c-text-muted: #b0b0b0; --c-text-faint: #808080;
+  --c-accent: #5ac8c8;     --c-accent-ink: #0d1f1f; --c-accent-dim: #3a8a8a;
+  --c-blue: #5a9fd4;       --c-amber: #d9a543;      --c-red: #e06060;
+  --c-green: #6abf69;      --c-violet: #b48ef0;     --c-gold: #d9a543;
+  --c-teal: #5ac8c8;
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 20px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.6);
+  --mach-bg-sl: 45% 24%;   --mach-fg-sl: 70% 82%;   --mach-border-sl: 45% 40%;
+}
+```
+
+Contract for a `[data-theme='x']` block: all nineteen `--c-*` palette tokens,
+`--shadow-sm|md|lg`, `--mach-bg-sl|fg-sl|border-sl`, and `color-scheme: light`
+for a light theme (`:root` defaults to dark, so dark themes may omit it).
+`--md-code-bg` is optional (derives from `--c-blue`). Everything else (`--bg`,
+`--text`, `--syn-*`, …) is an alias in `tokens.css` and follows automatically.
+
+- `theme.register(def | def[])` appends to `theme.all` (built-ins first); an
+  entry with a built-in `id` replaces that built-in. `icon` and `themeColor` are
+  optional. `ThemePicker` reads `theme.all`, so registered themes appear at once.
+- `theme.setDefault(id)` is the theme used when `localStorage` holds nothing
+  valid — set the same id as `data-theme` in your `app.html` so the no-flash
+  snippet and the store agree. A persisted id that only becomes valid after
+  `register()` is picked up as soon as it is registered.
+- Only the palette or only the fonts? Import `tokens.css` + your `brand.css`
+  and skip `themes.css`; or import the full `app.css` and override `:root`
+  tokens after it. Never copy the kit files.
+- Adding a built-in theme to the kit = one entry in `THEMES`
+  (`stores/theme.svelte.ts`) + one block in `styles/themes.css`.
 
 ## Components
 
@@ -112,6 +188,32 @@ edge-to-edge sections — inside AppShell's main column use `size="none"` instea
 `inset="<left> <right>"` keeps a `fullWidth` container clear of docked panels.
 Children can bleed to the column edge with
 `margin-inline: calc(-1 * var(--container-gutter))`.
+
+### ResizablePanel
+
+Inline by default: `panel` shares the row with `children` on its `side`, drag the
+edge or use the arrow keys/Home/End on the separator, collapse it with the edge
+chevron; `width`/`minWidth`/`maxWidth` (px numbers or CSS lengths such as
+`'12rem'`) and `widthKey` persist the width. `mode="overlay"` turns it into a
+fixed non-modal drawer (`role="dialog"`) on the viewport edge: `bind:open`,
+`onclose` fires on Escape, scrim click or the edge control, `scrim={false}` drops
+the dim backdrop, `fullWidthBelow="960px"` makes the drawer span the viewport (no
+handle, no scrim) on small screens, and `clampToViewport` (default true) keeps a
+stored width inside a shrunken window. `children` is optional in overlay mode.
+
+```svelte
+<ResizablePanel mode="overlay" side="right" label="Conversation" bind:open
+  width={720} minWidth={360} maxWidth="90vw" widthKey="conv-w" fullWidthBelow="960px">
+  {#snippet panel()}…{/snippet}
+</ResizablePanel>
+```
+
+`Scrim` (`onclose`, `hideBelow`, `z`, `label`) is the drawer's backdrop atom,
+exported for custom overlays: click or Escape (document-level) calls `onclose`.
+`resizeHandle` is the shared drag action behind every grip: `use:resizeHandle={{
+side, min, max, step, onwidth, oncommit, onreset, onactive, measure }}` gives
+any element pointer-capture + rAF-coalesced dragging, arrow/Home/End keys and
+double-click reset; the width defaults to the element's parent box.
 
 ### Stacked distribution + legend
 

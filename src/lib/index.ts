@@ -18,6 +18,7 @@ export { default as Icon } from './components/atoms/Icon.svelte';
 export { default as Input } from './components/atoms/Input.svelte';
 export { default as Link } from './components/atoms/Link.svelte';
 export { default as Progress } from './components/atoms/Progress.svelte';
+export { default as Scrim } from './components/atoms/Scrim.svelte';
 export {
 	default as SegmentedProgress,
 	type ProgressSegment,
@@ -37,6 +38,10 @@ export { default as Container } from './components/layouts/Container.svelte';
 export { default as NavItem } from './components/layouts/NavItem.svelte';
 export { default as NavSection } from './components/layouts/NavSection.svelte';
 export { default as ResizablePanel } from './components/layouts/ResizablePanel.svelte';
+export {
+	type ResizeHandleParams,
+	resizeHandle,
+} from './components/layouts/resizable-panel-frame.js';
 export { default as Stack } from './components/layouts/Stack.svelte';
 export {
 	type AccordionItem,

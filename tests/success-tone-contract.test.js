@@ -5,7 +5,7 @@ import test from 'node:test';
 const [button, popover, variables] = await Promise.all([
 	readFile(new URL('../src/lib/components/atoms/Button.svelte', import.meta.url), 'utf8'),
 	readFile(new URL('../src/lib/components/molecules/Popover.svelte', import.meta.url), 'utf8'),
-	readFile(new URL('../src/lib/styles/variables.css', import.meta.url), 'utf8')
+	readFile(new URL('../src/lib/styles/tokens.css', import.meta.url), 'utf8')
 ]);
 
 test('Button and Popover expose the same success tone and semantic color', () => {

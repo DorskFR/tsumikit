@@ -10,7 +10,7 @@ const [button, popover, segmented, variables] = await Promise.all([
 	component('atoms/Button.svelte'),
 	component('molecules/Popover.svelte'),
 	component('molecules/SegmentedControl.svelte'),
-	readFile(new URL('../src/lib/styles/variables.css', import.meta.url), 'utf8')
+	readFile(new URL('../src/lib/styles/tokens.css', import.meta.url), 'utf8')
 ]);
 
 test('Popover exposes Button-compatible trigger chrome on one semantic button', () => {
