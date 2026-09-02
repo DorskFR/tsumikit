@@ -51,6 +51,7 @@
 		AutoGrid,
 		Metric,
 		EmptyState,
+		Callout,
 		ThemePicker,
 		FontScalePicker,
 		theme,
@@ -481,6 +482,38 @@ function greet(name) {
 		</AutoGrid>
 	</section>
 
+	<!-- CALLOUT -->
+	<section class="section">
+		<Heading level={2}>Callout</Heading>
+		<Stack gap="var(--sp-3)">
+			<Callout>Auto-search runs in the background and links matches as it goes.</Callout>
+			<Callout tone="ok" title="Linked" dismissible ondismiss={() => toasts.show('Dismissed')}>
+				12 releases matched and were linked to this collection.
+			</Callout>
+			<Callout tone="warn" title="Some matches need review">
+				3 releases had several candidates and were left unlinked.
+				{#snippet actions()}
+					<Button size="sm">Review</Button>
+				{/snippet}
+			</Callout>
+			<Callout tone="danger" title="Search failed" dismissible ondismiss={() => toasts.show('Dismissed')}>
+				The provider returned 503. Try again in a minute.
+				{#snippet actions()}
+					<Button size="sm" variant="danger">Retry</Button>
+				{/snippet}
+			</Callout>
+			<Callout tone="info" busy>Searching MusicBrainz for 48 releases…</Callout>
+			<div style="max-width: 16rem">
+				<Callout tone="neutral" title="Narrow container" dismissible>
+					Wraps its body and actions instead of overflowing.
+					{#snippet actions()}
+						<Button size="sm">Action</Button>
+					{/snippet}
+				</Callout>
+			</div>
+		</Stack>
+	</section>
+
 	<!-- FORM ATOMS -->
 	<section class="section">
 		<Heading level={2}>Form atoms &amp; Field</Heading>
@@ -858,6 +891,35 @@ function greet(name) {
 							{ value: 5, max: 5, tone: 'success' }
 						]}
 					/>
+					<SegmentedProgress
+						mode="stacked"
+						label="Maintenance"
+						legend
+						segments={[
+							{ value: 412, max: 0, tone: 'ok', label: 'conforming' },
+							{ value: 12, max: 0, tone: 'warn', label: 'nonconforming' },
+							{ value: 0, max: 0, tone: 'danger', label: 'blocked' }
+						]}
+					/>
+					<SegmentedProgress
+						mode="stacked"
+						size="sm"
+						max={600}
+						legend="inline"
+						label="Stacked with remainder"
+						segments={[
+							{ value: 300, max: 0, tone: 'accent', label: 'done' },
+							{ value: 120, max: 0, tone: 'muted', label: 'skipped' }
+						]}
+					/>
+					<SegmentedProgress
+						gap={6}
+						label="Wide gap"
+						segments={[
+							{ value: 3, max: 4, tone: 'success', label: 'S1' },
+							{ value: 1, max: 6, tone: 'warn', label: 'S2' }
+						]}
+					/>
 				</div>
 				{#snippet c1()}<Text variant="body">Built on native &lt;details&gt; — zero JS, full keyboard support.</Text>{/snippet}
 				{#snippet c2()}<Text variant="body">With <code>multiple=false</code> it uses the platform's exclusive-accordion (one open at a time).</Text>{/snippet}
@@ -1009,6 +1071,12 @@ function greet(name) {
 				<Heading level={3} size="md">Stacked (info)</Heading>
 				<Text variant="body" tone="muted">Back layers tinted with the info/blue hue.</Text>
 			</Card>
+		</div>
+		<div class="card-row" style="margin-top: var(--sp-4)">
+			<Card tone="info" padding="sm"><Text variant="caption">tone info</Text></Card>
+			<Card tone="ok" padding="sm"><Text variant="caption">tone ok</Text></Card>
+			<Card tone="warn" padding="sm"><Text variant="caption">tone warn</Text></Card>
+			<Card tone="danger" padding="sm"><Text variant="caption">tone danger</Text></Card>
 		</div>
 		<div class="row" style="margin-top: var(--sp-3)">
 			<Button variant="primary" onclick={() => (modalOpen = true)}>Open modal</Button>
