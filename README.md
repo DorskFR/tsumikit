@@ -69,12 +69,12 @@ import { Button, Field, Input, Modal, ThemePicker } from '@dorsk/tsumikit';
 ## Components
 
 **Atoms:** Text, Heading, Button, Input, Textarea, Select, Switch, Checkbox,
-Slider, Progress, Card, Badge, Dot, Link, Icon (open registry — pass a
+Slider, Progress, Card (`tone` tints the surface for inline banners), Badge, Dot, Link, Icon (open registry — pass a
 `children` snippet for any custom SVG).
 
 **Molecules:** Field, IconButton, SelectButton, Toggle, OptionButton, Modal,
 Popover, Menu, Tabs, RadioGroup, Tooltip, Accordion, CopyButton, FileButton,
-Dropzone, CodeBlock, Toaster, ThemePicker, FontScalePicker.
+Dropzone, CodeBlock, Callout, EmptyState, Toaster, ThemePicker, FontScalePicker.
 
 **Organisms:** DataTable (generic `<T>`, typed columns + cell snippets).
 
@@ -83,6 +83,46 @@ sidebar on desktop, overlay drawer on mobile, optionally resizable), NavItem
 (collapses to an icon rail when the sidebar is narrow), Container, Stack
 (vertical), Cluster (wrapping row), AutoGrid (intrinsically responsive columns —
 no media/container query needed).
+
+### Stacked distribution + legend
+
+`SegmentedProgress mode="stacked"` turns the bar into one shared track whose slice
+widths follow `value` (not `max`), fully filled, no gaps; a zero value collapses to
+nothing. Pass a top-level `max` to show the remainder as empty track. `legend`
+renders a dot + label + count per segment (`true`/`'below'` or `'inline'`), or takes
+a snippet for custom rendering. In this mode the bar is `role="img"`, labelled from
+the segments. `gap` (px or CSS length, default `2`) applies in segments mode, and
+`tone: 'ok'` is an alias of `'success'`.
+
+```svelte
+<SegmentedProgress
+  mode="stacked"
+  label="Analysis"
+  max={analyzedCount}
+  legend
+  segments={[
+    { value: 412, max: 0, tone: 'ok', label: 'conforming' },
+    { value: 12, max: 0, tone: 'warn', label: 'nonconforming' },
+    { value: 0, max: 0, tone: 'danger', label: 'blocked' }
+  ]}
+/>
+```
+
+### Tinted surfaces & Callout
+
+`Card` takes `tone="neutral" | "ok" | "warn" | "danger" | "info"` (default
+`neutral`, unchanged look) to tint its border and wash its background with the
+semantic hue. `Callout` builds on it for inline messages: leading glyph (auto
+per tone, or `icon`), optional `title`, body, right-aligned `actions` snippet,
+`dismissible` + `ondismiss`, and `busy` to show a Spinner while work runs. It
+is a live region — `role="status"`, or `role="alert"` when `tone="danger"`.
+
+```svelte
+<Callout tone="danger" title="Search failed" dismissible ondismiss={clear}>
+  The provider returned 503.
+  {#snippet actions()}<Button size="sm" onclick={retry}>Retry</Button>{/snippet}
+</Callout>
+```
 
 ## Container queries
 

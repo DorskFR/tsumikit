@@ -4,6 +4,8 @@
 	// interactive hover/active affordance for tappable list items (e.g. session
 	// rows); `as` lets it be a button/anchor when the whole surface is clickable.
 	// `padding` dials the inner spacing (none/sm/md/lg) for denser cards.
+	// `tone` tints the surface itself (border + faint background wash) with a
+	// semantic hue for inline banners; `neutral` is the plain card.
 	//
 	// `stacked` fakes a pile of cards by drawing two layers peeking out below
 	// (and optionally to the right) via pseudo-elements. `stackTone` tints those
@@ -20,6 +22,7 @@
 		as = 'div',
 		padding = 'md',
 		surface = 'base',
+		tone = 'neutral',
 		stacked = false,
 		stackTone = 'neutral',
 		stackY = 8,
@@ -33,6 +36,7 @@
 		as?: 'div' | 'button' | 'a' | 'li' | 'section' | 'form';
 		padding?: 'none' | 'sm' | 'md' | 'lg';
 		surface?: 'base' | 'raised' | 'sunken';
+		tone?: Tone;
 		stacked?: boolean;
 		stackTone?: Tone;
 		stackY?: number;
@@ -58,6 +62,10 @@
 	class:surface-raised={surface === 'raised'}
 	class:surface-sunken={surface === 'sunken'}
 	class:card-tap={tap}
+	class:card-ok={tone === 'ok'}
+	class:card-warn={tone === 'warn'}
+	class:card-danger={tone === 'danger'}
+	class:card-info={tone === 'info'}
 	class:card-stacked={stacked}
 	class:stack-ok={stacked && stackTone === 'ok'}
 	class:stack-warn={stacked && stackTone === 'warn'}
@@ -105,6 +113,26 @@
 	}
 	.card-tap:hover {
 		border-color: var(--border-strong);
+	}
+
+	.card-ok {
+		--card-tone: var(--ok);
+	}
+	.card-warn {
+		--card-tone: var(--warn);
+	}
+	.card-danger {
+		--card-tone: var(--danger);
+	}
+	.card-info {
+		--card-tone: var(--info);
+	}
+	.card-ok,
+	.card-warn,
+	.card-danger,
+	.card-info {
+		border-color: color-mix(in srgb, var(--card-tone) 55%, var(--border));
+		background: color-mix(in srgb, var(--card-tone) 8%, var(--bg-elevated));
 	}
 
 	/* Stacked effect — two back layers peeking out bottom-right. The front
