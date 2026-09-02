@@ -69,8 +69,12 @@ import { Button, Field, Input, Modal, ThemePicker } from '@dorsk/tsumikit';
 ## Components
 
 **Atoms:** Text, Heading, Button, Input, Textarea, Select, Switch, Checkbox,
-Slider, Progress, Card (`tone` tints the surface for inline banners), Badge, Dot, Link, Icon (open registry — pass a
-`children` snippet for any custom SVG).
+Slider, Progress, Card (`tone` tints the surface for inline banners), Badge
+(`tone` semantic palette or `color` for any CSS colour, `size` xs/sm/md, `dot`,
+`icon`, `numeric`, `truncate`, `variant="text"`; all tints derive from
+`--badge-tone`), Dot (`ring` dark halo over artwork), Link (`tone`, `underline`
+always/hover/none, `align`), Icon (open registry — pass a `children` snippet for
+any custom SVG).
 
 **Molecules:** Field, IconButton, SelectButton, Toggle, OptionButton, Modal,
 Popover, Menu, Tabs, RadioGroup, Tooltip, Accordion, CopyButton, FileButton,
@@ -135,6 +139,13 @@ Use the `.cq-*` utilities (`.cq-hide`, `.cq-stack`, `.cq-truncate`,
 you drag the sidebar down to that icon rail (width persisted).
 
 **Stores:** `theme`, `toasts`, `fontScale` (opt-in). **Actions:** `autoresize`.
+
+`toasts.show(message, { tone, duration, action })` plus the `ok`/`error`/`info`
+shorthands (tones `neutral|ok|error|info`; `danger` aliases `error`). An `action`
+(`{ label, run }`) renders a button; the toast shows a loading state while `run`
+settles, then dismisses, and action toasts stay 7s instead of 4s (`duration: 0` is
+sticky). `Toaster` renders in the browser top layer (`popover="manual"`), so toasts
+paint above an open `Modal`; `--toast-max-width` (28rem) caps the stack.
 **Helpers:** `copyToClipboard(text)` — async Clipboard API with an
 insecure-context fallback; returns whether it succeeded.
 

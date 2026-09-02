@@ -6,16 +6,38 @@
 
 	let {
 		href,
+		tone = 'accent',
+		underline = 'always',
+		align = 'start',
 		class: klass = '',
 		children,
 		...rest
-	}: { href?: string; class?: string; children?: Snippet; [key: string]: unknown } = $props();
+	}: {
+		href?: string;
+		tone?: 'accent' | 'info' | 'muted' | 'inherit';
+		underline?: 'always' | 'hover' | 'none';
+		// Text alignment of the <button> form; multi-line titles want `start`.
+		align?: 'start' | 'center';
+		class?: string;
+		children?: Snippet;
+		[key: string]: unknown;
+	} = $props();
 </script>
 
 {#if href}
-	<a {href} class="link {klass}" data-tsu="Link" {...rest}>{@render children?.()}</a>
+	<a
+		{href}
+		class="link tone-{tone} underline-{underline} align-{align} {klass}"
+		data-tsu="Link"
+		{...rest}>{@render children?.()}</a
+	>
 {:else}
-	<button type="button" class="link {klass}" data-tsu="Link" {...rest}>{@render children?.()}</button>
+	<button
+		type="button"
+		class="link tone-{tone} underline-{underline} align-{align} {klass}"
+		data-tsu="Link"
+		{...rest}>{@render children?.()}</button
+	>
 {/if}
 
 <style>
@@ -27,5 +49,25 @@
 		cursor: pointer;
 		text-decoration: underline;
 		font: inherit;
+		text-align: start;
+	}
+	.tone-info {
+		color: var(--info);
+	}
+	.tone-muted {
+		color: var(--text-muted);
+	}
+	.tone-inherit {
+		color: inherit;
+	}
+	.underline-hover,
+	.underline-none {
+		text-decoration: none;
+	}
+	.underline-hover:hover {
+		text-decoration: underline;
+	}
+	.align-center {
+		text-align: center;
 	}
 </style>
