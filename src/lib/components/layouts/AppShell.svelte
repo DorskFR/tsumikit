@@ -24,7 +24,10 @@
 		resizableSidebar = false,
 		minSidebar = 64,
 		maxSidebar = 360,
-		sidebarWidthKey
+		sidebarWidthKey,
+		layout = 'header-top',
+		stickySidebar = false,
+		sidebarPadding = 'md'
 	}: {
 		header?: Snippet;
 		sidebar?: Snippet;
@@ -41,6 +44,14 @@
 		maxSidebar?: number;
 		/** localStorage key to persist the resized width. */
 		sidebarWidthKey?: string;
+		/** `'sidebar-full'`: the sidebar spans the whole height on desktop/tablet
+		 *  and the header only covers the content column (brand sits top-left). */
+		layout?: 'header-top' | 'sidebar-full';
+		/** Pin the desktop sidebar to the viewport (100dvh, own scroll) so its
+		 *  footer stays visible on long pages. */
+		stickySidebar?: boolean;
+		/** Inner padding of the sidebar; `'none'` when the nav owns its gutters. */
+		sidebarPadding?: 'none' | 'sm' | 'md';
 	} = $props();
 
 	let open = $state(false);
@@ -115,7 +126,14 @@
 
 <svelte:window onkeydown={(e) => e.key === 'Escape' && (open = false)} />
 
-<div class="shell" class:dragging style="--shell-sidebar-w: {widthCss}" data-tsu="AppShell">
+<div
+	class="shell"
+	class:dragging
+	class:sidebar-full={layout === 'sidebar-full'}
+	class:sticky-sidebar={stickySidebar}
+	style="--shell-sidebar-w: {widthCss}"
+	data-tsu="AppShell"
+>
 	<header class="shell-header">
 		{#if sidebar}
 			<!-- Wrapper owned here so the responsive hide is a scoped rule on our own
@@ -143,6 +161,7 @@
 		<aside
 			class="shell-sidebar"
 			class:open
+			data-padding={sidebarPadding}
 			aria-label={navLabel}
 			inert={isMobile && !open ? true : undefined}
 		>
@@ -190,12 +209,16 @@
 		display: flex;
 		align-items: center;
 		gap: var(--sp-3);
+		min-width: 0;
 		height: var(--header-h);
 		padding-inline: max(var(--sp-4), var(--safe-left)) max(var(--sp-4), var(--safe-right));
 		padding-top: var(--safe-top);
 		background: color-mix(in srgb, var(--bg) 88%, transparent);
 		backdrop-filter: blur(8px);
 		border-bottom: 1px solid var(--border);
+	}
+	.shell-header > :global(*) {
+		min-width: 0;
 	}
 	.shell-menu-btn {
 		display: inline-flex;
@@ -229,14 +252,21 @@
 		-webkit-overflow-scrolling: touch;
 		background: var(--bg-elevated);
 		border-right: 1px solid var(--border);
-		padding: var(--sp-3);
-		padding-top: max(var(--sp-3), var(--safe-top));
-		padding-bottom: max(var(--sp-3), var(--safe-bottom));
+		--shell-sidebar-pad: var(--sp-3);
+		padding: var(--shell-sidebar-pad);
+		padding-top: max(var(--shell-sidebar-pad), var(--safe-top));
+		padding-bottom: max(var(--shell-sidebar-pad), var(--safe-bottom));
 		/* A query container named `sidebar` so nav items collapse to an icon rail
 		   based on the sidebar's own width (see NavItem). */
 		container: sidebar / inline-size;
 		transform: translateX(-100%);
 		transition: transform 0.2s var(--ease);
+	}
+	.shell-sidebar[data-padding='sm'] {
+		--shell-sidebar-pad: var(--sp-2);
+	}
+	.shell-sidebar[data-padding='none'] {
+		--shell-sidebar-pad: 0px;
 	}
 	.shell-sidebar.open {
 		transform: translateX(0);
@@ -273,6 +303,12 @@
 				'sidebar main'
 				'footer footer';
 		}
+		.shell.sidebar-full {
+			grid-template-areas:
+				'sidebar header'
+				'sidebar main'
+				'sidebar footer';
+		}
 		.shell-sidebar {
 			position: relative; /* anchor the absolute resize handle */
 			grid-area: sidebar;
@@ -280,6 +316,12 @@
 			z-index: auto;
 			box-shadow: none;
 			border-right: 1px solid var(--border);
+		}
+		.shell.sticky-sidebar .shell-sidebar {
+			position: sticky;
+			top: 0;
+			height: 100dvh;
+			align-self: start;
 		}
 		.shell-scrim,
 		.shell-menu-btn {
