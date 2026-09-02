@@ -18,6 +18,9 @@
 		/** Drop the column when the table's own box is narrower than the breakpoint
 		 *  (sm 30rem, md 48rem, lg 64rem). */
 		hideBelow?: 'sm' | 'md' | 'lg';
+		/** Placement inside the stacked card (`responsive="stack"` only). Columns
+		 *  without a role render as `label: value` detail lines. */
+		role?: 'title' | 'detail' | 'meta' | 'actions' | 'hidden';
 	}
 </script>
 
@@ -50,7 +53,9 @@
 		loading = false,
 		loadingLabel = 'Loading…',
 		onloadmore,
-		loadMoreLabel = 'Load more'
+		loadMoreLabel = 'Load more',
+		responsive = 'scroll',
+		stackBelow = '48rem'
 	}: {
 		columns: Column<T>[];
 		rows: T[];
@@ -82,7 +87,37 @@
 		/** Renders a footer "load more" button that calls this. */
 		onloadmore?: () => void;
 		loadMoreLabel?: string;
+		/** `stack` renders each row as a card once the table's own box is narrower
+		 *  than `stackBelow`; `scroll` (default) keeps a horizontal scroller. */
+		responsive?: 'scroll' | 'stack';
+		/** Width (px/em/rem) under which `stack` mode kicks in. */
+		stackBelow?: string;
 	} = $props();
+
+	let wrapEl = $state<HTMLDivElement | null>(null);
+	let stacked = $state(false);
+
+	function toPx(length: string, el: HTMLElement): number {
+		const n = Number.parseFloat(length);
+		const fontSize = (node: Element) => Number.parseFloat(getComputedStyle(node).fontSize);
+		if (length.endsWith('rem')) return n * fontSize(document.documentElement);
+		if (length.endsWith('em')) return n * fontSize(el);
+		return n;
+	}
+
+	$effect(() => {
+		if (responsive !== 'stack' || !wrapEl) {
+			stacked = false;
+			return;
+		}
+		const el = wrapEl;
+		const limit = toPx(stackBelow, el);
+		const observer = new ResizeObserver(([entry]) => {
+			stacked = entry.contentRect.width < limit;
+		});
+		observer.observe(el);
+		return () => observer.disconnect();
+	});
 
 	let sortKey = $state<string | null>(null);
 	let sortDir = $state<'asc' | 'desc'>('asc');
@@ -121,7 +156,15 @@
 	});
 </script>
 
-<div class="dt-scroll" data-tsu="DataTable" data-size={size} aria-busy={loading || undefined}>
+<div
+	bind:this={wrapEl}
+	class="dt-scroll"
+	class:dt-stack={responsive === 'stack'}
+	data-tsu="DataTable"
+	data-size={size}
+	data-stacked={stacked || undefined}
+	aria-busy={loading || undefined}
+>
 	<table
 		class="dt"
 		class:sticky={stickyHeader}
@@ -199,9 +242,11 @@
 							<td
 								data-part="cell"
 								data-hide-below={col.hideBelow}
+								data-role={responsive === 'stack' ? (col.role ?? 'detail') : undefined}
+								data-label={responsive === 'stack' ? col.label : undefined}
 								class:truncate={col.truncate}
 								class:nowrap={col.nowrap}
-								style:text-align={col.align ?? 'left'}
+								style:text-align={stacked ? undefined : (col.align ?? 'left')}
 							>
 								{#if cellSnippets[col.key]}
 									{@render cellSnippets[col.key](row)}
@@ -388,6 +433,91 @@
 		[data-hide-below='lg'] {
 			display: none;
 		}
+	}
+	/* Stacked cards: the <table> stays a table for AT, but every row lays out as
+	   a wrapping flex row (title | actions, detail lines, trailing meta cluster).
+	   The header is clipped, not removed. */
+	[data-stacked] {
+		overflow-x: visible;
+	}
+	[data-stacked] thead th {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
+	[data-stacked] tbody,
+	[data-stacked] tfoot,
+	[data-stacked] td {
+		display: block;
+	}
+	[data-stacked] tr {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: var(--sp-1) var(--sp-3);
+		padding: var(--sp-3);
+		border-bottom: 1px solid var(--border);
+	}
+	[data-stacked] tbody tr:last-child {
+		border-bottom: none;
+	}
+	[data-stacked] td {
+		flex: 0 0 100%;
+		min-width: 0;
+		padding: 0;
+		border: 0;
+	}
+	[data-stacked] td.truncate {
+		max-width: none;
+	}
+	[data-stacked] tr.toned td:first-child {
+		box-shadow: none;
+	}
+	[data-stacked] tr.toned {
+		box-shadow: inset 3px 0 0 var(--dt-tone);
+	}
+	[data-stacked] td[data-role='title'] {
+		flex: 1 1 0;
+		order: -2;
+		font-weight: var(--fw-semibold);
+		font-size: var(--fs-md);
+		color: var(--text);
+	}
+	[data-stacked] td[data-role='detail']::before {
+		content: attr(data-label) ': ';
+		color: var(--text-muted);
+	}
+	[data-stacked] td[data-role='meta'] {
+		flex: none;
+		order: 1;
+		font-family: var(--font-mono);
+		font-size: var(--fs-xs);
+		color: var(--text-muted);
+	}
+	[data-stacked] td[data-role='meta']::before {
+		content: attr(data-label) ' ';
+		color: var(--text-faint);
+	}
+	[data-stacked] td[data-role='actions'],
+	[data-stacked] td.dt-actions {
+		flex: none;
+		order: -1;
+		margin-inline-start: auto;
+		width: auto;
+		opacity: 1;
+	}
+	[data-stacked] td[data-role='hidden'] {
+		display: none;
+	}
+	[data-stacked] td.dt-empty,
+	[data-stacked] td.dt-more {
+		text-align: center;
 	}
 	.dt-empty {
 		text-align: center;
