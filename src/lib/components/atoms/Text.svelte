@@ -6,6 +6,7 @@
 	// inline glue text without changing rendering. All values come from tokens.
 	import type { Snippet } from 'svelte';
 
+
 	type Size = 'xs' | 'sm' | 'base' | 'md' | 'lg' | 'xl' | '2xl';
 
 	let {
@@ -16,33 +17,68 @@
 		size,
 		numeric = false,
 		truncate = false,
+		italic = false,
+		nowrap = false,
+		wrap = 'normal',
+		uppercase = false,
+		leading,
+		measure,
+		grow = false,
+		scale = true,
+		block = false,
 		class: klass = '',
 		children,
 		...rest
 	}: {
 		as?: 'span' | 'p' | 'div' | 'label';
 		// body: default reading text · label: form-label · caption: small meta ·
-		// code: monospace. Omit for inline glue that should inherit its parent.
-		variant?: 'body' | 'label' | 'caption' | 'code';
-		tone?: 'inherit' | 'default' | 'muted' | 'faint' | 'success' | 'warn' | 'danger' | 'accent';
+		// code: monospace · eyebrow: small uppercase muted kicker. Omit for inline
+		// glue that should inherit its parent.
+		variant?: 'body' | 'label' | 'caption' | 'code' | 'eyebrow';
+		// `ok` and `success` are aliases.
+		tone?: 'inherit' | 'default' | 'muted' | 'faint' | 'ok' | 'success' | 'warn' | 'danger' | 'accent';
 		weight?: 'normal' | 'medium' | 'semibold' | 'bold';
 		size?: Size;
 		// Tabular figures: digits share a fixed advance width so counts/percentages
 		// don't jitter as they change. Use for counters, timers, metrics.
 		numeric?: boolean;
 		truncate?: boolean;
+		italic?: boolean;
+		nowrap?: boolean;
+		wrap?: 'normal' | 'anywhere' | 'balance';
+		uppercase?: boolean;
+		leading?: 'tight' | 'normal' | 'none';
+		// CSS max-width for the line measure, e.g. "60ch".
+		measure?: string;
+		grow?: boolean;
+		// false pins the size to its unscaled px value, ignoring --fs-scale.
+		scale?: boolean;
+		block?: boolean;
 		class?: string;
 		children?: Snippet;
 		[key: string]: unknown;
 	} = $props();
+
+	const toneClass = $derived(tone === 'ok' ? 'success' : tone);
+	const styleAttr = $derived(measure ? `max-width: ${measure}` : undefined);
 </script>
 
 <svelte:element
 	this={as}
 	data-tsu="Text"
-	class="text {variant ? `v-${variant}` : ''} tone-{tone} {weight ? `fw-${weight}` : ''} {size
+	class="text {variant ? `v-${variant}` : ''} tone-{toneClass} {weight ? `fw-${weight}` : ''} {size
 		? `fs-${size}`
-		: ''} {numeric ? 'numeric' : ''} {truncate ? 'truncate' : ''} {klass}"
+		: ''} {numeric ? 'numeric' : ''} {truncate ? 'truncate' : ''} {leading ? `lh-${leading}` : ''} {wrap !==
+	'normal'
+		? `wrap-${wrap}`
+		: ''} {klass}"
+	class:italic
+	class:nowrap
+	class:uppercase
+	class:grow
+	class:block
+	class:noscale={!scale}
+	style={styleAttr}
 	{...rest}
 >
 	{@render children?.()}
@@ -71,6 +107,13 @@
 	.v-code {
 		font-family: var(--font-mono);
 		font-size: 0.92em;
+	}
+	.v-eyebrow {
+		font-size: var(--fs-xs);
+		color: var(--text-muted);
+		font-weight: var(--fw-medium);
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
 	}
 	/* Tone (colour) — overrides variant colour. */
 	.tone-default {
@@ -128,6 +171,60 @@
 	}
 	.fs-2xl {
 		font-size: var(--fs-2xl);
+	}
+	.noscale.fs-xs {
+		font-size: 12px;
+	}
+	.noscale.fs-sm {
+		font-size: 13px;
+	}
+	.noscale.fs-base {
+		font-size: 15px;
+	}
+	.noscale.fs-md {
+		font-size: 16px;
+	}
+	.noscale.fs-lg {
+		font-size: 18px;
+	}
+	.noscale.fs-xl {
+		font-size: 22px;
+	}
+	.noscale.fs-2xl {
+		font-size: 28px;
+	}
+	.italic {
+		font-style: italic;
+	}
+	.nowrap {
+		white-space: nowrap;
+	}
+	.wrap-anywhere {
+		min-width: 0;
+		overflow-wrap: anywhere;
+	}
+	.wrap-balance {
+		text-wrap: balance;
+	}
+	.uppercase {
+		text-transform: uppercase;
+		letter-spacing: 0.04em;
+	}
+	.lh-tight {
+		line-height: var(--lh-tight);
+	}
+	.lh-normal {
+		line-height: var(--lh-normal);
+	}
+	.lh-none {
+		line-height: 1;
+	}
+	.grow {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+	.block {
+		display: block;
 	}
 	.numeric {
 		font-variant-numeric: tabular-nums;

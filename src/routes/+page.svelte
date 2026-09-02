@@ -300,6 +300,20 @@ function greet(name) {
 					<Text numeric>numeric 1234.50%</Text>
 					<Text>default 1234.50%</Text>
 				</div>
+				<div class="row row-wrap">
+					<Text variant="eyebrow">eyebrow</Text>
+					<Text italic>italic</Text>
+					<Text nowrap>nowrap text</Text>
+					<Text uppercase>uppercase</Text>
+					<Text leading="none">leading none</Text>
+					<Text scale={false} size="sm">scale=false 13px</Text>
+				</div>
+				<Text variant="body" measure="40ch">
+					measure="40ch" — a paragraph capped at forty characters wide so long lines stay readable.
+				</Text>
+				<div style="width: 220px">
+					<Heading level={4} truncate>Truncated heading that runs past its container</Heading>
+				</div>
 			</div>
 		</Card>
 	</section>

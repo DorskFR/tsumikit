@@ -166,4 +166,5 @@ export {
 	type TimeInput,
 	type TimestampMode,
 } from './timestamp';
+export { canonicalTone, type Tone } from './tone';
 export { type TruncateMode, type TruncateOptions, truncate } from './truncate';
