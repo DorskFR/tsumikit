@@ -6,6 +6,8 @@
 	// collapses to a small dot indicator so the count cue survives the rail.
 	// `title`/`aria-label` carry the name so the icon-only state stays accessible
 	// and shows a tooltip. Renders an <a> when `href` is set, else a <button>.
+	// The glyph is `iconChildren` (raw 24×24 SVG content), else `iconPath`
+	// (single path d), else the registry `icon`.
 	import type { Snippet } from 'svelte';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import type { IconName } from '$lib/components/atoms/Icon.svelte';
@@ -15,19 +17,31 @@
 
 	let {
 		icon,
+		iconChildren,
+		iconPath,
+		iconSize = 18,
 		label,
 		href,
 		active = false,
+		activeStyle = 'fill',
 		onclick,
 		badge,
 		badgeTone = 'neutral',
 		children,
 		...rest
 	}: {
-		icon: IconName;
+		icon?: IconName;
+		/** Raw 24×24 SVG content, for glyphs outside the registry. Wins over `iconPath` and `icon`. */
+		iconChildren?: Snippet;
+		/** Single `<path d>` for a 24×24 outline glyph. Wins over `icon`. */
+		iconPath?: string;
+		iconSize?: number;
 		label: string;
 		href?: string;
 		active?: boolean;
+		/** 'fill' = accent-tinted pill with a rounded left marker; 'bar' = lighter
+		 *  tint with a flat 2px inset accent bar. */
+		activeStyle?: 'fill' | 'bar';
 		onclick?: (e: MouseEvent) => void;
 		/** Optional trailing count pill (e.g. unread / missing items). When the
 		 *  item is `active` it adopts the accent fill; otherwise it uses `badgeTone`. */
@@ -49,13 +63,20 @@
 	type={href ? undefined : 'button'}
 	class="nav-item"
 	class:active
+	class:bar={activeStyle === 'bar'}
 	title={label}
 	aria-label={label}
 	aria-current={active ? 'page' : undefined}
 	{onclick}
 	{...rest}
 >
-	<Icon name={icon} size={18} />
+	{#if iconChildren}
+		<Icon size={iconSize}>{@render iconChildren()}</Icon>
+	{:else if iconPath}
+		<Icon size={iconSize}><path d={iconPath} /></Icon>
+	{:else if icon}
+		<Icon name={icon} size={iconSize} />
+	{/if}
 	<span class="nav-label">{label}</span>
 	{#if hasBadge}
 		<span class="nav-trail">
@@ -101,7 +122,7 @@
 	}
 	/* Active-route accent inset: a left rail marker that survives the icon-rail
 	   collapse (the tint background does too, but the marker reads at a glance). */
-	.nav-item.active::before {
+	.nav-item.active:not(.bar)::before {
 		content: '';
 		position: absolute;
 		left: 0;
@@ -111,6 +132,12 @@
 		height: 60%;
 		border-radius: var(--r-pill);
 		background: var(--accent);
+	}
+	.nav-item.bar.active {
+		background: color-mix(in srgb, var(--accent) 10%, transparent);
+		box-shadow: inset 2px 0 0 var(--accent);
+		border-start-start-radius: 0;
+		border-end-start-radius: 0;
 	}
 	.nav-label {
 		flex: 1;

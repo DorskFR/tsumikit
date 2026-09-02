@@ -145,7 +145,8 @@ for a light theme (`:root` defaults to dark, so dark themes may omit it).
 ## Components
 
 **Atoms:** Text, Heading, Button, Input, Textarea, Select, Switch, Checkbox,
-Slider, Progress, Card (`tone` tints the surface for inline banners), Badge
+Slider, Progress, Artwork (lazy cover image with seeded gradient + initials
+fallback, `aspect`, `status` overlay), Card (`tone` tints the surface for inline banners), Badge
 (`tone` semantic palette or `color` for any CSS colour, `size` xs/sm/md, `dot`,
 `icon`, `numeric`, `truncate`, `variant="text"`; all tints derive from
 `--badge-tone`), Dot (`ring` dark halo over artwork), Link (`tone`, `underline`
@@ -174,7 +175,9 @@ the content column only, `stickySidebar` pins it to the viewport, and
 `sidebarPadding="none" | "sm" | "md"` sets the aside gutter — the header and its
 children are `min-width: 0` so a wide title/actions row can't widen the grid on
 mobile), NavItem
-(collapses to an icon rail when the sidebar is narrow), Container, Stack
+(collapses to an icon rail when the sidebar is narrow; `icon` from the
+registry, `iconPath` / `iconChildren` for custom glyphs, `activeStyle="bar"`
+for the inset-bar active look), Container, Stack
 (vertical), Cluster (wrapping row; `stackAt="xs|sm|md|lg"` makes it its own
 query container and stacks children full-width below 18/30/40/48rem — phone
 action rows without a viewport query), AutoGrid (intrinsically responsive
@@ -319,6 +322,22 @@ error | done, `onload`, `label`, `loadingLabel`, `errorLabel`, `retryLabel`,
 <SectionHeader label="Blocked" count={4} uppercase hue={12} collapsible bind:open>
   …group rows…
 </SectionHeader>
+```
+
+### Artwork
+
+`Artwork` is the one cover/thumbnail tile: `src` + `alt` (required) render a
+lazy, async-decoded `<img>`; a missing or failing source swaps to a gradient
+seeded from `seed` (default `alt`) with `fallback` initials | icon | none.
+`aspect` ('1/1', '2/3', '16/9' or any ratio), `size` (width), `radius`
+sm | md | lg | pill, `fit` cover | contain, `hover` for tappable tiles,
+`status` snippet overlaid bottom-right, `onerror`. `artworkGradient(seed)`,
+`artworkHue(seed)` and `initials(text)` are exported for non-component use.
+
+```svelte
+<Artwork src={album.cover} alt={album.title} aspect="1/1" size="9rem" hover>
+  {#snippet status()}<Dot status="active" ring />{/snippet}
+</Artwork>
 ```
 
 ## Container queries

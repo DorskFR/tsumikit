@@ -5,7 +5,7 @@
 	// e.g. a lucide-svelte component's contents — without adding it to the
 	// registry. Sized at 1em so it tracks the surrounding text (and the
 	// --fs-scale font control).
-	const ICONS = {
+	const GLYPHS = {
 		// — navigation / chevrons —
 		back: '<path d="m12 19-7-7 7-7" /><path d="M19 12H5" />',
 		'arrow-right': '<path d="M5 12h14" /><path d="m12 5 7 7-7 7" />',
@@ -55,6 +55,7 @@
 		folder: '<path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />',
 		archive: '<rect width="20" height="5" x="2" y="3" rx="1" /><path d="M4 8v11a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8" /><path d="M10 12h4" />',
 		image: '<rect width="18" height="18" x="3" y="3" rx="2" ry="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.086-3.086a2 2 0 0 0-2.828 0L6 21" />',
+		book: '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" />',
 		markdown: '<rect x="3" y="5" width="18" height="14" rx="2" /><path d="M7 15V9l3 3 3-3v6" /><path d="m15 11 2 2 2-2" />',
 		list: '<path d="M3 5h.01" /><path d="M3 12h.01" /><path d="M3 19h.01" /><path d="M8 5h13" /><path d="M8 12h13" /><path d="M8 19h13" />',
 		grid: '<rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" />',
@@ -92,6 +93,9 @@
 		'x-circle': '<circle cx="12" cy="12" r="10" /><path d="m15 9-6 6" /><path d="m9 9 6 6" />',
 		'alert-circle': '<circle cx="12" cy="12" r="10" /><line x1="12" x2="12" y1="8" y2="12" /><line x1="12" x2="12.01" y1="16" y2="16" />',
 	} as const;
+
+	// Alternate names resolving to the same path data.
+	const ICONS = { ...GLYPHS, alert: GLYPHS.warning } as const;
 
 	export type IconName = keyof typeof ICONS;
 

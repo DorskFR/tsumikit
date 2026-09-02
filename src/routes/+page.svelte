@@ -55,6 +55,8 @@
 		EmptyState,
 		Callout,
 		SectionHeader,
+		Artwork,
+		NavItem,
 		KeyValue,
 		LoadMore,
 		ThemePicker,
@@ -572,6 +574,38 @@ function greet(name) {
 				</Callout>
 			</div>
 		</Stack>
+	</section>
+
+	<!-- ARTWORK / NAV ITEM -->
+	<section class="section">
+		<Heading level={2}>Artwork · NavItem</Heading>
+		<Card>
+			<div class="stack">
+				<div class="row row-wrap">
+					<Artwork src="https://picsum.photos/seed/tsumikit/240" alt="Loaded cover" size="7rem" hover />
+					<Artwork src="https://example.invalid/missing.jpg" alt="Broken source" size="7rem" hover>
+						{#snippet status()}<Dot status="dead" ring />{/snippet}
+					</Artwork>
+					<Artwork alt="Kusaritoi Radio" aspect="2/3" size="5rem" radius="sm" />
+					<Artwork alt="Still frame" aspect="16/9" size="10rem" fallback="icon" icon="film" />
+					<Artwork alt="Dorsk" size="3.5rem" radius="pill" />
+				</div>
+				<div class="row row-wrap">
+					<div style="width: 14rem; display: grid; gap: var(--sp-1)">
+						<NavItem icon="music" label="Music" active />
+						<NavItem icon="tv" label="TV" badge={3} />
+						<NavItem iconPath="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" label="Custom path" />
+					</div>
+					<div style="width: 14rem; display: grid; gap: var(--sp-1)">
+						<NavItem icon="film" label="Movies" active activeStyle="bar" />
+						<NavItem icon="book" label="Books" activeStyle="bar" />
+						<NavItem label="Raw SVG" activeStyle="bar">
+							{#snippet iconChildren()}<circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" />{/snippet}
+						</NavItem>
+					</div>
+				</div>
+			</div>
+		</Card>
 	</section>
 
 	<!-- SECTION HEADER / KEY VALUE / LOAD MORE -->
