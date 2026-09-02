@@ -17,6 +17,8 @@
 		options,
 		groups,
 		onchange,
+		box,
+		hitArea = 'auto',
 		class: klass = '',
 		...rest
 	}: {
@@ -31,6 +33,9 @@
 		// the theme picker to split light/dark; falls back to `options` otherwise.
 		groups?: { label: string; options: Option[] }[];
 		onchange: (value: string) => void;
+		// Shared square box scale (`--box-xs/sm/md/lg`); default is the 2.25rem icon box.
+		box?: 'xs' | 'sm' | 'md' | 'lg';
+		hitArea?: 'auto' | 'compact';
 		class?: string;
 		[key: string]: unknown;
 	} = $props();
@@ -39,7 +44,7 @@
 <!-- The wrapper (owned here, so styled scoped) is the positioning context that
      clips the transparent overlaid <select>; the icon Button shows through. -->
 <span class="select-button {klass}" data-tsu="SelectButton" {...rest}>
-	<Button variant="ghost" icon {title} aria-label={label}>
+	<Button variant="ghost" icon {box} {hitArea} {title} aria-label={label}>
 		<span aria-hidden="true">{glyph}</span>
 		<Select
 			variant="ghost"

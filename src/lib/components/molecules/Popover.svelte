@@ -27,8 +27,10 @@
 		variant,
 		tone = 'none',
 		size,
+		box,
 		control = false,
 		block = false,
+		hitArea = 'auto',
 		disabled = false,
 		onopen,
 		onclose
@@ -52,9 +54,14 @@
 		variant?: TriggerVariant;
 		tone?: TriggerTone;
 		size?: TriggerSize;
+		/** Shared square box scale (`--box-xs/sm/md/lg`) for an icon-only trigger;
+		 *  the default trigger is the `md` 2.25rem box. */
+		box?: 'xs' | 'sm' | 'md' | 'lg';
 		/** Use the shared `--control-height` toolbar/composer contract. */
 		control?: boolean;
 		block?: boolean;
+		/** Icon-only triggers grow a 44px hit slab on coarse pointers; `compact` opts out. */
+		hitArea?: 'auto' | 'compact';
 		disabled?: boolean;
 		onopen?: () => void;
 		onclose?: () => void;
@@ -109,6 +116,9 @@
 	class:trigger-lg={size === 'lg'}
 	class:trigger-control={control}
 	class:trigger-block={block}
+	class:trigger-box={box !== undefined}
+	class:hit-compact={hitArea === 'compact'}
+	style:--pop-box={box ? `var(--box-${box})` : undefined}
 	class:trigger-tone-accent={tone === 'accent'}
 	class:trigger-tone-success={tone === 'success'}
 	class:trigger-tone-info={tone === 'info'}
@@ -143,8 +153,8 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		min-height: 2.25rem;
-		min-width: 2.25rem;
+		min-height: var(--box-md);
+		min-width: var(--box-md);
 		padding: var(--sp-2);
 		border: 1px solid transparent;
 		border-radius: var(--r-md);
@@ -220,6 +230,26 @@
 	}
 	.pop-trigger.trigger-block {
 		width: 100%;
+	}
+	.pop-trigger.trigger-box {
+		width: var(--pop-box);
+		min-width: var(--pop-box);
+		height: var(--pop-box);
+		min-height: var(--pop-box);
+		padding: 0;
+		flex: none;
+	}
+	/* Coarse pointers: icon-only triggers extend their hit area to --touch-target
+	   via an invisible slab; layout does not move. */
+	@media (pointer: coarse) {
+		.pop-trigger:not(.canonical, .bare, .hit-compact) {
+			position: relative;
+		}
+		.pop-trigger:not(.canonical, .bare, .hit-compact)::after {
+			content: '';
+			position: absolute;
+			inset: min(0px, calc((100% - var(--touch-target)) / 2));
+		}
 	}
 	.pop-trigger.trigger-tone-accent {
 		--pop-trigger-tone: var(--accent);

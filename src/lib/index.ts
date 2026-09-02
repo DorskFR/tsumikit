@@ -86,7 +86,11 @@ export { default as Toggle } from './components/molecules/Toggle.svelte';
 export { default as Tooltip } from './components/molecules/Tooltip.svelte';
 export { default as Truncate } from './components/molecules/Truncate.svelte';
 // ---- organisms ----
-export { type Column, default as DataTable } from './components/organisms/DataTable.svelte';
+export {
+	type Column,
+	default as DataTable,
+	type RowTone,
+} from './components/organisms/DataTable.svelte';
 export { default as FilterSearchBar } from './components/organisms/FilterSearchBar.svelte';
 // ---- query core (headless: schema / parser / AST / suggest / compilers) ----
 export {

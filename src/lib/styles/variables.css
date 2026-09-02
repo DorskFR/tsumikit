@@ -172,6 +172,17 @@
   --control-height-default: 2.5rem;
   --control-height-large: 3rem;
   --control-height: 2.75rem;
+  /* Square box scale for icon-only controls (IconButton, Button `box`/`square`,
+	   SelectButton, Popover trigger, CopyButton, FileButton). md is the classic
+	   2.25rem icon button; sm/lg reuse the control heights so a boxed control
+	   lines up with text controls in the same row. */
+  --box-xs: 1.5rem;
+  --box-sm: var(--control-height-compact);
+  --box-md: 2.25rem;
+  --box-lg: var(--control-height-default);
+  /* Minimum hit area on coarse pointers (WCAG 2.5.8); px so it never shrinks
+	   under a small root font-size. */
+  --touch-target: 44px;
 
   /* ---- Layout ---- */
   /* Fixed (px, not rem): the header is chrome that must NOT scale with the
