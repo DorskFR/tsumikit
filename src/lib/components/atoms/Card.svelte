@@ -5,7 +5,12 @@
 	// rows); `as` lets it be a button/anchor when the whole surface is clickable.
 	// `padding` dials the inner spacing (none/sm/md/lg) for denser cards.
 	// `tone` tints the surface itself (border + faint background wash) with a
-	// semantic hue for inline banners; `neutral` is the plain card.
+	// semantic hue for inline banners; `neutral` is the plain card; `attention`
+	// adds a left bar for needs-input rows.
+	//
+	// `interactive` makes a non-button/anchor card keyboard-operable
+	// (role=button, tabindex, Enter/Space) and ignores clicks originating from
+	// nested interactive elements so inner buttons/links keep working.
 	//
 	// `stacked` fakes a pile of cards by drawing two layers peeking out below
 	// (and optionally to the right) via pseudo-elements. `stackTone` tints those
@@ -20,10 +25,11 @@
 	import type { Snippet } from 'svelte';
 	import SectionHeader from '../molecules/SectionHeader.svelte';
 
-	type Tone = 'neutral' | 'ok' | 'warn' | 'danger' | 'info';
+	type Tone = 'neutral' | 'ok' | 'warn' | 'danger' | 'info' | 'attention';
 
 	let {
 		tap = false,
+		interactive = false,
 		as = 'div',
 		padding = 'md',
 		surface = 'base',
@@ -35,6 +41,8 @@
 		title,
 		subtitle,
 		gap,
+		maxWidth,
+		onclick,
 		class: klass = '',
 		style = '',
 		header,
@@ -44,6 +52,7 @@
 		...rest
 	}: {
 		tap?: boolean;
+		interactive?: boolean;
 		as?: 'div' | 'button' | 'a' | 'li' | 'section' | 'form';
 		padding?: 'none' | 'sm' | 'md' | 'lg';
 		surface?: 'base' | 'raised' | 'sunken';
@@ -55,6 +64,8 @@
 		title?: string;
 		subtitle?: string;
 		gap?: string;
+		maxWidth?: string;
+		onclick?: (e: MouseEvent | KeyboardEvent) => void;
 		class?: string;
 		style?: string;
 		header?: Snippet;
@@ -68,6 +79,26 @@
 		stacked ? `--stack-y:${stackY}px;--stack-x:${stackX}px;` : ''
 	);
 	const framed = $derived(!!(header || footer || title));
+	const native = $derived(as === 'button' || as === 'a');
+
+	const NESTED = 'button,a,input,select,textarea,[role=button],[contenteditable],[contenteditable=true]';
+	function fromNested(e: Event): boolean {
+		const target = e.target as Element | null;
+		const hit = target?.closest?.(NESTED);
+		return !!hit && hit !== e.currentTarget;
+	}
+	function handleClick(e: MouseEvent) {
+		if (!onclick) return;
+		if (interactive && fromNested(e)) return;
+		onclick(e);
+	}
+	function handleKeydown(e: KeyboardEvent) {
+		if (!interactive || native || !onclick) return;
+		if (e.key !== 'Enter' && e.key !== ' ') return;
+		if (fromNested(e)) return;
+		if (e.key === ' ') e.preventDefault();
+		onclick(e);
+	}
 </script>
 
 <svelte:element
@@ -79,11 +110,13 @@
 	class:pad-lg={padding === 'lg'}
 	class:surface-raised={surface === 'raised'}
 	class:surface-sunken={surface === 'sunken'}
-	class:card-tap={tap}
+	class:card-tap={tap || interactive}
+	class:card-max={maxWidth !== undefined}
 	class:card-ok={tone === 'ok'}
 	class:card-warn={tone === 'warn'}
 	class:card-danger={tone === 'danger'}
 	class:card-info={tone === 'info'}
+	class:card-attention={tone === 'attention'}
 	class:card-stacked={stacked}
 	class:stack-ok={stacked && stackTone === 'ok'}
 	class:stack-warn={stacked && stackTone === 'warn'}
@@ -92,7 +125,12 @@
 	class:card-framed={framed}
 	class:card-gap={!framed && gap !== undefined}
 	style:--card-gap={gap}
+	style:max-width={maxWidth}
 	style={`${stackStyle}${style}`}
+	role={interactive && !native ? 'button' : undefined}
+	tabindex={interactive && !native ? 0 : undefined}
+	onclick={handleClick}
+	onkeydown={handleKeydown}
 	{...rest}
 >
 	{#if framed}
@@ -177,6 +215,9 @@
 	.card-tap:hover {
 		border-color: var(--border-strong);
 	}
+	.card-max {
+		width: 100%;
+	}
 
 	.card-ok {
 		--card-tone: var(--ok);
@@ -190,12 +231,20 @@
 	.card-info {
 		--card-tone: var(--info);
 	}
+	.card-attention {
+		--card-tone: var(--attention-bar);
+	}
 	.card-ok,
 	.card-warn,
 	.card-danger,
-	.card-info {
+	.card-info,
+	.card-attention {
 		border-color: color-mix(in srgb, var(--card-tone) 55%, var(--border));
 		background: color-mix(in srgb, var(--card-tone) 8%, var(--bg-elevated));
+	}
+	.card-attention {
+		background: var(--attention-bg);
+		box-shadow: inset 3px 0 0 var(--attention-bar);
 	}
 
 	/* Stacked effect — two back layers peeking out bottom-right. The front
