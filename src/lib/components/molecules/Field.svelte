@@ -10,6 +10,7 @@
 		for: forId,
 		hint,
 		error,
+		grow = false,
 		class: klass = '',
 		children
 	}: {
@@ -17,12 +18,14 @@
 		for?: string;
 		hint?: string;
 		error?: string;
+		/** Fill the available width of a flex/Cluster row (flex: 1). */
+		grow?: boolean;
 		class?: string;
 		children?: Snippet;
 	} = $props();
 </script>
 
-<div class="field {klass}" data-tsu="Field">
+<div class="field {klass}" class:field-grow={grow} data-tsu="Field">
 	{#if label}
 		{#if forId}
 			<label class="label" for={forId}>{label}</label>
@@ -40,6 +43,10 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp-1);
+	}
+	.field-grow {
+		flex: 1 1 0;
+		min-width: 0;
 	}
 	.label {
 		font-size: var(--fs-sm);

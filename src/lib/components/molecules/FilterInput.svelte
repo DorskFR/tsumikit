@@ -51,6 +51,12 @@
 		autoQuote = true,
 		showClear = true,
 		icon = 'search',
+		size = 'md',
+		shape = 'square',
+		surface = 'base',
+		hotkey,
+		showHotkey = false,
+		grow = false,
 		onchange,
 		onsubmit,
 		inline,
@@ -70,6 +76,18 @@
 		showClear?: boolean;
 		/** Leading icon; pass `null` to hide it. */
 		icon?: IconName | null;
+		/** `sm` renders a compact-toolbar bar (`--control-height-compact`). */
+		size?: 'sm' | 'md';
+		shape?: 'square' | 'pill';
+		/** Theme-aware surface shade of the bar (mirrors Card). */
+		surface?: 'base' | 'raised' | 'sunken';
+		/** Key (e.g. `'/'`) that focuses the input when pressed outside an editable
+		 *  element and without modifiers. */
+		hotkey?: string;
+		/** Render the hotkey as a `<kbd>` hint, hidden on focus / when non-empty. */
+		showHotkey?: boolean;
+		/** Fill the available width of a flex/Cluster row (flex: 1). */
+		grow?: boolean;
 		/** Fires the parsed AST on every change — feed this to your backend. */
 		onchange?: (query: Query, raw: string) => void;
 		/** Fires on Enter / clear / chip-remove with the raw query string. */
@@ -93,7 +111,28 @@
 	let active = $state(0);
 	let open = $state(false);
 	let keyboardNavigation = $state(false);
+	let focused = $state(false);
 	let reqId = 0;
+
+	function isEditable(target: EventTarget | null): boolean {
+		if (!(target instanceof HTMLElement)) return false;
+		if (target.isContentEditable) return true;
+		return ['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName);
+	}
+
+	$effect(() => {
+		if (!hotkey) return;
+		const key = hotkey;
+		function onHotkey(e: KeyboardEvent) {
+			if (e.key !== key || e.defaultPrevented) return;
+			if (e.ctrlKey || e.metaKey || e.altKey) return;
+			if (isEditable(e.target)) return;
+			e.preventDefault();
+			el?.focus();
+		}
+		document.addEventListener('keydown', onHotkey);
+		return () => document.removeEventListener('keydown', onHotkey);
+	});
 
 	// Parsed view (drives the onchange AST + the snippet context).
 	const ast = $derived(parse(value, schema));
@@ -256,7 +295,15 @@
 	};
 </script>
 
-<div class="fi" data-tsu="FilterInput">
+<div
+	class="fi"
+	class:fi--sm={size === 'sm'}
+	class:fi--pill={shape === 'pill'}
+	class:surface-raised={surface === 'raised'}
+	class:surface-sunken={surface === 'sunken'}
+	class:fi--grow={grow}
+	data-tsu="FilterInput"
+>
 	<div class="fi__bar">
 		{#if icon}<span class="fi__icon"><Icon name={icon} label="Search" /></span>{/if}
 		{#if inline}{@render inline(ctx)}{/if}
@@ -272,10 +319,19 @@
 			onkeyup={(e) => {
 				if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') refresh();
 			}}
-			onfocus={refresh}
-			onblur={() => setTimeout(() => (open = false), 120)}
+			onfocus={() => {
+				focused = true;
+				refresh();
+			}}
+			onblur={() => {
+				focused = false;
+				setTimeout(() => (open = false), 120);
+			}}
 			{onkeydown}
 		/>
+		{#if showHotkey && hotkey && !focused && !value}
+			<kbd class="fi__kbd" aria-hidden="true">{hotkey}</kbd>
+		{/if}
 		{#if showClear && value}
 			<button
 				type="button"
@@ -324,15 +380,44 @@
 	.fi {
 		position: relative;
 	}
+	.fi--grow {
+		flex: 1 1 0;
+		min-width: 0;
+	}
 	.fi__bar {
 		display: flex;
 		align-items: center;
 		gap: var(--sp-2);
 		padding: 0 var(--sp-3);
-		min-height: 44px;
+		min-height: var(--control-height-default);
 		background: var(--bg-elevated);
 		border: 1px solid var(--border-strong);
 		border-radius: var(--r-md);
+	}
+	.fi--sm .fi__bar {
+		min-height: var(--control-height-compact);
+	}
+	.fi--sm .fi__input {
+		font-size: var(--fs-sm);
+	}
+	.fi--pill .fi__bar {
+		border-radius: var(--r-pill);
+		padding-inline: var(--sp-4);
+	}
+	.surface-raised .fi__bar {
+		background: var(--surface);
+	}
+	.surface-sunken .fi__bar {
+		background: var(--bg-elevated-2);
+	}
+	.fi__kbd {
+		font-family: var(--font-mono);
+		font-size: var(--fs-xs);
+		line-height: 1;
+		color: var(--text-faint);
+		border: 1px solid var(--border);
+		border-radius: var(--r-sm);
+		padding: 2px var(--sp-1);
 	}
 	.fi__bar:focus-within {
 		border-color: var(--accent);

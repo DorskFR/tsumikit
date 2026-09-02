@@ -144,7 +144,10 @@ for a light theme (`:root` defaults to dark, so dark themes may omit it).
 
 ## Components
 
-**Atoms:** Text, Heading, Button, Input, Textarea, Select, Switch, Checkbox,
+**Atoms:** Text, Heading, Button, Input (`icon` inset leading glyph,
+`clearable` + `onclear`, `shape="pill"`, `width` fixed + `flex: none`,
+`onenter(value)`; the bare `<input>` DOM is unchanged unless `icon`/`clearable`
+is used), Textarea, Select, Switch, Checkbox,
 Slider, Progress, Artwork (lazy cover image with seeded gradient + initials
 fallback, `aspect`, `status` overlay), Card (`tone` tints the surface for inline banners), Badge
 (`tone` semantic palette or `color` for any CSS colour, `size` xs/sm/md, `dot`,
@@ -153,7 +156,7 @@ fallback, `aspect`, `status` overlay), Card (`tone` tints the surface for inline
 always/hover/none, `align`), Icon (open registry — pass a `children` snippet for
 any custom SVG).
 
-**Molecules:** Field, IconButton, SelectButton, Toggle, OptionButton, Modal,
+**Molecules:** Field (`grow`), IconButton, SelectButton, Toggle, OptionButton, Modal,
 Popover, Menu, Tabs, RadioGroup, Tooltip, Accordion, CopyButton, FileButton,
 Dropzone, CodeBlock, Callout, EmptyState, ConfirmModal, Pagination, Toaster,
 ThemePicker, FontScalePicker, SectionHeader, KeyValue, LoadMore.
@@ -166,7 +169,13 @@ paints a left accent bar + `data-tone`, `rowClass(row)`, `rowActions` snippet
 for a hover/focus-revealed trailing cell (always visible on touch),
 `stickyOffset` for the sticky header's `top`, `size="sm"`, `loading`,
 `onloadmore` footer button, `empty` as string or snippet; `data-part`
-hooks on head/row/cell).
+hooks on head/row/cell; `responsive="stack"` turns rows into cards below
+`stackBelow` (48rem, measured on the table's own box) using `Column.role`
+`title | detail | meta | actions | hidden` — detail cells get a `data-label`
+prefix, the `<table>` stays a table for assistive tech), FilterSearchBar /
+FilterInput (`size="sm"` compact bar on `--control-height-compact`,
+`shape="pill"`, `surface`, `hotkey="/"` focuses the input from anywhere
+outside an editable element, `showHotkey` renders the `<kbd>` hint, `grow`).
 
 **Layouts:** AppShell (responsive header/sidebar/main/footer — persistent
 sidebar on desktop, overlay drawer on mobile, optionally resizable;

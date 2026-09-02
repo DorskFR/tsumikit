@@ -207,6 +207,14 @@ function greet(name) {
 	let searchQuery = $state<Query>({ root: null });
 	// FilterInput single-field demo: no below-bar chips, an inline badge instead.
 	let singleValue = $state('');
+	let hotkeyValue = $state('');
+	let iconValue = $state('');
+	const stackCols: Column<Row>[] = [
+		{ key: 'name', label: 'Name', role: 'title' },
+		{ key: 'role', label: 'Role' },
+		{ key: 'status', label: 'Status', role: 'meta' },
+		{ key: 'id', label: 'Id', role: 'hidden' }
+	];
 	const searchResults = $derived(tableRows.filter(compilePredicate(searchQuery)));
 	const searchSql = $derived(toSql(searchQuery, 'nodes'));
 
@@ -662,6 +670,18 @@ function greet(name) {
 				<Field label="Monospace input" for="f-mono">
 					<Input id="f-mono" mono value="export TOKEN=…" />
 				</Field>
+				<Field label="Icon + clearable + width=14rem, pill" for="f-icon">
+					<Input
+						id="f-icon"
+						icon="search"
+						clearable
+						shape="pill"
+						width="14rem"
+						placeholder="Search…"
+						bind:value={iconValue}
+						onenter={(v) => toasts.show(`Enter: ${v || '∅'}`)}
+					/>
+				</Field>
 				<Field label="Select" for="f-select">
 					<Select id="f-select" bind:value={selectValue}>
 						<option value="one">Option one</option>
@@ -934,6 +954,23 @@ function greet(name) {
 				<IconButton icon="copy" label="Copy {r.name}" onclick={() => toasts.show(`Copy: ${r.name}`)} />
 			{/snippet}
 		</DataTable>
+		<Text tone="muted">
+			<code>responsive="stack"</code> in a 22rem-wide box: rows become cards via
+			<code>Column.role</code> (title / detail / meta / hidden), actions stay on the title line.
+		</Text>
+		<div style="max-width: 22rem">
+			<DataTable
+				columns={stackCols}
+				rows={tableRows}
+				rowKey={(r) => r.id}
+				responsive="stack"
+				cellSnippets={{ status }}
+			>
+				{#snippet rowActions(r: Row)}
+					<IconButton icon="copy" label="Copy {r.name}" onclick={() => toasts.show(`Copy: ${r.name}`)} />
+				{/snippet}
+			</DataTable>
+		</div>
 		{#snippet status(r: Row)}
 			<Badge tone={r.status === 'ok' ? 'ok' : r.status === 'warn' ? 'warn' : 'danger'}>
 				{r.status}
@@ -989,6 +1026,23 @@ function greet(name) {
 					{/each}
 				{/snippet}
 			</FilterInput>
+		</Card>
+
+		<Text tone="muted">
+			<code>size="sm" shape="pill" surface="sunken"</code> with <code>hotkey="/"</code> — press
+			<kbd>/</kbd> anywhere outside a field to focus it.
+		</Text>
+		<Card>
+			<FilterInput
+				schema={searchSchema}
+				bind:value={hotkeyValue}
+				size="sm"
+				shape="pill"
+				surface="sunken"
+				hotkey="/"
+				showHotkey
+				placeholder="Search"
+			/>
 		</Card>
 	</section>
 

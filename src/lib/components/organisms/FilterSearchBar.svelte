@@ -24,6 +24,12 @@
 		placeholder = 'artist:"Daft Punk" AND year>=2000',
 		showChips = true,
 		autoQuote = true,
+		size = 'md',
+		shape = 'square',
+		surface = 'base',
+		hotkey,
+		showHotkey = false,
+		grow = false,
 		onchange,
 		onsubmit
 	}: {
@@ -39,6 +45,13 @@
 		 * the quotes. Set false for bare typing where spaces split the value.
 		 */
 		autoQuote?: boolean;
+		/** Forwarded to FilterInput. */
+		size?: 'sm' | 'md';
+		shape?: 'square' | 'pill';
+		surface?: 'base' | 'raised' | 'sunken';
+		hotkey?: string;
+		showHotkey?: boolean;
+		grow?: boolean;
 		/** Fires the parsed AST on every change — feed this to your backend. */
 		onchange?: (query: Query, raw: string) => void;
 		/** Fires on Enter / clear / chip-remove with the raw query string. */
@@ -50,7 +63,20 @@
 	}
 </script>
 
-<FilterInput {schema} bind:value {placeholder} {autoQuote} {onchange} {onsubmit}>
+<FilterInput
+	{schema}
+	bind:value
+	{placeholder}
+	{autoQuote}
+	{size}
+	{shape}
+	{surface}
+	{hotkey}
+	{showHotkey}
+	{grow}
+	{onchange}
+	{onsubmit}
+>
 	{#snippet below({ filters: chips, text, remove })}
 		{#if showChips && (chips.length || text)}
 			<div class="fsb__chips">
