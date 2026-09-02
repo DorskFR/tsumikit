@@ -1290,6 +1290,18 @@ function greet(name) {
 			<Card tone="ok" padding="sm"><Text variant="caption">tone ok</Text></Card>
 			<Card tone="warn" padding="sm"><Text variant="caption">tone warn</Text></Card>
 			<Card tone="danger" padding="sm"><Text variant="caption">tone danger</Text></Card>
+			<Card tone="attention" padding="sm"><Text variant="caption">tone attention</Text></Card>
+		</div>
+		<div class="card-row" style="margin-top: var(--sp-4)">
+			<Card interactive onclick={() => toasts.show('Card activated')}>
+				<Heading level={3} size="md">Interactive card</Heading>
+				<Text variant="body" tone="muted">Enter/Space activate; the nested button stays independent.</Text>
+				<Button size="sm" variant="ghost" onclick={() => toasts.show('Nested button')}>Nested</Button>
+			</Card>
+			<Card maxWidth="22rem">
+				<Heading level={3} size="md">maxWidth 22rem</Heading>
+				<Text variant="body" tone="muted">Fills its row up to the cap.</Text>
+			</Card>
 		</div>
 		<div class="row" style="margin-top: var(--sp-3)">
 			<Button variant="primary" onclick={() => (modalOpen = true)}>Open modal</Button>
