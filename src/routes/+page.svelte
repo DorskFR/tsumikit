@@ -386,8 +386,27 @@ function greet(name) {
 					<Badge border={false} tone="info" size="sm">3</Badge>
 				</div>
 				<div class="row row-wrap">
+					<Badge tone="accent">accent</Badge>
+					<Badge tone="muted">muted</Badge>
+					<Badge tone="violet">violet</Badge>
+					<Badge color="hsl(160 60% 50%)">color</Badge>
+					<Badge color="var(--role-system)" dot>dot</Badge>
+					<Badge tone="ok" icon="check">icon</Badge>
+					<Badge tone="info" variant="text" mono>text · 12:34</Badge>
+				</div>
+				<div class="row row-wrap">
+					<Badge size="xs">xs</Badge>
+					<Badge size="xs" tone="ok" numeric>8</Badge>
+					<Badge size="sm" numeric>128</Badge>
+					<Badge truncate maxWidth="12ch">a very long account name that clips</Badge>
+					<Badge as="button" color="hsl(30 80% 55%)">focus me</Badge>
+				</div>
+				<div class="row row-wrap">
 					<Link href="https://svelte.dev" target="_blank" rel="noreferrer">Anchor link</Link>
 					<Link>Button-as-link</Link>
+					<Link href="#" tone="info" underline="hover">View all →</Link>
+					<Link tone="muted" underline="none">Quiet action</Link>
+					<Link tone="inherit">Inherit</Link>
 				</div>
 				<div class="row row-wrap">
 					<Dot status="active" glow label="active" />
@@ -395,6 +414,7 @@ function greet(name) {
 					<Dot status="dead" label="dead" />
 					<Dot status="hibernated" label="hibernated" />
 					<Dot color="var(--accent)" label="custom" />
+					<Dot status="active" ring label="ring" />
 				</div>
 			</div>
 		</Card>
@@ -761,6 +781,14 @@ function greet(name) {
 				<Button onclick={() => toasts.show('Saved to drafts')}>Neutral</Button>
 				<Button variant="primary" onclick={() => toasts.ok('Changes published')}>Success</Button>
 				<Button variant="danger" onclick={() => toasts.error('Something went wrong')}>Error</Button>
+				<Button onclick={() => toasts.info('Sync scheduled for tonight')}>Info</Button>
+				<Button
+					onclick={() =>
+						toasts.show('Item archived', {
+							tone: 'ok',
+							action: { label: 'Undo', run: () => new Promise((r) => setTimeout(r, 800)) }
+						})}>With action</Button
+				>
 			</div>
 		</Card>
 	</section>

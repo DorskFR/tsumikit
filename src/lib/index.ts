@@ -131,7 +131,14 @@ export {
 export { fontScale, SCALE_LEVELS, type ScaleLevel } from './stores/fontscale.svelte';
 // ---- stores / actions ----
 export { type Mode, THEMES, theme } from './stores/theme.svelte';
-export { type Toast, type ToastTone, toasts } from './stores/toast.svelte';
+export {
+	type Toast,
+	type ToastAction,
+	type ToastOptions,
+	type ToastTone,
+	type ToastToneInput,
+	toasts,
+} from './stores/toast.svelte';
 export {
 	formatTimestamp,
 	localTimeZone,

@@ -5,7 +5,8 @@
 	//   • status → one of the semantic presets (active/stale/dead/hibernated),
 	//     each mapped to a token.
 	//   • color  → any CSS colour (or var()) for a one-off; overrides `status`.
-	// `glow` adds a soft halo in the dot's own colour. With a `label` the whole
+	// `glow` adds a soft halo in the dot's own colour; `ring` adds a dark halo so
+	// the dot stays legible over artwork. With a `label` the whole
 	// thing renders as an inline-flex row (dot + caption); without one it's a bare
 	// inline dot, so it can sit inline next to other text.
 	import Text from './Text.svelte';
@@ -24,6 +25,7 @@
 		color,
 		label,
 		glow = false,
+		ring = false,
 		class: klass = '',
 		...rest
 	}: {
@@ -31,6 +33,7 @@
 		color?: string;
 		label?: string;
 		glow?: boolean;
+		ring?: boolean;
 		class?: string;
 		[key: string]: unknown;
 	} = $props();
@@ -40,11 +43,11 @@
 
 {#if label}
 	<span class="dot-row {klass}" data-tsu="Dot" {...rest}>
-		<span class="dot" class:glow style="--dot-color:{resolved}"></span>
+		<span class="dot" class:glow class:ring style="--dot-color:{resolved}"></span>
 		<Text variant="caption">{label}</Text>
 	</span>
 {:else}
-	<span class="dot {klass}" class:glow style="--dot-color:{resolved}" data-tsu="Dot" {...rest}></span>
+	<span class="dot {klass}" class:glow class:ring style="--dot-color:{resolved}" data-tsu="Dot" {...rest}></span>
 {/if}
 
 <style>
@@ -63,5 +66,13 @@
 	}
 	.glow {
 		box-shadow: 0 0 6px var(--dot-color);
+	}
+	.ring {
+		box-shadow: 0 0 0 3px rgb(0 0 0 / 0.35);
+	}
+	.ring.glow {
+		box-shadow:
+			0 0 0 3px rgb(0 0 0 / 0.35),
+			0 0 6px var(--dot-color);
 	}
 </style>
