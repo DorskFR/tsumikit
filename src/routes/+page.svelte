@@ -141,6 +141,11 @@ function greet(name) {
 		{ id: 2, name: 'worker-02', role: 'worker', status: 'warn' },
 		{ id: 3, name: 'cache-01', role: 'cache', status: 'danger' }
 	];
+	const denseCols: Column<Row>[] = [
+		{ key: 'name', label: 'Name', width: '40%', truncate: true, sortable: true },
+		{ key: 'role', label: 'Role', hideBelow: 'sm' },
+		{ key: 'status', label: 'Status', width: '6rem' }
+	];
 	const tableCols: Column<Row>[] = [
 		{ key: 'name', label: 'Name' },
 		{ key: 'role', label: 'Role' },
@@ -326,6 +331,17 @@ function greet(name) {
 					<IconButton icon="star" label="Pin" chip variant="default" tone="accent" />
 					<IconButton icon="bell" label="Archive" chip variant="default" tone="warn" />
 					<IconButton icon="trash" label="Interrupt" chip variant="default" tone="danger" hoverDanger />
+				</div>
+				<Text variant="caption" tone="muted">Shared box scale (xs/sm/md/lg) across IconButton, SelectButton, Popover and Button square — 44px hit slab on touch:</Text>
+				<div class="row row-wrap">
+					<IconButton icon="x" label="Remove" box="xs" variant="default" />
+					<IconButton icon="search" label="Search" box="sm" variant="default" />
+					<IconButton icon="edit" label="Edit" box="md" variant="default" />
+					<IconButton icon="star" label="Star" box="lg" variant="default" />
+					<IconButton emoji="←" label="Back" box="lg" glyphSize="1.5rem" variant="default" />
+					<Button square variant="default" aria-label="Square control">A</Button>
+					<Button square size="sm" variant="default" aria-label="Square small">A</Button>
+					<Button collapseLabel="container"><Icon name="search" /><span data-label>Search</span></Button>
 				</div>
 				<hr class="divider" />
 				<Text variant="caption">All registry glyphs (sized at 1em — they scale with text):</Text>
@@ -803,6 +819,23 @@ function greet(name) {
 			onrowclick={(r) => toasts.show(`Row: ${r.name}`)}
 			cellSnippets={{ status }}
 		/>
+		<Text tone="muted">
+			<code>layout="fixed"</code> + <code>truncate</code>, <code>hideBelow</code> on the role column,
+			<code>rowTone</code> accent bar, hover-revealed <code>rowActions</code>, <code>size="sm"</code>.
+		</Text>
+		<DataTable
+			columns={denseCols}
+			rows={tableRows}
+			rowKey={(r) => r.id}
+			layout="fixed"
+			size="sm"
+			rowTone={(r) => r.status}
+			cellSnippets={{ status }}
+		>
+			{#snippet rowActions(r: Row)}
+				<IconButton icon="copy" label="Copy {r.name}" onclick={() => toasts.show(`Copy: ${r.name}`)} />
+			{/snippet}
+		</DataTable>
 		{#snippet status(r: Row)}
 			<Badge tone={r.status === 'ok' ? 'ok' : r.status === 'warn' ? 'warn' : 'danger'}>
 				{r.status}
@@ -1121,6 +1154,11 @@ function greet(name) {
 					{#each ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta'] as t (t)}
 						<Badge>{t}</Badge>
 					{/each}
+				</Cluster>
+				<Text variant="caption" tone="muted">Cluster stackAt="md" — buttons stack full-width when the cluster is under 40rem:</Text>
+				<Cluster stackAt="md">
+					<Button>Cancel</Button>
+					<Button variant="primary">Save</Button>
 				</Cluster>
 				<Text variant="caption" tone="muted">AutoGrid — columns adapt to available width (resize the window):</Text>
 				<AutoGrid min="10rem">

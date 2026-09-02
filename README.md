@@ -80,7 +80,15 @@ any custom SVG).
 Popover, Menu, Tabs, RadioGroup, Tooltip, Accordion, CopyButton, FileButton,
 Dropzone, CodeBlock, Callout, EmptyState, Toaster, ThemePicker, FontScalePicker.
 
-**Organisms:** DataTable (generic `<T>`, typed columns + cell snippets).
+**Organisms:** DataTable (generic `<T>`, typed columns + cell snippets;
+`layout="fixed"` makes column widths authoritative, `Column.truncate` /
+`nowrap` / `hideBelow="sm|md|lg"` (container-query on the table's own box),
+`hideHeader` clips the header but keeps it for assistive tech, `rowTone(row)`
+paints a left accent bar + `data-tone`, `rowClass(row)`, `rowActions` snippet
+for a hover/focus-revealed trailing cell (always visible on touch),
+`stickyOffset` for the sticky header's `top`, `size="sm"`, `loading`,
+`onloadmore` footer button, `empty` as string or snippet; `data-part`
+hooks on head/row/cell).
 
 **Layouts:** AppShell (responsive header/sidebar/main/footer — persistent
 sidebar on desktop, overlay drawer on mobile, optionally resizable;
@@ -90,8 +98,10 @@ the content column only, `stickySidebar` pins it to the viewport, and
 children are `min-width: 0` so a wide title/actions row can't widen the grid on
 mobile), NavItem
 (collapses to an icon rail when the sidebar is narrow), Container, Stack
-(vertical), Cluster (wrapping row), AutoGrid (intrinsically responsive columns —
-no media/container query needed).
+(vertical), Cluster (wrapping row; `stackAt="xs|sm|md|lg"` makes it its own
+query container and stacks children full-width below 18/30/40/48rem — phone
+action rows without a viewport query), AutoGrid (intrinsically responsive
+columns — no media/container query needed).
 
 ### Container
 
@@ -198,6 +208,37 @@ the roomier shared `--control-height` composer contract is required.
 Button and Popover share the same semantic tones. For a confirmed positive
 action, `tone="success"` gives neutral controls a success tint; combine it with
 `variant="primary"` for a filled success action without consumer CSS.
+
+### Square boxes & touch targets
+
+Icon-ish controls share one square scale, `box="xs" | "sm" | "md" | "lg"` =
+`--box-xs/sm/md/lg` (1.5rem / `--control-height-compact` / 2.25rem /
+`--control-height-default`): `IconButton`, `Button`, `SelectButton`, `Popover`
+(trigger), `CopyButton` (hides its label) and `FileButton` (implies `iconOnly`).
+A boxed control is always square, padding-less and `flex: none`, so a header
+row of IconButton + SelectButton + Popover lines up with no per-app overrides.
+`md` is the classic 2.25rem icon button and the default; `chip` is an outlined
+`lg`. `Button square` instead takes its side from the height contract in force
+(`size` tier, or `--control-height` with `control`), for a square text glyph in
+a toolbar. `IconButton glyphSize` sets the exact glyph size for SVG *and* text
+glyphs (`size` stays the SVG px, emoji ×1.35).
+
+On `(pointer: coarse)` every icon-only/square control (and `Popover`'s default
+trigger) carries an invisible `::after` slab that extends its hit area to
+`--touch-target` (44px, WCAG 2.5.8) without moving layout; fine pointers are
+untouched. `hitArea="compact"` opts a dense-table row out. `Button
+collapseLabel="mobile" | "container"` hides `<span data-label>` children below
+40rem viewport / 30rem container, drops to icon padding, and names the button
+from the hidden text unless `aria-label` is set:
+
+```svelte
+<Button collapseLabel="container"><Icon name="search" /><span data-label>Search</span></Button>
+<Cluster stackAt="md"><Button grow>Cancel</Button><Button grow variant="primary">Save</Button></Cluster>
+```
+
+`--control-height-*` and `--box-*` are **required tokens**: a consumer that
+forks `variables.css` must keep them (Button `control`, Select `sm`, every `box`)
+or those controls render with unresolved sizes.
 
 ## Built on the platform
 

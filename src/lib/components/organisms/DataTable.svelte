@@ -1,4 +1,6 @@
 <script lang="ts" module>
+	export type RowTone = 'neutral' | 'ok' | 'warn' | 'danger' | 'info';
+
 	export interface Column<T> {
 		/** Key into the row, or an arbitrary id when paired with a cell snippet. */
 		key: string;
@@ -10,6 +12,12 @@
 		/** Header becomes a sort toggle. Sorts by the displayed value unless an
 		 *  `onsort` handler is supplied (then the caller controls ordering). */
 		sortable?: boolean;
+		/** One-line cells clipped with an ellipsis (pair with `layout="fixed"`). */
+		truncate?: boolean;
+		nowrap?: boolean;
+		/** Drop the column when the table's own box is narrower than the breakpoint
+		 *  (sm 30rem, md 48rem, lg 64rem). */
+		hideBelow?: 'sm' | 'md' | 'lg';
 	}
 </script>
 
@@ -30,7 +38,19 @@
 		onsort,
 		cellSnippets = {},
 		empty = 'No data.',
-		stickyHeader = false
+		stickyHeader = false,
+		stickyOffset,
+		layout = 'auto',
+		hideHeader = false,
+		size = 'md',
+		rowTone,
+		rowClass,
+		rowActions,
+		rowActionsLabel = 'Actions',
+		loading = false,
+		loadingLabel = 'Loading…',
+		onloadmore,
+		loadMoreLabel = 'Load more'
 	}: {
 		columns: Column<T>[];
 		rows: T[];
@@ -41,12 +61,33 @@
 		 *  table only reflects the indicator and emits; it does not reorder rows. */
 		onsort?: (key: string, dir: 'asc' | 'desc') => void;
 		cellSnippets?: Record<string, Snippet<[T]>>;
-		empty?: string;
+		empty?: string | Snippet;
 		stickyHeader?: boolean;
+		/** Distance from the scroll container's top for the sticky header, e.g.
+		 *  `var(--header-h)` when the page header overlaps. Defaults to 0. */
+		stickyOffset?: string;
+		/** `fixed` makes declared column widths authoritative (needed for truncate). */
+		layout?: 'auto' | 'fixed';
+		/** Visually hides the header; it stays in the DOM for assistive tech. */
+		hideHeader?: boolean;
+		size?: 'sm' | 'md';
+		/** Per-row semantic tone, rendered as a left accent bar + `data-tone`. */
+		rowTone?: (row: T) => RowTone | undefined;
+		rowClass?: (row: T) => string | undefined;
+		/** Trailing actions cell revealed on hover/focus (always visible on touch). */
+		rowActions?: Snippet<[T]>;
+		rowActionsLabel?: string;
+		loading?: boolean;
+		loadingLabel?: string;
+		/** Renders a footer "load more" button that calls this. */
+		onloadmore?: () => void;
+		loadMoreLabel?: string;
 	} = $props();
 
 	let sortKey = $state<string | null>(null);
 	let sortDir = $state<'asc' | 'desc'>('asc');
+
+	const colCount = $derived(columns.length + (rowActions ? 1 : 0));
 
 	function display(col: Column<T>, row: T): unknown {
 		if (col.get) return col.get(row);
@@ -80,13 +121,21 @@
 	});
 </script>
 
-<div class="dt-scroll" data-tsu="DataTable">
-	<table class="dt" class:sticky={stickyHeader}>
-		<thead>
+<div class="dt-scroll" data-tsu="DataTable" data-size={size} aria-busy={loading || undefined}>
+	<table
+		class="dt"
+		class:sticky={stickyHeader}
+		class:fixed={layout === 'fixed'}
+		class:head-hidden={hideHeader}
+		class:sm={size === 'sm'}
+		style:--dt-sticky-offset={stickyOffset}
+	>
+		<thead data-part="head">
 			<tr>
 				{#each columns as col (col.key)}
 					<th
 						scope="col"
+						data-hide-below={col.hideBelow}
 						style:width={col.width}
 						style:text-align={col.align ?? 'left'}
 						aria-sort={col.sortable
@@ -109,17 +158,31 @@
 						{/if}
 					</th>
 				{/each}
+				{#if rowActions}
+					<th scope="col" class="dt-actions-head"><span class="sr-only">{rowActionsLabel}</span></th>
+				{/if}
 			</tr>
 		</thead>
 		<tbody>
-			{#if sortedRows.length === 0}
-				<tr>
-					<td class="dt-empty" colspan={columns.length}>{empty}</td>
+			{#if sortedRows.length === 0 && !loading}
+				<tr data-part="empty">
+					<td class="dt-empty" colspan={colCount}>
+						{#if typeof empty === 'string'}
+							{empty}
+						{:else}
+							{@render empty()}
+						{/if}
+					</td>
 				</tr>
 			{:else}
 				{#each sortedRows as row (rowKey(row))}
+					{@const tone = rowTone?.(row)}
 					<tr
+						data-part="row"
+						data-tone={tone}
+						class={rowClass?.(row)}
 						class:clickable={!!onrowclick}
+						class:toned={!!tone && tone !== 'neutral'}
 						tabindex={onrowclick ? 0 : undefined}
 						role={onrowclick ? 'button' : undefined}
 						onclick={onrowclick ? () => onrowclick(row) : undefined}
@@ -133,7 +196,13 @@
 							: undefined}
 					>
 						{#each columns as col (col.key)}
-							<td style:text-align={col.align ?? 'left'}>
+							<td
+								data-part="cell"
+								data-hide-below={col.hideBelow}
+								class:truncate={col.truncate}
+								class:nowrap={col.nowrap}
+								style:text-align={col.align ?? 'left'}
+							>
 								{#if cellSnippets[col.key]}
 									{@render cellSnippets[col.key](row)}
 								{:else}
@@ -141,10 +210,29 @@
 								{/if}
 							</td>
 						{/each}
+						{#if rowActions}
+							<td data-part="actions" class="dt-actions">
+								{@render rowActions(row)}
+							</td>
+						{/if}
 					</tr>
 				{/each}
 			{/if}
+			{#if loading}
+				<tr data-part="loading">
+					<td class="dt-empty" colspan={colCount}>{loadingLabel}</td>
+				</tr>
+			{/if}
 		</tbody>
+		{#if onloadmore && !loading}
+			<tfoot>
+				<tr>
+					<td class="dt-more" colspan={colCount}>
+						<button type="button" class="dt-more-btn" onclick={onloadmore}>{loadMoreLabel}</button>
+					</td>
+				</tr>
+			</tfoot>
+		{/if}
 	</table>
 </div>
 
@@ -155,6 +243,7 @@
 		-webkit-overflow-scrolling: touch;
 		border: 1px solid var(--border);
 		border-radius: var(--r-lg);
+		container-type: inline-size;
 	}
 	.dt {
 		width: 100%;
@@ -162,10 +251,20 @@
 		font-size: var(--fs-sm);
 		background: var(--surface);
 	}
+	.dt.fixed {
+		table-layout: fixed;
+	}
+	.dt.sm {
+		font-size: var(--fs-xs);
+	}
 	th,
 	td {
 		padding: var(--sp-2) var(--sp-3);
 		border-bottom: 1px solid var(--border);
+	}
+	.dt.sm th,
+	.dt.sm td {
+		padding: var(--sp-1) var(--sp-2);
 	}
 	th {
 		font-size: var(--fs-xs);
@@ -178,8 +277,22 @@
 	}
 	.dt.sticky th {
 		position: sticky;
-		top: 0;
+		top: var(--dt-sticky-offset, 0);
 		z-index: 1;
+	}
+	/* Header stays in flow (so widths still apply) but paints nothing. */
+	.dt.head-hidden th {
+		height: 0;
+		padding: 0;
+		border: 0;
+		line-height: 0;
+		overflow: hidden;
+		clip-path: inset(50%);
+	}
+	.dt.head-hidden th > * {
+		display: block;
+		height: 0;
+		overflow: hidden;
 	}
 	/* Sort toggle: a bare button that inherits the th's type styling. */
 	.dt-sort {
@@ -218,9 +331,96 @@
 		background: var(--bg-elevated-2);
 		outline: none;
 	}
+	td.truncate {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		max-width: 0;
+	}
+	td.nowrap {
+		white-space: nowrap;
+	}
+	tr[data-tone='ok'] {
+		--dt-tone: var(--ok);
+	}
+	tr[data-tone='warn'] {
+		--dt-tone: var(--warn);
+	}
+	tr[data-tone='danger'] {
+		--dt-tone: var(--danger);
+	}
+	tr[data-tone='info'] {
+		--dt-tone: var(--info);
+	}
+	tr.toned td:first-child {
+		box-shadow: inset 3px 0 0 var(--dt-tone);
+	}
+	.dt-actions-head,
+	.dt-actions {
+		width: 1%;
+		white-space: nowrap;
+		text-align: right;
+	}
+	.dt-actions {
+		opacity: 0;
+		transition: opacity 0.12s var(--ease);
+	}
+	tr:hover .dt-actions,
+	tr:focus-within .dt-actions {
+		opacity: 1;
+	}
+	@media (pointer: coarse) {
+		.dt-actions {
+			opacity: 1;
+		}
+	}
+	@container (max-width: 30rem) {
+		[data-hide-below='sm'] {
+			display: none;
+		}
+	}
+	@container (max-width: 48rem) {
+		[data-hide-below='md'] {
+			display: none;
+		}
+	}
+	@container (max-width: 64rem) {
+		[data-hide-below='lg'] {
+			display: none;
+		}
+	}
 	.dt-empty {
 		text-align: center;
 		color: var(--text-faint);
 		padding: var(--sp-8);
+	}
+	.dt-more {
+		text-align: center;
+		padding: var(--sp-2);
+		border-top: 1px solid var(--border);
+	}
+	.dt-more-btn {
+		border: 0;
+		background: none;
+		padding: var(--sp-1) var(--sp-3);
+		font: inherit;
+		color: var(--accent);
+		cursor: pointer;
+		border-radius: var(--r-md, 6px);
+	}
+	.dt-more-btn:hover,
+	.dt-more-btn:focus-visible {
+		background: var(--bg-elevated-2);
+	}
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
 	}
 </style>

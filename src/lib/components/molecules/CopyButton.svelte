@@ -13,7 +13,9 @@
 		label = 'Copy',
 		copiedLabel = 'Copied',
 		variant = 'ghost',
-		showLabel = true,
+		showLabel,
+		box,
+		hitArea = 'auto',
 		resetMs = 1500,
 		class: klass = ''
 	}: {
@@ -22,11 +24,16 @@
 		label?: string;
 		copiedLabel?: string;
 		variant?: 'default' | 'primary' | 'ghost' | 'danger';
+		/** Defaults to true, or false when `box` makes it icon-only. */
 		showLabel?: boolean;
+		/** Shared square box scale (`--box-xs/sm/md/lg`): a square icon-only copy control. */
+		box?: 'xs' | 'sm' | 'md' | 'lg';
+		hitArea?: 'auto' | 'compact';
 		resetMs?: number;
 		class?: string;
 	} = $props();
 
+	const labelShown = $derived(showLabel ?? box === undefined);
 	let copied = $state(false);
 	let status = $state('');
 	let timer: ReturnType<typeof setTimeout> | undefined;
@@ -46,12 +53,14 @@
 <Button
 	data-tsu="CopyButton"
 	{variant}
+	{box}
+	{hitArea}
 	class={klass}
 	onclick={copy}
 	aria-label={copied ? copiedLabel : label}
 	title={label}
 >
 	<Icon name={copied ? 'check' : 'copy'} />
-	{#if showLabel}<span>{copied ? copiedLabel : label}</span>{/if}
+	{#if labelShown}<span>{copied ? copiedLabel : label}</span>{/if}
 </Button>
 <span class="sr-only" role="status" aria-live="polite">{status}</span>

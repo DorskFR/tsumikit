@@ -16,6 +16,8 @@
 		disabled = false,
 		variant = 'default',
 		size = 'md',
+		box,
+		hitArea = 'auto',
 		class: klass = ''
 	}: {
 		onfiles: (files: File[]) => void;
@@ -36,8 +38,14 @@
 		/** Match the Button atom's sizes so a FileButton lines up with buttons in
 		 *  the same row. */
 		size?: 'sm' | 'md' | 'lg';
+		/** Shared square box scale (`--box-xs/sm/md/lg`); implies `iconOnly`. */
+		box?: 'xs' | 'sm' | 'md' | 'lg';
+		/** Icon-only buttons grow a 44px hit slab on coarse pointers; `compact` opts out. */
+		hitArea?: 'auto' | 'compact';
 		class?: string;
 	} = $props();
+
+	const onlyIcon = $derived(iconOnly || box !== undefined);
 
 	function onchange(e: Event) {
 		const input = e.currentTarget as HTMLInputElement;
@@ -54,9 +62,12 @@
 	class:ghost={variant === 'ghost'}
 	class:sm={size === 'sm'}
 	class:lg={size === 'lg'}
-	class:icon-only={iconOnly}
+	class:icon-only={onlyIcon}
+	class:box={box !== undefined}
+	class:hit-compact={hitArea === 'compact'}
+	style:--file-box={box ? `var(--box-${box})` : undefined}
 	class:disabled
-	aria-label={iconOnly ? label : undefined}
+	aria-label={onlyIcon ? label : undefined}
 >
 	<input
 		class="sr-only"
@@ -71,7 +82,7 @@
 	{:else if emoji}
 		<span class="emoji" aria-hidden="true">{emoji}</span>
 	{/if}
-	<span class:sr-only={iconOnly}>{label}</span>
+	<span class:sr-only={onlyIcon}>{label}</span>
 </label>
 
 <style>
@@ -119,6 +130,24 @@
 		gap: 0;
 		padding: var(--sp-2);
 		aspect-ratio: 1;
+	}
+	.file-btn.box {
+		width: var(--file-box);
+		min-width: var(--file-box);
+		height: var(--file-box);
+		min-height: var(--file-box);
+		padding: 0;
+		flex: none;
+	}
+	@media (pointer: coarse) {
+		.file-btn.icon-only:not(.hit-compact) {
+			position: relative;
+		}
+		.file-btn.icon-only:not(.hit-compact)::after {
+			content: '';
+			position: absolute;
+			inset: min(0px, calc((100% - var(--touch-target)) / 2));
+		}
 	}
 	/* Emoji glyph is bumped above the text size — at 1em a paperclip is hard to
 	   read, so render it a touch larger for legibility. */

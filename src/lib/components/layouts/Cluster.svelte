@@ -10,6 +10,9 @@
 	// SegmentedControl/Select `control`), so a whole toolbar lines up from one prop
 	// instead of per-child sizing. `grow` makes direct children share the row width
 	// equally (flex: 1) — the toolbar equivalent of `style="flex:1"` on each child.
+	// `stackAt` turns the cluster into its own inline-size query container and
+	// stacks children full-width once it is narrower than the tier (18/30/40/48rem),
+	// for phone action rows; the cluster then no longer shrink-wraps its content.
 	const CONTROL_TIER = {
 		sm: 'var(--control-height-compact)',
 		md: 'var(--control-height-default)',
@@ -24,6 +27,7 @@
 		wrap = true,
 		size,
 		grow = false,
+		stackAt,
 		class: klass = '',
 		children,
 		...rest
@@ -35,6 +39,7 @@
 		wrap?: boolean;
 		size?: 'sm' | 'md' | 'lg';
 		grow?: boolean;
+		stackAt?: 'xs' | 'sm' | 'md' | 'lg';
 		class?: string;
 		children?: Snippet;
 		[key: string]: unknown;
@@ -46,6 +51,11 @@
 	data-tsu="Cluster"
 	class="cluster-c {klass}"
 	class:cluster-grow={grow}
+	class:cluster-stack={stackAt !== undefined}
+	class:stack-xs={stackAt === 'xs'}
+	class:stack-sm={stackAt === 'sm'}
+	class:stack-md={stackAt === 'md'}
+	class:stack-lg={stackAt === 'lg'}
 	style:gap
 	style:align-items={align}
 	style:justify-content={justify}
@@ -63,5 +73,28 @@
 	.cluster-grow > :global(*) {
 		flex: 1 1 0;
 		min-width: 0;
+	}
+	.cluster-stack {
+		container-type: inline-size;
+	}
+	@container (max-width: 18rem) {
+		.stack-xs > :global(*) {
+			flex: 1 1 100%;
+		}
+	}
+	@container (max-width: 30rem) {
+		.stack-sm > :global(*) {
+			flex: 1 1 100%;
+		}
+	}
+	@container (max-width: 40rem) {
+		.stack-md > :global(*) {
+			flex: 1 1 100%;
+		}
+	}
+	@container (max-width: 48rem) {
+		.stack-lg > :global(*) {
+			flex: 1 1 100%;
+		}
 	}
 </style>

@@ -21,15 +21,29 @@
 		href?: string;
 		target?: string;
 		rel?: string;
-		// Square 2.25rem icon-only tap target (IconButton). `iconInline` is the
-		// borderless, compact variant (chip-remove ✕, inline edit ✎); pair with
-		// `hoverDanger` to tint it red on hover (delete affordances).
+		// Square icon-only tap target (IconButton), `--box-md` (2.25rem) unless
+		// `box` says otherwise. `iconInline` is the borderless, compact variant
+		// (chip-remove ✕, inline edit ✎); pair with `hoverDanger` to tint it red on
+		// hover (delete affordances).
 		icon?: boolean;
-		// Larger 2.5rem outlined square icon-chip (header/toolbar action). Pairs
-		// with `tone` for tinted severity chips (back/archive/interrupt/more).
+		// Shared square box scale (`--box-xs/sm/md/lg`): always square, no padding,
+		// never flexes. Implies an icon-only control.
+		box?: 'xs' | 'sm' | 'md' | 'lg';
+		// Square text/icon control whose side equals the current height contract:
+		// `size` tier, or `--control-height` with `control`.
+		square?: boolean;
+		// Outlined `--box-lg` icon-chip (header/toolbar action). Pairs with `tone`
+		// for tinted severity chips (back/archive/interrupt/more).
 		chip?: boolean;
 		iconInline?: boolean;
 		hoverDanger?: boolean;
+		// Hide `[data-label]` children below 40rem viewport (`mobile`) or 30rem
+		// container (`container`) so the button becomes icon-only; the hidden text
+		// becomes the aria-label unless one is set.
+		collapseLabel?: 'never' | 'mobile' | 'container';
+		// Icon-only/square buttons grow a 44px hit slab on coarse pointers without
+		// moving layout; `compact` opts out in dense tables.
+		hitArea?: 'auto' | 'compact';
 		// Async/busy state: shows a spinner, blocks clicks, sets aria-busy. Stays
 		// disabled-equivalent while true (so a double-submit can't fire).
 		loading?: boolean;
@@ -47,9 +61,13 @@
 		as = 'button',
 		href,
 		icon = false,
+		box,
+		square = false,
 		chip = false,
 		iconInline = false,
 		hoverDanger = false,
+		collapseLabel = 'never',
+		hitArea = 'auto',
 		loading = false,
 		type = 'button',
 		disabled = false,
@@ -69,10 +87,22 @@
 			? { href, 'aria-disabled': inactive || undefined }
 			: { type, disabled: inactive }
 	);
+
+	let el = $state<HTMLElement | null>(null);
+	const explicitName = $derived(rest['aria-label'] ?? rest['aria-labelledby']);
+	$effect(() => {
+		if (!el || collapseLabel === 'never' || explicitName) return;
+		const text = Array.from(el.querySelectorAll('[data-label]'), (n) => n.textContent?.trim())
+			.filter(Boolean)
+			.join(' ');
+		if (text) el.setAttribute('aria-label', text);
+		else el.removeAttribute('aria-label');
+	});
 </script>
 
 <svelte:element
 	this={tag}
+	bind:this={el}
 	data-tsu="Button"
 	{...rest}
 	{...elementAttrs}
@@ -88,7 +118,13 @@
 	class:btn-control={control}
 	class:btn-block={block}
 	class:btn-icon={icon}
+	class:btn-box={box !== undefined}
+	class:btn-square={square}
 	class:btn-chip={chip}
+	class:btn-collapse-mobile={collapseLabel === 'mobile'}
+	class:btn-collapse-container={collapseLabel === 'container'}
+	class:hit-compact={hitArea === 'compact'}
+	style:--btn-box={box ? `var(--box-${box})` : undefined}
 	class:btn-tone-accent={tone === 'accent'}
 	class:btn-tone-success={tone === 'success'}
 	class:btn-tone-info={tone === 'info'}
@@ -226,11 +262,12 @@
 	/* Icon-chip: larger square outlined tap target for header/toolbar actions.
 	   Combines with a tone for tinted severity chips. */
 	.btn-chip {
-		min-height: 2.5rem;
-		min-width: 2.5rem;
-		height: 2.5rem;
-		width: 2.5rem;
+		min-height: var(--box-lg);
+		min-width: var(--box-lg);
+		height: var(--box-lg);
+		width: var(--box-lg);
 		padding: 0;
+		flex: none;
 		border-radius: var(--r-md);
 	}
 
@@ -317,11 +354,40 @@
 		filter: brightness(1.08);
 	}
 
-	/* Icon-only buttons (IconButton). Square box = consistent 2.25rem tap target. */
+	/* Icon-only buttons (IconButton). Square box = consistent --box-md tap target. */
 	.btn-icon {
-		min-height: 2.25rem;
-		min-width: 2.25rem;
+		min-height: var(--box-md);
+		min-width: var(--box-md);
 		padding: var(--sp-2);
+	}
+	/* `square`: side = the height contract in force (size tier or control). */
+	.btn-square {
+		width: var(--control-height-default);
+		min-width: var(--control-height-default);
+		padding: 0;
+		flex: none;
+	}
+	.btn-square.btn-sm {
+		width: var(--control-height-compact);
+		min-width: var(--control-height-compact);
+	}
+	.btn-square.btn-lg {
+		width: var(--control-height-large);
+		min-width: var(--control-height-large);
+		height: var(--control-height-large);
+	}
+	.btn-square.btn-control {
+		width: var(--control-height);
+		min-width: var(--control-height);
+	}
+	/* `box`: explicit square scale, wins over icon/chip/square/size sizing. */
+	.btn-box {
+		width: var(--btn-box);
+		min-width: var(--btn-box);
+		height: var(--btn-box);
+		min-height: var(--btn-box);
+		padding: 0;
+		flex: none;
 	}
 	.btn-icon-inline {
 		min-height: 0;
@@ -338,6 +404,49 @@
 	}
 	.btn-icon-inline.hover-danger:hover:not(:disabled) {
 		color: var(--danger);
+	}
+
+	/* Label collapse: `[data-label]` children disappear below the threshold and
+	   the button falls back to icon-only padding. */
+	@media (max-width: 40rem) {
+		.btn-collapse-mobile :global([data-label]) {
+			display: none;
+		}
+		.btn-collapse-mobile {
+			padding: var(--sp-2);
+			gap: 0;
+		}
+	}
+	@container (max-width: 30rem) {
+		.btn-collapse-container :global([data-label]) {
+			display: none;
+		}
+		.btn-collapse-container {
+			padding: var(--sp-2);
+			gap: 0;
+		}
+	}
+
+	/* Coarse pointers: icon-only and square buttons carry an invisible slab that
+	   extends the hit area to --touch-target without changing layout. Buttons
+	   already at or above the target keep their own box (inset never positive). */
+	@media (pointer: coarse) {
+		.btn-icon:not(.hit-compact),
+		.btn-icon-inline:not(.hit-compact),
+		.btn-box:not(.hit-compact),
+		.btn-square:not(.hit-compact),
+		.btn-chip:not(.hit-compact) {
+			position: relative;
+		}
+		.btn-icon:not(.hit-compact)::after,
+		.btn-icon-inline:not(.hit-compact)::after,
+		.btn-box:not(.hit-compact)::after,
+		.btn-square:not(.hit-compact)::after,
+		.btn-chip:not(.hit-compact)::after {
+			content: '';
+			position: absolute;
+			inset: min(0px, calc((100% - var(--touch-target)) / 2));
+		}
 	}
 
 	/* Two-state (toggle) buttons — e.g. an IconButton with `pressed`. Reacts to
