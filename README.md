@@ -83,10 +83,25 @@ Dropzone, CodeBlock, Callout, EmptyState, Toaster, ThemePicker, FontScalePicker.
 **Organisms:** DataTable (generic `<T>`, typed columns + cell snippets).
 
 **Layouts:** AppShell (responsive header/sidebar/main/footer — persistent
-sidebar on desktop, overlay drawer on mobile, optionally resizable), NavItem
+sidebar on desktop, overlay drawer on mobile, optionally resizable;
+`layout="sidebar-full"` runs the sidebar the full height with the header over
+the content column only, `stickySidebar` pins it to the viewport, and
+`sidebarPadding="none" | "sm" | "md"` sets the aside gutter — the header and its
+children are `min-width: 0` so a wide title/actions row can't widen the grid on
+mobile), NavItem
 (collapses to an icon rail when the sidebar is narrow), Container, Stack
 (vertical), Cluster (wrapping row), AutoGrid (intrinsically responsive columns —
 no media/container query needed).
+
+### Container
+
+`size` caps the column (`--content-max` by default; `size="none"` fills the parent),
+`gutter` overrides the `--sp-4` inline padding (safe-area insets still win),
+`align="start"` drops the centering. `fullWidth` is a *viewport* breakout for
+edge-to-edge sections — inside AppShell's main column use `size="none"` instead;
+`inset="<left> <right>"` keeps a `fullWidth` container clear of docked panels.
+Children can bleed to the column edge with
+`margin-inline: calc(-1 * var(--container-gutter))`.
 
 ### Stacked distribution + legend
 
