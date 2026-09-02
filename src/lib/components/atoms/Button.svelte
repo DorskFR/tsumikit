@@ -112,7 +112,7 @@
 	class:btn-grow={grow}
 	class:btn-primary={variant === 'primary'}
 	class:btn-ghost={variant === 'ghost'}
-	class:btn-danger={variant === 'danger'}
+	class:btn-danger={variant === 'danger' || (tone === 'danger' && variant === 'default')}
 	class:btn-sm={size === 'sm'}
 	class:btn-lg={size === 'lg'}
 	class:btn-control={control}

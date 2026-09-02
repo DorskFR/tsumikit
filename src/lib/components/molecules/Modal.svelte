@@ -3,24 +3,46 @@
 	// the platform gives us the hard parts for free: top-layer rendering above
 	// everything (no z-index races), a real focus trap, inert background, initial
 	// focus, focus restoration to the trigger, Escape-to-close and a styleable
-	// ::backdrop. We only add: open-on-mount, click-outside, and optional
-	// desktop resize (width persisted under `resizeKey`).
+	// ::backdrop. We only add: open-on-mount (or `open`-driven), click-outside,
+	// tone/busy chrome, and optional desktop resize (width persisted under
+	// `resizeKey`).
 	import type { Snippet } from 'svelte';
 	import { browser } from '$lib/env';
+	import Icon, { type IconName } from '$lib/components/atoms/Icon.svelte';
+	import Spinner from '$lib/components/atoms/Spinner.svelte';
 	import IconButton from '$lib/components/molecules/IconButton.svelte';
+
+	type Tone = 'neutral' | 'danger' | 'warn' | 'info';
+	const TONE_ICON: Record<Exclude<Tone, 'neutral'>, IconName> = {
+		danger: 'warning',
+		warn: 'warning',
+		info: 'info'
+	};
 
 	let {
 		title,
+		open = $bindable(),
 		onclose,
 		body,
 		footer,
 		size = 'md',
+		tone = 'neutral',
+		busy = false,
 		resizeKey
 	}: {
 		title: string;
-		onclose: () => void;
+		/** Controlled visibility. When provided the `<dialog>` stays mounted and
+		 *  `showModal()`/`close()` follow the value; closing sets it back to false.
+		 *  Omit to open on mount (mount/unmount the component to show/hide). */
+		open?: boolean;
+		onclose?: () => void;
 		body: Snippet;
 		footer?: Snippet;
+		/** Title glyph + 3px top border in the semantic colour. */
+		tone?: Tone;
+		/** Work in flight: body is inert, a spinner sits by the title and Escape,
+		 *  backdrop and the close button stop closing until it clears. */
+		busy?: boolean;
 		/** Desktop width preset (sm 24rem / md 34rem / lg 48rem / xl 72rem). A
 		 *  `resizeKey` drag still overrides it. */
 		size?: 'sm' | 'md' | 'lg' | 'xl';
@@ -42,16 +64,30 @@
 	let width = $state<number | null>(loadWidth());
 	let dialogEl = $state<HTMLDialogElement | null>(null);
 
+	const controlled = $derived(open !== undefined);
+
+	// Open as a modal (top layer + trap + inert background + focus mgmt). The
+	// native element restores focus to the trigger automatically on close.
 	$effect(() => {
-		// Open as a modal (top layer + trap + inert background + focus mgmt). The
-		// native element restores focus to the trigger automatically on close.
-		dialogEl?.showModal();
+		if (!dialogEl) return;
+		if (!controlled) {
+			dialogEl.showModal();
+			return;
+		}
+		if (open && !dialogEl.open) dialogEl.showModal();
+		else if (!open && dialogEl.open) dialogEl.close();
 	});
+
+	function requestClose() {
+		if (busy) return;
+		if (controlled) open = false;
+		onclose?.();
+	}
 
 	// Click outside: <dialog fills the viewport; clicks on its padding-free self
 	// (not the inner .sheet) are backdrop clicks.
 	function onDialogClick(e: MouseEvent) {
-		if (e.target === dialogEl) onclose();
+		if (e.target === dialogEl) requestClose();
 	}
 
 	// --- resize ---
@@ -102,10 +138,15 @@
 	class="modal"
 	class:resizing
 	aria-labelledby={titleId}
+	aria-busy={busy || undefined}
+	data-tone={tone === 'neutral' ? undefined : tone}
 	style={width != null ? `--sheet-w: ${width}px` : undefined}
 	oncancel={(e) => {
 		e.preventDefault(); /* keep parent the source of truth for open state */
-		onclose();
+		requestClose();
+	}}
+	onclose={() => {
+		if (controlled) open = false;
 	}}
 	onclick={onDialogClick}
 >
@@ -114,13 +155,19 @@
 		class:sheet-sm={size === 'sm'}
 		class:sheet-lg={size === 'lg'}
 		class:sheet-xl={size === 'xl'}
+		class:sheet-toned={tone !== 'neutral'}
+		style:--modal-tone={tone === 'neutral' ? undefined : `var(--${tone})`}
 	>
 		<div class="sheet-head">
+			{#if tone !== 'neutral'}
+				<span class="sheet-tone-icon"><Icon name={TONE_ICON[tone]} size={18} /></span>
+			{/if}
 			<span id={titleId} class="sheet-title truncate">{title}</span>
+			{#if busy}<Spinner label="Working" />{/if}
 			<div class="spacer"></div>
-			<IconButton icon="x" label="Close dialog" onclick={onclose} />
+			<IconButton icon="x" label="Close dialog" disabled={busy} onclick={requestClose} />
 		</div>
-		<div class="sheet-body">
+		<div class="sheet-body" inert={busy}>
 			{@render body()}
 		</div>
 		{#if footer}
@@ -231,6 +278,14 @@
 		padding: var(--sp-4);
 		border-bottom: 1px solid var(--border);
 	}
+	.sheet-toned {
+		border-top: 3px solid var(--modal-tone);
+	}
+	.sheet-tone-icon {
+		display: inline-flex;
+		flex: none;
+		color: var(--modal-tone);
+	}
 	.sheet-title {
 		font-size: var(--fs-lg);
 		font-weight: var(--fw-semibold);
@@ -242,6 +297,7 @@
 	}
 	.sheet-foot {
 		display: flex;
+		justify-content: flex-end;
 		gap: var(--sp-2);
 		padding: var(--sp-4);
 		border-top: 1px solid var(--border);

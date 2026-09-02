@@ -13,7 +13,12 @@
 	// keeps them on the plain border colour. `stackY`/`stackX` set the per-layer
 	// vertical / horizontal offset in px (vertical spacing stays even across the
 	// 3 borders); horizontal defaults to a tiny 2px peek.
+	//
+	// `header`/`footer` snippets (or the `title`/`subtitle`/`actions` sugar,
+	// which renders a SectionHeader) sit outside the padded body behind a
+	// divider; `gap` stacks children as a flex column without a wrapper.
 	import type { Snippet } from 'svelte';
+	import SectionHeader from '../molecules/SectionHeader.svelte';
 
 	type Tone = 'neutral' | 'ok' | 'warn' | 'danger' | 'info';
 
@@ -27,8 +32,14 @@
 		stackTone = 'neutral',
 		stackY = 8,
 		stackX = 2,
+		title,
+		subtitle,
+		gap,
 		class: klass = '',
 		style = '',
+		header,
+		footer,
+		actions,
 		children,
 		...rest
 	}: {
@@ -41,8 +52,14 @@
 		stackTone?: Tone;
 		stackY?: number;
 		stackX?: number;
+		title?: string;
+		subtitle?: string;
+		gap?: string;
 		class?: string;
 		style?: string;
+		header?: Snippet;
+		footer?: Snippet;
+		actions?: Snippet;
 		children?: Snippet;
 		[key: string]: unknown;
 	} = $props();
@@ -50,6 +67,7 @@
 	let stackStyle = $derived(
 		stacked ? `--stack-y:${stackY}px;--stack-x:${stackX}px;` : ''
 	);
+	const framed = $derived(!!(header || footer || title));
 </script>
 
 <svelte:element
@@ -71,18 +89,55 @@
 	class:stack-warn={stacked && stackTone === 'warn'}
 	class:stack-danger={stacked && stackTone === 'danger'}
 	class:stack-info={stacked && stackTone === 'info'}
+	class:card-framed={framed}
+	class:card-gap={!framed && gap !== undefined}
+	style:--card-gap={gap}
 	style={`${stackStyle}${style}`}
 	{...rest}
 >
-	{@render children?.()}
+	{#if framed}
+		{#if title}
+			<div class="card-head">
+				<SectionHeader {title} {subtitle} {actions} level={3} size="md" />
+			</div>
+		{:else if header}
+			<div class="card-head">{@render header()}</div>
+		{/if}
+		<div class="card-body" class:card-gap={gap !== undefined}>{@render children?.()}</div>
+		{#if footer}
+			<div class="card-foot">{@render footer()}</div>
+		{/if}
+	{:else}
+		{@render children?.()}
+	{/if}
 </svelte:element>
 
 <style>
 	.card {
+		--card-pad: var(--sp-4);
 		background: var(--bg-elevated);
 		border: 1px solid var(--border);
 		border-radius: var(--r-lg);
-		padding: var(--sp-4);
+		padding: var(--card-pad);
+	}
+	.card-gap {
+		display: flex;
+		flex-direction: column;
+		gap: var(--card-gap);
+	}
+	.card-framed {
+		padding: 0;
+	}
+	.card-head,
+	.card-body,
+	.card-foot {
+		padding: var(--card-pad);
+	}
+	.card-head {
+		border-bottom: 1px solid var(--border);
+	}
+	.card-foot {
+		border-top: 1px solid var(--border);
 	}
 	/* Theme-aware surface shade, selected by prop so it adapts across themes
 	   instead of being overridden with app-level :global hacks. `base` is the
@@ -94,13 +149,21 @@
 		background: var(--bg-elevated-2);
 	}
 	.pad-none {
+		--card-pad: 0;
 		padding: 0;
 	}
 	.pad-sm {
+		--card-pad: var(--sp-2);
 		padding: var(--sp-2);
 	}
 	.pad-lg {
+		--card-pad: var(--sp-6);
 		padding: var(--sp-6);
+	}
+	.card-framed.pad-none,
+	.card-framed.pad-sm,
+	.card-framed.pad-lg {
+		padding: 0;
 	}
 	.card-tap {
 		cursor: pointer;

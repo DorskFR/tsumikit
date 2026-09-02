@@ -154,7 +154,8 @@ any custom SVG).
 
 **Molecules:** Field, IconButton, SelectButton, Toggle, OptionButton, Modal,
 Popover, Menu, Tabs, RadioGroup, Tooltip, Accordion, CopyButton, FileButton,
-Dropzone, CodeBlock, Callout, EmptyState, Toaster, ThemePicker, FontScalePicker.
+Dropzone, CodeBlock, Callout, EmptyState, ConfirmModal, Pagination, Toaster,
+ThemePicker, FontScalePicker, SectionHeader, KeyValue, LoadMore.
 
 **Organisms:** DataTable (generic `<T>`, typed columns + cell snippets;
 `layout="fixed"` makes column widths authoritative, `Column.truncate` /
@@ -253,6 +254,71 @@ is a live region — `role="status"`, or `role="alert"` when `tone="danger"`.
   The provider returned 503.
   {#snippet actions()}<Button size="sm" onclick={retry}>Retry</Button>{/snippet}
 </Callout>
+```
+
+### Modal, ConfirmModal & Pagination
+
+`Modal` opens on mount by default; pass `bind:open` instead to keep it mounted
+and drive `showModal()`/`close()` from state (closing writes `open = false`).
+`tone="danger" | "warn" | "info"` adds a title glyph and a 3px top border;
+`busy` makes the body inert, shows a spinner by the title and disables Escape,
+backdrop and the close button. The `footer` snippet is a right-aligned flex row
+(`justify-content: flex-end; gap: var(--sp-2)`).
+
+`ConfirmModal` wraps it as a yes/no dialog: `title`, `message` (or `children`),
+`confirmLabel`/`cancelLabel`, `tone="primary" | "danger" | "warn"`, `busy`,
+`onconfirm`, `oncancel`. An async `onconfirm` keeps the dialog busy until it
+settles, closes only on success and shows a rejection's message (`role="alert"`)
+under the body. `Button` accepts `tone="danger"` as an alias of
+`variant="danger"` so the tone axis works alone.
+
+```svelte
+<ConfirmModal bind:open title="Delete library?" tone="danger" confirmLabel="Delete"
+  onconfirm={() => api.deleteLibrary(id)} />
+```
+
+`Pagination` renders `<nav aria-label>` with prev/next IconButtons, numbered
+pages (`aria-current="page"`), ellipses and an optional `showRange` readout.
+Page mode: `bind:page` + `pageCount`. Offset mode: `bind:offset` + `limit` +
+`total` (page and count are derived, `offset` is written back). `onchange(page)`,
+`siblings` (1), `showEdges` (true), `size="sm" | "md"`, `label`. Under 24rem of
+container width it collapses to prev / "3 / 12" / next.
+
+```svelte
+<Pagination bind:offset limit={20} total={412} showRange onchange={load} />
+```
+
+### SectionHeader, Card header/footer, KeyValue, LoadMore
+
+`SectionHeader` is the one "title + meta + right-aligned actions" row:
+`title` (or `label`), `level` 1–4 (default 2), `size`, `subtitle`, `icon`,
+`count` (faint tabular figure after the title), `tone`, `hue` (0–360 swatch
+chip), `uppercase` (eyebrow group label), `divider`, `sticky` (pins at
+`--sticky-offset` / `--header-h` and publishes `--section-header-h` on its
+parent), `collapsible` + `bind:open` (title becomes a disclosure button with
+`aria-expanded`; `children` render beneath while open), `actions` snippet.
+
+`Card` gains `header` / `footer` snippets rendered outside the padded body
+behind a divider, `title` / `subtitle` / `actions` sugar that renders a
+`SectionHeader` in the header slot, and `gap` to stack children as a flex
+column. A Card without any of these renders exactly as before.
+
+`KeyValue` renders `rows: { label, value: string | number | Snippet, mono?,
+tone?, hint? }[]` as a semantic `<dl>` grid; `columns` 1 | 2, `dense`, `align`
+start | end. `LoadMore` is the tri-state list footer: `state` idle | loading |
+error | done, `onload`, `label`, `loadingLabel`, `errorLabel`, `retryLabel`,
+`doneLabel`, `pill` for the compact "load older" chip.
+
+```svelte
+<Card title="Recent sessions" subtitle="last 24h">
+  {#snippet actions()}<Link href="/sessions">View all</Link>{/snippet}
+  <KeyValue rows={[{ label: 'Running', value: 3, tone: 'ok' }, { label: 'Host', value: 'sakura', mono: true }]} />
+  {#snippet footer()}<LoadMore state={more} onload={loadMore} />{/snippet}
+</Card>
+
+<SectionHeader label="Blocked" count={4} uppercase hue={12} collapsible bind:open>
+  …group rows…
+</SectionHeader>
 ```
 
 ## Container queries
