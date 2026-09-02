@@ -1,6 +1,6 @@
 {
   "name": "@dorsk/tsumikit",
-  "version": "0.23.0",
+  "version": "0.24.0",
   "description": "Minimal, dependency-free Svelte 5 + pure-CSS UI kit. Token-driven atoms, molecules & layouts with theming out of the box.",
   "type": "module",
   "license": "MIT",
@@ -35,7 +35,12 @@
       "default": "./dist/index.js"
     },
     "./styles/app.css": "./dist/styles/app.css",
-    "./styles/variables.css": "./dist/styles/variables.css"
+    "./styles/variables.css": "./dist/styles/variables.css",
+    "./styles/tokens.css": "./dist/styles/tokens.css",
+    "./styles/themes.css": "./dist/styles/themes.css",
+    "./styles/reset.css": "./dist/styles/reset.css",
+    "./styles/utilities.css": "./dist/styles/utilities.css",
+    "./styles/syntax.css": "./dist/styles/syntax.css"
   },
   "publishConfig": {
     "access": "public",

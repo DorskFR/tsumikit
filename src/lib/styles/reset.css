@@ -1,0 +1,97 @@
+/*
+ * RESET + element defaults. Consumes ONLY tokens from tokens.css — never a raw
+ * color/size. Mobile-first: base styles target phones; `min-width` queries
+ * enhance up.
+ */
+
+*,
+*::before,
+*::after {
+	box-sizing: border-box;
+}
+
+html {
+	-webkit-text-size-adjust: 100%;
+	text-size-adjust: 100%;
+	/* The font scaler drives --fs-scale, so only --fs-* text tokens grow — chrome
+	   rem dimensions stay fixed. A scaled-up token can still push a min-width child
+	   past the viewport; clip sideways so the page never gains a horizontal bar. */
+	overflow-x: hidden;
+	max-width: 100%;
+	scrollbar-gutter: stable;
+}
+
+body {
+	margin: 0;
+	background: var(--bg);
+	color: var(--text);
+	font-family: var(--font-sans);
+	font-size: var(--fs-base);
+	line-height: var(--lh-normal);
+	-webkit-font-smoothing: antialiased;
+	text-rendering: optimizeLegibility;
+	overflow-x: hidden;
+	scrollbar-gutter: stable;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+figure {
+	margin: 0;
+}
+
+a {
+	color: var(--link);
+	text-decoration: none;
+}
+a:hover {
+	text-decoration: underline;
+}
+
+button {
+	font: inherit;
+	color: inherit;
+	cursor: pointer;
+}
+
+input,
+textarea,
+select {
+	font: inherit;
+	color: inherit;
+}
+
+/* iOS: inputs <16px trigger an auto-zoom on focus — never let that happen. */
+input,
+textarea,
+select {
+	font-size: max(16px, var(--fs-base));
+}
+
+code,
+pre {
+	font-family: var(--font-mono);
+	font-size: 0.875em;
+}
+
+/* Visible focus ring for keyboard users only (mouse clicks don't trigger it). */
+:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+	border-radius: var(--r-sm);
+}
+
+::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+::-webkit-scrollbar-thumb {
+	background: var(--border-strong);
+	border-radius: var(--r-pill);
+}
+

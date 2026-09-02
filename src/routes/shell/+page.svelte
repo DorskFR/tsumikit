@@ -48,6 +48,7 @@
 	];
 	let active = $state('overview');
 	const allItems = navGroups.flatMap((g) => g.items);
+	let drawerOpen = $state(false);
 	const files = ['src/lib/index.ts', 'src/routes/+page.svelte', 'README.md'];
 </script>
 
@@ -140,6 +141,33 @@
 					</div>
 				</ResizablePanel>
 			</div>
+			<Text variant="body" tone="muted">
+				The same component as a drawer: <code>mode="overlay"</code> fixes it to the viewport edge
+				with a scrim; Escape, the scrim or the edge control close it, and below 960px it spans the
+				full width.
+			</Text>
+			<Cluster>
+				<Button onclick={() => (drawerOpen = true)}>Open drawer</Button>
+			</Cluster>
+			<ResizablePanel
+				mode="overlay"
+				side="right"
+				label="Inspector"
+				width={420}
+				minWidth={280}
+				maxWidth="80vw"
+				widthKey="tsumikit-shell-inspector"
+				fullWidthBelow="960px"
+				bind:open={drawerOpen}
+			>
+				{#snippet panel()}
+					<div class="file-panel">
+						<Heading level={3} size="md">Inspector</Heading>
+						<Text variant="body" tone="muted">Drag the left edge to resize; press Escape to close.</Text>
+						<Button onclick={() => (drawerOpen = false)}>Close</Button>
+					</div>
+				{/snippet}
+			</ResizablePanel>
 		</Stack>
 	</Container>
 </AppShell>

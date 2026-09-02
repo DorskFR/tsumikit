@@ -41,12 +41,50 @@ test('resize handle overhang clamps to the container so it stays grabbable at fu
 	assert.match(source, /\.right \.resize-handle\s*{[^}]*left: var\(--handle-shift\);/s);
 });
 
-test('resize handle spans the full panel edge and pointer updates use frame batching', () => {
+test('resize handle spans the full panel edge and delegates drag + keys to the shared action', () => {
 	assert.match(source, /\.resize-handle\s*{[^}]*top: 0;[^}]*bottom: 0;/s);
-	assert.match(source, /pointerWidths\.schedule\(widthFromPointer\(event\.clientX\)\)/);
-	assert.match(
-		source,
-		/pointerWidths\.flush\(finalWidth\)[\s\S]*localStorage\.setItem\(widthKey, String\(finalWidth\)\)/
-	);
-	assert.match(source, /onpointercancel={finishResize}/);
+	assert.match(source, /import { resizeHandle, resolveLength } from '\.\/resizable-panel-frame\.js'/);
+	assert.match(source, /use:resizeHandle={{[^}]*step: resizeStep,/s);
+	assert.match(source, /use:resizeHandle={{[^}]*onwidth: setWidth,/s);
+	assert.match(source, /use:resizeHandle={{[^}]*oncommit: persistWidth,/s);
+	assert.match(source, /localStorage\.setItem\(widthKey, String\(nextWidth\)\)/);
+	assert.doesNotMatch(source, /onpointerdown=/);
+});
+
+test('inline defaults are unchanged so existing usages render as before', () => {
+	assert.match(source, /side = 'left'/);
+	assert.match(source, /width = 280/);
+	assert.match(source, /minWidth = 180/);
+	assert.match(source, /maxWidth = 480/);
+	assert.match(source, /collapsed = \$bindable\(false\)/);
+	assert.match(source, /persistCollapsed = true/);
+	assert.match(source, /resizeStep = 16/);
+	assert.match(source, /mode = 'inline'/);
+	assert.match(source, /open = \$bindable\(false\)/);
+	assert.match(source, /clampToViewport = true/);
+	assert.match(source, /minWidth\?: number \| string/);
+	assert.match(source, /maxWidth\?: number \| string/);
+	assert.match(source, /children\?: Snippet/);
+});
+
+test('overlay mode is a fixed non-modal dialog with scrim, Escape close and focus handling', () => {
+	assert.match(source, /mode\?: 'inline' \| 'overlay'/);
+	assert.match(source, /onclose\?: \(\) => void/);
+	assert.match(source, /scrim\?: boolean/);
+	assert.match(source, /fullWidthBelow\?: string/);
+	assert.match(source, /const showScrim = \$derived\(overlay && open && \(scrim \?\? true\)\)/);
+	assert.match(source, /<Scrim onclose={close} hideBelow={fullWidthBelow}/);
+	assert.match(source, /this={overlay \? 'div' : 'aside'}/);
+	assert.match(source, /role={overlay \? 'dialog' : undefined}/);
+	assert.match(source, /aria-modal={overlay \? 'false' : undefined}/);
+	assert.match(source, /tabindex={overlay \? -1 : undefined}/);
+	assert.match(source, /event\.key !== 'Escape' \|\| event\.defaultPrevented/);
+	assert.match(source, /panelEl\.focus\({ preventScroll: true }\)/);
+	assert.match(source, /function close\(\) {\s*if \(!open\) return;\s*open = false;\s*onclose\?\.\(\);/);
+	assert.match(source, /\.overlay \.panel\s*{[^}]*position: fixed;[^}]*z-index: var\(--z-drawer\);/s);
+	assert.match(source, /\.overlay\.full-bleed \.panel\s*{[^}]*width: 100vw;/s);
+	assert.match(source, /\.overlay\.full-bleed \.resize-handle\s*{[^}]*display: none;/s);
+	assert.match(source, /matchMedia\(`\(max-width: \$\{fullWidthBelow\}\)`\)/);
+	assert.match(source, /overlay && clampToViewport && viewportWidth \? viewportWidth : Number\.POSITIVE_INFINITY/);
+	assert.match(source, /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.panel\s*{[^}]*animation: none;/s);
 });

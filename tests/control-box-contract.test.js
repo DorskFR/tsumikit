@@ -15,7 +15,7 @@ const [button, iconButton, selectButton, popover, copyButton, fileButton, cluste
 		component('molecules/CopyButton.svelte'),
 		component('molecules/FileButton.svelte'),
 		component('layouts/Cluster.svelte'),
-		readFile(new URL('../src/lib/styles/variables.css', import.meta.url), 'utf8')
+		readFile(new URL('../src/lib/styles/tokens.css', import.meta.url), 'utf8')
 	]);
 
 const BOX_PROP = /box\?: 'xs' \| 'sm' \| 'md' \| 'lg'/;
