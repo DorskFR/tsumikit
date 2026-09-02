@@ -8,7 +8,7 @@ const [component, index] = await Promise.all([
 ]);
 
 test('DataTable and its Column type stay exported', () => {
-	assert.match(index, /type Column, default as DataTable/);
+	assert.match(index, /type Column,\s+default as DataTable,\s+type RowTone/);
 	assert.match(component, /export interface Column<T> {/);
 	assert.match(component, /export type RowTone = 'neutral' \| 'ok' \| 'warn' \| 'danger' \| 'info'/);
 });
