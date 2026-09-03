@@ -16,6 +16,7 @@
 		disabled = false,
 		variant = 'default',
 		size = 'md',
+		control = false,
 		box,
 		hitArea = 'auto',
 		class: klass = ''
@@ -38,6 +39,9 @@
 		/** Match the Button atom's sizes so a FileButton lines up with buttons in
 		 *  the same row. */
 		size?: 'sm' | 'md' | 'lg';
+		/** Uniform `--control-height`, like Button's `control`, so it lines up in a
+		 *  composer/toolbar row. */
+		control?: boolean;
 		/** Shared square box scale (`--box-xs/sm/md/lg`); implies `iconOnly`. */
 		box?: 'xs' | 'sm' | 'md' | 'lg';
 		/** Icon-only buttons grow a 44px hit slab on coarse pointers; `compact` opts out. */
@@ -62,6 +66,7 @@
 	class:ghost={variant === 'ghost'}
 	class:sm={size === 'sm'}
 	class:lg={size === 'lg'}
+	class:control
 	class:icon-only={onlyIcon}
 	class:box={box !== undefined}
 	class:hit-compact={hitArea === 'compact'}
@@ -124,6 +129,11 @@
 		min-height: 3rem;
 		padding: var(--sp-3) var(--sp-5);
 		font-size: var(--fs-base);
+	}
+	.file-btn.control {
+		height: var(--control-height);
+		min-height: var(--control-height);
+		padding: 0 var(--sp-3);
 	}
 	/* icon-only: square it up and drop the label gap. */
 	.file-btn.icon-only {

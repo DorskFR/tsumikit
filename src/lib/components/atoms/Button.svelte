@@ -3,17 +3,24 @@
 	import type { HTMLButtonAttributes } from 'svelte/elements';
 
 	type ButtonProps = HTMLButtonAttributes & {
-		variant?: 'default' | 'primary' | 'ghost' | 'danger';
+		// `link`: no box at all — an inline text action coloured like a link
+		// (or like `tone` when set), underlined on hover/focus.
+		variant?: 'default' | 'primary' | 'ghost' | 'danger' | 'link';
 		// Semantic state tint layered on top of the variant: tints text/border and
 		// adds a subtle fill on hover. For stateful controls — an "on"/active toggle
 		// (`accent`), positive actions (`success`), or cost/severity states.
 		tone?: 'none' | 'accent' | 'success' | 'info' | 'warn' | 'danger';
 		size?: 'sm' | 'md' | 'lg';
 		control?: boolean;
+		// Fully rounded ends (`--r-pill`) on any size/variant.
+		pill?: boolean;
 		block?: boolean;
 		// Fill the available width of a flex/Cluster row (flex: 1). `block` stretches
 		// to 100% (grid/stack); `grow` shares a flex row with siblings.
 		grow?: boolean;
+		// `shrink={false}` pins the button to its intrinsic width in a flex row
+		// (flex: none, top-aligned) so a growing sibling can't squash it.
+		shrink?: boolean;
 		// Render as a link (`<a href>`) while keeping button chrome — for navigations
 		// and open-in-new-tab actions that shouldn't be a bare <a>. Setting `href`
 		// implies `as="a"`.
@@ -56,8 +63,10 @@
 		tone = 'none',
 		size = 'md',
 		control = false,
+		pill = false,
 		block = false,
 		grow = false,
+		shrink = true,
 		as = 'button',
 		href,
 		icon = false,
@@ -113,6 +122,9 @@
 	class:btn-primary={variant === 'primary'}
 	class:btn-ghost={variant === 'ghost'}
 	class:btn-danger={variant === 'danger' || (tone === 'danger' && variant === 'default')}
+	class:btn-link={variant === 'link'}
+	class:btn-pill={pill}
+	class:no-shrink={!shrink}
 	class:btn-sm={size === 'sm'}
 	class:btn-lg={size === 'lg'}
 	class:btn-control={control}
@@ -354,6 +366,33 @@
 		filter: brightness(1.08);
 	}
 
+	.no-shrink {
+		flex: none;
+		align-self: flex-start;
+	}
+	.btn-pill {
+		border-radius: var(--r-pill);
+	}
+	/* Link variant: no box, inherits the surrounding text size. Placed after the
+	   size rules so their min-height doesn't reapply; a tone wins over --link. */
+	.btn-link {
+		min-height: auto;
+		height: auto;
+		padding: 0 var(--sp-1);
+		border: none;
+		background: none;
+		box-shadow: none;
+		border-radius: 0;
+		font-size: inherit;
+		line-height: 1;
+		color: var(--btn-tone, var(--link));
+	}
+	.btn-link:hover:not(:disabled),
+	.btn-link:focus-visible {
+		background: none;
+		border: none;
+		text-decoration: underline;
+	}
 	/* Icon-only buttons (IconButton). Square box = consistent --box-md tap target. */
 	.btn-icon {
 		min-height: var(--box-md);
