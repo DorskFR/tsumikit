@@ -4,6 +4,7 @@
 		Heading,
 		Button,
 		Input,
+		Kbd,
 		Textarea,
 		Select,
 		Switch,
@@ -717,6 +718,35 @@ function greet(name) {
 						<option value="two">Option two</option>
 						<option value="three">Option three</option>
 					</Select>
+				</Field>
+				<Field label="Select (width=auto, embedded)" for="f-select-emb">
+					<Select id="f-select-emb" width="auto" variant="embedded" bind:value={selectValue}>
+						<option value="one">Option one</option>
+						<option value="two">Option two</option>
+						<option value="three">Option three</option>
+					</Select>
+				</Field>
+				<Field label="Inline field" for="f-inline" layout="inline" labelWidth="8rem" class="span-2">
+					<Input id="f-inline" grow placeholder="Enter submits" onsubmit={(v) => toasts.show(`Submit: ${v || '∅'}`)} />
+				</Field>
+				<Field label="Textarea (maxHeight=6rem, submit on mod+enter)" for="f-area-submit" class="span-2">
+					{#snippet hint()}Press <Kbd keys="mod+enter" /> to submit.{/snippet}
+					<Textarea
+						id="f-area-submit"
+						autoresize
+						maxHeight="6rem"
+						submitOn="mod-enter"
+						placeholder="Grows to 6rem, then scrolls"
+						onsubmit={(v) => toasts.show(`Submit: ${v || '∅'}`)}
+					/>
+				</Field>
+				<Field label="Kbd" class="span-2">
+					<div class="row">
+						<Kbd keys="mod+k" />
+						<Kbd keys="shift+enter" />
+						<Kbd keys={['ctrl', 'alt', 'esc']} size="md" />
+						<Kbd keys="up" />
+					</div>
 				</Field>
 				<Field label="Textarea (autoresize)" for="f-area" class="span-2">
 					<Textarea id="f-area" autoresize bind:value={areaValue} />
