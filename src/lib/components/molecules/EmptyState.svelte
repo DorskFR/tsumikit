@@ -7,10 +7,13 @@
 	//   • a muted, max-width-limited description
 	//   • an optional action area (slot via `action`, or a built-in button when
 	//     `actionLabel`+`onAction` are passed)
-	// Everything is token-driven. `compact` tightens spacing for inline/table use.
+	// Everything is token-driven. `size` picks the layout: `default`, `compact`
+	// (tighter spacing), or `inline` (a single muted line). `loading` swaps the
+	// chip for a spinner and marks the root busy.
 	import type { Snippet } from 'svelte';
 	import Button from '../atoms/Button.svelte';
 	import Icon, { type IconName } from '../atoms/Icon.svelte';
+	import Spinner from '../atoms/Spinner.svelte';
 
 	let {
 		title,
@@ -22,8 +25,10 @@
 		// richer (multiple buttons, links) use the `action` snippet instead.
 		actionLabel,
 		onAction,
-		// Tighter padding/sizing for inline use (empty table body, narrow panels).
+		// Legacy alias for size="compact".
 		compact = false,
+		size = 'default',
+		loading = false,
 		class: klass = '',
 		// Raw SVG markup for a custom glyph — passed straight to `Icon`.
 		iconChildren,
@@ -31,22 +36,38 @@
 		action,
 		...rest
 	}: {
-		title: string;
-		description?: string;
+		title?: string;
+		description?: string | Snippet;
 		icon?: IconName;
 		tone?: 'neutral' | 'ok' | 'warn' | 'danger' | 'info';
 		actionLabel?: string;
 		onAction?: () => void;
 		compact?: boolean;
+		size?: 'inline' | 'compact' | 'default';
+		loading?: boolean;
 		class?: string;
 		iconChildren?: Snippet;
 		action?: Snippet;
 		[key: string]: unknown;
 	} = $props();
+
+	const sz = $derived(compact ? 'compact' : size);
 </script>
 
-<div class="empty empty-{tone} {compact ? 'empty-compact' : ''} {klass}" data-tsu="EmptyState" {...rest}>
-	{#if icon || iconChildren}
+<div
+	class="empty empty-{tone} {klass}"
+	class:empty-compact={sz === 'compact'}
+	class:empty-inline={sz === 'inline'}
+	class:empty-loading={loading}
+	aria-busy={loading ? 'true' : undefined}
+	data-tsu="EmptyState"
+	{...rest}
+>
+	{#if loading}
+		<span class="empty-chip">
+			<Spinner />
+		</span>
+	{:else if (icon || iconChildren) && sz !== 'inline'}
 		<span class="empty-chip" aria-hidden="true">
 			{#if iconChildren}
 				<Icon>{@render iconChildren()}</Icon>
@@ -55,8 +76,12 @@
 			{/if}
 		</span>
 	{/if}
-	<p class="empty-title">{title}</p>
-	{#if description}<p class="empty-desc">{description}</p>{/if}
+	{#if title}<p class="empty-title">{title}</p>{/if}
+	{#if description}
+		<p class="empty-desc">
+			{#if typeof description === 'function'}{@render description()}{:else}{description}{/if}
+		</p>
+	{/if}
 	{#if action}
 		<div class="empty-action">{@render action()}</div>
 	{:else if actionLabel && onAction}
@@ -112,6 +137,30 @@
 		width: 2.25rem;
 		height: 2.25rem;
 		font-size: 1.125rem;
+	}
+	.empty-inline {
+		flex-direction: row;
+		justify-content: center;
+		gap: var(--sp-2);
+		padding: var(--sp-6) var(--sp-4);
+	}
+	.empty-inline .empty-chip {
+		width: auto;
+		height: auto;
+		font-size: 1em;
+		background: none;
+		border: none;
+	}
+	.empty-inline .empty-title {
+		color: var(--text-muted);
+		font-weight: var(--fw-normal);
+		font-size: var(--fs-sm);
+	}
+	.empty-inline .empty-desc {
+		max-width: none;
+	}
+	.empty-inline .empty-action {
+		margin-top: 0;
 	}
 	.empty-title {
 		margin: 0;

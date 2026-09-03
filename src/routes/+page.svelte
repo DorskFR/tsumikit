@@ -16,6 +16,7 @@
 		Link,
 		Icon,
 		Spinner,
+		Skeleton,
 		Field,
 		IconButton,
 		SelectButton,
@@ -571,6 +572,22 @@ function greet(name) {
 					description="This section hasn't been set up."
 					compact
 				/>
+			</Card>
+			<Card>
+				<EmptyState loading title="Loading sessions…" />
+			</Card>
+			<Card>
+				<EmptyState size="inline" title="No results" description="Try a different query." />
+			</Card>
+			<Card>
+				<Stack gap="var(--sp-3)">
+					<Text variant="caption">Skeleton:</Text>
+					<Cluster gap="var(--sp-3)" align="center">
+						<Skeleton circle width="40px" />
+						<Skeleton width="12rem" />
+					</Cluster>
+					<Skeleton lines={3} />
+				</Stack>
 			</Card>
 		</AutoGrid>
 	</section>
