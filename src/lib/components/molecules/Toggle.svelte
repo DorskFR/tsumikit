@@ -14,6 +14,9 @@
 		pressed = false,
 		pill = false,
 		struck = false,
+		size = 'sm',
+		grow = false,
+		shrink = true,
 		type = 'button',
 		disabled = false,
 		class: klass = '',
@@ -23,6 +26,11 @@
 		pressed?: boolean;
 		pill?: boolean;
 		struck?: boolean;
+		size?: 'sm' | 'md';
+		// Share a flex row with siblings (flex: 1 1 0).
+		grow?: boolean;
+		// `shrink={false}` keeps the chip at its intrinsic width (flex: none).
+		shrink?: boolean;
 		children?: Snippet;
 	} = $props();
 </script>
@@ -35,6 +43,9 @@
 	class="toggle {klass}"
 	class:pill
 	class:struck
+	class:md={size === 'md'}
+	class:grow
+	class:no-shrink={!shrink}
 	class:on={pressed}
 	aria-pressed={pressed}
 >
@@ -68,6 +79,17 @@
 	}
 	.toggle.pill {
 		border-radius: var(--r-pill);
+	}
+	.toggle.md {
+		padding: 0.3rem var(--sp-2);
+		font-size: var(--fs-sm);
+	}
+	.toggle.grow {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+	.toggle.no-shrink {
+		flex: none;
 	}
 	.toggle:hover:not(:disabled) {
 		border-color: var(--border-strong);

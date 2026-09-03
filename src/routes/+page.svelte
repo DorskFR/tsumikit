@@ -343,6 +343,14 @@ function greet(name) {
 					<Button tone="warn">Warning</Button>
 					<Button tone="warn" control>Send <Text numeric>0:09</Text></Button>
 				</div>
+				<div class="row row-wrap">
+					<Button pill>Pill</Button>
+					<Button pill variant="primary" size="sm">Pill small</Button>
+					<Button variant="link">Link</Button>
+					<Button variant="link" tone="danger">Link danger</Button>
+					<Button grow>Grow</Button>
+					<Button shrink={false}>No shrink</Button>
+				</div>
 				<Text variant="caption">Variant × tone matrix (primary keeps a readable on-accent label):</Text>
 				{#each ['default', 'primary', 'ghost', 'danger'] as const as v}
 					<div class="row row-wrap">
@@ -754,6 +762,8 @@ function greet(name) {
 					<Toggle pressed={toggleB} onclick={() => (toggleB = !toggleB)}>Filter B</Toggle>
 					<Toggle pill pressed={toggleC} onclick={() => (toggleC = !toggleC)}>Pill</Toggle>
 					<Toggle struck pressed onclick={() => {}}>Struck</Toggle>
+					<Toggle size="md" pressed={toggleA} onclick={() => (toggleA = !toggleA)}>Medium</Toggle>
+					<Toggle grow pressed={toggleB} onclick={() => (toggleB = !toggleB)}>Grow</Toggle>
 				</div>
 				<hr class="divider" />
 				<div class="opt-grid">

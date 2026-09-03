@@ -16,6 +16,11 @@
 		children?: Snippet;
 		label: string;
 		variant?: 'default' | 'primary' | 'ghost' | 'danger';
+		// Fully rounded (`--r-pill`) box. Forwarded to Button.
+		pill?: boolean;
+		// `shrink={false}` pins the box to its intrinsic size in a flex row.
+		// Forwarded to Button.
+		shrink?: boolean;
 		// Semantic state tint (forwarded to Button). Pairs well with `chip`.
 		tone?: 'none' | 'accent' | 'info' | 'warn' | 'danger';
 		// Outlined `--box-lg` square icon-chip (header/toolbar actions).
@@ -55,6 +60,8 @@
 		variant = 'ghost',
 		tone = 'none',
 		chip = false,
+		pill = false,
+		shrink = true,
 		box,
 		size = 18,
 		glyphSize,
@@ -82,6 +89,8 @@
 	{variant}
 	{tone}
 	{chip}
+	{pill}
+	{shrink}
 	{box}
 	{hitArea}
 	{disabled}
