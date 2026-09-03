@@ -18,6 +18,7 @@ export { default as Heading } from './components/atoms/Heading.svelte';
 export type { IconName } from './components/atoms/Icon.svelte';
 export { default as Icon } from './components/atoms/Icon.svelte';
 export { default as Input } from './components/atoms/Input.svelte';
+export { default as Kbd } from './components/atoms/Kbd.svelte';
 export { default as Link } from './components/atoms/Link.svelte';
 export { default as Progress } from './components/atoms/Progress.svelte';
 export { default as Scrim } from './components/atoms/Scrim.svelte';

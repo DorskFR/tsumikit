@@ -14,6 +14,10 @@
 	// *floor* (min-height) rather than a fixed height: the textarea still grows
 	// with content, but dragging up reserves extra space. (A bottom handle makes
 	// no sense alongside content-driven sizing, so it's suppressed.)
+	//
+	// `onsubmit` fires with the value on Enter (`submitOn="enter"`, Shift+Enter
+	// still inserts a newline) or Ctrl/Meta+Enter (`submitOn="mod-enter"`, the
+	// default whenever `onsubmit` is given).
 	import type { HTMLTextareaAttributes } from 'svelte/elements';
 	import { autoresize as autoresizeAction } from '$lib/autoresize';
 
@@ -28,6 +32,11 @@
 		/** Error state: danger border + aria-invalid (also styles if a consumer
 		 *  sets aria-invalid directly). */
 		invalid?: boolean;
+		/** Cap the height (with autoresize: stop growing and scroll past this). */
+		maxHeight?: string;
+		/** Fires with the current value on the `submitOn` key combo. */
+		onsubmit?: (value: string) => void;
+		submitOn?: 'enter' | 'mod-enter' | 'none';
 		class?: string;
 		value?: HTMLTextareaAttributes['value'];
 		el?: HTMLTextAreaElement | null;
@@ -39,6 +48,10 @@
 		size = 'md',
 		resize = 'bottom',
 		invalid = false,
+		maxHeight,
+		onsubmit,
+		submitOn = 'none',
+		onkeydown,
 		class: klass = '',
 		value = $bindable(),
 		el = $bindable(null),
@@ -48,6 +61,18 @@
 	// With autoresize, only the top handle (a min-height floor) is meaningful.
 	const handleEdge = $derived(autoresize ? (resize === 'top' ? 'top' : 'none') : resize);
 	const showHandle = $derived(handleEdge !== 'none');
+	const submitMode = $derived(submitOn === 'none' && onsubmit ? 'mod-enter' : submitOn);
+
+	function handleKeydown(e: KeyboardEvent & { currentTarget: EventTarget & HTMLTextAreaElement }) {
+		onkeydown?.(e);
+		if (!onsubmit || e.key !== 'Enter' || e.defaultPrevented || submitMode === 'none') return;
+		const mod = e.ctrlKey || e.metaKey;
+		const submits =
+			submitMode === 'enter' ? !e.shiftKey && !mod && !e.altKey : mod && !e.shiftKey && !e.altKey;
+		if (!submits) return;
+		e.preventDefault();
+		onsubmit(String(value ?? ''));
+	}
 
 	// --- manual resize drag (mirrors AppShell/Modal: rAF-throttled pointer drag) ---
 	let dragging = $state(false);
@@ -106,9 +131,12 @@
 			class="textarea {klass}"
 			class:mono
 			class:textarea-sm={size === 'sm'}
+			class:capped={!!maxHeight}
+			style:max-height={maxHeight}
 			bind:value
 			use:autoresizeAction={typeof value === 'string' ? value : ''}
 			{...rest}
+			onkeydown={onsubmit || onkeydown ? handleKeydown : undefined}
 			aria-invalid={invalid || undefined}
 		></textarea>
 	{:else}
@@ -117,8 +145,11 @@
 			class="textarea {klass}"
 			class:mono
 			class:textarea-sm={size === 'sm'}
+			class:capped={!!maxHeight}
+			style:max-height={maxHeight}
 			bind:value
 			{...rest}
+			onkeydown={onsubmit || onkeydown ? handleKeydown : undefined}
 			aria-invalid={invalid || undefined}
 		></textarea>
 	{/if}
@@ -164,6 +195,9 @@
 	.textarea:focus {
 		outline: none;
 		border-color: var(--accent);
+	}
+	.textarea.capped {
+		overflow-y: auto;
 	}
 	.textarea-sm {
 		padding: var(--sp-1) var(--sp-2);

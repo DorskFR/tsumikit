@@ -29,6 +29,8 @@
 		width?: string;
 		/** Fires with the current value on Enter. */
 		onenter?: (value: string) => void;
+		/** Alias of `onenter`; both fire when given. */
+		onsubmit?: (value: string) => void;
 		class?: string;
 		value?: HTMLInputAttributes['value'];
 		el?: HTMLInputElement | null;
@@ -46,6 +48,7 @@
 		shape = 'square',
 		width,
 		onenter,
+		onsubmit,
 		onkeydown,
 		class: klass = '',
 		value = $bindable(),
@@ -58,6 +61,7 @@
 	function handleKeydown(e: KeyboardEvent & { currentTarget: EventTarget & HTMLInputElement }) {
 		onkeydown?.(e);
 		if (onenter && e.key === 'Enter' && !e.defaultPrevented) onenter(String(value ?? ''));
+		if (onsubmit && e.key === 'Enter' && !e.defaultPrevented) onsubmit(String(value ?? ''));
 	}
 
 	function clear() {
@@ -82,7 +86,7 @@
 		style:width={wrapped ? undefined : width}
 		bind:value
 		{...rest}
-		onkeydown={onenter || onkeydown ? handleKeydown : undefined}
+		onkeydown={onenter || onsubmit || onkeydown ? handleKeydown : undefined}
 		aria-invalid={invalid || undefined}
 	/>
 {/snippet}

@@ -11,6 +11,9 @@
 	// transparently — for the "native select overlaid on a custom trigger" pattern
 	// (SelectButton): the platform popup with no custom outside-click logic, while
 	// a styled trigger shows through underneath.
+	//
+	// `variant="embedded"` is a borderless, elevated-surface select for inline
+	// use inside cards/toolbars; it hides the chevron unless asked for explicitly.
 	import type { Snippet } from 'svelte';
 	import type { HTMLSelectAttributes } from 'svelte/elements';
 	import Icon from '$lib/components/atoms/Icon.svelte';
@@ -18,7 +21,7 @@
 	// `size` shadows the native option-count attribute (unused in token layouts) to
 	// expose the sm|md height scale instead.
 	type Props = Omit<HTMLSelectAttributes, 'size'> & {
-		variant?: 'default' | 'ghost';
+		variant?: 'default' | 'ghost' | 'embedded';
 		/** Error state: danger border + aria-invalid. */
 		invalid?: boolean;
 		/** Compact inline form: smaller padding + font for dense toolbars/headers.
@@ -29,6 +32,10 @@
 		size?: 'sm' | 'md';
 		/** Draw the custom chevron (default). Set false for a bare inline select. */
 		chevron?: boolean;
+		/** `auto` sizes to the selected option instead of filling the row. */
+		width?: 'full' | 'auto';
+		/** Fill the available width of a flex/Cluster row (flex: 1). */
+		grow?: boolean;
 		class?: string;
 		value?: HTMLSelectAttributes['value'];
 		children?: Snippet;
@@ -39,7 +46,9 @@
 		invalid = false,
 		compact = false,
 		size = 'md',
-		chevron = true,
+		chevron,
+		width = 'full',
+		grow = false,
 		class: klass = '',
 		value = $bindable(),
 		children,
@@ -47,6 +56,7 @@
 	}: Props = $props();
 
 	const small = $derived(compact || size === 'sm');
+	const showChevron = $derived(chevron ?? variant !== 'embedded');
 </script>
 
 {#if variant === 'ghost'}
@@ -54,18 +64,26 @@
 		{@render children?.()}
 	</select>
 {:else}
-	<div class="select-wrap {klass}" class:no-chevron={!chevron} data-tsu="Select">
+	<div
+		class="select-wrap {klass}"
+		class:no-chevron={!showChevron}
+		class:w-auto={width === 'auto'}
+		class:select-grow={grow}
+		data-tsu="Select"
+	>
 		<select
 			class="select"
 			class:compact={small}
 			class:select-sm={size === 'sm'}
+			class:w-auto={width === 'auto'}
+			class:embedded={variant === 'embedded'}
 			bind:value
 			{...rest}
 			aria-invalid={invalid || undefined}
 		>
 			{@render children?.()}
 		</select>
-		{#if chevron}
+		{#if showChevron}
 			<span class="select-chevron" aria-hidden="true">
 				<Icon name="chevron-down" size={16} />
 			</span>
@@ -78,6 +96,14 @@
 		position: relative;
 		display: block;
 		width: 100%;
+	}
+	.select-wrap.w-auto {
+		display: inline-block;
+		width: auto;
+	}
+	.select-wrap.select-grow {
+		flex: 1 1 0;
+		min-width: 0;
 	}
 	.select {
 		width: 100%;
@@ -110,6 +136,14 @@
 	   with Button size="sm", Popover size="sm" and SegmentedControl size="sm". */
 	.select.select-sm {
 		height: var(--control-height-compact);
+	}
+	.select.w-auto {
+		width: auto;
+	}
+	.select.embedded {
+		background: var(--bg-elevated-2);
+		border: none;
+		border-radius: var(--r-sm);
 	}
 	.select:focus {
 		outline: none;
