@@ -1,11 +1,12 @@
 <script lang="ts">
 	// Floating panel built on the native Popover API. The platform gives us the
 	// top layer (no z-index races, renders above dialogs/sticky headers), light
-	// dismiss (click-outside), Escape-to-close and correct focus/`aria-expanded`
-	// wiring between the invoker and the panel — all declaratively via the
-	// `popovertarget` / `popover` attributes. We add only smart placement:
-	// position the panel against its trigger and flip into the viewport when it
-	// would overflow. (CSS anchor positioning would replace the JS here once it
+	// dismiss (click-outside), Escape-to-close and focus wiring between the
+	// invoker and the panel — declaratively via the `popovertarget` / `popover`
+	// attributes. We add explicit `aria-expanded` / `aria-haspopup` on the
+	// trigger (the implicit popover semantics are not exposed uniformly by
+	// assistive tech), the panel role, and smart placement: position the panel
+	// against its trigger and flip into the viewport when it would overflow. (CSS anchor positioning would replace the JS here once it
 	// ships beyond Chromium; the popover semantics above are the hard part and
 	// are broadly supported today.)
 	import { tick, type Snippet } from 'svelte';
@@ -15,6 +16,8 @@
 	type TriggerVariant = 'default' | 'primary' | 'ghost' | 'danger';
 	type TriggerTone = 'none' | 'accent' | 'success' | 'info' | 'warn' | 'danger';
 	type TriggerSize = 'sm' | 'md' | 'lg';
+	type PanelRole = 'dialog' | 'menu' | 'listbox' | 'group';
+	type HasPopup = 'menu' | 'dialog' | 'listbox' | true;
 
 	let {
 		placement = 'bottom-start',
@@ -32,6 +35,8 @@
 		block = false,
 		hitArea = 'auto',
 		disabled = false,
+		role = 'dialog',
+		haspopup = 'dialog',
 		onopen,
 		onclose
 	}: {
@@ -63,6 +68,10 @@
 		/** Icon-only triggers grow a 44px hit slab on coarse pointers; `compact` opts out. */
 		hitArea?: 'auto' | 'compact';
 		disabled?: boolean;
+		/** ARIA role of the panel. */
+		role?: PanelRole;
+		/** `aria-haspopup` announced on the trigger. */
+		haspopup?: HasPopup;
 		onopen?: () => void;
 		onclose?: () => void;
 	} = $props();
@@ -78,6 +87,7 @@
 	// reopening is instant. The panel element itself always renders — the native
 	// `popovertarget` wiring needs its id present in the DOM at all times.
 	let opened = $state(false);
+	let open = $state(false);
 
 	function reposition() {
 		if (triggerEl && panelEl) place(triggerEl, panelEl, placement, gap);
@@ -87,6 +97,7 @@
 		if (e.newState === 'open') {
 			const firstOpen = !opened;
 			opened = true;
+			open = true;
 			// On the first open the content snippet mounts this tick; measure the
 			// panel only once it has, so placement accounts for its real size.
 			if (firstOpen) await tick();
@@ -95,6 +106,7 @@
 			addEventListener('resize', reposition);
 			onopen?.();
 		} else {
+			open = false;
 			removeEventListener('scroll', reposition, true);
 			removeEventListener('resize', reposition);
 			onclose?.();
@@ -126,6 +138,8 @@
 	class:trigger-tone-danger={tone === 'danger'}
 	popovertarget={id}
 	aria-label={label}
+	aria-haspopup={haspopup}
+	aria-expanded={open}
 	{disabled}
 >
 	{@render trigger()}
@@ -136,7 +150,7 @@
 	{id}
 	popover="auto"
 	class="pop-panel"
-	role="group"
+	{role}
 	aria-label={label}
 	ontoggle={onToggle}
 >
