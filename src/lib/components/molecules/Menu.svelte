@@ -9,7 +9,7 @@
 </script>
 
 <script lang="ts">
-	// Dropdown menu: a Popover whose panel is a WAI-ARIA `menu`. Items are
+	// Dropdown menu: a Popover whose panel carries the WAI-ARIA `menu` role. Items are
 	// `menuitem`s navigable with ↑/↓/Home/End, activated with Enter/Space (and
 	// click). Selecting an item runs its action and closes the menu. Focus moves
 	// to the first item when the menu opens. Escape / click-outside close it
@@ -112,13 +112,15 @@
 	{hitArea}
 	{disabled}
 	{gap}
+	role="menu"
+	haspopup="menu"
 	{onclose}
 	onopen={() => {
 		queueMicrotask(() => focusAt(0));
 		onopen?.();
 	}}
 >
-	<div bind:this={listEl} role="menu" aria-label={label} class="menu" data-tsu="Menu" tabindex="-1" {onkeydown}>
+	<div bind:this={listEl} role="none" class="menu" data-tsu="Menu" tabindex="-1" {onkeydown}>
 		{#each items as item (item.label)}
 			<button
 				type="button"
