@@ -17,6 +17,7 @@
 	import type { Snippet } from 'svelte';
 	import type { HTMLSelectAttributes } from 'svelte/elements';
 	import Icon from '$lib/components/atoms/Icon.svelte';
+	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
 
 	// `size` shadows the native option-count attribute (unused in token layouts) to
 	// expose the sm|md height scale instead.
@@ -36,6 +37,9 @@
 		width?: 'full' | 'auto';
 		/** Fill the available width of a flex/Cluster row (flex: 1). */
 		grow?: boolean;
+		id?: string;
+		'aria-describedby'?: string | null;
+		'aria-invalid'?: HTMLSelectAttributes['aria-invalid'];
 		class?: string;
 		value?: HTMLSelectAttributes['value'];
 		children?: Snippet;
@@ -49,18 +53,36 @@
 		chevron,
 		width = 'full',
 		grow = false,
+		id,
+		'aria-describedby': ariaDescribedby,
+		'aria-invalid': ariaInvalid,
 		class: klass = '',
 		value = $bindable(),
 		children,
 		...rest
 	}: Props = $props();
 
+	const field = getFieldContext();
+	const isInvalid = $derived(invalid || !!field?.invalid);
+	let el = $state<HTMLSelectElement | null>(null);
+
+	$effect(() => warnUnlabelled(el, 'Select'));
+
 	const small = $derived(compact || size === 'sm');
 	const showChevron = $derived(chevron ?? variant !== 'embedded');
 </script>
 
 {#if variant === 'ghost'}
-	<select class="select ghost {klass}" data-tsu="Select" bind:value {...rest} aria-invalid={invalid || undefined}>
+	<select
+		bind:this={el}
+		class="select ghost {klass}"
+		data-tsu="Select"
+		bind:value
+		{...rest}
+		id={id ?? field?.id}
+		aria-describedby={ariaDescribedby ?? field?.describedBy}
+		aria-invalid={ariaInvalid ?? (isInvalid ? 'true' : undefined)}
+	>
 		{@render children?.()}
 	</select>
 {:else}
@@ -72,6 +94,7 @@
 		data-tsu="Select"
 	>
 		<select
+			bind:this={el}
 			class="select"
 			class:compact={small}
 			class:select-sm={size === 'sm'}
@@ -79,7 +102,9 @@
 			class:embedded={variant === 'embedded'}
 			bind:value
 			{...rest}
-			aria-invalid={invalid || undefined}
+			id={id ?? field?.id}
+			aria-describedby={ariaDescribedby ?? field?.describedBy}
+			aria-invalid={ariaInvalid ?? (isInvalid ? 'true' : undefined)}
 		>
 			{@render children?.()}
 		</select>

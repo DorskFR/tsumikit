@@ -20,6 +20,7 @@
 	// default whenever `onsubmit` is given).
 	import type { HTMLTextareaAttributes } from 'svelte/elements';
 	import { autoresize as autoresizeAction } from '$lib/autoresize';
+	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
 
 	type Props = HTMLTextareaAttributes & {
 		mono?: boolean;
@@ -37,6 +38,9 @@
 		/** Fires with the current value on the `submitOn` key combo. */
 		onsubmit?: (value: string) => void;
 		submitOn?: 'enter' | 'mod-enter' | 'none';
+		id?: string;
+		'aria-describedby'?: string | null;
+		'aria-invalid'?: HTMLTextareaAttributes['aria-invalid'];
 		class?: string;
 		value?: HTMLTextareaAttributes['value'];
 		el?: HTMLTextAreaElement | null;
@@ -52,11 +56,19 @@
 		onsubmit,
 		submitOn = 'none',
 		onkeydown,
+		id,
+		'aria-describedby': ariaDescribedby,
+		'aria-invalid': ariaInvalid,
 		class: klass = '',
 		value = $bindable(),
 		el = $bindable(null),
 		...rest
 	}: Props = $props();
+
+	const field = getFieldContext();
+	const isInvalid = $derived(invalid || !!field?.invalid);
+
+	$effect(() => warnUnlabelled(el, 'Textarea'));
 
 	// With autoresize, only the top handle (a min-height floor) is meaningful.
 	const handleEdge = $derived(autoresize ? (resize === 'top' ? 'top' : 'none') : resize);
@@ -137,7 +149,9 @@
 			use:autoresizeAction={typeof value === 'string' ? value : ''}
 			{...rest}
 			onkeydown={onsubmit || onkeydown ? handleKeydown : undefined}
-			aria-invalid={invalid || undefined}
+			id={id ?? field?.id}
+			aria-describedby={ariaDescribedby ?? field?.describedBy}
+			aria-invalid={ariaInvalid ?? (isInvalid ? 'true' : undefined)}
 		></textarea>
 	{:else}
 		<textarea
@@ -150,7 +164,9 @@
 			bind:value
 			{...rest}
 			onkeydown={onsubmit || onkeydown ? handleKeydown : undefined}
-			aria-invalid={invalid || undefined}
+			id={id ?? field?.id}
+			aria-describedby={ariaDescribedby ?? field?.describedBy}
+			aria-invalid={ariaInvalid ?? (isInvalid ? 'true' : undefined)}
 		></textarea>
 	{/if}
 	{#if showHandle}

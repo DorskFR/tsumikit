@@ -1,15 +1,17 @@
 <script lang="ts">
 	// Form field wrapper: a label above a slotted control, with optional hint and
 	// error text. Replaces the ad-hoc `<div class="field"><label class="label">`
-	// markup. Renders a real <label for> when `for` is given (associates with the
-	// control), else a plain <span> for control groups (radio/segment rows).
+	// markup. The label is a real <label for>; when `for` is omitted a generated
+	// id is published via field context so the slotted control adopts it (plus
+	// aria-describedby for hint/error and aria-invalid) automatically.
 	// `layout="inline"` puts the label beside the control (fixed `labelWidth`
 	// aligns a column of them); hint/error then follow the control on the row.
 	import type { Snippet } from 'svelte';
+	import { setFieldContext } from '$lib/field-context';
 
 	let {
 		label,
-		for: forId,
+		for: forProp,
 		hint,
 		error,
 		layout = 'stack',
@@ -30,21 +32,37 @@
 		class?: string;
 		children?: Snippet;
 	} = $props();
+
+	const uid = $props.id();
+	const forId = $derived(forProp ?? uid);
+	const hintId = $derived(`${forId}-hint`);
+	const errorId = $derived(`${forId}-err`);
+	const describedBy = $derived(
+		[hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined
+	);
+
+	setFieldContext({
+		get id() {
+			return forId;
+		},
+		get describedBy() {
+			return describedBy;
+		},
+		get invalid() {
+			return !!error;
+		}
+	});
 </script>
 
 <div class="field {klass}" class:field-grow={grow} class:field-inline={layout === 'inline'} data-tsu="Field">
 	{#if label}
-		{#if forId}
-			<label class="label" for={forId} style:width={labelWidth}>{label}</label>
-		{:else}
-			<span class="label" style:width={labelWidth}>{label}</span>
-		{/if}
+		<label class="label" for={forId} style:width={labelWidth}>{label}</label>
 	{/if}
 	{@render children?.()}
 	{#if hint}
-		<span class="hint">{#if typeof hint === 'function'}{@render hint()}{:else}{hint}{/if}</span>
+		<span class="hint" id={hintId}>{#if typeof hint === 'function'}{@render hint()}{:else}{hint}{/if}</span>
 	{/if}
-	{#if error}<span class="error">{error}</span>{/if}
+	{#if error}<span class="error" id={errorId}>{error}</span>{/if}
 </div>
 
 <style>

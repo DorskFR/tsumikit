@@ -3,14 +3,28 @@
 	// Owns its sizing/colors from theme tokens; the parent supplies `checked`
 	// and an `onclick` handler plus an accessible label/title.
 	import type { HTMLButtonAttributes } from 'svelte/elements';
+	import { getFieldContext } from '$lib/field-context';
 
 	let {
 		checked = false,
 		invalid = false,
 		label,
+		id,
+		'aria-describedby': ariaDescribedby,
+		'aria-invalid': ariaInvalid,
 		class: klass = '',
 		...rest
-	}: HTMLButtonAttributes & { checked?: boolean; invalid?: boolean; label: string } = $props();
+	}: HTMLButtonAttributes & {
+		checked?: boolean;
+		invalid?: boolean;
+		label: string;
+		id?: string;
+		'aria-describedby'?: string | null;
+		'aria-invalid'?: HTMLButtonAttributes['aria-invalid'];
+	} = $props();
+
+	const field = getFieldContext();
+	const isInvalid = $derived(invalid || !!field?.invalid);
 </script>
 
 <button
@@ -21,7 +35,9 @@
 	class:on={checked}
 	role="switch"
 	aria-checked={checked}
-	aria-invalid={invalid || undefined}
+	id={id ?? field?.id}
+	aria-describedby={ariaDescribedby ?? field?.describedBy}
+	aria-invalid={ariaInvalid ?? (isInvalid ? 'true' : undefined)}
 	aria-label={label}
 >
 	<span class="knob"></span>
