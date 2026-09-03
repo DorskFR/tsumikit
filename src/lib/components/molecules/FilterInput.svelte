@@ -43,6 +43,7 @@
 	import { parse } from '$lib/query/parser';
 	import { type Schema } from '$lib/query/schema';
 	import { suggest, type SuggestState } from '$lib/query/suggest';
+	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
 
 	let {
 		schema,
@@ -57,6 +58,9 @@
 		hotkey,
 		showHotkey = false,
 		grow = false,
+		id,
+		'aria-describedby': ariaDescribedby,
+		'aria-invalid': ariaInvalid,
 		onchange,
 		onsubmit,
 		inline,
@@ -88,6 +92,9 @@
 		showHotkey?: boolean;
 		/** Fill the available width of a flex/Cluster row (flex: 1). */
 		grow?: boolean;
+		id?: string;
+		'aria-describedby'?: string | null;
+		'aria-invalid'?: 'true' | 'false' | boolean | null;
 		/** Fires the parsed AST on every change — feed this to your backend. */
 		onchange?: (query: Query, raw: string) => void;
 		/** Fires on Enter / clear / chip-remove with the raw query string. */
@@ -105,6 +112,7 @@
 		below?: Snippet<[FilterInputContext]>;
 	} = $props();
 
+	const field = getFieldContext();
 	let el = $state<HTMLInputElement | null>(null);
 	let menuEl = $state<HTMLDivElement | null>(null);
 	let menu = $state<SuggestState | null>(null);
@@ -288,6 +296,8 @@
 		queueMicrotask(() => el?.focus());
 	}
 
+	$effect(() => warnUnlabelled(el, 'FilterInput'));
+
 	const kindLabel: Record<string, string> = {
 		field: 'Fields',
 		operator: 'Operators',
@@ -311,6 +321,9 @@
 			bind:this={el}
 			bind:value
 			class="fi__input"
+			id={id ?? field?.id}
+			aria-describedby={ariaDescribedby ?? field?.describedBy}
+			aria-invalid={ariaInvalid ?? (field?.invalid ? 'true' : undefined)}
 			spellcheck="false"
 			autocomplete="off"
 			{placeholder}

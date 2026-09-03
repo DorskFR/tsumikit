@@ -4,12 +4,16 @@
 	// label. Supports `bind:checked`, `indeterminate`, and passes through every
 	// native attribute via `...rest`.
 	import type { HTMLInputAttributes } from 'svelte/elements';
+	import { getFieldContext } from '$lib/field-context';
 
 	let {
 		checked = $bindable(false),
 		indeterminate = false,
 		invalid = false,
 		label,
+		id,
+		'aria-describedby': ariaDescribedby,
+		'aria-invalid': ariaInvalid,
 		class: klass = '',
 		el = $bindable(null),
 		...rest
@@ -19,8 +23,14 @@
 		/** Error state: danger box border + aria-invalid. */
 		invalid?: boolean;
 		label: string;
+		id?: string;
+		'aria-describedby'?: string | null;
+		'aria-invalid'?: HTMLInputAttributes['aria-invalid'];
 		el?: HTMLInputElement | null;
 	} = $props();
+
+	const field = getFieldContext();
+	const isInvalid = $derived(invalid || !!field?.invalid);
 
 	// `indeterminate` is a property, not an attribute — sync it imperatively.
 	$effect(() => {
@@ -29,7 +39,15 @@
 </script>
 
 <label class="checkbox {klass}" data-tsu="Checkbox">
-	<input bind:this={el} type="checkbox" bind:checked {...rest} aria-invalid={invalid || undefined} />
+	<input
+		bind:this={el}
+		type="checkbox"
+		bind:checked
+		{...rest}
+		id={id ?? field?.id}
+		aria-describedby={ariaDescribedby ?? field?.describedBy}
+		aria-invalid={ariaInvalid ?? (isInvalid ? 'true' : undefined)}
+	/>
 	<span class="box" aria-hidden="true"></span>
 	<span class="label-text">{label}</span>
 </label>

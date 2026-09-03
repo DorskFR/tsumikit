@@ -6,6 +6,7 @@
 	// stays as-is otherwise.
 	import type { HTMLInputAttributes } from 'svelte/elements';
 	import Icon, { type IconName } from '$lib/components/atoms/Icon.svelte';
+	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
 
 	// `size` shadows the native char-width attribute (unused in token-sized
 	// layouts) to expose a height preset instead.
@@ -31,6 +32,9 @@
 		onenter?: (value: string) => void;
 		/** Alias of `onenter`; both fire when given. */
 		onsubmit?: (value: string) => void;
+		id?: string;
+		'aria-describedby'?: string | null;
+		'aria-invalid'?: HTMLInputAttributes['aria-invalid'];
 		class?: string;
 		value?: HTMLInputAttributes['value'];
 		el?: HTMLInputElement | null;
@@ -50,11 +54,19 @@
 		onenter,
 		onsubmit,
 		onkeydown,
+		id,
+		'aria-describedby': ariaDescribedby,
+		'aria-invalid': ariaInvalid,
 		class: klass = '',
 		value = $bindable(),
 		el = $bindable(null),
 		...rest
 	}: Props = $props();
+
+	const field = getFieldContext();
+	const isInvalid = $derived(invalid || !!field?.invalid);
+
+	$effect(() => warnUnlabelled(el, 'Input'));
 
 	const wrapped = $derived(!!icon || clearable);
 
@@ -87,7 +99,9 @@
 		bind:value
 		{...rest}
 		onkeydown={onenter || onsubmit || onkeydown ? handleKeydown : undefined}
-		aria-invalid={invalid || undefined}
+		id={id ?? field?.id}
+		aria-describedby={ariaDescribedby ?? field?.describedBy}
+		aria-invalid={ariaInvalid ?? (isInvalid ? 'true' : undefined)}
 	/>
 {/snippet}
 

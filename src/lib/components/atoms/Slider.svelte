@@ -6,6 +6,7 @@
 	// for-association. `bind:value` and all native attrs/events pass through.
 	// Recolor per-instance via `--slider-accent` (defaults to the theme accent).
 	import type { HTMLInputAttributes } from 'svelte/elements';
+	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
 
 	let {
 		value = $bindable(0),
@@ -15,7 +16,10 @@
 		label,
 		showValue = false,
 		format = (v: number) => String(v),
-		id = `slider-${Math.random().toString(36).slice(2, 8)}`,
+		id: idProp,
+		'aria-describedby': ariaDescribedby,
+		'aria-invalid': ariaInvalid,
+		invalid = false,
 		class: klass = '',
 		el = $bindable(null),
 		...rest
@@ -27,8 +31,20 @@
 		label?: string;
 		showValue?: boolean;
 		format?: (v: number) => string;
+		/** Error state: aria-invalid. */
+		invalid?: boolean;
+		id?: string;
+		'aria-describedby'?: string | null;
+		'aria-invalid'?: HTMLInputAttributes['aria-invalid'];
 		el?: HTMLInputElement | null;
 	} = $props();
+
+	const field = getFieldContext();
+	const fallbackId = $props.id();
+	const id = $derived(idProp ?? field?.id ?? fallbackId);
+	const isInvalid = $derived(invalid || !!field?.invalid);
+
+	$effect(() => warnUnlabelled(el, 'Slider'));
 
 	// Fill percentage for the track gradient.
 	const pct = $derived(
@@ -47,6 +63,8 @@
 		bind:value
 		aria-label={label}
 		{...rest}
+		aria-describedby={ariaDescribedby ?? field?.describedBy}
+		aria-invalid={ariaInvalid ?? (isInvalid ? 'true' : undefined)}
 	/>
 	{#if showValue}
 		<output for={id} class="slider-out">{format(Number(value))}</output>

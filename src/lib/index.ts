@@ -110,6 +110,13 @@ export {
 	type RowTone,
 } from './components/organisms/DataTable.svelte';
 export { default as FilterSearchBar } from './components/organisms/FilterSearchBar.svelte';
+export {
+	FIELD_KEY,
+	type FieldContext,
+	getFieldContext,
+	setFieldContext,
+	warnUnlabelled,
+} from './field-context';
 // ---- query core (headless: schema / parser / AST / suggest / compilers) ----
 export {
 	type AndNode,
