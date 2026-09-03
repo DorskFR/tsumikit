@@ -887,6 +887,25 @@ function greet(name) {
 						label="Library filter compact"
 					/>
 				</Field>
+				<Field label="Block (fills the parent width)">
+					<SegmentedControl block options={libFilters} bind:value={filterValue} label="Library filter block" />
+				</Field>
+				<Field label="Scroll (single row inside a 16rem box)">
+					<div style="max-width: 16rem">
+						<SegmentedControl scroll options={libFilters} bind:value={filterValue} label="Library filter scroll" />
+					</div>
+				</Field>
+				<Field label="collapseLabels='container' (20rem inline-size container)">
+					<div style="container-type: inline-size; width: 20rem">
+						<SegmentedControl
+							variant="icon"
+							collapseLabels="container"
+							options={scopeModes}
+							bind:value={scopeValue}
+							label="Scope in container"
+						/>
+					</div>
+				</Field>
 			</Stack>
 		</Card>
 	</section>
@@ -925,6 +944,10 @@ function greet(name) {
 
 				<Menu label="Row actions" items={menuItems}>
 					{#snippet trigger()}<Icon name="more" size={18} />{/snippet}
+				</Menu>
+
+				<Menu label="Row actions (ghost sm trigger)" items={menuItems} variant="ghost" size="sm">
+					{#snippet trigger()}Actions <Icon name="chevron-down" size={14} />{/snippet}
 				</Menu>
 
 				<Text variant="caption" tone="muted">Open a menu and navigate with ↑/↓, Enter to select.</Text>

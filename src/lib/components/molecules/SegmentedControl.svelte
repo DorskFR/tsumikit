@@ -35,7 +35,11 @@
 		label = 'Options',
 		// `mobile` hides segment labels below the mobile breakpoint, collapsing
 		// labelled segments to centered icon-only squares (aria-label preserved).
+		// `container` does the same when the nearest size container is at most
+		// 35rem wide (the breakpoint is fixed: `@container` cannot read a var).
 		collapseLabels = 'never',
+		scroll = false,
+		block = false,
 		class: klass = '',
 		// Custom rendering per option (overrides the built-in label/count/icon).
 		option: optionSnippet
@@ -48,7 +52,11 @@
 		 *  `control`) so the whole segmented control height-matches its siblings. */
 		control?: boolean;
 		label?: string;
-		collapseLabels?: 'never' | 'mobile';
+		collapseLabels?: 'never' | 'mobile' | 'container';
+		/** Single non-wrapping row that scrolls horizontally (scrollbar hidden). */
+		scroll?: boolean;
+		/** Fill the parent width, sharing it equally between segments. */
+		block?: boolean;
 		class?: string;
 		option?: Snippet<[SegmentOption, boolean]>;
 	} = $props();
@@ -90,6 +98,9 @@
 	class="seg seg-{variant} seg-{size} {klass}"
 	class:seg-control={control}
 	class:seg-collapse-mobile={collapseLabels === 'mobile'}
+	class:collapse-container={collapseLabels === 'container'}
+	class:seg-scroll={scroll}
+	class:seg-block={block}
 	data-tsu="SegmentedControl"
 	{onkeydown}
 >
@@ -131,6 +142,28 @@
 	}
 	.seg-icon {
 		border-radius: var(--r-md);
+	}
+	.seg-scroll {
+		flex: 1 0 100%;
+		flex-wrap: nowrap;
+		max-width: 100%;
+		overflow-x: auto;
+		scrollbar-width: none;
+		-webkit-overflow-scrolling: touch;
+	}
+	.seg-scroll::-webkit-scrollbar {
+		display: none;
+	}
+	.seg-scroll .seg-item {
+		flex: none;
+	}
+	.seg-block {
+		display: flex;
+		width: 100%;
+	}
+	.seg-block .seg-item {
+		flex: 1 1 0;
+		justify-content: center;
 	}
 
 	.seg-item {
@@ -206,6 +239,18 @@
 			padding: 0.35rem;
 		}
 		.seg-collapse-mobile.seg-sm .seg-item.has-label {
+			padding: 0.25rem;
+		}
+	}
+	@container (max-width: 35rem) {
+		.collapse-container .seg-item.has-label .seg-label {
+			display: none;
+		}
+		.collapse-container .seg-item.has-label {
+			gap: 0;
+			padding: 0.35rem;
+		}
+		.collapse-container.seg-sm .seg-item.has-label {
 			padding: 0.25rem;
 		}
 	}

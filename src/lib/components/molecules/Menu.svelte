@@ -14,21 +14,52 @@
 	// click). Selecting an item runs its action and closes the menu. Focus moves
 	// to the first item when the menu opens. Escape / click-outside close it
 	// (inherited from the native popover).
-	import type { Snippet } from 'svelte';
+	import type { ComponentProps, Snippet } from 'svelte';
 	import Popover from '$lib/components/molecules/Popover.svelte';
 	import Icon from '$lib/components/atoms/Icon.svelte';
+
+	type PopoverProps = ComponentProps<typeof Popover>;
+	type TriggerChrome = Pick<
+		PopoverProps,
+		| 'variant'
+		| 'tone'
+		| 'size'
+		| 'box'
+		| 'control'
+		| 'block'
+		| 'triggerClass'
+		| 'bare'
+		| 'hitArea'
+		| 'disabled'
+		| 'gap'
+		| 'onopen'
+		| 'onclose'
+	>;
 
 	let {
 		label,
 		items,
 		trigger,
-		placement = 'bottom-start'
+		placement = 'bottom-start',
+		variant,
+		tone,
+		size,
+		box,
+		control,
+		block,
+		triggerClass,
+		bare,
+		hitArea,
+		disabled,
+		gap,
+		onopen,
+		onclose
 	}: {
 		label: string;
 		items: MenuItem[];
 		trigger: Snippet;
 		placement?: 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
-	} = $props();
+	} & TriggerChrome = $props();
 
 	let listEl = $state<HTMLDivElement | null>(null);
 
@@ -66,7 +97,27 @@
 	}
 </script>
 
-<Popover {label} {placement} {trigger} onopen={() => queueMicrotask(() => focusAt(0))}>
+<Popover
+	{label}
+	{placement}
+	{trigger}
+	{variant}
+	{tone}
+	{size}
+	{box}
+	{control}
+	{block}
+	{triggerClass}
+	{bare}
+	{hitArea}
+	{disabled}
+	{gap}
+	{onclose}
+	onopen={() => {
+		queueMicrotask(() => focusAt(0));
+		onopen?.();
+	}}
+>
 	<div bind:this={listEl} role="menu" aria-label={label} class="menu" data-tsu="Menu" tabindex="-1" {onkeydown}>
 		{#each items as item (item.label)}
 			<button
