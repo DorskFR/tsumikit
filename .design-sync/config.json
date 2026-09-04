@@ -3,5 +3,5 @@
   "shape": "package",
   "pkg": "@dorsk/tsumikit",
   "readmeHeader": ".design-sync/conventions.md",
-  "note": "CSS-tokens-only trial sync. tsumikit is a Svelte 5 design system; live components cannot render in the React-based claude.ai/design runtime, so only the styling layer (styles.css/app.css/variables.css + tokens) is uploaded."
+  "note": "Hybrid project. The styling layer (styles.css/app.css/variables.css/tokens.css/themes.css/reset.css/utilities.css/syntax.css + tokens/ reference copies) is synced from this repo and is the source of truth. The 17 React mirror components under components/ and _ds_bundle.js are hand-written IN the Claude Design project, not generated from this repo — design-sync must never delete them. shape:'package' is a placeholder; the bundled converter (React/esbuild) does not apply to a Svelte 5 kit."
 }
