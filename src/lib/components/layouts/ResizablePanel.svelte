@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { untrack } from 'svelte';
 	import { browser } from '$lib/env';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import Scrim from '$lib/components/atoms/Scrim.svelte';
@@ -87,7 +88,6 @@
 
 	function measureLength(css: string) {
 		if (!browser || !root) return undefined;
-		console.count('measure ' + css);
 		const probe = document.createElement('div');
 		probe.style.cssText = `position:absolute;visibility:hidden;pointer-events:none;width:${css}`;
 		root.appendChild(probe);
@@ -128,7 +128,7 @@
 	$effect(() => {
 		if (!browser || restored) return;
 		restored = true;
-		lengthTick += 1;
+		lengthTick = untrack(() => lengthTick) + 1;
 		if (!widthKey) return;
 
 		const savedWidth = parseStoredWidth(
@@ -149,9 +149,8 @@
 	$effect(() => {
 		if (!browser) return;
 		const sync = () => {
-			console.count('sync');
 			viewportWidth = window.innerWidth;
-			lengthTick += 1;
+			lengthTick = untrack(() => lengthTick) + 1;
 		};
 		sync();
 		addEventListener('resize', sync);
@@ -163,7 +162,6 @@
 			fullBleed = false;
 			return;
 		}
-		console.count('bleed');
 		const query = matchMedia(`(max-width: ${fullWidthBelow})`);
 		const sync = () => {
 			fullBleed = query.matches;
@@ -175,7 +173,6 @@
 
 	$effect(() => {
 		if (!browser || !overlay || !open) return;
-		console.count('escape');
 		const onKeydown = (event: KeyboardEvent) => {
 			if (event.key !== 'Escape' || event.defaultPrevented) return;
 			event.preventDefault();
@@ -187,7 +184,6 @@
 
 	$effect(() => {
 		if (!browser || !overlay || !open || !panelEl) return;
-		console.count('focus');
 		const previous = document.activeElement as HTMLElement | null;
 		if (!panelEl.contains(previous)) panelEl.focus({ preventScroll: true });
 		return () => {
