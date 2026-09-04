@@ -81,7 +81,48 @@ namespace `Tsumikit_a4c6ce` — all verify.
 - **`dist/` is gitignored and can be stale.** Always `npm run package`, then diff
   `dist/styles/*` against `src/lib/styles/*`.
 
-## SOLVED: Svelte components CAN ship to Claude Design (verified 2026-09-05)
+## DONE: the design project now runs the REAL components (2026-09-05)
+
+`npm run design:bundle` + `npm run design:verify`. The 17 hand-written React
+mirrors and `showcase.html` were deleted from the project; all **63** exported
+components now render from the actual compiled Svelte via `@dorsk/kakehashi`.
+
+Layout uploaded: `_ds_bundle.js` (IIFE on `window.Tsumikit_a4c6ce`, `@ds-bundle`
+header), `_ds_bundle.css` (105kB of REAL scoped component CSS, `@import`ed from
+`styles.css` — designs only receive that closure), `_vendor/react{,-dom}.js`,
+and `components/<Group>/<Name>/{.jsx,.d.ts,.prompt.md,.html}` in
+Atoms/Molecules/Layouts/Organisms.
+
+Kept deliberately: `tokens/Typography.html` (pure token card, no React) and
+`fonts/JetBrainsMono-Regular.ttf`. **Note:** no `@font-face` declares that font
+anywhere in the CSS, so the Typography card's "self-hosted" claim is aspirational
+— `--font-mono` only picks it up if the viewer's OS has it installed.
+
+### Build gotchas specific to THIS bundle
+
+1. **One React instance.** `_vendor/react-dom.js` must resolve `react` to
+   `window.React`, not bundle its own — two copies leave the hooks dispatcher
+   null (`Cannot read properties of null (reading 'useState')`) and every
+   component renders empty with no error.
+2. **`globalName` + footer, not a dotted global.** esbuild's dotted globalName
+   emits `var window;`, shadowing the real window. Use a plain global plus
+   `footer: 'window.X = X'`.
+3. **Export discovery must match multi-line blocks.** `src/lib/index.ts` exports
+   many components as `export {\n default as X,\n type Y,\n} from '...'`. A
+   single-line regex silently found only 52 of 63.
+4. `$lib` is a SvelteKit alias esbuild needs told about (`alias` option).
+5. `card-props.json` drives the preview cards. `propsExpr` is raw JS for props
+   JSON cannot express — `DataTable.rowKey` is `(row) => string`.
+
+### Known limitation
+
+`Tabs` declares `panel: Snippet<[string]>` — a REQUIRED Svelte snippet. It is the
+only component in the kit that does. kakehashi passes React children as the
+default snippet but does not support named snippets yet, so the Tabs card renders
+the tab bar without a panel. Fixing it means adding named-snippet support to
+kakehashi.
+
+## Background: how the bridge was proven (2026-09-05)
 
 Supersedes the un-scoping idea below. The design runtime is React-only (the
 design-sync skill mentions React 234 times, Svelte zero, and exposes no non-React

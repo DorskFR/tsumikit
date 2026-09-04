@@ -1,0 +1,467 @@
+{
+  "Artwork": {
+    "props": {
+      "alt": "Avatar",
+      "seed": "tsumikit",
+      "size": "3rem"
+    },
+    "children": null,
+    "subtitle": "Generated avatar art"
+  },
+  "Badge": {
+    "props": {
+      "variant": "ok"
+    },
+    "children": "shipped",
+    "subtitle": "Status pill"
+  },
+  "Button": {
+    "props": {
+      "variant": "primary"
+    },
+    "children": "Save changes",
+    "subtitle": "Primary action"
+  },
+  "Card": {
+    "children": "Card body",
+    "subtitle": "Surface container"
+  },
+  "Checkbox": {
+    "props": {
+      "label": "Enable notifications",
+      "checked": true
+    },
+    "children": null,
+    "subtitle": "Boolean input"
+  },
+  "Dot": {
+    "props": {
+      "status": "active"
+    },
+    "children": null,
+    "subtitle": "Status indicator"
+  },
+  "Heading": {
+    "props": {
+      "level": 2
+    },
+    "children": "Section heading",
+    "subtitle": "Typographic heading"
+  },
+  "Icon": {
+    "props": {
+      "name": "check"
+    },
+    "children": null,
+    "subtitle": "Inline icon"
+  },
+  "Input": {
+    "props": {
+      "value": "hello",
+      "placeholder": "Type here"
+    },
+    "children": null,
+    "subtitle": "Text field"
+  },
+  "Kbd": {
+    "props": {
+      "keys": [
+        "Ctrl",
+        "K"
+      ]
+    },
+    "children": null,
+    "subtitle": "Keyboard shortcut"
+  },
+  "Link": {
+    "props": {
+      "href": "#"
+    },
+    "children": "Documentation",
+    "subtitle": "Inline link"
+  },
+  "Progress": {
+    "props": {
+      "value": 64
+    },
+    "children": null,
+    "subtitle": "Determinate progress"
+  },
+  "Scrim": {
+    "props": {
+      "visible": true
+    },
+    "children": null,
+    "subtitle": "Overlay backdrop"
+  },
+  "SegmentedProgress": {
+    "props": {
+      "segments": [
+        {
+          "value": 6,
+          "max": 10,
+          "tone": "accent",
+          "label": "Used"
+        },
+        {
+          "value": 2,
+          "max": 10,
+          "tone": "warn",
+          "label": "Reserved"
+        }
+      ],
+      "label": "Capacity",
+      "legend": true
+    },
+    "children": null,
+    "subtitle": "Multi-segment progress"
+  },
+  "Select": {
+    "props": {
+      "value": "b",
+      "options": [
+        {
+          "value": "a",
+          "label": "Alpha"
+        },
+        {
+          "value": "b",
+          "label": "Beta"
+        }
+      ]
+    },
+    "children": null,
+    "subtitle": "Dropdown"
+  },
+  "Skeleton": {
+    "props": {
+      "width": "12rem"
+    },
+    "children": null,
+    "subtitle": "Loading placeholder"
+  },
+  "Slider": {
+    "props": {
+      "value": 40
+    },
+    "children": null,
+    "subtitle": "Range input"
+  },
+  "Spinner": {
+    "children": null,
+    "subtitle": "Busy indicator"
+  },
+  "Switch": {
+    "props": {
+      "checked": true,
+      "label": "Dark mode"
+    },
+    "children": null,
+    "subtitle": "Toggle switch"
+  },
+  "Text": {
+    "children": "Body copy",
+    "subtitle": "Typographic text"
+  },
+  "Textarea": {
+    "props": {
+      "value": "Multi-line text"
+    },
+    "children": null,
+    "subtitle": "Multi-line field"
+  },
+  "Accordion": {
+    "props": {
+      "title": "Details"
+    },
+    "children": "Hidden content",
+    "subtitle": "Disclosure"
+  },
+  "Breadcrumb": {
+    "props": {
+      "items": [
+        {
+          "label": "Home",
+          "href": "#"
+        },
+        {
+          "label": "Settings"
+        }
+      ]
+    },
+    "children": null,
+    "subtitle": "Navigation trail"
+  },
+  "Callout": {
+    "props": {
+      "tone": "info",
+      "title": "Heads up"
+    },
+    "children": "Something worth noting.",
+    "subtitle": "Inline notice"
+  },
+  "CodeBlock": {
+    "props": {
+      "code": "const x = 1;",
+      "language": "js"
+    },
+    "children": null,
+    "subtitle": "Highlighted code"
+  },
+  "CopyButton": {
+    "props": {
+      "value": "copied text"
+    },
+    "children": null,
+    "subtitle": "Copy to clipboard"
+  },
+  "Dropzone": {
+    "children": null,
+    "subtitle": "File drop target"
+  },
+  "EmptyState": {
+    "props": {
+      "title": "Nothing here yet",
+      "description": "Create your first item."
+    },
+    "children": null,
+    "subtitle": "Empty placeholder"
+  },
+  "Field": {
+    "props": {
+      "label": "Email"
+    },
+    "children": null,
+    "subtitle": "Labelled control"
+  },
+  "FileButton": {
+    "children": "Upload file",
+    "subtitle": "File picker"
+  },
+  "FilterInput": {
+    "props": {
+      "value": "",
+      "placeholder": "Filter…"
+    },
+    "children": null,
+    "subtitle": "Filter field"
+  },
+  "FontScalePicker": {
+    "children": null,
+    "subtitle": "Font scale control"
+  },
+  "IconButton": {
+    "props": {
+      "icon": "check",
+      "label": "Confirm"
+    },
+    "children": null,
+    "subtitle": "Icon-only action"
+  },
+  "KeyValue": {
+    "props": {
+      "label": "Status"
+    },
+    "children": "Active",
+    "subtitle": "Label/value pair"
+  },
+  "LoadMore": {
+    "children": null,
+    "subtitle": "Pagination trigger"
+  },
+  "Menu": {
+    "children": null,
+    "subtitle": "Dropdown menu"
+  },
+  "Metric": {
+    "props": {
+      "label": "Requests",
+      "value": "1,284"
+    },
+    "children": null,
+    "subtitle": "Stat tile"
+  },
+  "Modal": {
+    "props": {
+      "open": true,
+      "title": "Confirm"
+    },
+    "children": "Modal body",
+    "subtitle": "Dialog"
+  },
+  "OptionButton": {
+    "props": {
+      "label": "Option"
+    },
+    "children": null,
+    "subtitle": "Selectable option"
+  },
+  "Pagination": {
+    "props": {
+      "page": 2,
+      "pages": 5
+    },
+    "children": null,
+    "subtitle": "Page controls"
+  },
+  "Popover": {
+    "children": null,
+    "subtitle": "Anchored overlay"
+  },
+  "RadioGroup": {
+    "props": {
+      "value": "a",
+      "options": [
+        {
+          "value": "a",
+          "label": "Alpha"
+        },
+        {
+          "value": "b",
+          "label": "Beta"
+        }
+      ]
+    },
+    "children": null,
+    "subtitle": "Radio set"
+  },
+  "SectionHeader": {
+    "props": {
+      "title": "Settings"
+    },
+    "children": null,
+    "subtitle": "Section title"
+  },
+  "SegmentedControl": {
+    "props": {
+      "value": "a",
+      "options": [
+        {
+          "value": "a",
+          "label": "Day"
+        },
+        {
+          "value": "b",
+          "label": "Week"
+        }
+      ]
+    },
+    "children": null,
+    "subtitle": "Segmented tabs"
+  },
+  "SelectButton": {
+    "props": {
+      "value": "a",
+      "options": [
+        {
+          "value": "a",
+          "label": "Alpha"
+        }
+      ]
+    },
+    "children": null,
+    "subtitle": "Select trigger"
+  },
+  "Tabs": {
+    "props": {
+      "tabs": [
+        {
+          "id": "a",
+          "label": "Overview"
+        },
+        {
+          "id": "b",
+          "label": "Activity"
+        }
+      ],
+      "value": "a"
+    },
+    "children": null,
+    "subtitle": "Tab bar (panel snippet required)"
+  },
+  "ThemePicker": {
+    "children": null,
+    "subtitle": "Theme switcher"
+  },
+  "Timestamp": {
+    "props": {
+      "value": "2026-01-01T12:00:00Z"
+    },
+    "children": null,
+    "subtitle": "Relative time"
+  },
+  "Toaster": {
+    "children": null,
+    "subtitle": "Toast host"
+  },
+  "Toggle": {
+    "props": {
+      "pressed": true
+    },
+    "children": "Bold",
+    "subtitle": "Pressed toggle"
+  },
+  "Tooltip": {
+    "props": {
+      "text": "More info"
+    },
+    "children": "hover me",
+    "subtitle": "Hover hint"
+  },
+  "Truncate": {
+    "props": {
+      "text": "A long string that will be shortened",
+      "max": 20
+    },
+    "children": null,
+    "subtitle": "Shortened text"
+  },
+  "AppShell": {
+    "children": "App content",
+    "subtitle": "Application frame"
+  },
+  "AutoGrid": {
+    "children": "Grid child",
+    "subtitle": "Responsive grid"
+  },
+  "Cluster": {
+    "children": "Clustered item",
+    "subtitle": "Inline cluster"
+  },
+  "Container": {
+    "children": "Contained content",
+    "subtitle": "Max-width wrapper"
+  },
+  "NavItem": {
+    "props": {
+      "label": "Dashboard",
+      "href": "#"
+    },
+    "children": null,
+    "subtitle": "Nav entry"
+  },
+  "NavSection": {
+    "props": {
+      "title": "Main"
+    },
+    "children": null,
+    "subtitle": "Nav group"
+  },
+  "ResizablePanel": {
+    "children": "Panel content",
+    "subtitle": "Draggable panel"
+  },
+  "Stack": {
+    "children": "Stacked item",
+    "subtitle": "Vertical stack"
+  },
+  "DataTable": {
+    "propsExpr": "{ columns: [{ key: 'name', label: 'Name' }, { key: 'role', label: 'Role' }], rows: [{ id: '1', name: 'Alpha', role: 'admin' }, { id: '2', name: 'Beta', role: 'viewer' }], rowKey: (r) => r.id }",
+    "children": null,
+    "subtitle": "Sortable data table"
+  },
+  "FilterSearchBar": {
+    "children": null,
+    "subtitle": "Search + filters"
+  }
+}

@@ -3,5 +3,6 @@
   "shape": "package",
   "pkg": "@dorsk/tsumikit",
   "readmeHeader": ".design-sync/conventions.md",
-  "note": "Hybrid project. The styling layer (styles.css/app.css/variables.css/tokens.css/themes.css/reset.css/utilities.css/syntax.css + tokens/ reference copies) is synced from this repo and is the source of truth. The 17 React mirror components under components/ and _ds_bundle.js are hand-written IN the Claude Design project, not generated from this repo — design-sync must never delete them. shape:'package' is a placeholder; the bundled converter (React/esbuild) does not apply to a Svelte 5 kit."
+  "note": "Hybrid is GONE. The project now carries the REAL Svelte components: .design-sync/build-bundle.mjs wraps every src/lib/index.ts export with @dorsk/kakehashi (Svelte->React bridge) into _ds_bundle.js + _ds_bundle.css, so the design agent builds with the actual compiled components and their real scoped CSS. The 17 hand-written React mirrors were deleted 2026-09-05. Run: npm run design:bundle && npm run design:verify.",
+  "globalName": "Tsumikit_a4c6ce"
 }
