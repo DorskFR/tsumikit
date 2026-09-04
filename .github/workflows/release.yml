@@ -25,14 +25,18 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm run package
-      # Idempotent: skip if this version is already on the registry so a re-run
-      # (or a hand-published first version) goes green instead of erroring.
+      # Idempotent: a re-run (or a hand-published first version) goes green.
+      # Deliberately no `npm view` pre-check — the registry read endpoint lags
+      # minutes behind a publish, so it reports "missing" for a version that
+      # exists and turns the skip into a failed publish. Attempt the publish and
+      # treat only the version-conflict error as success.
       - name: Publish
         run: |
-          name=$(node -p "require('./package.json').name")
-          version=$(node -p "require('./package.json').version")
-          if npm view "$name@$version" version >/dev/null 2>&1; then
-            echo "$name@$version already published — skipping."
+          if out=$(npm publish 2>&1); then
+            echo "$out"
           else
-            npm publish
+            status=$?
+            echo "$out"
+            printf '%s' "$out" | grep -qi 'cannot publish over the previously published versions' || exit "$status"
+            echo 'Version already published — nothing to do.'
           fi
