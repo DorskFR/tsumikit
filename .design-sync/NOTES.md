@@ -81,7 +81,75 @@ namespace `Tsumikit_a4c6ce` — all verify.
 - **`dist/` is gitignored and can be stale.** Always `npm run package`, then diff
   `dist/styles/*` against `src/lib/styles/*`.
 
-## Open idea: un-scope the Svelte CSS instead of hand-writing React
+## SOLVED: Svelte components CAN ship to Claude Design (verified 2026-09-05)
+
+Supersedes the un-scoping idea below. The design runtime is React-only (the
+design-sync skill mentions React 234 times, Svelte zero, and exposes no non-React
+hook), but its contract is just *"an IIFE assigning every export to
+`window.<globalName>`, which the agent renders as JSX"* — it does not care how a
+component is implemented inside.
+
+So: a **generic React->Svelte bridge**, written once (~40 lines), wraps any Svelte 5
+component as a React one. Not a port — it ships the real compiled Svelte with its
+real scoped CSS. Prototype lives in `.ds-proto/` (gitignored): `bridge.jsx`,
+`props.svelte.js`, `build.mjs`, `one.mjs`, `sweep.sh`.
+
+Three Svelte 5 APIs make it work (all present in svelte 5.56.3):
+- `mount` / `unmount` — mount into a DOM node from plain JS
+- `createRawSnippet` — turns a DOM node into a snippet, so React `children` (via
+  `createPortal`) become Svelte children
+- `compile(..., { css: 'external' })` — emits the real scoped CSS as a stylesheet
+
+### Verified results
+
+Real `Button.svelte`, 7/7: renders a `<button>`; real scoped classes
+(`btn svelte-1eyq09g btn-primary btn-sm`); React children inside it; prop changes
+reactive with NO remount (same DOM node); `loading` -> disabled + spinner; clean
+unmount. The element's scope hash is present in the emitted CSS, so **the real
+scoped CSS ships and applies** — no un-scoping, no drift.
+
+Full sweep of all 52 public components (each in its own process, `sweep.sh`):
+**51/52 mount and render**. 87KB of genuine component CSS emitted.
+
+### Build gotchas (each cost a debugging cycle — do not rediscover)
+
+1. **Exactly ONE Svelte runtime in the bundle.** Two copies (e.g. a nested
+   `node_modules/svelte`) -> `effect_orphan` on mount. Symptom: esbuild-renamed
+   `user_effect2` / `validate_effect2` in the stack trace.
+2. **`verbatimModuleSyntax: true`** when stripping TS from `<script lang="ts">`.
+   Without it esbuild drops imports unused *in the script block* — but Svelte uses
+   component imports in the TEMPLATE. Caused 16 `X is not defined` failures.
+3. **`define: {'import.meta.env.DEV':'false', ...}`** — the source has Vite-isms a
+   plain esbuild bundle does not provide.
+4. Some `.svelte.js` stores touch `localStorage` at import time -> the bundle needs
+   a browser context (fine in the real runtime; jsdom needs a `url`).
+5. `.svelte.js` runes modules need `compileModule` — esbuild-svelte only handles
+   `.svelte`. Ten-line esbuild plugin.
+
+### Known issue, NOT caused by the bridge
+
+`ResizablePanel` throws `effect_update_depth_exceeded` on mount. **Verified it does
+this under a plain `mount()` with no React and no bridge**, so it is pre-existing.
+It is NOT explained by jsdom's missing layout — tested with a stubbed 800px
+`getBoundingClientRect` and it loops identically. Needs investigating in a real
+browser; it has 6 `$effect`s and reads `getBoundingClientRect()` / `window.innerWidth`.
+
+### Remaining work to productionize (~1 day)
+
+Codegen the 52 wrappers from `src/lib/index.ts`, the esbuild config above emitting
+`_ds_bundle.js` (IIFE, globalName) + `_ds_bundle.css`, `@import` that CSS from
+`styles.css` (rendered designs only receive that closure), and per-component
+`.d.ts` + preview cards. Replaces the 17 hand-written mirrors with all 52 real
+components and removes the drift problem permanently.
+
+Test-harness note: jsdom needs polyfills the real runtime already has —
+`matchMedia`, `ResizeObserver`, `IntersectionObserver`, `scrollIntoView`,
+`animate`, `<dialog>.showModal/close`, and window methods bound as globals
+(`addEventListener` lives on the prototype, so a plain own-property copy misses it).
+Components with required props (`Artwork.alt`, `Kbd.keys`, `Truncate.text`/`max`)
+must be given them or they fail for reasons unrelated to the bridge.
+
+## Superseded idea: un-scope the Svelte CSS instead of hand-writing React
 
 Measured 2026-09-05: 846 style rules across 63 components; **745 (88%) are already
 keyed on real class names** (`.btn`, `.btn-primary`, `.btn-tone-accent`, `.btn-sm`),
