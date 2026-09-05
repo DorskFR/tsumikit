@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
 	// Text input primitive. Owns its styling from theme tokens; supports
 	// `bind:value` and passes through every native <input> attribute. `mono`
 	// switches to the monospace family (paths, tokens, env values). A wrapper is
@@ -12,7 +13,7 @@
 	// layouts) to expose a height preset instead.
 	type Props = Omit<HTMLInputAttributes, 'size'> & {
 		mono?: boolean;
-		size?: 'sm' | 'md';
+		size?: ControlSize;
 		/** Fill the available width of a flex/Cluster row (flex: 1) instead of
 		 *  needing a raw `style="flex:1"` at the call-site. */
 		grow?: boolean;
@@ -90,6 +91,7 @@
 		class="input {klass}"
 		class:mono
 		class:input-sm={size === 'sm'}
+		class:input-lg={size === 'lg'}
 		class:input-grow={grow}
 		class:input-fixed={!!width && !wrapped}
 		class:input-pill={shape === 'pill'}
@@ -149,6 +151,11 @@
 		min-height: var(--control-height-compact);
 		padding: var(--sp-1) var(--sp-2);
 		font-size: var(--fs-sm);
+	}
+	.input-lg {
+		min-height: var(--control-height-large);
+		padding: var(--sp-3) var(--sp-4);
+		font-size: var(--fs-base);
 	}
 	.input-grow {
 		flex: 1 1 0;

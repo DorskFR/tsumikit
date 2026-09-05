@@ -23,6 +23,7 @@
 </script>
 
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
 	// ───────────────────────────────────────────────────────────────────────
 	// FilterInput primitive — the headless base of the structured search bar.
 	//
@@ -81,7 +82,7 @@
 		/** Leading icon; pass `null` to hide it. */
 		icon?: IconName | null;
 		/** `sm` renders a compact-toolbar bar (`--control-height-compact`). */
-		size?: 'sm' | 'md';
+		size?: ControlSize;
 		shape?: 'square' | 'pill';
 		/** Theme-aware surface shade of the bar (mirrors Card). */
 		surface?: 'base' | 'raised' | 'sunken';

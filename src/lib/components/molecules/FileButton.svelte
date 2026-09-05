@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
 	// File-picker button. A real <input type="file"> visually hidden inside a
 	// <label> styled as a button — so it's keyboard-focusable and works with zero
 	// JS to open the dialog. Emits the chosen files via `onfiles`. Dependency-free.
@@ -38,7 +39,7 @@
 		variant?: 'default' | 'primary' | 'ghost';
 		/** Match the Button atom's sizes so a FileButton lines up with buttons in
 		 *  the same row. */
-		size?: 'sm' | 'md' | 'lg';
+		size?: ControlSize;
 		/** Uniform `--control-height`, like Button's `control`, so it lines up in a
 		 *  composer/toolbar row. */
 		control?: boolean;

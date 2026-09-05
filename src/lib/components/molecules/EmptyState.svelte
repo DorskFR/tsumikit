@@ -26,9 +26,8 @@
 		// richer (multiple buttons, links) use the `action` snippet instead.
 		actionLabel,
 		onAction,
-		// Legacy alias for size="compact".
 		compact = false,
-		size = 'default',
+		size,
 		loading = false,
 		class: klass = '',
 		// Raw SVG markup for a custom glyph — passed straight to `Icon`.
@@ -43,6 +42,7 @@
 		tone?: Tone;
 		actionLabel?: string;
 		onAction?: () => void;
+		/** @deprecated use `size="compact"`; `size` wins when both are set. */
 		compact?: boolean;
 		size?: 'inline' | 'compact' | 'default';
 		loading?: boolean;
@@ -52,7 +52,7 @@
 		[key: string]: unknown;
 	} = $props();
 
-	const sz = $derived(compact ? 'compact' : size);
+	const sz = $derived(size ?? (compact ? 'compact' : 'default'));
 </script>
 
 <div

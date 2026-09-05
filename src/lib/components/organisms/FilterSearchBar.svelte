@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
 	// ───────────────────────────────────────────────────────────────────────
 	// FilterSearchBar organism — a YouTrack-style structured search bar.
 	//
@@ -46,7 +47,7 @@
 		 */
 		autoQuote?: boolean;
 		/** Forwarded to FilterInput. */
-		size?: 'sm' | 'md';
+		size?: ControlSize;
 		shape?: 'square' | 'pill';
 		surface?: 'base' | 'raised' | 'sunken';
 		hotkey?: string;

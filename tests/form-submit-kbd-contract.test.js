@@ -87,7 +87,7 @@ test('Field gains inline layout, labelWidth and a snippet hint', () => {
 test('Kbd atom exists, is exported and maps tokens to glyphs', () => {
 	assert.match(index, /export { default as Kbd } from '\.\/components\/atoms\/Kbd\.svelte'/);
 	assert.match(kbd, /keys: string \| string\[\]/);
-	assert.match(kbd, /size\?: 'sm' \| 'md'/);
+	assert.match(kbd, /size\?: ControlSize/);
 	assert.match(kbd, /size = 'sm'/);
 	assert.match(kbd, /data-tsu="Kbd"/);
 	assert.match(kbd, /class="kbd-group/);

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
 	// Toggle chip — a muted pill/chip that lights up (tinted) when `pressed`.
 	// The "on" tint is driven by the `--toggle-accent` CSS var (default accent),
 	// so callers recolor it per-use (e.g. warm for behavior, role color for
@@ -26,7 +27,7 @@
 		pressed?: boolean;
 		pill?: boolean;
 		struck?: boolean;
-		size?: 'sm' | 'md';
+		size?: ControlSize;
 		// Share a flex row with siblings (flex: 1 1 0).
 		grow?: boolean;
 		// `shrink={false}` keeps the chip at its intrinsic width (flex: none).

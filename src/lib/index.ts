@@ -170,6 +170,7 @@ export {
 	type ValueProvider,
 	walk,
 } from './query';
+export type { ControlSize } from './size';
 export { fontScale, SCALE_LEVELS, type ScaleLevel } from './stores/fontscale.svelte';
 // ---- stores / actions ----
 export { type Mode, THEMES, theme } from './stores/theme.svelte';

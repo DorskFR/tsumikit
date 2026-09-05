@@ -19,7 +19,7 @@ test('Pagination prop surface and defaults', () => {
 	assert.match(source, /showEdges = true/);
 	assert.match(source, /showRange = false/);
 	assert.match(source, /size = 'md'/);
-	assert.match(source, /size\?: 'sm' \| 'md';/);
+	assert.match(source, /size\?: ControlSize;/);
 	assert.match(source, /label = 'Pagination'/);
 });
 

@@ -29,6 +29,7 @@
 </script>
 
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
 	import type { Snippet } from 'svelte';
 	import Dot from './Dot.svelte';
 	import Text from './Text.svelte';
@@ -46,7 +47,7 @@
 		segments: ProgressSegment[];
 		label?: string;
 		// Track height. `sm` is a thin ~5px track for inline rows.
-		size?: 'sm' | 'md';
+		size?: ControlSize;
 		mode?: 'segments' | 'stacked';
 		// Space between segments in `segments` mode; a bare number is px.
 		gap?: number | string;

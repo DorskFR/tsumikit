@@ -59,7 +59,7 @@ test('IconButton forwards pill and shrink', () => {
 });
 
 test('Toggle size defaults to sm; md, grow and shrink map to classes', () => {
-	assert.match(toggle, /size\?: 'sm' \| 'md'/);
+	assert.match(toggle, /size\?: ControlSize/);
 	assert.match(toggle, /size = 'sm',/);
 	assert.match(toggle, /grow\?: boolean/);
 	assert.match(toggle, /shrink\?: boolean/);

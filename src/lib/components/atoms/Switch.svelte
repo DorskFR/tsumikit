@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
 	// Canonical on/off toggle (role="switch") — a pill track with a sliding knob.
 	// `checked` is bindable (clicking toggles it) and `onclick` still fires.
 	// `label` is the accessible name; `labelVisible` renders it beside the track.
@@ -23,7 +24,7 @@
 		label: string;
 		/** Render `label` as visible text beside the track. */
 		labelVisible?: boolean;
-		size?: 'sm' | 'md';
+		size?: ControlSize;
 		id?: string;
 		'aria-describedby'?: string | null;
 		'aria-invalid'?: HTMLButtonAttributes['aria-invalid'];

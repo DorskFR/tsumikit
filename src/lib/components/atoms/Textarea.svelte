@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
 	// Multi-line text input primitive. Owns its styling from theme tokens;
 	// supports `bind:value` and passes through every native <textarea> attribute
 	// and event (Svelte 5 events are props, so `...rest` forwards them). `mono`
@@ -24,7 +25,13 @@
 	type Props = HTMLTextareaAttributes & {
 		mono?: boolean;
 		autoresize?: boolean;
-		size?: 'sm' | 'md';
+		size?: ControlSize;
+		/** Fill the free space of a flex row (`flex: 1 1 0`). */
+		grow?: boolean;
+		/** `false` pins the box (`flex: none`). */
+		shrink?: boolean;
+		/** Full-width block. */
+		block?: boolean;
 		/** Manual resize handle edge, or 'none' to disable. Defaults to a bottom
 		 *  handle. With `autoresize` it drags a min-height floor (the textarea
 		 *  still grows with content). */
@@ -49,6 +56,9 @@
 		mono = false,
 		autoresize = false,
 		size = 'md',
+		grow = false,
+		shrink = true,
+		block = false,
 		resize = 'bottom',
 		invalid = false,
 		maxHeight,
@@ -134,13 +144,21 @@
 	}
 </script>
 
-<div class="textarea-wrap" class:dragging data-tsu="Textarea">
+<div
+	class="textarea-wrap"
+	class:dragging
+	class:grow={grow}
+	class:no-shrink={!shrink}
+	class:block={block}
+	data-tsu="Textarea"
+>
 	{#if autoresize}
 		<textarea
 			bind:this={el}
 			class="textarea {klass}"
 			class:mono
 			class:textarea-sm={size === 'sm'}
+			class:textarea-lg={size === 'lg'}
 			class:capped={!!maxHeight}
 			style:max-height={maxHeight}
 			bind:value
@@ -157,6 +175,7 @@
 			class="textarea {klass}"
 			class:mono
 			class:textarea-sm={size === 'sm'}
+			class:textarea-lg={size === 'lg'}
 			class:capped={!!maxHeight}
 			style:max-height={maxHeight}
 			bind:value
@@ -182,6 +201,17 @@
 </div>
 
 <style>
+	.grow {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+	.no-shrink {
+		flex: none;
+	}
+	.block {
+		display: flex;
+		width: 100%;
+	}
 	.textarea-wrap {
 		position: relative;
 		display: flex;
@@ -221,6 +251,11 @@
 		padding: var(--sp-1) var(--sp-2);
 		font-size: var(--fs-sm);
 		min-height: 2rem;
+	}
+	.textarea-lg {
+		padding: var(--sp-3) var(--sp-4);
+		font-size: var(--fs-base);
+		min-height: var(--control-height-large);
 	}
 	.textarea[aria-invalid='true'],
 	.textarea[aria-invalid='true']:focus {

@@ -13,6 +13,7 @@
 </script>
 
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
 	// Native <select> primitive. Owns its styling from theme tokens; supports
 	// `bind:value` and passes through every native attribute. Options are either
 	// slotted children (full control over <option> rendering) or an `options`
@@ -48,12 +49,11 @@
 		variant?: 'default' | 'ghost' | 'embedded';
 		/** Error state: danger border + aria-invalid. */
 		invalid?: boolean;
-		/** Compact inline form: smaller padding + font for dense toolbars/headers.
-		 *  Deprecated alias for `size="sm"` (kept for backward compatibility). */
+		/** @deprecated use `size="sm"`; `size` wins when both are set. */
 		compact?: boolean;
 		/** Size scale matching Button/SegmentedControl: `sm` also adopts the shared
 		 *  `--control-height-compact` toolbar height so it lines up with siblings. */
-		size?: 'sm' | 'md';
+		size?: ControlSize;
 		/** Draw the custom chevron (default). Set false for a bare inline select. */
 		chevron?: boolean;
 		/** `auto` sizes to the selected option instead of filling the row. */
@@ -74,7 +74,7 @@
 		variant = 'default',
 		invalid = false,
 		compact = false,
-		size = 'md',
+		size,
 		chevron,
 		width = 'full',
 		grow = false,
@@ -94,7 +94,7 @@
 
 	$effect(() => warnUnlabelled(el, 'Select'));
 
-	const small = $derived(compact || size === 'sm');
+	const small = $derived((size ?? (compact ? 'sm' : 'md')) === 'sm');
 	const showChevron = $derived(chevron ?? variant !== 'embedded');
 	const selected = $derived(options?.find((o) => o.value === value));
 	const hasFace = $derived(!!options && variant !== 'ghost');
@@ -138,6 +138,7 @@
 			bind:this={el}
 			class="select"
 			class:compact={small}
+			class:select-lg={size === 'lg'}
 			class:select-sm={size === 'sm'}
 			class:w-auto={width === 'auto'}
 			class:embedded={variant === 'embedded'}
@@ -207,6 +208,11 @@
 		padding-right: var(--sp-3);
 	}
 	/* Compact inline form for dense headers/toolbars. */
+	.select.select-lg {
+		min-height: var(--control-height-large);
+		padding: var(--sp-3) var(--sp-4);
+		font-size: var(--fs-base);
+	}
 	.select.compact {
 		padding: var(--sp-1) var(--sp-2);
 		font-size: var(--fs-xs);

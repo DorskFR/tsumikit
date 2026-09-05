@@ -1,14 +1,18 @@
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
 	// Keyboard shortcut chip: `keys="mod+enter"` (or an array of tokens) renders
 	// one <kbd> per key with platform-aware glyphs — `mod` is ⌘ on Mac, Ctrl
 	// elsewhere (Ctrl during SSR).
 	type Props = {
 		keys: string | string[];
-		size?: 'sm' | 'md';
+		size?: ControlSize;
+		grow?: boolean;
+		shrink?: boolean;
+		block?: boolean;
 		class?: string;
 	};
 
-	let { keys, size = 'sm', class: klass = '' }: Props = $props();
+	let { keys, size = 'sm', grow = false, shrink = true, block = false, class: klass = '' }: Props = $props();
 
 	const isMac =
 		typeof navigator !== 'undefined' &&
@@ -59,7 +63,14 @@
 	);
 </script>
 
-<span data-tsu="Kbd" class="kbd-group {klass}" class:kbd-md={size === 'md'}>
+<span
+	data-tsu="Kbd"
+	class="kbd-group {klass}"
+	class:kbd-md={size === 'md'}
+	class:grow={grow}
+	class:no-shrink={!shrink}
+	class:block={block}
+>
 	{#each tokens as token, i (i)}
 		{#if i > 0}<span class="kbd-sep" aria-hidden="true">+</span>{/if}
 		<kbd class="kbd">{token}</kbd>
@@ -67,6 +78,17 @@
 </span>
 
 <style>
+	.grow {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+	.no-shrink {
+		flex: none;
+	}
+	.block {
+		display: flex;
+		width: 100%;
+	}
 	.kbd-group {
 		display: inline-flex;
 		align-items: center;

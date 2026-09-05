@@ -19,12 +19,21 @@
 		onchange,
 		box,
 		hitArea = 'auto',
+		grow = false,
+		shrink = true,
+		block = false,
 		class: klass = '',
 		...rest
 	}: {
 		// Visible content of the button (a letter like "A" or an emoji icon).
 		glyph: string;
 		label: string;
+		/** Fill the free space of a flex row (`flex: 1 1 0`). */
+		grow?: boolean;
+		/** `false` pins the box (`flex: none`) so a flex row cannot squeeze it. */
+		shrink?: boolean;
+		/** Full-width block. */
+		block?: boolean;
 		title?: string;
 		value: string;
 		// Flat option list. Ignored when `groups` is given.
@@ -43,7 +52,10 @@
 
 <!-- The wrapper (owned here, so styled scoped) is the positioning context that
      clips the transparent overlaid <select>; the icon Button shows through. -->
-<span class="select-button {klass}" data-tsu="SelectButton" {...rest}>
+<span class="select-button {klass}" data-tsu="SelectButton" {...rest}
+	class:grow={grow}
+	class:no-shrink={!shrink}
+	class:block={block}>
 	<Button variant="ghost" icon {box} {hitArea} {title} aria-label={label}>
 		<span aria-hidden="true">{glyph}</span>
 		<Select
@@ -70,6 +82,17 @@
 </span>
 
 <style>
+	.grow {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+	.no-shrink {
+		flex: none;
+	}
+	.block {
+		display: flex;
+		width: 100%;
+	}
 	.select-button {
 		position: relative;
 		display: inline-flex;

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
 	import { canonicalTone, type Tone } from '$lib/tone';
 	// Progress bar. Determinate when `value` is a number (0..max); omit `value`
 	// (or pass `indeterminate`) for an indeterminate animation. Uses
@@ -17,6 +18,9 @@
 		size = 'md',
 		gradient = false,
 		striped = false,
+		grow = false,
+		shrink = true,
+		block = false,
 		indeterminate: indeterminateProp = false,
 		class: klass = ''
 	}: {
@@ -28,7 +32,13 @@
 		// `ok` and `success` are aliases.
 		tone?: Tone;
 		// Track height. `sm` is a thin ~5px track for inline rows.
-		size?: 'sm' | 'md';
+		size?: ControlSize;
+		/** Fill the free space of a flex row (`flex: 1 1 0`). */
+		grow?: boolean;
+		/** `false` pins the box (`flex: none`) so a flex row cannot squeeze it. */
+		shrink?: boolean;
+		/** Full-width block. */
+		block?: boolean;
 		// Accent→teal gradient fill (overrides the flat tone colour).
 		gradient?: boolean;
 		// Diagonal stripes; animated in indeterminate mode.
@@ -46,6 +56,9 @@
 <div
 	data-tsu="Progress"
 	class="progress tone-{toneClass} size-{size} {klass}"
+	class:grow={grow}
+	class:no-shrink={!shrink}
+	class:block={block}
 	class:indeterminate
 	class:gradient
 	class:striped
@@ -59,6 +72,17 @@
 </div>
 
 <style>
+	.grow {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+	.no-shrink {
+		flex: none;
+	}
+	.block {
+		display: flex;
+		width: 100%;
+	}
 	.progress {
 		width: 100%;
 		height: 0.5rem;

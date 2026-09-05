@@ -10,7 +10,7 @@ test('Switch: bindable checked, toggles on click, still forwards onclick', () =>
 });
 
 test('Switch size=sm shrinks the track and knob', () => {
-	assert.match(source, /size\?: 'sm' \| 'md'/);
+	assert.match(source, /size\?: ControlSize/);
 	assert.match(source, /class:switch-sm={size === 'sm'}/);
 	assert.match(source, /\.switch-sm\s*{\s*width: 2rem;/);
 });

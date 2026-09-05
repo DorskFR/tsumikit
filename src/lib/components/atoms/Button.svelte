@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
 	import { canonicalTone, type Tone } from '$lib/tone';
 	import type { Snippet } from 'svelte';
 	import type { HTMLButtonAttributes } from 'svelte/elements';
@@ -11,7 +12,7 @@
 		// adds a subtle fill on hover. For stateful controls — an "on"/active toggle
 		// (`accent`), positive actions (`success`), or cost/severity states.
 		tone?: Tone | 'none';
-		size?: 'sm' | 'md' | 'lg';
+		size?: ControlSize;
 		control?: boolean;
 		// Fully rounded ends (`--r-pill`) on any size/variant.
 		pill?: boolean;

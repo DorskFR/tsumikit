@@ -41,10 +41,19 @@
 		removable = false,
 		onremove,
 		class: klass = '',
+		grow = false,
+		shrink = true,
+		block = false,
 		children,
 		...rest
 	}: {
 		tone?: Tone;
+		/** Fill the free space of a flex row (`flex: 1 1 0`). */
+		grow?: boolean;
+		/** `false` pins the box (`flex: none`) so a flex row cannot squeeze it. */
+		shrink?: boolean;
+		/** Full-width block. */
+		block?: boolean;
 		// Any CSS colour (or var()) for a one-off tint; overrides `tone`.
 		color?: string;
 		as?: 'span' | 'button';
@@ -84,6 +93,9 @@
 	this={as}
 	data-tsu="Badge"
 	class="badge {klass}"
+	class:grow={grow}
+	class:no-shrink={!shrink}
+	class:block={block}
 	class:badge-ok={tone === 'ok'}
 	class:badge-warn={tone === 'warn'}
 	class:badge-danger={tone === 'danger'}
@@ -127,6 +139,17 @@
 </svelte:element>
 
 <style>
+	.grow {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+	.no-shrink {
+		flex: none;
+	}
+	.block {
+		display: flex;
+		width: 100%;
+	}
 	.badge {
 		display: inline-flex;
 		align-items: center;

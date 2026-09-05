@@ -25,8 +25,8 @@ test('Cluster size cascades --control-height and grow shares row width', () => {
 });
 
 test('Select gains an sm|md scale sharing the compact control height', () => {
-	assert.match(select, /size\?: 'sm' \| 'md'/);
-	assert.match(select, /const small = \$derived\(compact \|\| size === 'sm'\)/);
+	assert.match(select, /size\?: ControlSize/);
+	assert.match(select, /const small = \$derived\(\(size \?\? \(compact \? 'sm' : 'md'\)\) === 'sm'\)/);
 	assert.match(select, /\.select\.select-sm\s*{[^}]*height: var\(--control-height-compact\);/s);
 });
 

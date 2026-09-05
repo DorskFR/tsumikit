@@ -13,6 +13,7 @@
 </script>
 
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
 	// Single-select segmented control. One token-driven row of options covering
 	// the two repeated redesign controls:
 	//   • filter pills  — label + optional count badge ("All 742 / Missing 120")
@@ -48,7 +49,7 @@
 		options: SegmentOption[];
 		value?: string;
 		variant?: 'pill' | 'icon';
-		size?: 'sm' | 'md';
+		size?: ControlSize;
 		/** Adopt the shared `--control-height` toolbar contract (like Popover/Button
 		 *  `control`) so the whole segmented control height-matches its siblings. */
 		control?: boolean;
