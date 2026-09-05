@@ -10,6 +10,7 @@
 	let {
 		label,
 		children,
+		class: klass = '',
 		...rest
 	}: {
 		/** Optional section heading; rendered uppercase + mono. Omit for an
@@ -17,10 +18,12 @@
 		label?: string;
 		children?: Snippet;
 		[key: string]: unknown;
+		class?: string;
+		style?: string;
 	} = $props();
 </script>
 
-<div class="nav-section" data-tsu="NavSection" {...rest}>
+<div class="nav-section {klass}" data-tsu="NavSection" {...rest}>
 	{#if label}
 		<div class="nav-section-label">{label}</div>
 	{/if}

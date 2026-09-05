@@ -65,7 +65,9 @@
 		onchange,
 		onsubmit,
 		inline,
-		below
+		below,
+		class: klass = '',
+		style: styleProp = '',
 	}: {
 		schema: Schema;
 		/** The raw textual query (two-way bindable). */
@@ -111,6 +113,8 @@
 		 * passes its chip row here; single-field hosts simply omit it.
 		 */
 		below?: Snippet<[FilterInputContext]>;
+		class?: string;
+		style?: string;
 	} = $props();
 
 	const field = getFieldContext();
@@ -307,7 +311,8 @@
 </script>
 
 <div
-	class="fi"
+	class="fi {klass}"
+	style={styleProp}
 	class:fi--sm={size === 'sm'}
 	class:fi--pill={shape === 'pill'}
 	class:surface-raised={surface === 'raised'}

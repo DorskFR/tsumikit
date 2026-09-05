@@ -30,7 +30,10 @@
 		size = 'md',
 		tone = 'neutral',
 		busy = false,
-		resizeKey
+		resizeKey,
+		class: klass = '',
+		style: styleProp = '',
+		bodyClass = '',
 	}: {
 		title: string;
 		/** Controlled visibility. When provided the `<dialog>` stays mounted and
@@ -51,6 +54,10 @@
 		/** When set, the sheet is horizontally resizable on desktop and the chosen
 		 *  width persists under this localStorage key. */
 		resizeKey?: string;
+		class?: string;
+		style?: string;
+		/** Class on the inner sheet (the visible panel). */
+		bodyClass?: string;
 	} = $props();
 	const t = $derived(canonicalTone(tone));
 
@@ -138,12 +145,12 @@
 <dialog
 	bind:this={dialogEl}
 	data-tsu="Modal"
-	class="modal"
+	class="modal {klass}"
 	class:resizing
 	aria-labelledby={titleId}
 	aria-busy={busy || undefined}
 	data-tone={t === 'neutral' ? undefined : t}
-	style={width != null ? `--sheet-w: ${width}px` : undefined}
+	style="{width != null ? `--sheet-w: ${width}px;` : ''}{styleProp}"
 	oncancel={(e) => {
 		e.preventDefault(); /* keep parent the source of truth for open state */
 		requestClose();
@@ -154,7 +161,7 @@
 	onclick={onDialogClick}
 >
 	<div
-		class="sheet"
+		class="sheet {bodyClass}"
 		class:sheet-sm={size === 'sm'}
 		class:sheet-lg={size === 'lg'}
 		class:sheet-xl={size === 'xl'}

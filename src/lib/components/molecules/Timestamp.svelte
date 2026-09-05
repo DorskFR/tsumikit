@@ -39,7 +39,9 @@
 		mono = false,
 		tone = 'muted',
 		size,
-		tickMs = 30_000
+		tickMs = 30_000,
+		class: klass = '',
+		style: styleProp = '',
 	}: {
 		/** The instant: a Date, epoch milliseconds, or an ISO/parseable string.
 		 *  null/undefined (or unparseable input) renders an inert "—". */
@@ -70,6 +72,8 @@
 		size?: Size;
 		/** How often relative mode re-renders so "3m ago" stays fresh. */
 		tickMs?: number;
+		class?: string;
+		style?: string;
 	} = $props();
 
 	// User's in-popover choice overrides the `mode` prop; until they pick, we
@@ -92,7 +96,7 @@
 	// datetime= wants a valid ISO string; omit it entirely on bad input.
 	const machine = $derived(date ? toISO(date) : undefined);
 	const showPopover = $derived(details || selectable);
-	const cls = $derived(`ts tone-${tone}${mono ? ' mono' : ''}`);
+	const cls = $derived(`ts tone-${tone}${mono ? ' mono' : ''} ${klass}`);
 	// Size maps straight onto the --fs-* scale; null leaves font-size unset so the
 	// timestamp inherits its surrounding run.
 	const sizeVar = $derived(size ? `var(--fs-${size})` : null);
@@ -121,11 +125,11 @@
 
 {#if !date}
 	<!-- Unparseable input: degrade to an inert dash rather than empty text. -->
-	<time class="{cls} ts-invalid" data-tsu="Timestamp" style:font-size={sizeVar}>—</time>
+	<time class="{cls} ts-invalid" data-tsu="Timestamp" style={styleProp} style:font-size={sizeVar}>—</time>
 {:else if showPopover}
 	<Popover label="Timestamp details" placement="bottom-start" bare>
 		{#snippet trigger()}
-			<time class="{cls} ts-trigger" data-tsu="Timestamp" style:font-size={sizeVar} datetime={machine}>{label}</time>
+			<time class="{cls} ts-trigger" data-tsu="Timestamp" style={styleProp} style:font-size={sizeVar} datetime={machine}>{label}</time>
 		{/snippet}
 		<div class="ts-panel">
 			{#if selectable}
@@ -152,7 +156,7 @@
 		</div>
 	</Popover>
 {:else}
-	<time class={cls} data-tsu="Timestamp" style:font-size={sizeVar} datetime={machine}>{label}</time>
+	<time class={cls} data-tsu="Timestamp" style={styleProp} style:font-size={sizeVar} datetime={machine}>{label}</time>
 {/if}
 
 <style>

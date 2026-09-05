@@ -18,7 +18,9 @@
 		items,
 		char,
 		separator,
-		maxItems = 0
+		maxItems = 0,
+		class: klass = '',
+		style: styleProp = '',
 	}: {
 		items: BreadcrumbItem[];
 		/** Separator character; ignored when the `separator` snippet is set. */
@@ -27,6 +29,8 @@
 		/** Collapse the middle to an ellipsis when the trail is longer than this
 		 *  (0 = never collapse). Keeps the first item and the last `maxItems - 1`. */
 		maxItems?: number;
+		class?: string;
+		style?: string;
 	} = $props();
 
 	type Crumb = BreadcrumbItem | { ellipsis: true };
@@ -38,7 +42,7 @@
 	);
 </script>
 
-<nav aria-label="breadcrumb" data-tsu="Breadcrumb">
+<nav aria-label="breadcrumb" data-tsu="Breadcrumb" class={klass} style={styleProp}>
 	<ol class="crumbs">
 		{#each shown as item, i (i)}
 			<li class="crumb">

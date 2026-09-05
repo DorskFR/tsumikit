@@ -24,7 +24,9 @@
 		placement = 'top',
 		delay = 200,
 		closeDelay = 250,
-		trigger
+		trigger,
+		class: klass = '',
+		style: styleProp = '',
 	}: {
 		/** Plain-text bubble. Ignored when `content` is provided. */
 		text?: string;
@@ -36,6 +38,8 @@
 		/** Grace period (ms) before closing — lets the pointer travel into the panel. */
 		closeDelay?: number;
 		trigger: Snippet;
+		class?: string;
+		style?: string;
 	} = $props();
 
 	const id = `tip-${Math.random().toString(36).slice(2, 8)}`;
@@ -125,7 +129,7 @@
 	}
 </script>
 
-<span class="tip-wrap" data-tsu="Tooltip" bind:this={wrapEl} use:tooltip>
+<span class="tip-wrap {klass}" style={styleProp} data-tsu="Tooltip" bind:this={wrapEl} use:tooltip>
 	{@render trigger()}
 </span>
 

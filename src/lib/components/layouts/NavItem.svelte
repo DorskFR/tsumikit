@@ -28,6 +28,7 @@
 		badge,
 		badgeTone = 'neutral',
 		children,
+		class: klass = '',
 		...rest
 	}: {
 		icon?: IconName;
@@ -50,6 +51,8 @@
 		badgeTone?: BadgeTone;
 		children?: Snippet;
 		[key: string]: unknown;
+		class?: string;
+		style?: string;
 	} = $props();
 
 	// Treat 0 / '' as "no badge" so callers can pass a raw count without guarding.
@@ -61,7 +64,7 @@
 	data-tsu="NavItem"
 	{href}
 	type={href ? undefined : 'button'}
-	class="nav-item"
+	class="nav-item {klass}"
 	class:active
 	class:bar={activeStyle === 'bar'}
 	title={label}

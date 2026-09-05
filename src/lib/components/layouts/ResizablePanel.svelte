@@ -27,7 +27,9 @@
 		scrim,
 		fullWidthBelow,
 		clampToViewport = true,
-		collapseControl
+		collapseControl,
+		class: klass = '',
+		style: styleProp = '',
 	}: {
 		/** Content shown while the panel is expanded. */
 		panel: Snippet;
@@ -73,6 +75,8 @@
 		fullWidthBelow?: string;
 		/** Overlay mode: cap the width at the viewport and re-clamp on window resize. */
 		clampToViewport?: boolean;
+		class?: string;
+		style?: string;
 	} = $props();
 
 	let root: HTMLDivElement;
@@ -273,14 +277,14 @@
 
 <div
 	bind:this={root}
-	class="panel-layout"
+	class="panel-layout {klass}"
 	class:left={side === 'left'}
 	class:right={side === 'right'}
 	class:collapsed={!overlay && collapsed}
 	class:overlay
 	class:full-bleed={fullBleed}
 	class:resizing
-	style="--panel-width: {currentWidth}px"
+	style="--panel-width: {currentWidth}px; {styleProp}"
 	data-tsu="ResizablePanel"
 >
 	{#if showScrim}

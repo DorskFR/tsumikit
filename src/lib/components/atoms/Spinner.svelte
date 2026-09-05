@@ -15,6 +15,8 @@
 		/** AT label announcing the busy state. Set to undefined to make the
 		 *  spinner decorative when an ancestor already conveys the loading state. */
 		label?: string;
+		class?: string;
+		style?: string;
 		[key: string]: unknown;
 	} = $props();
 </script>

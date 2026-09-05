@@ -27,7 +27,9 @@
 		sidebarWidthKey,
 		layout = 'header-top',
 		stickySidebar = false,
-		sidebarPadding = 'md'
+		sidebarPadding = 'md',
+		class: klass = '',
+		style: styleProp = '',
 	}: {
 		header?: Snippet;
 		sidebar?: Snippet;
@@ -52,6 +54,8 @@
 		stickySidebar?: boolean;
 		/** Inner padding of the sidebar; `'none'` when the nav owns its gutters. */
 		sidebarPadding?: 'none' | 'sm' | 'md';
+		class?: string;
+		style?: string;
 	} = $props();
 
 	let open = $state(false);
@@ -127,11 +131,11 @@
 <svelte:window onkeydown={(e) => e.key === 'Escape' && (open = false)} />
 
 <div
-	class="shell"
+	class="shell {klass}"
 	class:dragging
 	class:sidebar-full={layout === 'sidebar-full'}
 	class:sticky-sidebar={stickySidebar}
-	style="--shell-sidebar-w: {widthCss}"
+	style="--shell-sidebar-w: {widthCss}; {styleProp}"
 	data-tsu="AppShell"
 >
 	<header class="shell-header">

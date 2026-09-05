@@ -25,7 +25,9 @@
 		overlay = false,
 		label = 'Drop files here',
 		hint = 'or click to browse',
-		children
+		children,
+		class: klass = '',
+		style: styleProp = '',
 	}: {
 		onfiles: (files: File[]) => void;
 		/** Fired when the drag-over (active) state changes — host can dim/highlight. */
@@ -38,6 +40,8 @@
 		label?: string;
 		hint?: string;
 		children?: Snippet;
+		class?: string;
+		style?: string;
 	} = $props();
 
 	let over = $state(false);
@@ -103,7 +107,8 @@
 
 {#if overlay}
 	<div
-		class="dz-host"
+		class="dz-host {klass}"
+		style={styleProp}
 		data-tsu="Dropzone"
 		class:over
 		class:disabled
@@ -123,7 +128,8 @@
 	</div>
 {:else}
 	<div
-		class="dz"
+		class="dz {klass}"
+		style={styleProp}
 		data-tsu="Dropzone"
 		class:over
 		class:disabled

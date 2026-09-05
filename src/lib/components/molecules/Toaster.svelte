@@ -9,6 +9,8 @@
 	import Card from '$lib/components/atoms/Card.svelte';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 
+	let { class: klass = '', style: styleProp = '' }: { class?: string; style?: string } = $props();
+
 	let el: HTMLDivElement | undefined = $state();
 	const polite = $derived(toasts.items.filter((t) => t.tone !== 'error'));
 	const assertive = $derived(toasts.items.filter((t) => t.tone === 'error'));
@@ -60,7 +62,7 @@
 	{/if}
 {/snippet}
 
-<div class="toaster" bind:this={el} popover="manual" data-tsu="Toaster">
+<div class="toaster {klass}" style={styleProp} bind:this={el} popover="manual" data-tsu="Toaster">
 	<div class="region" role="status" aria-live="polite">
 		{#each polite as t (t.id)}{@render toast(t)}{/each}
 	</div>

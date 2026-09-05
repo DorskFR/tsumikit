@@ -21,12 +21,18 @@
 		tabs,
 		value = $bindable(),
 		label = 'Tabs',
-		panel
+		panel,
+		class: klass = '',
+		style: styleProp = '',
+		panelClass = '',
 	}: {
 		tabs: TabItem[];
 		value?: string;
 		label?: string;
 		panel: Snippet<[string]>;
+		class?: string;
+		style?: string;
+		panelClass?: string;
 	} = $props();
 
 	// Default to the first selectable tab when no value is supplied.
@@ -73,7 +79,7 @@
 	}
 </script>
 
-<div class="tabs" data-tsu="Tabs">
+<div class="tabs {klass}" style={styleProp} data-tsu="Tabs">
 	<div bind:this={listEl} role="tablist" aria-label={label} tabindex="-1" class="tablist" {onkeydown}>
 		{#each tabs as t (t.id)}
 			<button
@@ -93,7 +99,7 @@
 			</button>
 		{/each}
 	</div>
-	<div role="tabpanel" id="{baseId}-panel" tabindex="0" class="tabpanel">
+	<div role="tabpanel" id="{baseId}-panel" tabindex="0" class="tabpanel {panelClass}">
 		{#if value !== undefined}{@render panel(value)}{/if}
 	</div>
 </div>

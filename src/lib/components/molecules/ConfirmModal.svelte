@@ -18,7 +18,9 @@
 		tone = 'primary',
 		busy = false,
 		onconfirm,
-		oncancel
+		oncancel,
+		class: klass = '',
+		style: styleProp = '',
 	}: {
 		open?: boolean;
 		title: string;
@@ -31,6 +33,8 @@
 		busy?: boolean;
 		onconfirm: () => void | Promise<void>;
 		oncancel?: () => void;
+		class?: string;
+		style?: string;
 	} = $props();
 	const t = $derived(canonicalTone(tone));
 	const modalTone = $derived(t === 'danger' || t === 'warn' || t === 'info' ? t : 'neutral');
@@ -74,6 +78,8 @@
 	busy={working}
 	onclose={oncancel}
 	size="sm"
+	class={klass}
+	style={styleProp}
 >
 	{#snippet body()}
 		<div class="confirm-body" data-tsu="ConfirmModal">

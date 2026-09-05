@@ -55,7 +55,10 @@
 		onloadmore,
 		loadMoreLabel = 'Load more',
 		responsive = 'scroll',
-		stackBelow = '48rem'
+		stackBelow = '48rem',
+		class: klass = '',
+		style: styleProp = '',
+		tableClass = '',
 	}: {
 		columns: Column<T>[];
 		rows: T[];
@@ -92,6 +95,10 @@
 		responsive?: 'scroll' | 'stack';
 		/** Width (px/em/rem) under which `stack` mode kicks in. */
 		stackBelow?: string;
+		class?: string;
+		style?: string;
+		/** Class on the inner <table>. */
+		tableClass?: string;
 	} = $props();
 
 	let wrapEl = $state<HTMLDivElement | null>(null);
@@ -169,7 +176,8 @@
 
 <div
 	bind:this={wrapEl}
-	class="dt-scroll"
+	class="dt-scroll {klass}"
+	style={styleProp}
 	class:dt-stack={responsive === 'stack'}
 	data-tsu="DataTable"
 	data-size={size}
@@ -177,7 +185,7 @@
 	aria-busy={loading || undefined}
 >
 	<table
-		class="dt"
+		class="dt {tableClass}"
 		class:sticky={stickyHeader}
 		class:fixed={layout === 'fixed'}
 		class:head-hidden={hideHeader}

@@ -59,7 +59,10 @@
 		disabled,
 		gap,
 		onopen,
-		onclose
+		onclose,
+		class: klass = '',
+		style: styleProp = '',
+		panelClass = '',
 	}: {
 		label: string;
 		items: MenuItem[];
@@ -67,6 +70,9 @@
 		/** Custom trailing content for items that carry a `tag`. */
 		tag?: Snippet<[MenuItem]>;
 		placement?: 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
+		class?: string;
+		style?: string;
+		panelClass?: string;
 	} & TriggerChrome = $props();
 
 	let listEl = $state<HTMLDivElement | null>(null);
@@ -116,6 +122,9 @@
 	{control}
 	{block}
 	{triggerClass}
+	class={klass}
+	style={styleProp}
+	{panelClass}
 	{bare}
 	{hitArea}
 	{disabled}

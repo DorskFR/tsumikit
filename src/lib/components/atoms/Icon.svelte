@@ -121,6 +121,8 @@
 		label,
 		spin = false,
 		children,
+		class: klass = '',
+		style: styleProp = '',
 		...rest
 	}: {
 		/** Named glyph from the registry. Omit when supplying `children`. */
@@ -138,6 +140,8 @@
 		 *  component's contents here to render any icon not in the registry. */
 		children?: Snippet;
 		[key: string]: unknown;
+		class?: string;
+		style?: string;
 	} = $props();
 
 	const filled = $derived(name ? FILLED.has(name) : false);
@@ -145,9 +149,9 @@
 
 <svg
 	data-tsu="Icon"
-	class="icon"
+	class="icon {klass}"
 	class:spin
-	style={size ? `font-size: ${size}px` : undefined}
+	style="{size ? `font-size: ${size}px;` : ''}{styleProp}"
 	viewBox="0 0 24 24"
 	fill={filled ? 'currentColor' : 'none'}
 	stroke={filled ? 'none' : 'currentColor'}

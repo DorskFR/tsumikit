@@ -5,7 +5,9 @@
 		onclose,
 		hideBelow,
 		z = 'var(--z-drawer)',
-		label = 'Close'
+		label = 'Close',
+		class: klass = '',
+		style: styleProp = '',
 	}: {
 		/** Called on click anywhere on the scrim and on Escape (document-level). */
 		onclose?: () => void;
@@ -16,6 +18,8 @@
 		z?: string | number;
 		/** Accessible name of the click target. */
 		label?: string;
+		class?: string;
+		style?: string;
 	} = $props();
 
 	let hidden = $state(false);
@@ -49,7 +53,8 @@
 {#if !hidden}
 	<button
 		type="button"
-		class="scrim"
+		class="scrim {klass}"
+		style={styleProp}
 		style:z-index={z}
 		aria-label={label}
 		tabindex="-1"

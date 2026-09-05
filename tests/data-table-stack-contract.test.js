@@ -29,7 +29,7 @@ test('cells carry data-role and data-label only in stack mode; the default DOM i
 	assert.match(source, /data-role={responsive === 'stack' \? \(col\.role \?\? 'detail'\) : undefined}/);
 	assert.match(source, /data-label={responsive === 'stack' \? col\.label : undefined}/);
 	assert.match(source, /style:text-align={stacked \? undefined : \(col\.align \?\? 'left'\)}/);
-	assert.match(source, /<table\s+class="dt"/);
+	assert.match(source, /<table\s+class="dt {tableClass}"/);
 	assert.match(source, /<thead data-part="head">/);
 });
 

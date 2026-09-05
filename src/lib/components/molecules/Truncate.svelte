@@ -17,7 +17,9 @@
 		mode = 'end',
 		ellipsis = '…',
 		tooltip = true,
-		placement = 'top'
+		placement = 'top',
+		class: klass = '',
+		style: styleProp = '',
 	}: {
 		text: string;
 		max: number;
@@ -26,6 +28,8 @@
 		/** Reveal the full text on hover/focus when truncated. Default true. */
 		tooltip?: boolean;
 		placement?: 'top' | 'bottom' | 'left' | 'right';
+		class?: string;
+		style?: string;
 	} = $props();
 
 	const shown = $derived(truncate(text, { max, mode, ellipsis }));
@@ -39,11 +43,11 @@
 			     full-text tooltip (wired by Tooltip onto the first focusable child)
 			     isn't mouse-only; the span is otherwise non-interactive. -->
 			<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-			<span class="trunc" data-tsu="Truncate" tabindex="0">{shown}</span>
+			<span class="trunc {klass}" style={styleProp} data-tsu="Truncate" tabindex="0">{shown}</span>
 		{/snippet}
 	</Tooltip>
 {:else}
-	<span class="trunc" data-tsu="Truncate">{shown}</span>
+	<span class="trunc {klass}" style={styleProp} data-tsu="Truncate">{shown}</span>
 {/if}
 
 <style>
