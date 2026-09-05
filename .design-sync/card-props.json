@@ -241,7 +241,7 @@
   "FilterInput": {
     "props": {
       "value": "",
-      "placeholder": "Filter…"
+      "placeholder": "Filter\u2026"
     },
     "children": null,
     "subtitle": "Filter field"
@@ -363,21 +363,9 @@
     "subtitle": "Select trigger"
   },
   "Tabs": {
-    "props": {
-      "tabs": [
-        {
-          "id": "a",
-          "label": "Overview"
-        },
-        {
-          "id": "b",
-          "label": "Activity"
-        }
-      ],
-      "value": "a"
-    },
     "children": null,
-    "subtitle": "Tab bar (panel snippet required)"
+    "subtitle": "Tab bar with a panel snippet",
+    "propsExpr": "{\"tabs\": [{\"id\": \"a\", \"label\": \"Overview\"}, {\"id\": \"b\", \"label\": \"Activity\"}], \"value\": \"a\", \"panel\": Tsumikit_a4c6ce.snippet(function (id) { return React.createElement(\"p\", { className: \"faint\" }, \"Panel for \" + id); })}"
   },
   "ThemePicker": {
     "children": null,
@@ -463,5 +451,31 @@
   "FilterSearchBar": {
     "children": null,
     "subtitle": "Search + filters"
+  },
+  "GitRef": {
+    "children": null,
+    "subtitle": "Branch, PR and diff chips",
+    "props": {
+      "branch": "feat/design-sync",
+      "pr": {
+        "url": "https://github.com/DorskFR/tsumikit/pull/61",
+        "owner": "DorskFR",
+        "repo": "tsumikit",
+        "number": 61,
+        "state": "open"
+      },
+      "diff": {
+        "additions": 128,
+        "deletions": 42
+      }
+    }
+  },
+  "WorkingDir": {
+    "children": null,
+    "subtitle": "Fish-style abbreviating path chip",
+    "props": {
+      "path": "/home/dorsk/Documents/tsumikit/src/lib/components",
+      "full": true
+    }
   }
 }

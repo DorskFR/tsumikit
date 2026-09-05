@@ -44,6 +44,7 @@ mkdirSync(join(OUT, '_vendor'), { recursive: true });
 
 const entry = [
 	`import { toReact } from '@dorsk/kakehashi';`,
+	`export { snippet } from '@dorsk/kakehashi';`,
 	...components.map((c, i) => `import C${i} from '${join(ROOT, c.src)}';`),
 	...components.map((c, i) => `export const ${c.name} = toReact(C${i}, '${c.name}');`),
 ].join('\n');
@@ -196,9 +197,13 @@ for (const c of components) {
 	const rows = props.length
 		? props.map((p) => `| \`${p.name}\` | \`${p.type}\` | ${p.optional ? '' : 'required'} |`).join('\n')
 		: '| — | — | — |';
+	const snippetProps = props.filter((p) => /\bSnippet\b/.test(p.type));
+	const snippetNote = snippetProps.length
+		? `\n## Snippet props\n\n${snippetProps.map((p) => `\`${p.name}\``).join(', ')} ${snippetProps.length > 1 ? 'are' : 'is a'} Svelte snippet${snippetProps.length > 1 ? 's' : ''}. Pass a React element, or wrap a function in \`snippet()\` to receive the render arguments:\n\n\`\`\`jsx\nconst { ${c.name}, snippet } = window.${GLOBAL};\n<${c.name} ${snippetProps.map((p) => `${p.name}={snippet((...args) => <div>…</div>)}`).join(' ')} />\n\`\`\`\n`
+		: '';
 	writeFileSync(
 		join(dir, `${c.name}.prompt.md`),
-		`---\ncategory: ${c.group}\n---\n\n# ${c.name}\n\nA real Svelte component from \`@dorsk/tsumikit\`, exposed to React via a bridge.\nStyling comes from the kit's own scoped CSS — do not restyle it; compose around it\nwith the design tokens and utility classes documented in the README.\n\n\`\`\`jsx\nconst { ${c.name} } = window.${GLOBAL};\n\`\`\`\n\n## Props\n\n| Prop | Type | |\n|---|---|---|\n${rows}\n\nChildren are passed through as the component's default snippet.\n`,
+		`---\ncategory: ${c.group}\n---\n\n# ${c.name}\n\nA real Svelte component from \`@dorsk/tsumikit\`, exposed to React via a bridge.\nStyling comes from the kit's own scoped CSS — do not restyle it; compose around it\nwith the design tokens and utility classes documented in the README.\n\n\`\`\`jsx\nconst { ${c.name} } = window.${GLOBAL};\n\`\`\`\n\n## Props\n\n| Prop | Type | |\n|---|---|---|\n${rows}\n\nChildren are passed through as the component's default snippet. Props are passed to the Svelte component verbatim: use \`onclick\` / \`class\`, not React's \`onClick\` / \`className\`.\n${snippetNote}`,
 	);
 
 	// .html — preview card
