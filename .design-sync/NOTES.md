@@ -84,7 +84,7 @@ namespace `Tsumikit_a4c6ce` — all verify.
 ## DONE: the design project now runs the REAL components (2026-09-05)
 
 `npm run design:bundle` + `npm run design:verify`. The 17 hand-written React
-mirrors and `showcase.html` were deleted from the project; all **63** exported
+mirrors and `showcase.html` were deleted from the project; all exported
 components now render from the actual compiled Svelte via `@dorsk/kakehashi`.
 
 Layout uploaded: `_ds_bundle.js` (IIFE on `window.Tsumikit_a4c6ce`, `@ds-bundle`
@@ -114,13 +114,15 @@ anywhere in the CSS, so the Typography card's "self-hosted" claim is aspirationa
 5. `card-props.json` drives the preview cards. `propsExpr` is raw JS for props
    JSON cannot express — `DataTable.rowKey` is `(row) => string`.
 
-### Known limitation
+### Named snippets (kakehashi 0.2.0)
 
-`Tabs` declares `panel: Snippet<[string]>` — a REQUIRED Svelte snippet. It is the
-only component in the kit that does. kakehashi passes React children as the
-default snippet but does not support named snippets yet, so the Tabs card renders
-the tab bar without a panel. Fixing it means adding named-snippet support to
-kakehashi.
+`Tabs.panel` is a required `Snippet<[string]>`, the only named snippet in the kit.
+Since kakehashi 0.2.0 a React element prop becomes a named snippet and a function
+wrapped in `snippet()` receives the `@render` arguments. The bundle re-exports
+`snippet` on the window global; the Tabs card uses it via `propsExpr` and
+`verify-bundle.mjs` passes the global into the `propsExpr` evaluator. Every
+`.prompt.md` now states the verbatim-prop rule (`onclick`/`class`, never
+`onClick`/`className`) and lists any `Snippet`-typed props.
 
 ## Background: how the bridge was proven (2026-09-05)
 

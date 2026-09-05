@@ -1,21 +1,27 @@
-# tsumikit — tokens + React mirror components
+# tsumikit — tokens + the real Svelte components
 
-tsumikit is a **Svelte 5 + pure-CSS** UI kit. The production components are Svelte and cannot run in this design runtime, so this project carries two things: the **real styling layer** (synced from the repo — the source of truth) and a set of **hand-written React mirror components** that consume the same token contract, for design iteration here.
+tsumikit is a **Svelte 5 + pure-CSS** UI kit. This project carries the **real styling layer** (synced from the repo) and **every one of the kit's components, compiled from the actual Svelte source** and exposed to React through a thin bridge. What you render here is the production component with its own scoped CSS, not a mirror.
 
-**The styling layer is authoritative. The React mirrors are not.** They cover 17 of the kit's 63 components and are deliberately simplified — the Svelte originals have more variants and props. Treat a mirror as a visual stand-in, never as the component's API contract.
+## Components
 
-## React mirror components
-
-Exposed on `window.Tsumikit_a4c6ce`: **Button, IconButton, Icon, Badge, Dot, Input, Select, Textarea, Switch, Card, Modal, Tabs, Toast, Stack, Cluster, AutoGrid, Container**. `showcase.html` renders them all across every theme.
+All exports live on `window.Tsumikit_a4c6ce`. Each has a card and a `.prompt.md` with its prop table under `components/<Group>/<Name>/`.
 
 ```html
 <script src="_ds_bundle.js"></script>
 <script>
-  const { Button, Card } = window.Tsumikit_a4c6ce;
+  const { Button, Card, snippet } = window.Tsumikit_a4c6ce;
 </script>
 ```
 
-For anything outside that list, build with plain HTML/JSX styled by the tokens and utility classes below — that is the full, accurate design language.
+**Props go to the Svelte component verbatim.** Use Svelte's names, not React's: `onclick` not `onClick`, `class` not `className`, `oninput` not `onChange`. React-style names are silently ignored. Children pass through as the component's default snippet.
+
+**Snippet props** (typed `Snippet<...>` in the prop table, e.g. `Tabs.panel`) take a React element, or a function wrapped in `snippet()` when the snippet receives arguments:
+
+```jsx
+<Tabs tabs={tabs} panel={snippet((id) => <p>Panel for {id}</p>)} />
+```
+
+Do not restyle a component from outside; its CSS is scoped. Compose around it with the tokens and utility classes below.
 
 ## Setup
 
@@ -71,7 +77,7 @@ Highlighted code needs no extra work: `syntax.css` themes the standard **highlig
 
 ## Where the truth lives
 
-Read `styles.css` → `app.css`, which pulls in `variables.css` (a 2-line re-export of `tokens.css` + `themes.css`), `reset.css`, `utilities.css` and `syntax.css`. **`tokens.css` is the `:root` contract — the single source of truth for token names**; `themes.css` holds the built-in `[data-theme]` palette blocks. `tokens/` holds the same two files copied out for quick reference. React mirrors live in `components/`; `showcase.html` renders them all.
+Read `styles.css` → `app.css`, which pulls in `variables.css` (a 2-line re-export of `tokens.css` + `themes.css`), `reset.css`, `utilities.css` and `syntax.css`. **`tokens.css` is the `:root` contract — the single source of truth for token names**; `themes.css` holds the built-in `[data-theme]` palette blocks. `tokens/` holds the same two files copied out for quick reference. Component cards live in `components/`.
 
 ## Example
 
@@ -90,4 +96,4 @@ Read `styles.css` → `app.css`, which pulls in `variables.css` (a 2-line re-exp
 
 ---
 
-*tsumikit ships Svelte 5 components in production; the React components here mirror the styling layer for design iteration.*
+*The components here are the production Svelte 5 components, bridged to React for design iteration.*

@@ -59,7 +59,7 @@ for (const name of names) {
 	const cfg = cardProps[name] ?? {};
 	try {
 		const root = ReactDOM.createRoot(host);
-		const props = cfg.propsExpr ? new Function(`return (${cfg.propsExpr})`)() : (cfg.props ?? {});
+		const props = cfg.propsExpr ? new Function('Tsumikit_a4c6ce', 'React', `return (${cfg.propsExpr})`)(NS, React) : (cfg.props ?? {});
 		root.render(React.createElement(NS[name], props, cfg.children ?? name));
 		// let the concurrent render commit and effects (which mount Svelte) run
 		for (let i = 0; i < 5; i++) await new Promise((r) => setTimeout(r, 10));
