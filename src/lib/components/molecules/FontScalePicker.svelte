@@ -1,6 +1,9 @@
 <script lang="ts">
 	// Text-size control: the "A" trigger opens a popover with a stepped slider
 	// across SCALE_LEVELS. Drives --fs-scale (text only), chrome stays fixed.
+	// Everything inside the popover is sized in plain rem, never --fs-*: if the
+	// panel rescaled with the page the slider would move under the pointer
+	// mid-drag and oscillate between steps.
 	import Popover from '$lib/components/molecules/Popover.svelte';
 	import Slider from '$lib/components/atoms/Slider.svelte';
 	import { fontScale, SCALE_LEVELS } from '$lib/stores/fontscale.svelte';
@@ -36,11 +39,13 @@
 <style>
 	.glyph {
 		font-weight: var(--fw-bold);
-		font-size: var(--fs-md);
+		font-size: 1rem;
 		line-height: 1;
 	}
 	.panel {
 		width: 15rem;
+		font-size: 0.875rem;
+		line-height: 1.4;
 		padding: var(--sp-2) var(--sp-3);
 	}
 	.row {
@@ -71,15 +76,15 @@
 		outline-offset: 1px;
 	}
 	.small {
-		font-size: var(--fs-xs);
+		font-size: 0.75rem;
 	}
 	.large {
-		font-size: var(--fs-lg);
+		font-size: 1.125rem;
 	}
 	.caption {
 		margin-top: var(--sp-1);
 		text-align: center;
-		font-size: var(--fs-xs);
+		font-size: 0.75rem;
 		color: var(--text-muted);
 		font-variant-numeric: tabular-nums;
 	}
