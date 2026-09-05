@@ -122,3 +122,7 @@ test('semantics kept: real table, th scope, keyboard-operable sort and rows', ()
 	assert.match(component, /role={onrowclick \? 'button' : undefined}/);
 	assert.match(component, /e\.key === 'Enter' \|\| e\.key === ' '/);
 });
+
+test('fixed layout gives the actions column a definite width so it never overflows the scroll wrapper', () => {
+	assert.match(component, /\.dt\.fixed \.dt-actions-head,\s*\.dt\.fixed \.dt-actions\s*{\s*width: var\(--dt-actions-w, 3\.5rem\);/s);
+});

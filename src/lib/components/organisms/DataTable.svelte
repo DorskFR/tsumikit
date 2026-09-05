@@ -406,6 +406,10 @@
 		white-space: nowrap;
 		text-align: right;
 	}
+	.dt.fixed .dt-actions-head,
+	.dt.fixed .dt-actions {
+		width: var(--dt-actions-w, 3.5rem);
+	}
 	.dt-actions {
 		opacity: 0;
 		transition: opacity 0.12s var(--ease);
