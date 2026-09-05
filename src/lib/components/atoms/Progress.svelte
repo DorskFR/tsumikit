@@ -22,6 +22,8 @@
 		shrink = true,
 		block = false,
 		indeterminate: indeterminateProp = false,
+		markers = [],
+		toneAt,
 		class: klass = ''
 	}: {
 		value?: number;
@@ -45,12 +47,24 @@
 		striped?: boolean;
 		// Force indeterminate mode even when a `value` is supplied.
 		indeterminate?: boolean;
+		/** Thin vertical lines at `at / max` (caps, thresholds). */
+		markers?: { at: number; label?: string; tone?: Tone }[];
+		/** Percent thresholds that auto-pick warn/danger; an explicit `tone` other
+		 *  than the default `accent` wins. */
+		toneAt?: { warn?: number; danger?: number };
 		class?: string;
 	} = $props();
 
 	const pct = $derived(value == null ? 0 : Math.max(0, Math.min(100, (value / max) * 100)));
 	const indeterminate = $derived(indeterminateProp || value == null);
-	const toneClass = $derived(canonicalTone(tone) === 'ok' ? 'success' : canonicalTone(tone));
+	const autoTone = $derived.by((): Tone => {
+		if (!toneAt || tone !== 'accent' || indeterminate) return tone;
+		if (toneAt.danger !== undefined && pct >= toneAt.danger) return 'danger';
+		if (toneAt.warn !== undefined && pct >= toneAt.warn) return 'warn';
+		return tone;
+	});
+	const toneClass = $derived(canonicalTone(autoTone) === 'ok' ? 'success' : canonicalTone(autoTone));
+	const markerPct = (at: number) => Math.max(0, Math.min(100, (at / max) * 100));
 </script>
 
 <div
@@ -69,6 +83,14 @@
 	aria-valuenow={indeterminate ? undefined : value}
 >
 	<div class="bar" style={indeterminate ? undefined : `width: ${pct}%`}></div>
+	{#each markers as m (m.at)}
+		<span
+			class="marker tone-{m.tone ? canonicalTone(m.tone) : 'text'}"
+			style="left: {markerPct(m.at)}%"
+			title={m.label}
+			aria-hidden="true"
+		></span>
+	{/each}
 </div>
 
 <style>
@@ -84,6 +106,7 @@
 		width: 100%;
 	}
 	.progress {
+		position: relative;
 		width: 100%;
 		height: 0.5rem;
 		background: var(--bg-elevated-2);
@@ -98,6 +121,30 @@
 		background: var(--fill, var(--accent));
 		border-radius: inherit;
 		transition: width 0.2s var(--ease);
+	}
+	.marker {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		width: 2px;
+		transform: translateX(-50%);
+		background: var(--marker, var(--text));
+		pointer-events: none;
+	}
+	.marker.tone-ok {
+		--marker: var(--ok);
+	}
+	.marker.tone-warn {
+		--marker: var(--warn);
+	}
+	.marker.tone-danger {
+		--marker: var(--danger);
+	}
+	.marker.tone-info {
+		--marker: var(--info);
+	}
+	.marker.tone-accent {
+		--marker: var(--accent);
 	}
 	.tone-success {
 		--fill: var(--ok);

@@ -93,7 +93,7 @@ test("'ok' is accepted as an alias of 'success' in Text, Progress and SegmentedP
 	assert.match(text, /tone-{toneClass}/);
 	assert.match(text, /\.tone-success\s*{\s*color: var\(--ok\);/);
 	assert.match(progress, /tone\?: Tone;/);
-	assert.match(progress, /canonicalTone\(tone\) === 'ok' \? 'success' : canonicalTone\(tone\)/);
+	assert.match(progress, /canonicalTone\(autoTone\) === 'ok' \? 'success' : canonicalTone\(autoTone\)/);
 	assert.match(progress, /tone-{toneClass}/);
 	assert.match(progress, /\.tone-success\s*{\s*--fill: var\(--ok\);/);
 	assert.match(segmented, /tone\?: Tone \| 'muted'/);

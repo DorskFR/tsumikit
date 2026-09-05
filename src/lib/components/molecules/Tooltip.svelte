@@ -25,6 +25,7 @@
 		delay = 200,
 		closeDelay = 250,
 		trigger,
+		cursor = true,
 		class: klass = '',
 		style: styleProp = '',
 	}: {
@@ -38,6 +39,8 @@
 		/** Grace period (ms) before closing — lets the pointer travel into the panel. */
 		closeDelay?: number;
 		trigger: Snippet;
+		/** `cursor: help` on the trigger wrapper (default). */
+		cursor?: boolean;
 		class?: string;
 		style?: string;
 	} = $props();
@@ -129,7 +132,7 @@
 	}
 </script>
 
-<span class="tip-wrap {klass}" style={styleProp} data-tsu="Tooltip" bind:this={wrapEl} use:tooltip>
+<span class="tip-wrap {klass}" class:help={cursor} style={styleProp} data-tsu="Tooltip" bind:this={wrapEl} use:tooltip>
 	{@render trigger()}
 </span>
 
@@ -148,6 +151,9 @@
 <style>
 	.tip-wrap {
 		display: inline-flex;
+	}
+	.tip-wrap.help:not(:has(a, button, input, select, textarea)) {
+		cursor: help;
 	}
 	.tip {
 		position: fixed;
