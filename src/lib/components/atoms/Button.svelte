@@ -39,8 +39,8 @@
 		// Square text/icon control whose side equals the current height contract:
 		// `size` tier, or `--control-height` with `control`.
 		square?: boolean;
-		// Outlined `--box-lg` icon-chip (header/toolbar action). Pairs with `tone`
-		// for tinted severity chips (back/archive/interrupt/more).
+		// Outlined `--box-lg`-tall chip (header/toolbar action): a square for a lone
+		// glyph, otherwise sized to its text. Pairs with `tone` for tinted severity chips.
 		chip?: boolean;
 		iconInline?: boolean;
 		hoverDanger?: boolean;
@@ -277,10 +277,15 @@
 		min-height: var(--box-lg);
 		min-width: var(--box-lg);
 		height: var(--box-lg);
-		width: var(--box-lg);
-		padding: 0;
+		width: auto;
+		padding: 0 var(--sp-2);
+		gap: var(--sp-1);
 		flex: none;
 		border-radius: var(--r-md);
+	}
+	.btn-chip:has(> :is(svg, .icon):only-child) {
+		width: var(--box-lg);
+		padding: 0;
 	}
 
 	/* Uniform-height control: icon buttons, inputs and action buttons that share a

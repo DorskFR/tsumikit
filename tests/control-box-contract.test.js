@@ -50,7 +50,7 @@ test('Button box/square/chip render square, padding-less, non-flexing boxes', ()
 	assert.match(button, /square\?: boolean/);
 	assert.match(button, /\.btn-square\s*{[^}]*width: var\(--control-height-default\);[^}]*padding: 0;/s);
 	assert.match(button, /\.btn-square\.btn-control\s*{[^}]*width: var\(--control-height\);/s);
-	assert.match(button, /\.btn-chip\s*{[^}]*width: var\(--box-lg\);/s);
+	assert.match(button, /\.btn-chip\s*{[^}]*height: var\(--box-lg\);/s);
 	assert.match(button, /\.btn-icon\s*{[^}]*min-width: var\(--box-md\);/s);
 });
 
@@ -101,4 +101,9 @@ test('Cluster stackAt is a self-contained container query that stacks children f
 			new RegExp(`@container \\(max-width: ${width}\\)\\s*{\\s*\\.stack-${tier} > :global\\(\\*\\)\\s*{\\s*flex: 1 1 100%;`, 's')
 		);
 	}
+});
+
+test('Button chip sizes to its text and only squares up for a lone glyph', () => {
+	assert.match(button, /\.btn-chip\s*{[^}]*width: auto;[^}]*padding: 0 var\(--sp-2\);/s);
+	assert.match(button, /\.btn-chip:has\(> :is\(svg, \.icon\):only-child\)\s*{\s*width: var\(--box-lg\);\s*padding: 0;/);
 });
