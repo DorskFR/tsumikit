@@ -184,7 +184,7 @@
 		position: relative;
 		height: var(--track-h);
 		border-radius: var(--r-pill);
-		background: color-mix(in oklab, var(--accent) 26%, var(--bg));
+		background: color-mix(in oklab, var(--fill) 26%, var(--bg));
 		cursor: ew-resize;
 		touch-action: none;
 		user-select: none;

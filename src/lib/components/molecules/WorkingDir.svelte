@@ -114,6 +114,7 @@
 		align-items: center;
 		flex: 1 1 0;
 		min-width: 0;
+		min-height: max-content;
 		overflow: hidden;
 	}
 	.rail.full {

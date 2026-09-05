@@ -77,3 +77,7 @@ test('WorkingDir and its helper are exported from the package index', () => {
 	assert.match(index, /export \{ default as WorkingDir \} from '\.\/components\/molecules\/WorkingDir\.svelte'/);
 	assert.match(index, /workingDirCandidates/);
 });
+
+test('WorkingDir rail keeps its height inside a column flex parent', () => {
+	assert.match(component, /\.rail\s*{[^}]*min-height: max-content;/s);
+});

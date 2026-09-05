@@ -58,3 +58,7 @@ test('Drawer header, nav column and sticky footer slots', () => {
 	assert.match(source, /\.panel-body\s*{[^}]*overflow-y: auto;/s);
 	assert.match(source, /\.panel-foot\s*{[^}]*grid-area: foot;[^}]*justify-content: flex-end;/s);
 });
+
+test('Drawer stays hidden while closed despite its own display rule', () => {
+	assert.match(source, /\.drawer:not\(\[open\]\)\s*{\s*display: none;/s);
+});
