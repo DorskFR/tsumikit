@@ -849,6 +849,9 @@ function greet(name) {
 				<Field label="Slider" for="f-slider" class="span-2">
 					<Slider id="f-slider" bind:value={sliderValue} label="Volume" showValue format={(v) => `${v}%`} />
 				</Field>
+				<Field label="Slider (ticks, step 25)">
+					<Slider id="f-slider-ticks" value={50} min={0} max={100} step={25} ticks label="Quality" showValue />
+				</Field>
 			</div>
 		</Card>
 	</section>
