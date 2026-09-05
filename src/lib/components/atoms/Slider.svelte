@@ -20,6 +20,7 @@
 		'aria-describedby': ariaDescribedby,
 		'aria-invalid': ariaInvalid,
 		invalid = false,
+		ticks = false,
 		class: klass = '',
 		el = $bindable(null),
 		...rest
@@ -33,6 +34,9 @@
 		format?: (v: number) => string;
 		/** Error state: aria-invalid. */
 		invalid?: boolean;
+		/** Visible dots at each step (segmented slider). `true` = one per `step`;
+		 *  a number array places dots at those values. */
+		ticks?: boolean | number[];
 		id?: string;
 		'aria-describedby'?: string | null;
 		'aria-invalid'?: HTMLInputAttributes['aria-invalid'];
@@ -46,13 +50,19 @@
 
 	$effect(() => warnUnlabelled(el, 'Slider'));
 
-	// Fill percentage for the track gradient.
-	const pct = $derived(
-		Math.max(0, Math.min(100, ((Number(value) - +min) / (+max - +min || 1)) * 100))
-	);
+	const frac = (v: number) => Math.max(0, Math.min(1, (v - +min) / (+max - +min || 1)));
+	const pct = $derived(frac(Number(value)) * 100);
+	const tickValues = $derived.by(() => {
+		if (!ticks) return [];
+		if (Array.isArray(ticks)) return ticks;
+		const n = Math.floor((+max - +min) / (+step || 1));
+		if (n > 200) return [];
+		return Array.from({ length: n + 1 }, (_, i) => +min + i * +step);
+	});
 </script>
 
-<div class="slider {klass}" style="--pct: {pct}%" data-tsu="Slider">
+<div class="slider {klass}" class:has-ticks={tickValues.length > 0} style="--pct: {pct}%" data-tsu="Slider">
+	<span class="range">
 	<input
 		bind:this={el}
 		{id}
@@ -66,6 +76,14 @@
 		aria-describedby={ariaDescribedby ?? field?.describedBy}
 		aria-invalid={ariaInvalid ?? (isInvalid ? 'true' : undefined)}
 	/>
+	{#if tickValues.length > 0}
+		<span class="ticks" aria-hidden="true">
+			{#each tickValues as t (t)}
+				<i class="tick" class:reached={t <= Number(value)} style="--f: {frac(t)}"></i>
+			{/each}
+		</span>
+	{/if}
+	</span>
 	{#if showValue}
 		<output for={id} class="slider-out">{format(Number(value))}</output>
 	{/if}
@@ -78,10 +96,18 @@
 		gap: var(--sp-3);
 		width: 100%;
 	}
+	.range {
+		position: relative;
+		display: flex;
+		flex: 1;
+		min-width: 0;
+	}
 	input[type='range'] {
 		appearance: none;
 		-webkit-appearance: none;
 		flex: 1;
+		position: relative;
+		z-index: 1;
 		height: 1.25rem;
 		background: none;
 		cursor: pointer;
@@ -144,6 +170,26 @@
 	input[type='range']:disabled {
 		opacity: 0.45;
 		cursor: not-allowed;
+	}
+	.ticks {
+		position: absolute;
+		inset: 0;
+		z-index: 2;
+		pointer-events: none;
+	}
+	.tick {
+		position: absolute;
+		top: 50%;
+		left: calc(0.6rem + (100% - 1.2rem) * var(--f));
+		width: 0.35rem;
+		height: 0.35rem;
+		margin: -0.175rem 0 0 -0.175rem;
+		border-radius: 50%;
+		background: var(--border-strong);
+	}
+	.tick.reached {
+		background: var(--bg);
+		opacity: 0.6;
 	}
 	.slider-out {
 		min-width: 2.5rem;

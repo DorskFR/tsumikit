@@ -1,22 +1,86 @@
 <script lang="ts">
-	// UI text-size switcher. Same compact native-select-over-button pattern as
-	// ThemePicker, wired to the font-scale store. Drives --fs-scale (text only) —
-	// chrome dimensions stay fixed. Glyph is the conventional "A".
-	import SelectButton from '$lib/components/molecules/SelectButton.svelte';
+	// Text-size control: the "A" trigger opens a popover with a stepped slider
+	// across SCALE_LEVELS. Drives --fs-scale (text only), chrome stays fixed.
+	import Popover from '$lib/components/molecules/Popover.svelte';
+	import Slider from '$lib/components/atoms/Slider.svelte';
 	import { fontScale, SCALE_LEVELS } from '$lib/stores/fontscale.svelte';
 
 	let { class: klass = '' }: { class?: string } = $props();
 
-	const options = SCALE_LEVELS.map((l) => ({ value: l.id, label: l.label }));
+	const index = $derived(Math.max(0, SCALE_LEVELS.findIndex((l) => l.id === fontScale.levelId)));
+	const level = $derived(SCALE_LEVELS[index]);
+	const set = (i: number) => fontScale.set(SCALE_LEVELS[Math.max(0, Math.min(SCALE_LEVELS.length - 1, i))].id);
 </script>
 
-<SelectButton
-	data-tsu="FontScalePicker"
-	class={klass}
-	glyph="A"
-	label="Text size"
-	title="Text size"
-	value={fontScale.levelId}
-	{options}
-	onchange={(v) => fontScale.set(v)}
-/>
+<Popover label="Text size" placement="bottom-end" triggerClass={klass} box="md">
+	{#snippet trigger()}<span class="glyph" data-tsu="FontScalePicker" title="Text size: {level.label}">A</span>{/snippet}
+	<div class="panel">
+		<div class="row">
+			<button type="button" class="end small" aria-label="Smaller text" onclick={() => set(index - 1)}>a</button>
+			<Slider
+				value={index}
+				min={0}
+				max={SCALE_LEVELS.length - 1}
+				step={1}
+				ticks
+				label="Text size"
+				aria-valuetext={level.label}
+				oninput={(e) => set(Number((e.currentTarget as HTMLInputElement).value))}
+			/>
+			<button type="button" class="end large" aria-label="Larger text" onclick={() => set(index + 1)}>A</button>
+		</div>
+		<div class="caption" aria-live="polite">{level.label} · {Math.round(level.value * 100)}%</div>
+	</div>
+</Popover>
+
+<style>
+	.glyph {
+		font-weight: var(--fw-bold);
+		font-size: var(--fs-md);
+		line-height: 1;
+	}
+	.panel {
+		width: 15rem;
+		padding: var(--sp-2) var(--sp-3);
+	}
+	.row {
+		display: flex;
+		align-items: center;
+		gap: var(--sp-2);
+	}
+	.end {
+		flex: none;
+		width: 1.75rem;
+		height: 1.75rem;
+		padding: 0;
+		border: 0;
+		border-radius: var(--r-sm);
+		background: none;
+		color: var(--text-muted);
+		font-family: inherit;
+		font-weight: var(--fw-bold);
+		line-height: 1;
+		cursor: pointer;
+	}
+	.end:hover {
+		background: var(--bg-elevated-2);
+		color: var(--text);
+	}
+	.end:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 1px;
+	}
+	.small {
+		font-size: var(--fs-xs);
+	}
+	.large {
+		font-size: var(--fs-lg);
+	}
+	.caption {
+		margin-top: var(--sp-1);
+		text-align: center;
+		font-size: var(--fs-xs);
+		color: var(--text-muted);
+		font-variant-numeric: tabular-nums;
+	}
+</style>

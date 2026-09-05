@@ -81,10 +81,10 @@ test('registered themes override built-ins by id and re-resolve the persisted th
 test('ThemePicker lists theme.all (not the closed THEMES array) and tolerates a missing icon', () => {
 	assert.doesNotMatch(picker, /THEMES/);
 	assert.match(picker, /const groups = \$derived\(/);
-	assert.match(picker, /theme\.all\.filter\(\(t\) => t\.mode === 'light'\)/);
-	assert.match(picker, /theme\.all\.filter\(\(t\) => t\.mode === 'dark'\)/);
+	assert.match(picker, /\['light', 'dark'\] as const/);
+	assert.match(picker, /theme\.all\.filter\(\(t\) => t\.mode === mode\)/);
 	assert.match(picker, /t\.icon \?\? theme\.fallbackIcon/);
-	assert.match(picker, /onchange={\(v\) => theme\.set\(v\)}/);
+	assert.match(picker, /onclick=\{\(\) => theme\.set\(t\.id\)\}/);
 });
 
 test('app.css and variables.css are import shells over the layered files', () => {
