@@ -32,6 +32,7 @@
 		variant = 'pill',
 		size = 'md',
 		control = false,
+		box = false,
 		label = 'Options',
 		// `mobile` hides segment labels below the mobile breakpoint, collapsing
 		// labelled segments to centered icon-only squares (aria-label preserved).
@@ -51,6 +52,9 @@
 		/** Adopt the shared `--control-height` toolbar contract (like Popover/Button
 		 *  `control`) so the whole segmented control height-matches its siblings. */
 		control?: boolean;
+		/** Adopt `--control-height-default` so an icon toggle lines up with
+		 *  `Button square` / `box` siblings. */
+		box?: boolean;
 		label?: string;
 		collapseLabels?: 'never' | 'mobile' | 'container';
 		/** Single non-wrapping row that scrolls horizontally (scrollbar hidden). */
@@ -97,6 +101,7 @@
 	tabindex="-1"
 	class="seg seg-{variant} seg-{size} {klass}"
 	class:seg-control={control}
+	class:seg-box={box}
 	class:seg-collapse-mobile={collapseLabels === 'mobile'}
 	class:collapse-container={collapseLabels === 'container'}
 	class:seg-scroll={scroll}
@@ -204,6 +209,13 @@
 		min-height: var(--control-height);
 	}
 	.seg-control .seg-item {
+		height: 100%;
+	}
+	.seg-box {
+		height: var(--control-height-default);
+		min-height: var(--control-height-default);
+	}
+	.seg-box .seg-item {
 		height: 100%;
 	}
 	.seg-icon .seg-item {
