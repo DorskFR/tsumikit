@@ -58,6 +58,7 @@
 	const tone = $derived(capTone(value, cap, warnAt));
 	const readoutText = $derived(hint ? `${value}% · ${hint}` : `${value}%`);
 	const tip = $derived(tooltip ?? `cap ${cap}% — drag the bar`);
+	const readoutTitle = $derived(readout === undefined ? readoutText : typeof readout === 'string' ? readout : undefined);
 	const ariaLabel = $derived(typeof label === 'string' ? `${label} cap` : 'cap');
 
 	let trackEl = $state<HTMLDivElement | null>(null);
@@ -142,7 +143,7 @@
 			onkeyup={keyUp}
 		></div>
 	</div>
-	<div class="readout">
+	<div class="readout" title={readoutTitle}>
 		{#if readout === undefined}{readoutText}{:else if typeof readout === 'string'}{readout}{:else}{@render readout()}{/if}
 	</div>
 	{#if caption}
@@ -233,6 +234,9 @@
 		opacity: 0.6;
 	}
 	.readout {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
 		text-align: right;
 		font-variant-numeric: tabular-nums;
 		color: var(--text-muted);
