@@ -31,3 +31,7 @@ test('Tabs scrolls on selection whether or not focus moves', () => {
 		'the scroll must not sit behind the focus check'
 	);
 });
+
+test('tab list clips the vertical axis so the -1px indicator overlap never paints a scrollbar', () => {
+	assert.match(tabs, /\.tablist\s*{[^}]*overflow-x: auto;\s*overflow-y: hidden;/s);
+});
