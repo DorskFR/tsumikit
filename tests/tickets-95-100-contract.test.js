@@ -29,7 +29,7 @@ test('pin, pin-off and life-buoy glyphs are registered (TSU-99, TSU-100)', () =>
 });
 
 test('bare trigger keeps its text line box; box sizing applies to non-bare only; coarse slab covers bare (TSU-101)', () => {
-	assert.match(popover, /\.pop-trigger:not\(\.bare\)\s*{[^}]*min-height: var\(--box-md\);[^}]*padding: var\(--sp-2\);/s);
+	assert.match(popover, /:where\(\.pop-trigger:not\(\.bare\)\)\s*{[^}]*min-height: var\(--box-md\);[^}]*padding: var\(--sp-2\);/s);
 	assert.doesNotMatch(popover, /\n\t\.pop-trigger\s*{[^}]*min-height/s);
 	assert.match(popover, /:where\(\.pop-trigger\.bare\)\s*{[^}]*display: inline;[^}]*line-height: inherit;/s);
 	assert.match(popover, /\.pop-trigger:not\(\.canonical, \.hit-compact\)::after/);
