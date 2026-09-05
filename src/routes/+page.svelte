@@ -296,7 +296,7 @@ function greet(name) {
 	</div>
 </header>
 
-<main class="container page">
+<main id="top" class="container page">
 	<Text variant="body" tone="muted">
 		One token contract, themeable atoms &amp; molecules. Current theme:
 		<Text weight="semibold" tone="accent">{theme.label}</Text>. Try the pickers
@@ -346,6 +346,11 @@ function greet(name) {
 					<Text leading="none">leading none</Text>
 					<Text scale={false} size="sm">scale=false 13px</Text>
 				</div>
+				<Text variant="caption" tone="muted">Font-scale slider vs a pinned run — only the first line follows the picker:</Text>
+				<div class="row row-wrap">
+					<Text size="lg">size="lg" scales with --fs-scale</Text>
+					<Text size="lg" scale={false}>size="lg" scale=false stays pinned</Text>
+				</div>
 				<Text variant="body" measure="40ch">
 					measure="40ch" — a paragraph capped at forty characters wide so long lines stay readable.
 				</Text>
@@ -388,6 +393,22 @@ function greet(name) {
 					<Button variant="link" tone="danger">Link danger</Button>
 					<Button grow>Grow</Button>
 					<Button shrink={false}>No shrink</Button>
+					<IconButton icon="star" label="No shrink icon" shrink={false} />
+					<Toggle shrink={false} pressed={false}>No shrink toggle</Toggle>
+				</div>
+				<Text variant="caption" tone="muted">Polymorphic roots — <code>as="a"</code> / <code>as="button"</code> keep the same chrome and focus ring:</Text>
+				<div class="row row-wrap">
+					<Button as="a" href="#top">Button as="a"</Button>
+					<Badge as="button" tone="info">Badge as="button"</Badge>
+					<IconButton as="a" href="#top" icon="link" label="IconButton as=a" />
+					<Card as="a" href="#top" padding="sm" tap>Card as="a"</Card>
+				</div>
+				<Text variant="caption" tone="muted">Hit area — <code>hitArea="compact"</code> drops the 44px touch slab (outlined box shows the real hit box on touch):</Text>
+				<div class="row row-wrap demo-hit">
+					<IconButton icon="search" label="Default hit area" box="sm" variant="default" />
+					<IconButton icon="search" label="Compact hit area" box="sm" variant="default" hitArea="compact" />
+					<Popover label="Default hit" box="sm">{#snippet trigger()}<Icon name="info" />{/snippet}<Text size="sm">default</Text></Popover>
+					<Popover label="Compact hit" box="sm" hitArea="compact">{#snippet trigger()}<Icon name="info" />{/snippet}<Text size="sm">compact</Text></Popover>
 				</div>
 				<Text variant="caption">Variant × tone matrix (primary keeps a readable on-accent label):</Text>
 				{#each ['default', 'primary', 'ghost', 'danger'] as const as v}
@@ -1159,6 +1180,20 @@ function greet(name) {
 					<IconButton icon="copy" label="Copy {r.name}" onclick={() => toasts.show(`Copy: ${r.name}`)} />
 				{/snippet}
 			</DataTable>
+		</div>
+		<Text tone="muted">
+			Same table with <code>stackBelow="30rem"</code>: it stays tabular in this 34rem box and stacks
+			once the box drops under 30rem.
+		</Text>
+		<div style="max-width: 34rem">
+			<DataTable
+				columns={stackCols}
+				rows={tableRows}
+				rowKey={(r) => r.id}
+				responsive="stack"
+				stackBelow="30rem"
+				cellSnippets={{ status }}
+			/>
 		</div>
 		{#snippet status(r: Row)}
 			<Badge tone={r.status === 'ok' ? 'ok' : r.status === 'warn' ? 'warn' : 'danger'}>
@@ -1984,6 +2019,12 @@ function greet(name) {
 	@media (max-width: 520px) {
 		:global(.hide-sm) {
 			display: none;
+		}
+	}
+	@media (pointer: coarse) {
+		.demo-hit :global([data-tsu='IconButton']),
+		.demo-hit :global([data-tsu='Popover']) {
+			outline: 1px dashed var(--border-strong);
 		}
 	}
 </style>
