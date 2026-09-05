@@ -9,10 +9,10 @@ export type TimeInput = Date | number | string;
 
 /**
  * Which slice of the instant the inline text shows. Orthogonal to the zone:
- * `date`/`time`/`datetime` honour the `utc` flag, while `iso` is always UTC
- * (by definition) and `relative` is zoneless.
+ * `date`/`time`/`datetime`/`short-iso` honour the `utc` flag, while `iso` is
+ * always UTC (by definition) and `relative` is zoneless.
  */
-export type TimestampMode = 'date' | 'time' | 'datetime' | 'relative' | 'iso';
+export type TimestampMode = 'date' | 'time' | 'datetime' | 'relative' | 'iso' | 'short-iso';
 
 /**
  * Coerce a loose input to a Date, or null when it's missing or can't be parsed.
@@ -54,6 +54,19 @@ export function toLocale(
 		opts.second = '2-digit';
 	}
 	return new Intl.DateTimeFormat(undefined, opts).format(d);
+}
+
+/**
+ * Calendar date as `YYYY-MM-DD`, locale-independent — in UTC or, with
+ * `utc=false`, the viewer's zone (so a local evening past midnight UTC still
+ * reads as the viewer's day).
+ */
+export function toShortISO(d: Date, utc = true): string {
+	const y = utc ? d.getUTCFullYear() : d.getFullYear();
+	const m = (utc ? d.getUTCMonth() : d.getMonth()) + 1;
+	const day = utc ? d.getUTCDate() : d.getDate();
+	const pad = (n: number, w = 2) => String(n).padStart(w, '0');
+	return `${pad(y, 4)}-${pad(m)}-${pad(day)}`;
 }
 
 /** Unix epoch in whole seconds. */
@@ -123,8 +136,8 @@ export function relativeTime(
 
 /**
  * Render a date in the chosen inline mode. `utc` selects UTC over the viewer's
- * zone for the date/time/datetime modes (ignored by `iso`, always UTC, and
- * `relative`, zoneless). Returns '' for unparseable input.
+ * zone for the date/time/datetime/short-iso modes (ignored by `iso`, always
+ * UTC, and `relative`, zoneless). Returns '' for unparseable input.
  */
 export function formatTimestamp(
 	value: TimeInput | null | undefined,
@@ -138,6 +151,8 @@ export function formatTimestamp(
 	switch (mode) {
 		case 'iso':
 			return toISO(d);
+		case 'short-iso':
+			return toShortISO(d, utc);
 		case 'date':
 		case 'time':
 		case 'datetime':

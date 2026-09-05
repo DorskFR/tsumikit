@@ -1,7 +1,30 @@
+<script lang="ts" module>
+	import type { IconName } from '$lib/components/atoms/Icon.svelte';
+
+	export type SelectOption = {
+		value: string;
+		label: string;
+		icon?: IconName;
+		emoji?: string;
+		/** Muted, right-aligned secondary text (e.g. "62%"). */
+		hint?: string;
+		disabled?: boolean;
+	};
+</script>
+
 <script lang="ts">
 	// Native <select> primitive. Owns its styling from theme tokens; supports
-	// `bind:value` and passes through every native attribute. Options are slotted
-	// children so call-sites keep full control over <option> rendering.
+	// `bind:value` and passes through every native attribute. Options are either
+	// slotted children (full control over <option> rendering) or an `options`
+	// array, which adds per-option icon/emoji/hint.
+	//
+	// A native <select> cannot render icons in its popup or trigger. With
+	// `options`, the trigger text is drawn by a pointer-transparent face layer
+	// (leading icon/emoji, label, muted right-aligned hint) laid over the native
+	// control whose own text is made transparent, so keyboard, focus, form
+	// submission and the platform popup stay native. The popup degrades
+	// gracefully: emoji and hint are folded into the option text
+	// (`🐼 personal · 62%`); an `icon` only shows in the trigger.
 	//
 	// The default variant hides the OS chevron (appearance: none) and draws its
 	// own, so the control looks identical across platforms and the chevron sits
@@ -42,6 +65,8 @@
 		'aria-invalid'?: HTMLSelectAttributes['aria-invalid'];
 		class?: string;
 		value?: HTMLSelectAttributes['value'];
+		/** Rich option list; rendered instead of `children` when given. */
+		options?: SelectOption[];
 		children?: Snippet;
 	};
 
@@ -58,6 +83,7 @@
 		'aria-invalid': ariaInvalid,
 		class: klass = '',
 		value = $bindable(),
+		options,
 		children,
 		...rest
 	}: Props = $props();
@@ -70,7 +96,22 @@
 
 	const small = $derived(compact || size === 'sm');
 	const showChevron = $derived(chevron ?? variant !== 'embedded');
+	const selected = $derived(options?.find((o) => o.value === value));
+	const hasFace = $derived(!!options && variant !== 'ghost');
+
+	const optionText = (o: SelectOption) =>
+		[o.emoji, o.label, o.hint && `· ${o.hint}`].filter(Boolean).join(' ');
 </script>
+
+{#snippet optionList()}
+	{#if options}
+		{#each options as o (o.value)}
+			<option value={o.value} disabled={o.disabled}>{optionText(o)}</option>
+		{/each}
+	{:else}
+		{@render children?.()}
+	{/if}
+{/snippet}
 
 {#if variant === 'ghost'}
 	<select
@@ -83,7 +124,7 @@
 		aria-describedby={ariaDescribedby ?? field?.describedBy}
 		aria-invalid={ariaInvalid ?? (isInvalid ? 'true' : undefined)}
 	>
-		{@render children?.()}
+		{@render optionList()}
 	</select>
 {:else}
 	<div
@@ -100,14 +141,28 @@
 			class:select-sm={size === 'sm'}
 			class:w-auto={width === 'auto'}
 			class:embedded={variant === 'embedded'}
+			class:has-face={hasFace}
 			bind:value
 			{...rest}
 			id={id ?? field?.id}
 			aria-describedby={ariaDescribedby ?? field?.describedBy}
 			aria-invalid={ariaInvalid ?? (isInvalid ? 'true' : undefined)}
 		>
-			{@render children?.()}
+			{@render optionList()}
 		</select>
+		{#if hasFace}
+			<span class="select-face" class:compact={small} aria-hidden="true">
+				{#if selected?.icon}
+					<Icon name={selected.icon} size={small ? 14 : 16} />
+				{:else if selected?.emoji}
+					<span class="select-emoji">{selected.emoji}</span>
+				{/if}
+				<span class="select-label">{selected?.label ?? ''}</span>
+				{#if selected?.hint}
+					<span class="select-hint">{selected.hint}</span>
+				{/if}
+			</span>
+		{/if}
 		{#if showChevron}
 			<span class="select-chevron" aria-hidden="true">
 				<Icon name="chevron-down" size={16} />
@@ -177,6 +232,59 @@
 	.select[aria-invalid='true'],
 	.select[aria-invalid='true']:focus {
 		border-color: var(--danger);
+	}
+	/* The face draws the trigger text; the native text underneath stays laid out
+	   (so `width="auto"` still sizes to it) but invisible. Popup options keep
+	   their own colour so the transparency does not inherit into the list. */
+	.select.has-face {
+		color: transparent;
+	}
+	.select.has-face option {
+		color: var(--text);
+		background: var(--bg);
+	}
+	.select-face {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		gap: var(--sp-2);
+		padding: 0 var(--sp-3);
+		padding-right: calc(var(--sp-3) + 1.25rem);
+		color: var(--text);
+		pointer-events: none;
+		overflow: hidden;
+	}
+	.select-wrap.no-chevron .select-face {
+		padding-right: var(--sp-3);
+	}
+	.select-face.compact {
+		padding: 0 var(--sp-2);
+		padding-right: calc(var(--sp-2) + 1rem);
+		font-size: var(--fs-xs);
+	}
+	.select-wrap.no-chevron .select-face.compact {
+		padding-right: var(--sp-2);
+	}
+	.select:disabled ~ .select-face {
+		color: var(--text-muted);
+	}
+	.select-emoji {
+		line-height: 1;
+	}
+	.select-label {
+		flex: 1 1 auto;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.select-hint {
+		flex: none;
+		margin-left: auto;
+		color: var(--text-muted);
+		font-size: var(--fs-xs);
+		font-variant-numeric: tabular-nums;
 	}
 	.select-chevron {
 		position: absolute;

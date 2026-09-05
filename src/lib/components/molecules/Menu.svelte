@@ -5,6 +5,9 @@
 		icon?: import('$lib/components/atoms/Icon.svelte').IconName;
 		danger?: boolean;
 		disabled?: boolean;
+		/** Free-form trailing pill ("admin", "pro", "beta"…), rendered as a Badge after the label. */
+		tag?: string;
+		tagTone?: import('svelte').ComponentProps<typeof import('$lib/components/atoms/Badge.svelte').default>['tone'];
 	}
 </script>
 
@@ -13,10 +16,12 @@
 	// `menuitem`s navigable with ↑/↓/Home/End, activated with Enter/Space (and
 	// click). Selecting an item runs its action and closes the menu. Focus moves
 	// to the first item when the menu opens. Escape / click-outside close it
-	// (inherited from the native popover).
+	// (inherited from the native popover). An item's `tag` renders as a soft
+	// Badge pill after the label; the `tag` snippet replaces that pill.
 	import type { ComponentProps, Snippet } from 'svelte';
 	import Popover from '$lib/components/molecules/Popover.svelte';
 	import Icon from '$lib/components/atoms/Icon.svelte';
+	import Badge from '$lib/components/atoms/Badge.svelte';
 
 	type PopoverProps = ComponentProps<typeof Popover>;
 	type TriggerChrome = Pick<
@@ -40,6 +45,7 @@
 		label,
 		items,
 		trigger,
+		tag,
 		placement = 'bottom-start',
 		variant,
 		tone,
@@ -58,6 +64,8 @@
 		label: string;
 		items: MenuItem[];
 		trigger: Snippet;
+		/** Custom trailing content for items that carry a `tag`. */
+		tag?: Snippet<[MenuItem]>;
 		placement?: 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
 	} & TriggerChrome = $props();
 
@@ -133,6 +141,15 @@
 			>
 				{#if item.icon}<Icon name={item.icon} />{/if}
 				<span>{item.label}</span>
+				{#if item.tag !== undefined}
+					{#if tag}
+						{@render tag(item)}
+					{:else}
+						<span class="menu-tag">
+							<Badge size="xs" tone={item.tagTone ?? 'neutral'} border={false}>{item.tag}</Badge>
+						</span>
+					{/if}
+				{/if}
 			</button>
 		{/each}
 	</div>
@@ -165,6 +182,12 @@
 	}
 	.menu-item.danger {
 		color: var(--danger);
+	}
+	.menu-tag {
+		display: inline-flex;
+		flex: none;
+		margin-inline-start: auto;
+		padding-inline-start: var(--sp-3);
 	}
 	.menu-item:disabled {
 		opacity: 0.45;

@@ -27,6 +27,7 @@ export {
 	default as SegmentedProgress,
 	type ProgressSegment,
 } from './components/atoms/SegmentedProgress.svelte';
+export type { SelectOption } from './components/atoms/Select.svelte';
 export { default as Select } from './components/atoms/Select.svelte';
 export { default as Skeleton } from './components/atoms/Skeleton.svelte';
 export { default as Slider } from './components/atoms/Slider.svelte';
@@ -62,6 +63,7 @@ export { default as CapBar } from './components/molecules/CapBar.svelte';
 export { default as CodeBlock } from './components/molecules/CodeBlock.svelte';
 export { default as ConfirmModal } from './components/molecules/ConfirmModal.svelte';
 export { default as CopyButton } from './components/molecules/CopyButton.svelte';
+export { default as Drawer } from './components/molecules/Drawer.svelte';
 export { default as Dropzone } from './components/molecules/Dropzone.svelte';
 export { default as EmptyState } from './components/molecules/EmptyState.svelte';
 // ---- molecules ----
