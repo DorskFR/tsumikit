@@ -116,7 +116,7 @@ function parseOr(sc: Scanner, schema: Schema): ExprNode | null {
 	if (first) children.push(first);
 	for (;;) {
 		const kw = peekKeyword(sc);
-		if (!kw || kw.word !== 'OR') break;
+		if (kw?.word !== 'OR') break;
 		sc.i = kw.next;
 		const next = parseAnd(sc, schema);
 		if (next) children.push(next);
