@@ -1,7 +1,8 @@
 <script lang="ts" module>
 	import type { Snippet } from 'svelte';
 
-	export type KeyValueTone = 'neutral' | 'ok' | 'warn' | 'danger' | 'info';
+	import type { Tone } from '$lib/tone';
+	export type KeyValueTone = Tone;
 
 	export interface KeyValueRow {
 		label: string;
@@ -23,6 +24,8 @@
 		warn: 'warn',
 		danger: 'danger',
 		info: 'accent',
+		success: 'success',
+		accent: 'accent',
 	} as const;
 
 	let {

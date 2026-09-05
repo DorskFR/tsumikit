@@ -27,7 +27,9 @@
 		onclick,
 		badge,
 		badgeTone = 'neutral',
+		orientation = 'horizontal',
 		children,
+		class: klass = '',
 		...rest
 	}: {
 		icon?: IconName;
@@ -48,8 +50,13 @@
 		badge?: string | number;
 		/** Tone for the trailing badge when the item is not active. */
 		badgeTone?: BadgeTone;
+		/** `vertical` stacks the icon over the label with the badge overlaid on the
+		 *  icon corner (bottom tab bars). */
+		orientation?: 'horizontal' | 'vertical';
 		children?: Snippet;
 		[key: string]: unknown;
+		class?: string;
+		style?: string;
 	} = $props();
 
 	// Treat 0 / '' as "no badge" so callers can pass a raw count without guarding.
@@ -61,7 +68,8 @@
 	data-tsu="NavItem"
 	{href}
 	type={href ? undefined : 'button'}
-	class="nav-item"
+	class="nav-item {klass}"
+	class:vertical={orientation === 'vertical'}
 	class:active
 	class:bar={activeStyle === 'bar'}
 	title={label}
@@ -147,6 +155,19 @@
 	}
 	.nav-trail {
 		flex: none;
+	}
+	.nav-item.vertical {
+		flex-direction: column;
+		justify-content: center;
+		gap: 2px;
+		padding: var(--sp-1) var(--sp-2);
+		font-size: var(--fs-xs);
+		text-align: center;
+	}
+	.nav-item.vertical .nav-trail {
+		position: absolute;
+		top: 0;
+		left: calc(50% + 0.4rem);
 	}
 	/* Dot is the rail-width stand-in for the badge: hidden at full width. */
 	.nav-dot {

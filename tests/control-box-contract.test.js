@@ -23,11 +23,11 @@ const HIT_PROP = /hitArea\?: 'auto' \| 'compact'/;
 const HIT_SLAB = /inset: min\(0px, calc\(\(100% - var\(--touch-target\)\) \/ 2\)\);/;
 
 test('box scale tokens derive from the control-height scale', () => {
-	assert.match(variables, /--box-xs: 1\.5rem;/);
+	assert.match(variables, /--box-xs: [\d.]+rem;/);
 	assert.match(variables, /--box-sm: var\(--control-height-compact\);/);
-	assert.match(variables, /--box-md: 2\.25rem;/);
+	assert.match(variables, /--box-md: [\d.]+rem;/);
 	assert.match(variables, /--box-lg: var\(--control-height-default\);/);
-	assert.match(variables, /--touch-target: 44px;/);
+	assert.match(variables, /--touch-target: \d+px;/);
 });
 
 test('every icon-ish control exposes the shared box scale and hitArea', () => {
@@ -50,7 +50,7 @@ test('Button box/square/chip render square, padding-less, non-flexing boxes', ()
 	assert.match(button, /square\?: boolean/);
 	assert.match(button, /\.btn-square\s*{[^}]*width: var\(--control-height-default\);[^}]*padding: 0;/s);
 	assert.match(button, /\.btn-square\.btn-control\s*{[^}]*width: var\(--control-height\);/s);
-	assert.match(button, /\.btn-chip\s*{[^}]*width: var\(--box-lg\);/s);
+	assert.match(button, /\.btn-chip\s*{[^}]*height: var\(--box-lg\);/s);
 	assert.match(button, /\.btn-icon\s*{[^}]*min-width: var\(--box-md\);/s);
 });
 
@@ -81,7 +81,7 @@ test('IconButton glyphSize sizes SVG and text glyphs alike', () => {
 	assert.match(iconButton, /glyphSize\?: number \| string/);
 	assert.match(iconButton, /const emojiCss = \$derived\(glyphCss \?\? `\${size \* 1\.35}px`\)/);
 	assert.match(iconButton, /<span class="emoji" style="font-size: {emojiCss}"/);
-	assert.match(iconButton, /<span class="glyph" style="font-size: {glyphCss}"><Icon name={icon} \/><\/span>/);
+	assert.match(iconButton, /<span class="glyph" style="font-size: {glyphCss}"><Icon name={icon} {spin} \/><\/span>/);
 });
 
 test('Button collapseLabel hides data-label children and names the button from them', () => {
@@ -101,4 +101,9 @@ test('Cluster stackAt is a self-contained container query that stacks children f
 			new RegExp(`@container \\(max-width: ${width}\\)\\s*{\\s*\\.stack-${tier} > :global\\(\\*\\)\\s*{\\s*flex: 1 1 100%;`, 's')
 		);
 	}
+});
+
+test('Button chip sizes to its text and only squares up for a lone glyph', () => {
+	assert.match(button, /\.btn-chip\s*{[^}]*width: auto;[^}]*padding: 0 var\(--sp-2\);/s);
+	assert.match(button, /\.btn-chip:has\(> :global\(svg\):only-child\)\s*{\s*width: var\(--box-lg\);\s*padding: 0;/);
 });

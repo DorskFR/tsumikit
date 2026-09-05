@@ -1,9 +1,22 @@
 <script lang="ts">
+	import type { HTMLAttributes } from 'svelte/elements';
 	// Inline text link — underlined accent text with no button chrome. Renders an
 	// <a> when `href` is given, otherwise a <button> (for in-page actions that
 	// read as links, e.g. "Open ChatGPT again").
 	import type { Snippet } from 'svelte';
 
+	type Own = {
+		href?: string;
+		target?: string;
+		rel?: string;
+		download?: string | boolean;
+		tone?: 'accent' | 'info' | 'muted' | 'inherit';
+		underline?: 'always' | 'hover' | 'none';
+		// Text alignment of the <button> form; multi-line titles want `start`.
+		align?: 'start' | 'center';
+		class?: string;
+		children?: Snippet;
+	};
 	let {
 		href,
 		tone = 'accent',
@@ -12,16 +25,7 @@
 		class: klass = '',
 		children,
 		...rest
-	}: {
-		href?: string;
-		tone?: 'accent' | 'info' | 'muted' | 'inherit';
-		underline?: 'always' | 'hover' | 'none';
-		// Text alignment of the <button> form; multi-line titles want `start`.
-		align?: 'start' | 'center';
-		class?: string;
-		children?: Snippet;
-		[key: string]: unknown;
-	} = $props();
+	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
 </script>
 
 {#if href}
@@ -33,10 +37,10 @@
 	>
 {:else}
 	<button
-		type="button"
 		class="link tone-{tone} underline-{underline} align-{align} {klass}"
 		data-tsu="Link"
-		{...rest}>{@render children?.()}</button
+		{...rest}
+		type="button">{@render children?.()}</button
 	>
 {/if}
 

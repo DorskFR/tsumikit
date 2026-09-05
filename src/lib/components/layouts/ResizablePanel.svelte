@@ -26,7 +26,10 @@
 		onclose,
 		scrim,
 		fullWidthBelow,
-		clampToViewport = true
+		clampToViewport = true,
+		collapseControl,
+		class: klass = '',
+		style: styleProp = '',
 	}: {
 		/** Content shown while the panel is expanded. */
 		panel: Snippet;
@@ -55,6 +58,9 @@
 		/** Keep the collapse handle in view when the panel scrolls past the
 		 *  viewport, repositioning on scroll/resize via requestAnimationFrame. */
 		stickyHandle?: boolean;
+		/** Render the edge chevron. Defaults to on inline, off in overlay mode
+		 *  (Escape and the scrim already close a drawer). */
+		collapseControl?: boolean;
 		/** `inline` shares the row with `children`; `overlay` fixes the panel to
 		 *  its viewport edge as a non-modal drawer above the page. */
 		mode?: 'inline' | 'overlay';
@@ -69,6 +75,8 @@
 		fullWidthBelow?: string;
 		/** Overlay mode: cap the width at the viewport and re-clamp on window resize. */
 		clampToViewport?: boolean;
+		class?: string;
+		style?: string;
 	} = $props();
 
 	let root: HTMLDivElement;
@@ -83,6 +91,7 @@
 	let fullBleed = $state(false);
 
 	const overlay = $derived(mode === 'overlay');
+	const showCollapseControl = $derived(collapseControl ?? !overlay);
 	const shown = $derived(overlay ? open : !collapsed);
 	const showScrim = $derived(overlay && open && (scrim ?? true));
 
@@ -268,14 +277,14 @@
 
 <div
 	bind:this={root}
-	class="panel-layout"
+	class="panel-layout {klass}"
 	class:left={side === 'left'}
 	class:right={side === 'right'}
 	class:collapsed={!overlay && collapsed}
 	class:overlay
 	class:full-bleed={fullBleed}
 	class:resizing
-	style="--panel-width: {currentWidth}px"
+	style="--panel-width: {currentWidth}px; {styleProp}"
 	data-tsu="ResizablePanel"
 >
 	{#if showScrim}
@@ -319,6 +328,7 @@
 				></div>
 			{/if}
 
+			{#if showCollapseControl}
 			<button
 				bind:this={handleEl}
 				type="button"
@@ -333,6 +343,7 @@
 			>
 				<Icon name={toggleIcon} size={14} />
 			</button>
+			{/if}
 		</svelte:element>
 	{/if}
 

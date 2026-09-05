@@ -115,3 +115,8 @@ test('track base tint follows the current tone, not the accent', () => {
 	assert.match(component, /\.track\s*{[^}]*background: color-mix\(in oklab, var\(--fill\) 26%, var\(--bg\)\);/s);
 	assert.doesNotMatch(component, /var\(--accent\) 26%/);
 });
+
+test('readout clips at readoutWidth with an ellipsis and exposes the full text as a title', () => {
+	assert.match(component, /\.readout\s*{[^}]*min-width: 0;[^}]*overflow: hidden;[^}]*text-overflow: ellipsis;/s);
+	assert.match(component, /<div class="readout" title={readoutTitle}>/);
+});

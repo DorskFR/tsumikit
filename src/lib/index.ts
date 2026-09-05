@@ -50,17 +50,24 @@ export {
 	resizeHandle,
 } from './components/layouts/resizable-panel-frame.js';
 export { default as Stack } from './components/layouts/Stack.svelte';
+export { default as Toolbar } from './components/layouts/Toolbar.svelte';
 export {
 	type AccordionItem,
 	default as Accordion,
 } from './components/molecules/Accordion.svelte';
+export {
+	type Attachment,
+	default as AttachmentList,
+} from './components/molecules/AttachmentList.svelte';
 export {
 	type BreadcrumbItem,
 	default as Breadcrumb,
 } from './components/molecules/Breadcrumb.svelte';
 export { default as Callout } from './components/molecules/Callout.svelte';
 export { default as CapBar } from './components/molecules/CapBar.svelte';
+export { default as ChatBubble } from './components/molecules/ChatBubble.svelte';
 export { default as CodeBlock } from './components/molecules/CodeBlock.svelte';
+export { default as Composer } from './components/molecules/Composer.svelte';
 export { default as ConfirmModal } from './components/molecules/ConfirmModal.svelte';
 export { default as CopyButton } from './components/molecules/CopyButton.svelte';
 export { default as Drawer } from './components/molecules/Drawer.svelte';
@@ -89,15 +96,18 @@ export {
 } from './components/molecules/KeyValue.svelte';
 export { default as LoadMore } from './components/molecules/LoadMore.svelte';
 export { default as Menu, type MenuItem } from './components/molecules/Menu.svelte';
+export { default as Meter } from './components/molecules/Meter.svelte';
 export {
 	default as Metric,
 	// StatTile is an alias for Metric — same component, dashboard-friendly name.
 	default as StatTile,
+	type MetricSegment,
 } from './components/molecules/Metric.svelte';
 export { default as Modal } from './components/molecules/Modal.svelte';
 export { default as OptionButton } from './components/molecules/OptionButton.svelte';
 export { default as Pagination } from './components/molecules/Pagination.svelte';
 export { default as Popover } from './components/molecules/Popover.svelte';
+export { default as Prose } from './components/molecules/Prose.svelte';
 export {
 	default as RadioGroup,
 	type RadioOption,
@@ -131,6 +141,7 @@ export {
 	warnUnlabelled,
 } from './field-context';
 // ---- query core (headless: schema / parser / AST / suggest / compilers) ----
+export * as filterQuery from './query';
 export {
 	type AndNode,
 	activeToken,
@@ -170,6 +181,7 @@ export {
 	type ValueProvider,
 	walk,
 } from './query';
+export type { ControlSize } from './size';
 export { fontScale, SCALE_LEVELS, type ScaleLevel } from './stores/fontscale.svelte';
 // ---- stores / actions ----
 export { type Mode, THEMES, theme } from './stores/theme.svelte';
@@ -189,5 +201,5 @@ export {
 	type TimestampMode,
 } from './timestamp';
 export { canonicalTone, type Tone } from './tone';
-export { type TruncateMode, type TruncateOptions, truncate } from './truncate';
+export { pathCandidates, type TruncateMode, type TruncateOptions, truncate } from './truncate';
 export { normalizeWorkingDir, type WorkingDirOptions, workingDirCandidates } from './working-dir';

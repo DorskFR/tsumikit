@@ -31,10 +31,10 @@ test('Modal busy makes the body inert, shows a spinner and blocks every close pa
 
 test('Modal tone paints a title glyph and a 3px top border; footer is right-aligned', () => {
 	assert.match(source, /tone\?: Tone;/);
-	assert.match(source, /type Tone = 'neutral' \| 'danger' \| 'warn' \| 'info';/);
-	assert.match(source, /class:sheet-toned={tone !== 'neutral'}/);
-	assert.match(source, /style:--modal-tone={tone === 'neutral' \? undefined : `var\(--\${tone}\)`}/);
-	assert.match(source, /<Icon name=\{TONE_ICON\[tone\]\} size=\{18\} \/>/);
+	assert.match(source, /import { canonicalTone, type Tone } from '\$lib\/tone';/);
+	assert.match(source, /class:sheet-toned={t !== 'neutral'}/);
+	assert.match(source, /style:--modal-tone={t === 'neutral' \? undefined : `var\(--\${t}\)`}/);
+	assert.match(source, /<Icon name=\{TONE_ICON\[t\]\} size=\{18\} \/>/);
 	assert.match(source, /\.sheet-toned\s*{\s*border-top: 3px solid var\(--modal-tone\);/s);
 	assert.match(source, /\.sheet-foot\s*{[^}]*justify-content: flex-end;[^}]*gap: var\(--sp-2\);/s);
 });

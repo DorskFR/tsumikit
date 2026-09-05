@@ -6,6 +6,8 @@
 		description?: string;
 		note?: string;
 		disabled?: boolean;
+		/** `swatch` variant: any CSS colour (or var()). */
+		color?: string;
 	}
 </script>
 
@@ -30,7 +32,8 @@
 		value?: string;
 		name?: string;
 		label: string;
-		variant?: 'list' | 'rows';
+		/** `swatch` renders each option as a colour chip with the label as its name. */
+		variant?: 'list' | 'rows' | 'swatch';
 		action?: Snippet<[RadioOption]>;
 		below?: Snippet<[RadioOption]>;
 		class?: string;
@@ -42,11 +45,17 @@
 	aria-label={label}
 	class="radio-group {klass}"
 	class:rows={variant === 'rows'}
+	class:swatches={variant === 'swatch'}
 	data-tsu="RadioGroup"
 	data-variant={variant}
 >
 	{#each options as o (o.value)}
-		{#if variant === 'rows'}
+		{#if variant === 'swatch'}
+			<label class="swatch" class:disabled={o.disabled} title={o.label}>
+				<input type="radio" {name} value={o.value} bind:group={value} disabled={o.disabled} aria-label={o.label} />
+				<span class="swatch-chip" aria-hidden="true" style="--swatch: {o.color ?? 'var(--accent)'}"></span>
+			</label>
+		{:else if variant === 'rows'}
 			<div class="row-wrap">
 				<div class="row" class:selected={o.value === value} class:disabled={o.disabled}>
 					<label class="radio">
@@ -214,5 +223,36 @@
 	}
 	.below:empty {
 		display: none;
+	}
+	.swatches {
+		flex-direction: row;
+		flex-wrap: wrap;
+		gap: var(--sp-2);
+	}
+	.swatch {
+		position: relative;
+		display: inline-flex;
+		cursor: pointer;
+	}
+	.swatch.disabled {
+		opacity: 0.45;
+		cursor: not-allowed;
+	}
+	.swatch-chip {
+		width: 1.6rem;
+		height: 1.6rem;
+		border-radius: var(--r-pill);
+		background: var(--swatch);
+		border: 2px solid transparent;
+		box-shadow: 0 0 0 1px var(--border-strong);
+		transition: box-shadow 0.12s var(--ease);
+	}
+	.swatch input:checked + .swatch-chip {
+		border-color: var(--bg);
+		box-shadow: 0 0 0 2px var(--accent);
+	}
+	.swatch input:focus-visible + .swatch-chip {
+		outline: var(--focus-ring);
+		outline-offset: 2px;
 	}
 </style>

@@ -10,7 +10,7 @@ const [component, index] = await Promise.all([
 test('KeyValue and its row types are exported from the package index', () => {
 	assert.match(index, /default as KeyValue,\s+type KeyValueRow,\s+type KeyValueTone,\s+} from '\.\/components\/molecules\/KeyValue\.svelte';/);
 	assert.match(component, /export interface KeyValueRow {/);
-	assert.match(component, /export type KeyValueTone = 'neutral' \| 'ok' \| 'warn' \| 'danger' \| 'info'/);
+	assert.match(component, /export type KeyValueTone = Tone;/);
 });
 
 test('rows carry label, string|number|Snippet value, mono, tone, hint', () => {

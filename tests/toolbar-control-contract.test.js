@@ -40,3 +40,14 @@ test('SegmentedControl retains radiogroup semantics and delegated keyboard navig
 	assert.match(segmented, /nextEnabledSegment\(options, i, e\.key\)/);
 	assert.match(segmented, /e\.preventDefault\(\);[\s\S]*select\(options\[next\]\.value, true\)/);
 });
+
+test('control keeps the danger variant/tone tint (TSU-85)', () => {
+	assert.match(button, /\.btn-control\.btn-danger,\s*\.btn-control\.btn-tone-danger\s*{\s*color: var\(--danger\);/);
+	assert.match(button, /\.btn-control\.btn-danger:hover:not\(:disabled\),\s*\.btn-control\.btn-tone-danger:hover:not\(:disabled\)\s*{[^}]*border-color: var\(--danger\);/s);
+});
+
+test('SegmentedControl box tier adopts --control-height-default', () => {
+	assert.match(segmented, /box\?: boolean/);
+	assert.match(segmented, /class:seg-box={box}/);
+	assert.match(segmented, /\.seg-box\s*{\s*height: var\(--control-height-default\);\s*min-height: var\(--control-height-default\);/);
+});

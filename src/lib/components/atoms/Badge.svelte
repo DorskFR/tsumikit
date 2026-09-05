@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { HTMLAttributes } from 'svelte/elements';
 	// Inline label primitive — the project's single pill. Covers three jobs via
 	// props rather than separate components:
 	//   • state  → `tone` semantic palette, or `color` for any CSS colour
@@ -23,31 +24,21 @@
 		violet: 'var(--c-violet)',
 	};
 
-	let {
-		tone = 'neutral',
-		color,
-		as = 'span',
-		size = 'md',
-		variant = 'chip',
-		mono = false,
-		uppercase = false,
-		numeric = false,
-		truncate = false,
-		maxWidth,
-		border = true,
-		active = false,
-		dot = false,
-		icon,
-		removable = false,
-		onremove,
-		class: klass = '',
-		children,
-		...rest
-	}: {
+	type Own = {
 		tone?: Tone;
+		/** Fill the free space of a flex row (`flex: 1 1 0`). */
+		grow?: boolean;
+		/** `false` pins the box (`flex: none`) so a flex row cannot squeeze it. */
+		shrink?: boolean;
+		/** Full-width block. */
+		block?: boolean;
 		// Any CSS colour (or var()) for a one-off tint; overrides `tone`.
 		color?: string;
-		as?: 'span' | 'button';
+		as?: 'span' | 'button' | 'a';
+		/** Renders an anchor (implies `as="a"`). */
+		href?: string;
+		/** Opens in a new tab with a trailing arrow glyph. */
+		external?: boolean;
 		// `xs` is the densest form for counters in tight rows.
 		size?: 'xs' | 'sm' | 'md';
 		// `text` drops the chip (no fill, ring or padding) but keeps badge
@@ -74,16 +65,47 @@
 		onremove?: (e: MouseEvent) => void;
 		class?: string;
 		children?: Snippet;
-		[key: string]: unknown;
-	} = $props();
+	};
+	let {
+		tone = 'neutral',
+		color,
+		as = 'span',
+		href,
+		external = false,
+		size = 'md',
+		variant = 'chip',
+		mono = false,
+		uppercase = false,
+		numeric = false,
+		truncate = false,
+		maxWidth,
+		border = true,
+		active = false,
+		dot = false,
+		icon,
+		removable = false,
+		onremove,
+		class: klass = '',
+		grow = false,
+		shrink = true,
+		block = false,
+		children,
+		...rest
+	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
 
 	const toneColor = $derived(color ?? (tone === 'neutral' ? undefined : TONE_COLOR[tone]));
 </script>
 
 <svelte:element
-	this={as}
+	this={href ? 'a' : as}
+	{href}
+	target={href && external ? '_blank' : undefined}
+	rel={href && external ? 'noopener noreferrer' : undefined}
 	data-tsu="Badge"
 	class="badge {klass}"
+	class:grow={grow}
+	class:no-shrink={!shrink}
+	class:block={block}
 	class:badge-ok={tone === 'ok'}
 	class:badge-warn={tone === 'warn'}
 	class:badge-danger={tone === 'danger'}
@@ -98,7 +120,7 @@
 	class:truncate
 	class:borderless={!border}
 	class:active
-	class:interactive={as === 'button'}
+	class:interactive={as === 'button' || !!href}
 	style:--badge-tone={toneColor}
 	style:--badge-max-width={maxWidth}
 	{...rest}
@@ -114,6 +136,7 @@
 	{:else}
 		{@render children?.()}
 	{/if}
+	{#if href && external}<Icon name="external" />{/if}
 	{#if removable}
 		<button
 			type="button"
@@ -127,6 +150,17 @@
 </svelte:element>
 
 <style>
+	.grow {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+	.no-shrink {
+		flex: none;
+	}
+	.block {
+		display: flex;
+		width: 100%;
+	}
 	.badge {
 		display: inline-flex;
 		align-items: center;

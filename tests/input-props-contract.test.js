@@ -45,3 +45,8 @@ test('onenter fires with the value on Enter and still calls a consumer onkeydown
 	assert.match(source, /onkeydown\?\.\(e\);/);
 	assert.match(source, /if \(onenter && e\.key === 'Enter' && !e\.defaultPrevented\) onenter\(String\(value \?\? ''\)\)/);
 });
+
+test('Input adopts the default control height so it lines up with FilterInput and Button', () => {
+	assert.match(source, /\.input\s*{[^}]*min-height: var\(--control-height-default\);[^}]*padding: var\(--sp-2\) var\(--sp-3\);/s);
+	assert.match(source, /\.input-sm\s*{\s*min-height: var\(--control-height-compact\);/);
+});

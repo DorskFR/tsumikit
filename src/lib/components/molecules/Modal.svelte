@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { canonicalTone, type Tone } from '$lib/tone';
 	// Accessible dialog / bottom-sheet built on the native <dialog> element, so
 	// the platform gives us the hard parts for free: top-layer rendering above
 	// everything (no z-index races), a real focus trap, inert background, initial
@@ -12,11 +13,12 @@
 	import Spinner from '$lib/components/atoms/Spinner.svelte';
 	import IconButton from '$lib/components/molecules/IconButton.svelte';
 
-	type Tone = 'neutral' | 'danger' | 'warn' | 'info';
-	const TONE_ICON: Record<Exclude<Tone, 'neutral'>, IconName> = {
+	const TONE_ICON: Record<Exclude<Tone, 'neutral' | 'success'>, IconName> = {
 		danger: 'warning',
 		warn: 'warning',
-		info: 'info'
+		info: 'info',
+		ok: 'check',
+		accent: 'info'
 	};
 
 	let {
@@ -28,7 +30,11 @@
 		size = 'md',
 		tone = 'neutral',
 		busy = false,
-		resizeKey
+		resizeKey,
+		class: klass = '',
+		style: styleProp = '',
+		bodyClass = '',
+		maxHeight,
 	}: {
 		title: string;
 		/** Controlled visibility. When provided the `<dialog>` stays mounted and
@@ -49,7 +55,14 @@
 		/** When set, the sheet is horizontally resizable on desktop and the chosen
 		 *  width persists under this localStorage key. */
 		resizeKey?: string;
+		class?: string;
+		style?: string;
+		/** Class on the inner sheet (the visible panel). */
+		bodyClass?: string;
+		/** Cap the sheet height; the body scrolls inside it. */
+		maxHeight?: string;
 	} = $props();
+	const t = $derived(canonicalTone(tone));
 
 	const titleId = `modal-title-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -135,12 +148,12 @@
 <dialog
 	bind:this={dialogEl}
 	data-tsu="Modal"
-	class="modal"
+	class="modal {klass}"
 	class:resizing
 	aria-labelledby={titleId}
 	aria-busy={busy || undefined}
-	data-tone={tone === 'neutral' ? undefined : tone}
-	style={width != null ? `--sheet-w: ${width}px` : undefined}
+	data-tone={t === 'neutral' ? undefined : t}
+	style="{width != null ? `--sheet-w: ${width}px;` : ''}{styleProp}"
 	oncancel={(e) => {
 		e.preventDefault(); /* keep parent the source of truth for open state */
 		requestClose();
@@ -151,16 +164,17 @@
 	onclick={onDialogClick}
 >
 	<div
-		class="sheet"
+		class="sheet {bodyClass}"
+		style:max-height={maxHeight}
 		class:sheet-sm={size === 'sm'}
 		class:sheet-lg={size === 'lg'}
 		class:sheet-xl={size === 'xl'}
-		class:sheet-toned={tone !== 'neutral'}
-		style:--modal-tone={tone === 'neutral' ? undefined : `var(--${tone})`}
+		class:sheet-toned={t !== 'neutral'}
+		style:--modal-tone={t === 'neutral' ? undefined : `var(--${t})`}
 	>
 		<div class="sheet-head">
-			{#if tone !== 'neutral'}
-				<span class="sheet-tone-icon"><Icon name={TONE_ICON[tone]} size={18} /></span>
+			{#if t !== 'neutral'}
+				<span class="sheet-tone-icon"><Icon name={TONE_ICON[t]} size={18} /></span>
 			{/if}
 			<span id={titleId} class="sheet-title truncate">{title}</span>
 			{#if busy}<Spinner label="Working" />{/if}

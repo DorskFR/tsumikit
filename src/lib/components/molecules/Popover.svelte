@@ -38,7 +38,11 @@
 		role = 'dialog',
 		haspopup = 'dialog',
 		onopen,
-		onclose
+		onclose,
+		class: klass = '',
+		style: styleProp = '',
+		panelClass = '',
+		panelStyle = '',
 	}: {
 		placement?: Placement;
 		gap?: number;
@@ -74,6 +78,11 @@
 		haspopup?: HasPopup;
 		onopen?: () => void;
 		onclose?: () => void;
+		class?: string;
+		style?: string;
+		/** Class / inline style on the floating panel. */
+		panelClass?: string;
+		panelStyle?: string;
 	} = $props();
 
 	const canonicalChrome = $derived(
@@ -118,7 +127,8 @@
 	bind:this={triggerEl}
 	data-tsu="Popover"
 	type="button"
-	class="pop-trigger {triggerClass}"
+	class="pop-trigger {triggerClass} {klass}"
+	style={styleProp}
 	class:bare
 	class:canonical={canonicalChrome}
 	class:trigger-primary={variant === 'primary'}
@@ -149,7 +159,8 @@
 	bind:this={panelEl}
 	{id}
 	popover="auto"
-	class="pop-panel"
+	class="pop-panel {panelClass}"
+	style={panelStyle}
 	{role}
 	aria-label={label}
 	ontoggle={onToggle}

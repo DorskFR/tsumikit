@@ -1,15 +1,8 @@
 <script lang="ts">
+	import type { HTMLAttributes } from 'svelte/elements';
 	// Shimmering placeholder bar(s) standing in for content that is still
 	// loading. Decorative only — the surrounding region should carry aria-busy.
-	let {
-		width = '100%',
-		height = '1em',
-		lines = 1,
-		circle = false,
-		radius = 'var(--r-sm)',
-		class: klass = '',
-		...rest
-	}: {
+	type Own = {
 		width?: string;
 		height?: string;
 		/** Stacked bars; the last one is shortened to read as a paragraph. */
@@ -18,8 +11,16 @@
 		circle?: boolean;
 		radius?: string;
 		class?: string;
-		[key: string]: unknown;
-	} = $props();
+	};
+	let {
+		width = '100%',
+		height = '1em',
+		lines = 1,
+		circle = false,
+		radius = 'var(--r-sm)',
+		class: klass = '',
+		...rest
+	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
 
 	const w = $derived(circle ? height : width);
 	const r = $derived(circle ? '50%' : radius);

@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
 	// ───────────────────────────────────────────────────────────────────────
 	// FilterSearchBar organism — a YouTrack-style structured search bar.
 	//
@@ -31,7 +32,9 @@
 		showHotkey = false,
 		grow = false,
 		onchange,
-		onsubmit
+		onsubmit,
+		class: klass = '',
+		style: styleProp = '',
 	}: {
 		schema: Schema;
 		/** The raw textual query (two-way bindable). */
@@ -46,7 +49,7 @@
 		 */
 		autoQuote?: boolean;
 		/** Forwarded to FilterInput. */
-		size?: 'sm' | 'md';
+		size?: ControlSize;
 		shape?: 'square' | 'pill';
 		surface?: 'base' | 'raised' | 'sunken';
 		hotkey?: string;
@@ -56,6 +59,8 @@
 		onchange?: (query: Query, raw: string) => void;
 		/** Fires on Enter / clear / chip-remove with the raw query string. */
 		onsubmit?: (value: string) => void;
+		class?: string;
+		style?: string;
 	} = $props();
 
 	function labelFor(fieldName: string): string {
@@ -76,6 +81,8 @@
 	{grow}
 	{onchange}
 	{onsubmit}
+	class={klass}
+	style={styleProp}
 >
 	{#snippet below({ filters: chips, text, remove })}
 		{#if showChips && (chips.length || text)}

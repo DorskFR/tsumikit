@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Tone } from '$lib/tone';
 	import type { Snippet } from 'svelte';
 	import type { HTMLButtonAttributes } from 'svelte/elements';
 	import Button from '$lib/components/atoms/Button.svelte';
@@ -22,7 +23,7 @@
 		// Forwarded to Button.
 		shrink?: boolean;
 		// Semantic state tint (forwarded to Button). Pairs well with `chip`.
-		tone?: 'none' | 'accent' | 'info' | 'warn' | 'danger';
+		tone?: Tone | 'none';
 		// Outlined `--box-lg` square icon-chip (header/toolbar actions).
 		chip?: boolean;
 		// Shared square box scale (`--box-xs/sm/md/lg`); default `md` is the classic
@@ -48,6 +49,13 @@
 		// open-on-GitHub action. Forwarded to Button; `href` implies `as="a"`.
 		as?: 'button' | 'a';
 		href?: string;
+		/** Render `label` as visible text beside the glyph. `row` is a full-width,
+		 *  left-aligned menu-row form for overflow menus. */
+		showLabel?: boolean | 'row';
+		/** Rotate the glyph (refresh in flight). */
+		spin?: boolean;
+		/** Forwarded to Button: spinner, blocks clicks, aria-busy. */
+		loading?: boolean;
 		class?: string;
 	};
 
@@ -69,6 +77,9 @@
 		inline = false,
 		hoverDanger = false,
 		pressed,
+		showLabel = false,
+		spin = false,
+		loading = false,
 		disabled = false,
 		onclick,
 		class: klass = '',
@@ -94,36 +105,50 @@
 	{box}
 	{hitArea}
 	{disabled}
+	{loading}
 	{title}
 	{onclick}
-	icon={!inline && !chip}
+	icon={!inline && !chip && !showLabel}
 	iconInline={inline}
+	block={showLabel === 'row'}
 	{hoverDanger}
 	aria-pressed={pressed}
-	class={klass}
+	class="{showLabel ? 'ib-labelled' : ''} {showLabel === 'row' ? 'ib-row' : ''} {klass}"
 	aria-label={label}
 >
 	{#if children}
 		{#if glyphCss}
-			<span class="glyph" style="font-size: {glyphCss}"><Icon>{@render children()}</Icon></span>
+			<span class="glyph" style="font-size: {glyphCss}"><Icon {spin}>{@render children()}</Icon></span>
 		{:else}
-			<Icon {size}>{@render children()}</Icon>
+			<Icon {size} {spin}>{@render children()}</Icon>
 		{/if}
 	{:else if emoji}
 		<span class="emoji" style="font-size: {emojiCss}" aria-hidden="true">{emoji}</span>
 	{:else if icon}
 		{#if glyphCss}
-			<span class="glyph" style="font-size: {glyphCss}"><Icon name={icon} /></span>
+			<span class="glyph" style="font-size: {glyphCss}"><Icon name={icon} {spin} /></span>
 		{:else}
-			<Icon name={icon} {size} />
+			<Icon name={icon} {size} {spin} />
 		{/if}
 	{/if}
+	{#if showLabel}<span class="ib-label">{label}</span>{/if}
 </Button>
 
 <style>
 	/* Off-registry glyph (emoji) rendered as text rather than an SVG. Sized off the
 	   `size` prop (×1.35, since an emoji reads small next to an SVG glyph of the
 	   same px) unless `glyphSize` is exact; centered so it shares the tap target. */
+	.ib-label {
+		white-space: nowrap;
+	}
+	:global(.btn.ib-labelled) {
+		gap: var(--sp-2);
+	}
+	:global(.btn.ib-row) {
+		justify-content: flex-start;
+		width: 100%;
+		text-align: left;
+	}
 	.emoji,
 	.glyph {
 		display: inline-flex;

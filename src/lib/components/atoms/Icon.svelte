@@ -69,6 +69,13 @@
 		star: '<path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z" />',
 		heart: '<path d="M2 9.5a5.5 5.5 0 0 1 9.591-3.676.56.56 0 0 0 .818 0A5.49 5.49 0 0 1 22 9.5c0 2.29-1.5 4-3 5.5l-5.492 5.313a2 2 0 0 1-3 .019L5 15c-1.5-1.5-3-3.2-3-5.5" />',
 		fork: '<circle cx="12" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><circle cx="18" cy="6" r="3" /><path d="M18 9v2c0 .6-.4 1-1 1H7c-.6 0-1-.4-1-1V9" /><path d="M12 12v3" />',
+		'pull-request': '<circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M13 6h3a2 2 0 0 1 2 2v7" /><line x1="6" x2="6" y1="9" y2="21" />',
+		'git-branch': '<line x1="6" x2="6" y1="3" y2="15" /><circle cx="18" cy="6" r="3" /><circle cx="6" cy="18" r="3" /><path d="M18 9a9 9 0 0 1-9 9" />',
+		'git-commit': '<circle cx="12" cy="12" r="3" /><line x1="3" x2="9" y1="12" y2="12" /><line x1="15" x2="21" y1="12" y2="12" />',
+		'key-round': '<path d="M2.586 17.414A2 2 0 0 0 2 18.828V21a1 1 0 0 0 1 1h3a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h1a1 1 0 0 0 1-1v-1a1 1 0 0 1 1-1h.172a2 2 0 0 0 1.414-.586l.814-.814a6.5 6.5 0 1 0-4-4z" /><circle cx="16.5" cy="7.5" r=".5" fill="currentColor" />',
+		'layout-grid': '<rect width="7" height="7" x="3" y="3" rx="1" /><rect width="7" height="7" x="14" y="3" rx="1" /><rect width="7" height="7" x="14" y="14" rx="1" /><rect width="7" height="7" x="3" y="14" rx="1" />',
+		palette: '<path d="M12 22a1 1 0 0 1 0-20 10 9 0 0 1 10 9 5 5 0 0 1-5 5h-2.25a1.75 1.75 0 0 0-1.4 2.8l.3.4a1.75 1.75 0 0 1-1.4 2.8z" /><circle cx="13.5" cy="6.5" r=".5" fill="currentColor" /><circle cx="17.5" cy="10.5" r=".5" fill="currentColor" /><circle cx="6.5" cy="12.5" r=".5" fill="currentColor" /><circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />',
+		'git-merge': '<circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M6 21V9a9 9 0 0 0 9 9" />',
 		live: '<circle cx="12" cy="12" r="5" />',
 		eye: '<path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" /><circle cx="12" cy="12" r="3" />',
 		'eye-off': '<path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" /><path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" /><path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" /><path d="m2 2 20 20" />',
@@ -109,16 +116,11 @@
 </script>
 
 <script lang="ts">
+	import type { SVGAttributes } from 'svelte/elements';
 	import type { Snippet } from 'svelte';
+	import { canonicalTone, type Tone } from '$lib/tone';
 
-	let {
-		name,
-		size,
-		label,
-		spin = false,
-		children,
-		...rest
-	}: {
+	type Own = {
 		/** Named glyph from the registry. Omit when supplying `children`. */
 		name?: IconName;
 		/** Explicit pixel size. Omit to track the surrounding text (1em) — best
@@ -133,17 +135,35 @@
 		/** Raw SVG markup (24×24 viewBox) — overrides `name`. Pass a lucide-svelte
 		 *  component's contents here to render any icon not in the registry. */
 		children?: Snippet;
-		[key: string]: unknown;
-	} = $props();
+		/** Force fill (or outline) regardless of the glyph's default. */
+		filled?: boolean;
+		/** Semantic colour. */
+		tone?: Tone;
+		class?: string;
+		style?: string;
+	};
+	let {
+		name,
+		size,
+		label,
+		spin = false,
+		filled: filledProp,
+		tone,
+		children,
+		class: klass = '',
+		style: styleProp = '',
+		...rest
+	}: Omit<SVGAttributes<SVGSVGElement>, keyof Own> & Own = $props();
 
-	const filled = $derived(name ? FILLED.has(name) : false);
+	const filled = $derived(filledProp ?? (name ? FILLED.has(name) : false));
+	const toneColor = $derived(tone && tone !== 'neutral' ? `var(--${canonicalTone(tone)})` : undefined);
 </script>
 
 <svg
 	data-tsu="Icon"
-	class="icon"
+	class="icon {klass}"
 	class:spin
-	style={size ? `font-size: ${size}px` : undefined}
+	style="{size ? `font-size: ${size}px;` : ''}{toneColor ? `color: ${toneColor};` : ''}{styleProp}"
 	viewBox="0 0 24 24"
 	fill={filled ? 'currentColor' : 'none'}
 	stroke={filled ? 'none' : 'currentColor'}

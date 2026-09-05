@@ -13,6 +13,7 @@
 </script>
 
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
 	// Single-select segmented control. One token-driven row of options covering
 	// the two repeated redesign controls:
 	//   • filter pills  — label + optional count badge ("All 742 / Missing 120")
@@ -27,11 +28,15 @@
 	let {
 		options,
 		value = $bindable(),
+		onchange,
+		justify,
+		wrap = false,
 		// `icon` packs the segments into compact square buttons (label hidden as an
 		// accessible name only); `pill` keeps the labelled filter-pill layout.
 		variant = 'pill',
 		size = 'md',
 		control = false,
+		box = false,
 		label = 'Options',
 		// `mobile` hides segment labels below the mobile breakpoint, collapsing
 		// labelled segments to centered icon-only squares (aria-label preserved).
@@ -46,11 +51,20 @@
 	}: {
 		options: SegmentOption[];
 		value?: string;
+		/** Fires after a selection (click or keyboard). */
+		onchange?: (value: string) => void;
+		/** Pin the control to the start/end of a flex row. */
+		justify?: 'start' | 'end';
+		/** Allow segments to wrap onto multiple lines. */
+		wrap?: boolean;
 		variant?: 'pill' | 'icon';
-		size?: 'sm' | 'md';
+		size?: ControlSize;
 		/** Adopt the shared `--control-height` toolbar contract (like Popover/Button
 		 *  `control`) so the whole segmented control height-matches its siblings. */
 		control?: boolean;
+		/** Adopt `--control-height-default` so an icon toggle lines up with
+		 *  `Button square` / `box` siblings. */
+		box?: boolean;
 		label?: string;
 		collapseLabels?: 'never' | 'mobile' | 'container';
 		/** Single non-wrapping row that scrolls horizontally (scrollbar hidden). */
@@ -75,6 +89,7 @@
 	function select(val: string, focus = false) {
 		if (options.find((o) => o.value === val)?.disabled) return;
 		value = val;
+		onchange?.(val);
 		if (focus) {
 			queueMicrotask(() =>
 				listEl?.querySelector<HTMLButtonElement>(`#${baseId}-${val}`)?.focus()
@@ -97,6 +112,10 @@
 	tabindex="-1"
 	class="seg seg-{variant} seg-{size} {klass}"
 	class:seg-control={control}
+	class:seg-box={box}
+	class:seg-wrap={wrap}
+	class:justify-start={justify === 'start'}
+	class:justify-end={justify === 'end'}
 	class:seg-collapse-mobile={collapseLabels === 'mobile'}
 	class:collapse-container={collapseLabels === 'container'}
 	class:seg-scroll={scroll}
@@ -142,6 +161,15 @@
 	}
 	.seg-icon {
 		border-radius: var(--r-md);
+	}
+	.seg-wrap {
+		flex-wrap: wrap;
+	}
+	.justify-start {
+		margin-inline-end: auto;
+	}
+	.justify-end {
+		margin-inline-start: auto;
 	}
 	.seg-scroll {
 		flex: 1 0 100%;
@@ -204,6 +232,13 @@
 		min-height: var(--control-height);
 	}
 	.seg-control .seg-item {
+		height: 100%;
+	}
+	.seg-box {
+		height: var(--control-height-default);
+		min-height: var(--control-height-default);
+	}
+	.seg-box .seg-item {
 		height: 100%;
 	}
 	.seg-icon .seg-item {

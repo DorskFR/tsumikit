@@ -20,24 +20,10 @@
 </script>
 
 <script lang="ts">
+	import type { HTMLAttributes } from 'svelte/elements';
 	import type { Snippet } from 'svelte';
 
-	let {
-		value,
-		variant = 'continuous',
-		segments = 3,
-		tone,
-		warnAt = 70,
-		dangerAt = 90,
-		label,
-		as = 'div',
-		width,
-		height,
-		corner,
-		class: klass = '',
-		style = '',
-		...rest
-	}: {
+	type Own = {
 		value: number;
 		variant?: 'continuous' | 'segments';
 		// `segments` variant only: number of stacked bars, lit bottom-up.
@@ -53,8 +39,23 @@
 		corner?: Snippet;
 		class?: string;
 		style?: string;
-		[key: string]: unknown;
-	} = $props();
+	};
+	let {
+		value,
+		variant = 'continuous',
+		segments = 3,
+		tone,
+		warnAt = 70,
+		dangerAt = 90,
+		label,
+		as = 'div',
+		width,
+		height,
+		corner,
+		class: klass = '',
+		style = '',
+		...rest
+	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
 
 	const pct = $derived(clampPct(value));
 	const resolvedTone = $derived(tone ?? gaugeTone(pct, warnAt, dangerAt));

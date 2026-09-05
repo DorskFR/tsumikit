@@ -47,17 +47,23 @@ test('renders the stack in a manual popover shown on mount, guarded when unsuppo
 	assert.match(component, /\.toaster:not\(:popover-open\)\s*{\s*display: none;/);
 });
 
-test('keeps live-region semantics', () => {
-	assert.match(component, /role="status"/);
-	assert.match(component, /aria-live="polite"/);
-	assert.match(component, /aria-relevant="additions"/);
+test('two live regions: polite for ok/info/neutral, assertive alert for errors; removals announced', () => {
+	assert.match(component, /<div class="region" role="status" aria-live="polite">\s*{#each polite as t \(t\.id\)}/);
+	assert.match(component, /<div class="region" role="alert" aria-live="assertive">\s*{#each assertive as t \(t\.id\)}/);
+	assert.match(component, /const assertive = \$derived\(toasts\.items\.filter\(\(t\) => t\.tone === 'error'\)\)/);
+	assert.doesNotMatch(component, /aria-relevant/);
+});
+
+test('dismiss affordance is named and decorative icons are hidden from the name', () => {
+	assert.equal(component.match(/aria-label="Dismiss: {t\.message}"/g)?.length, 2);
+	assert.match(component, /<span aria-hidden="true" class="toast-icon"><Icon name="x" \/><\/span>/);
 });
 
 test('toast rows are raised Cards; action is a real ghost sm Button with loading', () => {
-	assert.match(component, /<Card\s+as="div"\s+surface="raised"\s+class="toast"/);
+	assert.match(component, /<Card as="div" surface="raised" class="toast" {tone}>/);
 	assert.match(component, /<Card\s+as="button"\s+surface="raised"\s+class="toast"/);
 	assert.match(component, /<Button size="sm" variant="ghost" loading={t\.pending} onclick={\(\) => toasts\.act\(t\.id\)}>/);
-	assert.match(component, /<button type="button" class="toast-text" onclick={\(\) => toasts\.dismiss\(t\.id\)}>/);
+	assert.match(component, /<button\s+type="button"\s+class="toast-text"\s+aria-label="Dismiss: {t\.message}"\s+onclick={\(\) => toasts\.dismiss\(t\.id\)}\s*>/);
 });
 
 test('sizing token --toast-max-width defaults to 28rem, no z-index needed in the top layer', () => {

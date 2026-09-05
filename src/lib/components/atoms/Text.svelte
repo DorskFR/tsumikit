@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { HTMLAttributes } from 'svelte/elements';
+	import { canonicalTone, type Tone } from '$lib/tone';
 	// Text primitive: the ONLY place body/label/caption/code text and its bearing
 	// elements (<p>/<span>/<label>/<div> of pure text) are emitted. `variant` picks
 	// a token preset; `tone`/`weight`/`size` override individual axes; bare <Text>
@@ -9,39 +11,21 @@
 
 	type Size = 'xs' | 'sm' | 'base' | 'md' | 'lg' | 'xl' | '2xl';
 
-	let {
-		as = 'span',
-		variant,
-		tone = 'inherit',
-		weight,
-		size,
-		numeric = false,
-		truncate = false,
-		italic = false,
-		nowrap = false,
-		wrap = 'normal',
-		uppercase = false,
-		leading,
-		measure,
-		grow = false,
-		scale = true,
-		block = false,
-		class: klass = '',
-		children,
-		...rest
-	}: {
+	type Own = {
 		as?: 'span' | 'p' | 'div' | 'label';
 		// body: default reading text · label: form-label · caption: small meta ·
 		// code: monospace · eyebrow: small uppercase muted kicker. Omit for inline
 		// glue that should inherit its parent.
 		variant?: 'body' | 'label' | 'caption' | 'code' | 'eyebrow';
 		// `ok` and `success` are aliases.
-		tone?: 'inherit' | 'default' | 'muted' | 'faint' | 'ok' | 'success' | 'warn' | 'danger' | 'accent';
+		tone?: 'inherit' | 'default' | 'muted' | 'faint' | Tone;
 		weight?: 'normal' | 'medium' | 'semibold' | 'bold';
 		size?: Size;
 		// Tabular figures: digits share a fixed advance width so counts/percentages
 		// don't jitter as they change. Use for counters, timers, metrics.
 		numeric?: boolean;
+		/** Monospace family without the `code` variant's chip styling. */
+		mono?: boolean;
 		truncate?: boolean;
 		italic?: boolean;
 		nowrap?: boolean;
@@ -56,10 +40,33 @@
 		block?: boolean;
 		class?: string;
 		children?: Snippet;
-		[key: string]: unknown;
-	} = $props();
+	};
+	let {
+		as = 'span',
+		variant,
+		tone = 'inherit',
+		weight,
+		size,
+		numeric = false,
+		mono = false,
+		truncate = false,
+		italic = false,
+		nowrap = false,
+		wrap = 'normal',
+		uppercase = false,
+		leading,
+		measure,
+		grow = false,
+		scale = true,
+		block = false,
+		class: klass = '',
+		children,
+		...rest
+	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
 
-	const toneClass = $derived(tone === 'ok' ? 'success' : tone);
+	const toneClass = $derived(
+		tone === 'neutral' ? 'default' : canonicalTone(tone) === 'ok' ? 'success' : canonicalTone(tone)
+	);
 	const styleAttr = $derived(measure ? `max-width: ${measure}` : undefined);
 </script>
 
@@ -68,7 +75,7 @@
 	data-tsu="Text"
 	class="text {variant ? `v-${variant}` : ''} tone-{toneClass} {weight ? `fw-${weight}` : ''} {size
 		? `fs-${size}`
-		: ''} {numeric ? 'numeric' : ''} {truncate ? 'truncate' : ''} {leading ? `lh-${leading}` : ''} {wrap !==
+		: ''} {numeric ? 'numeric' : ''} {mono ? 'mono' : ''} {truncate ? 'truncate' : ''} {leading ? `lh-${leading}` : ''} {wrap !==
 	'normal'
 		? `wrap-${wrap}`
 		: ''} {klass}"
@@ -116,6 +123,9 @@
 		letter-spacing: 0.04em;
 	}
 	/* Tone (colour) — overrides variant colour. */
+	.mono {
+		font-family: var(--font-mono);
+	}
 	.tone-default {
 		color: var(--text);
 	}
@@ -133,6 +143,9 @@
 	}
 	.tone-danger {
 		color: var(--danger);
+	}
+	.tone-info {
+		color: var(--info);
 	}
 	.tone-accent {
 		color: var(--accent);

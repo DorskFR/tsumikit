@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
 	// Multi-line text input primitive. Owns its styling from theme tokens;
 	// supports `bind:value` and passes through every native <textarea> attribute
 	// and event (Svelte 5 events are props, so `...rest` forwards them). `mono`
@@ -10,10 +11,9 @@
 	// handle on the top or bottom edge, styled like the Modal/AppShell grips: a
 	// centered pill that's a thicker portion of the border.
 	//
-	// With `autoresize`, only a `top` handle is offered and it sets a manual
-	// *floor* (min-height) rather than a fixed height: the textarea still grows
-	// with content, but dragging up reserves extra space. (A bottom handle makes
-	// no sense alongside content-driven sizing, so it's suppressed.)
+	// With `autoresize`, the handle (either edge) sets a manual *floor*
+	// (min-height) rather than a fixed height: the textarea still grows with
+	// content, but dragging reserves extra space. `rows` is the initial floor.
 	//
 	// `onsubmit` fires with the value on Enter (`submitOn="enter"`, Shift+Enter
 	// still inserts a newline) or Ctrl/Meta+Enter (`submitOn="mod-enter"`, the
@@ -25,10 +25,16 @@
 	type Props = HTMLTextareaAttributes & {
 		mono?: boolean;
 		autoresize?: boolean;
-		size?: 'sm' | 'md';
+		size?: ControlSize;
+		/** Fill the free space of a flex row (`flex: 1 1 0`). */
+		grow?: boolean;
+		/** `false` pins the box (`flex: none`). */
+		shrink?: boolean;
+		/** Full-width block. */
+		block?: boolean;
 		/** Manual resize handle edge, or 'none' to disable. Defaults to a bottom
-		 *  handle. With `autoresize`, only `top` is honored and it drags a
-		 *  min-height floor (the textarea still grows with content). */
+		 *  handle. With `autoresize` it drags a min-height floor (the textarea
+		 *  still grows with content). */
 		resize?: 'none' | 'top' | 'bottom';
 		/** Error state: danger border + aria-invalid (also styles if a consumer
 		 *  sets aria-invalid directly). */
@@ -50,6 +56,9 @@
 		mono = false,
 		autoresize = false,
 		size = 'md',
+		grow = false,
+		shrink = true,
+		block = false,
 		resize = 'bottom',
 		invalid = false,
 		maxHeight,
@@ -70,8 +79,7 @@
 
 	$effect(() => warnUnlabelled(el, 'Textarea'));
 
-	// With autoresize, only the top handle (a min-height floor) is meaningful.
-	const handleEdge = $derived(autoresize ? (resize === 'top' ? 'top' : 'none') : resize);
+	const handleEdge = $derived(resize);
 	const showHandle = $derived(handleEdge !== 'none');
 	const submitMode = $derived(submitOn === 'none' && onsubmit ? 'mod-enter' : submitOn);
 
@@ -136,13 +144,21 @@
 	}
 </script>
 
-<div class="textarea-wrap" class:dragging data-tsu="Textarea">
+<div
+	class="textarea-wrap"
+	class:dragging
+	class:grow={grow}
+	class:no-shrink={!shrink}
+	class:block={block}
+	data-tsu="Textarea"
+>
 	{#if autoresize}
 		<textarea
 			bind:this={el}
 			class="textarea {klass}"
 			class:mono
 			class:textarea-sm={size === 'sm'}
+			class:textarea-lg={size === 'lg'}
 			class:capped={!!maxHeight}
 			style:max-height={maxHeight}
 			bind:value
@@ -159,6 +175,7 @@
 			class="textarea {klass}"
 			class:mono
 			class:textarea-sm={size === 'sm'}
+			class:textarea-lg={size === 'lg'}
 			class:capped={!!maxHeight}
 			style:max-height={maxHeight}
 			bind:value
@@ -184,6 +201,17 @@
 </div>
 
 <style>
+	.grow {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+	.no-shrink {
+		flex: none;
+	}
+	.block {
+		display: flex;
+		width: 100%;
+	}
 	.textarea-wrap {
 		position: relative;
 		display: flex;
@@ -212,6 +240,10 @@
 		outline: none;
 		border-color: var(--accent);
 	}
+	.textarea:focus-visible {
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
+	}
 	.textarea.capped {
 		overflow-y: auto;
 	}
@@ -219,6 +251,11 @@
 		padding: var(--sp-1) var(--sp-2);
 		font-size: var(--fs-sm);
 		min-height: 2rem;
+	}
+	.textarea-lg {
+		padding: var(--sp-3) var(--sp-4);
+		font-size: var(--fs-base);
+		min-height: var(--control-height-large);
 	}
 	.textarea[aria-invalid='true'],
 	.textarea[aria-invalid='true']:focus {

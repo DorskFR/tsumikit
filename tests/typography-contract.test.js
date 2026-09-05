@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { hasDecl } from './helpers.mjs';
 
 /** @param {string} p */
 const read = (p) => readFile(new URL(p, import.meta.url), 'utf8');
@@ -34,15 +35,18 @@ for (const [name, src] of [
 		}
 		assert.match(src, /scale = true/);
 		assert.match(src, /class:noscale={!scale}/);
-		assert.match(src, /\.italic\s*{\s*font-style: italic;/);
-		assert.match(src, /\.nowrap\s*{\s*white-space: nowrap;/);
-		assert.match(src, /\.wrap-anywhere\s*{\s*min-width: 0;\s*overflow-wrap: anywhere;/);
-		assert.match(src, /\.wrap-balance\s*{\s*text-wrap: balance;/);
-		assert.match(src, /\.uppercase\s*{\s*text-transform: uppercase;\s*letter-spacing: 0\.04em;/);
-		assert.match(src, /\.lh-tight\s*{\s*line-height: var\(--lh-tight\);/);
-		assert.match(src, /\.lh-normal\s*{\s*line-height: var\(--lh-normal\);/);
-		assert.match(src, /\.lh-none\s*{\s*line-height: 1;/);
-		assert.match(src, /\.grow\s*{\s*flex: 1 1 0;\s*min-width: 0;/);
+		assert.ok(hasDecl(src, '.italic', 'font-style', 'italic'));
+		assert.ok(hasDecl(src, '.nowrap', 'white-space', 'nowrap'));
+		assert.ok(hasDecl(src, '.wrap-anywhere', 'min-width', '0'));
+		assert.ok(hasDecl(src, '.wrap-anywhere', 'overflow-wrap', 'anywhere'));
+		assert.ok(hasDecl(src, '.wrap-balance', 'text-wrap', 'balance'));
+		assert.ok(hasDecl(src, '.uppercase', 'text-transform', 'uppercase'));
+		assert.ok(hasDecl(src, '.uppercase', 'letter-spacing'));
+		assert.ok(hasDecl(src, '.lh-tight', 'line-height', 'var(--lh-tight)'));
+		assert.ok(hasDecl(src, '.lh-normal', 'line-height', 'var(--lh-normal)'));
+		assert.ok(hasDecl(src, '.lh-none', 'line-height', '1'));
+		assert.ok(hasDecl(src, '.grow', 'flex', '1 1 0'));
+		assert.ok(hasDecl(src, '.grow', 'min-width', '0'));
 		assert.match(src, /max-width: \${measure}/);
 	});
 
@@ -78,20 +82,20 @@ test('Heading truncates like Text without the inline-block shim', () => {
 
 test('tone.ts exports Tone and canonicalTone (success → ok)', () => {
 	assert.match(tone, /export type Tone = 'neutral' \| 'ok' \| 'success' \| 'warn' \| 'danger' \| 'info' \| 'accent';/);
-	assert.match(tone, /export function canonicalTone\(t: string\): string/);
+	assert.match(tone, /export function canonicalTone<T extends string>\(t: T\)/);
 	assert.match(tone, /t === 'success' \? 'ok' : t/);
 	assert.match(index, /export { canonicalTone, type Tone } from '\.\/tone';/);
 });
 
 test("'ok' is accepted as an alias of 'success' in Text, Progress and SegmentedProgress", () => {
-	assert.match(text, /'ok' \| 'success'/);
-	assert.match(text, /tone === 'ok' \? 'success' : tone/);
+	assert.match(text, /tone\?: 'inherit' \| 'default' \| 'muted' \| 'faint' \| Tone;/);
+	assert.match(text, /canonicalTone\(tone\) === 'ok' \? 'success' : canonicalTone\(tone\)/);
 	assert.match(text, /tone-{toneClass}/);
 	assert.match(text, /\.tone-success\s*{\s*color: var\(--ok\);/);
-	assert.match(progress, /'ok' \| 'success'/);
-	assert.match(progress, /tone === 'ok' \? 'success' : tone/);
+	assert.match(progress, /tone\?: Tone;/);
+	assert.match(progress, /canonicalTone\(autoTone\) === 'ok' \? 'success' : canonicalTone\(autoTone\)/);
 	assert.match(progress, /tone-{toneClass}/);
 	assert.match(progress, /\.tone-success\s*{\s*--fill: var\(--ok\);/);
-	assert.match(segmented, /'success' \| 'ok'/);
+	assert.match(segmented, /tone\?: Tone \| 'muted'/);
 	assert.match(segmented, /\.tone-success,\s*\.tone-ok\s*{/);
 });

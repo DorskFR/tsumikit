@@ -11,6 +11,7 @@
 		indeterminate = false,
 		invalid = false,
 		label,
+		labelHidden = false,
 		id,
 		'aria-describedby': ariaDescribedby,
 		'aria-invalid': ariaInvalid,
@@ -23,6 +24,8 @@
 		/** Error state: danger box border + aria-invalid. */
 		invalid?: boolean;
 		label: string;
+		/** Keep `label` for AT only (sr-only). */
+		labelHidden?: boolean;
 		id?: string;
 		'aria-describedby'?: string | null;
 		'aria-invalid'?: HTMLInputAttributes['aria-invalid'];
@@ -49,7 +52,7 @@
 		aria-invalid={ariaInvalid ?? (isInvalid ? 'true' : undefined)}
 	/>
 	<span class="box" aria-hidden="true"></span>
-	<span class="label-text">{label}</span>
+	<span class="label-text" class:sr-only={labelHidden}>{label}</span>
 </label>
 
 <style>
@@ -108,7 +111,7 @@
 		clip-path: polygon(22% 42%, 78% 42%, 78% 58%, 22% 58%);
 	}
 	input:focus-visible + .box {
-		outline: 2px solid var(--accent);
+		outline: var(--focus-ring);
 		outline-offset: 2px;
 	}
 	input[aria-invalid='true']:not(:checked):not(:indeterminate) + .box {
@@ -119,5 +122,16 @@
 	}
 	.checkbox:has(input:disabled) {
 		cursor: not-allowed;
+	}
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
 	}
 </style>

@@ -98,13 +98,14 @@ export function relativeTime(
 	value: TimeInput | null | undefined,
 	now: number = Date.now(),
 	precision = false,
+	short = false,
 ): string {
 	const d = toDate(value);
 	if (!d) return '';
 	const deltaMs = now - d.getTime();
 	const future = deltaMs < 0;
 	const secs = Math.floor(Math.abs(deltaMs) / 1000);
-	const suffix = (s: string) => (future ? `in ${s}` : `${s} ago`);
+	const suffix = (s: string) => (short ? (future ? `+${s}` : s) : future ? `in ${s}` : `${s} ago`);
 
 	if (secs < MIN) return suffix(`${secs}s`);
 	if (secs >= 30 * DAY) return d.toLocaleDateString();
@@ -145,6 +146,7 @@ export function formatTimestamp(
 	now?: number,
 	utc = false,
 	precision = false,
+	short = false,
 ): string {
 	const d = toDate(value);
 	if (!d) return '';
@@ -158,6 +160,6 @@ export function formatTimestamp(
 		case 'datetime':
 			return toLocale(d, mode, utc);
 		case 'relative':
-			return relativeTime(d, now, precision);
+			return relativeTime(d, now, precision, short);
 	}
 }

@@ -9,7 +9,7 @@ const index = await readFile(new URL('../src/lib/index.ts', import.meta.url), 'u
 test('EmptyState accepts loading, size and a snippet description', () => {
 	assert.match(empty, /loading = false,/);
 	assert.match(empty, /loading\?: boolean;/);
-	assert.match(empty, /size = 'default',/);
+	assert.match(empty, /size,\n/);
 	assert.match(empty, /size\?: 'inline' \| 'compact' \| 'default';/);
 	assert.match(empty, /description\?: string \| Snippet;/);
 	assert.match(empty, /\{#if typeof description === 'function'\}\{@render description\(\)\}\{:else\}\{description\}\{\/if\}/);
@@ -22,7 +22,8 @@ test('EmptyState title is optional and only rendered when set', () => {
 
 test('compact stays accepted and maps onto size', () => {
 	assert.match(empty, /compact\?: boolean;/);
-	assert.match(empty, /const sz = \$derived\(compact \? 'compact' : size\);/);
+	assert.match(empty, /const sz = \$derived\(size \?\? \(compact \? 'compact' : 'default'\)\);/);
+	assert.match(empty, /@deprecated use `size="compact"`; `size` wins/);
 	assert.match(empty, /class:empty-compact=\{sz === 'compact'\}/);
 });
 

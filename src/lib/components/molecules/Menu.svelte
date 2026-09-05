@@ -8,6 +8,10 @@
 		/** Free-form trailing pill ("admin", "pro", "beta"…), rendered as a Badge after the label. */
 		tag?: string;
 		tagTone?: import('svelte').ComponentProps<typeof import('$lib/components/atoms/Badge.svelte').default>['tone'];
+		/** Two-state item: rendered as `menuitemcheckbox` with a check glyph when on. */
+		pressed?: boolean;
+		/** Custom row content (a rename Input, a slider…) replacing icon/label/tag. */
+		content?: import('svelte').Snippet<[MenuItem]>;
 	}
 </script>
 
@@ -59,7 +63,11 @@
 		disabled,
 		gap,
 		onopen,
-		onclose
+		onclose,
+		open = $bindable(false),
+		class: klass = '',
+		style: styleProp = '',
+		panelClass = '',
 	}: {
 		label: string;
 		items: MenuItem[];
@@ -67,13 +75,28 @@
 		/** Custom trailing content for items that carry a `tag`. */
 		tag?: Snippet<[MenuItem]>;
 		placement?: 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
+		/** Bindable open state; set it to open/close programmatically. */
+		open?: boolean;
+		class?: string;
+		style?: string;
+		panelClass?: string;
 	} & TriggerChrome = $props();
 
 	let listEl = $state<HTMLDivElement | null>(null);
 
+	$effect(() => {
+		const pop = listEl?.closest<HTMLElement>('[popover]');
+		if (!pop) return;
+		const isOpen = pop.matches(':popover-open');
+		try {
+			if (open && !isOpen) pop.showPopover();
+			else if (!open && isOpen) pop.hidePopover();
+		} catch {}
+	});
+
 	function buttons(): HTMLButtonElement[] {
 		return listEl
-			? Array.from(listEl.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not(:disabled)'))
+			? Array.from(listEl.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not(:disabled), [role="menuitemcheckbox"]:not(:disabled)'))
 			: [];
 	}
 	function focusAt(i: number) {
@@ -116,14 +139,21 @@
 	{control}
 	{block}
 	{triggerClass}
+	class={klass}
+	style={styleProp}
+	{panelClass}
 	{bare}
 	{hitArea}
 	{disabled}
 	{gap}
 	role="menu"
 	haspopup="menu"
-	{onclose}
+	onclose={() => {
+		open = false;
+		onclose?.();
+	}}
 	onopen={() => {
+		open = true;
 		queueMicrotask(() => focusAt(0));
 		onopen?.();
 	}}
@@ -132,14 +162,19 @@
 		{#each items as item (item.label)}
 			<button
 				type="button"
-				role="menuitem"
+				role={item.pressed === undefined ? 'menuitem' : 'menuitemcheckbox'}
+				aria-checked={item.pressed === undefined ? undefined : item.pressed}
 				class="menu-item"
 				class:danger={item.danger}
+				class:on={item.pressed}
 				disabled={item.disabled}
 				tabindex="-1"
 				onclick={() => select(item)}
 			>
-				{#if item.icon}<Icon name={item.icon} />{/if}
+				{#if item.content}
+					{@render item.content(item)}
+				{:else}
+				{#if item.pressed !== undefined}<span class="menu-check"><Icon name="check" /></span>{:else if item.icon}<Icon name={item.icon} />{/if}
 				<span>{item.label}</span>
 				{#if item.tag !== undefined}
 					{#if tag}
@@ -149,6 +184,7 @@
 							<Badge size="xs" tone={item.tagTone ?? 'neutral'} border={false}>{item.tag}</Badge>
 						</span>
 					{/if}
+				{/if}
 				{/if}
 			</button>
 		{/each}
@@ -182,6 +218,15 @@
 	}
 	.menu-item.danger {
 		color: var(--danger);
+	}
+	.menu-check {
+		display: inline-flex;
+		width: 1em;
+		visibility: hidden;
+	}
+	.menu-item.on .menu-check {
+		visibility: visible;
+		color: var(--accent);
 	}
 	.menu-tag {
 		display: inline-flex;

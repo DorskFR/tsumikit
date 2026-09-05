@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
 	// Page navigation in two flavours: page mode (`page` + `pageCount`) or
 	// offset mode (`offset` + `limit` + `total`, page/pageCount derived and
 	// `offset` written back). Numbered buttons collapse to prev / "3 / 12" /
@@ -17,6 +18,9 @@
 		showEdges = true,
 		showRange = false,
 		size = 'md',
+		grow = false,
+		shrink = true,
+		block = false,
 		label = 'Pagination',
 		class: klass = ''
 	}: {
@@ -34,7 +38,13 @@
 		showEdges?: boolean;
 		/** Show "1–20 / 412" (offset mode) or "3 / 12" next to the buttons. */
 		showRange?: boolean;
-		size?: 'sm' | 'md';
+		size?: ControlSize;
+		/** Fill the free space of a flex row (`flex: 1 1 0`). */
+		grow?: boolean;
+		/** `false` pins the box (`flex: none`) so a flex row cannot squeeze it. */
+		shrink?: boolean;
+		/** Full-width block. */
+		block?: boolean;
 		label?: string;
 		class?: string;
 	} = $props();
@@ -95,6 +105,9 @@
 <nav
 	data-tsu="Pagination"
 	class="pagination {klass}"
+	class:grow={grow}
+	class:no-shrink={!shrink}
+	class:block={block}
 	class:pagination-sm={size === 'sm'}
 	aria-label={label}
 >
@@ -139,6 +152,17 @@
 </nav>
 
 <style>
+	.grow {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+	.no-shrink {
+		flex: none;
+	}
+	.block {
+		display: flex;
+		width: 100%;
+	}
 	.pagination {
 		container-type: inline-size;
 		display: flex;

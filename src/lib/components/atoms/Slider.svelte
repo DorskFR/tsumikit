@@ -21,6 +21,8 @@
 		'aria-invalid': ariaInvalid,
 		invalid = false,
 		ticks = false,
+		marks = [],
+		width,
 		class: klass = '',
 		el = $bindable(null),
 		...rest
@@ -37,6 +39,10 @@
 		/** Visible dots at each step (segmented slider). `true` = one per `step`;
 		 *  a number array places dots at those values. */
 		ticks?: boolean | number[];
+		/** Clickable labelled tick row under the track. */
+		marks?: { value: number; label: string }[];
+		/** Fixed width (`flex: none`). */
+		width?: string;
 		id?: string;
 		'aria-describedby'?: string | null;
 		'aria-invalid'?: HTMLInputAttributes['aria-invalid'];
@@ -61,7 +67,7 @@
 	});
 </script>
 
-<div class="slider {klass}" class:has-ticks={tickValues.length > 0} style="--pct: {pct}%" data-tsu="Slider">
+<div class="slider {klass}" class:has-ticks={tickValues.length > 0} class:has-marks={marks.length > 0} class:fixed={!!width} style="--pct: {pct}%; {width ? `width: ${width}` : ''}" data-tsu="Slider">
 	<span class="range">
 	<input
 		bind:this={el}
@@ -87,9 +93,45 @@
 	{#if showValue}
 		<output for={id} class="slider-out">{format(Number(value))}</output>
 	{/if}
+	{#if marks.length > 0}
+		<span class="marks" aria-hidden="true">
+			{#each marks as m (m.value)}
+				<button type="button" class="mark" class:on={Number(value) === m.value} style="--f: {frac(m.value)}" tabindex="-1" onclick={() => (value = m.value)}>{m.label}</button>
+			{/each}
+		</span>
+	{/if}
 </div>
 
 <style>
+	.slider.fixed {
+		flex: none;
+	}
+	.slider.has-marks {
+		flex-wrap: wrap;
+		row-gap: var(--sp-1);
+	}
+	.marks {
+		position: relative;
+		flex: 1 0 100%;
+		height: 1.2em;
+		font-size: var(--fs-xs);
+		color: var(--text-faint);
+	}
+	.mark {
+		position: absolute;
+		left: calc(var(--f) * 100%);
+		transform: translateX(-50%);
+		border: 0;
+		background: none;
+		padding: 0;
+		font: inherit;
+		color: inherit;
+		cursor: pointer;
+		white-space: nowrap;
+	}
+	.mark.on {
+		color: var(--text);
+	}
 	.slider {
 		display: flex;
 		align-items: center;
@@ -160,11 +202,11 @@
 		outline: none;
 	}
 	input[type='range']:focus-visible::-webkit-slider-thumb {
-		outline: 2px solid var(--accent);
+		outline: var(--focus-ring);
 		outline-offset: 2px;
 	}
 	input[type='range']:focus-visible::-moz-range-thumb {
-		outline: 2px solid var(--accent);
+		outline: var(--focus-ring);
 		outline-offset: 2px;
 	}
 	input[type='range']:disabled {

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
+	import { canonicalTone, type Tone } from '$lib/tone';
 	// Progress bar. Determinate when `value` is a number (0..max); omit `value`
 	// (or pass `indeterminate`) for an indeterminate animation. Uses
 	// role="progressbar" with the right aria-value* attributes. Token-styled.
@@ -16,8 +18,17 @@
 		size = 'md',
 		gradient = false,
 		striped = false,
+		grow = false,
+		shrink = true,
+		block = false,
 		indeterminate: indeterminateProp = false,
-		class: klass = ''
+		markers = [],
+		toneAt,
+		color,
+		showValue = false,
+		format = (v: number, m: number) => `${Math.round((v / m) * 100)}%`,
+		class: klass = '',
+		...rest
 	}: {
 		value?: number;
 		max?: number;
@@ -25,27 +36,57 @@
 		// Fill colour. `accent` is the default brand fill; the semantic tones
 		// retint the bar for severity (e.g. usage meters going warm/hot).
 		// `ok` and `success` are aliases.
-		tone?: 'accent' | 'ok' | 'success' | 'warn' | 'danger';
+		tone?: Tone;
 		// Track height. `sm` is a thin ~5px track for inline rows.
-		size?: 'sm' | 'md';
+		size?: ControlSize;
+		/** Fill the free space of a flex row (`flex: 1 1 0`). */
+		grow?: boolean;
+		/** `false` pins the box (`flex: none`) so a flex row cannot squeeze it. */
+		shrink?: boolean;
+		/** Full-width block. */
+		block?: boolean;
 		// Accent→teal gradient fill (overrides the flat tone colour).
 		gradient?: boolean;
 		// Diagonal stripes; animated in indeterminate mode.
 		striped?: boolean;
 		// Force indeterminate mode even when a `value` is supplied.
 		indeterminate?: boolean;
+		/** Thin vertical lines at `at / max` (caps, thresholds). */
+		markers?: { at: number; label?: string; tone?: Tone }[];
+		/** Percent thresholds that auto-pick warn/danger; an explicit `tone` other
+		 *  than the default `accent` wins. */
+		toneAt?: { warn?: number; danger?: number };
+		/** Any CSS colour for the fill; wins over `tone`. */
+		color?: string;
+		/** Trailing numeric readout after the track. */
+		showValue?: boolean;
+		format?: (value: number, max: number) => string;
 		class?: string;
+		[key: string]: unknown;
 	} = $props();
 
 	const pct = $derived(value == null ? 0 : Math.max(0, Math.min(100, (value / max) * 100)));
 	const indeterminate = $derived(indeterminateProp || value == null);
-	const toneClass = $derived(tone === 'ok' ? 'success' : tone);
+	const autoTone = $derived.by((): Tone => {
+		if (!toneAt || tone !== 'accent' || indeterminate) return tone;
+		if (toneAt.danger !== undefined && pct >= toneAt.danger) return 'danger';
+		if (toneAt.warn !== undefined && pct >= toneAt.warn) return 'warn';
+		return tone;
+	});
+	const toneClass = $derived(canonicalTone(autoTone) === 'ok' ? 'success' : canonicalTone(autoTone));
+	const markerPct = (at: number) => Math.max(0, Math.min(100, (at / max) * 100));
 </script>
 
+{#snippet track()}
 <div
 	data-tsu="Progress"
 	class="progress tone-{toneClass} size-{size} {klass}"
+	class:grow={grow}
+	class:no-shrink={!shrink}
+	class:block={block}
 	class:indeterminate
+	style:--fill={color}
+	{...rest}
 	class:gradient
 	class:striped
 	role="progressbar"
@@ -55,10 +96,54 @@
 	aria-valuenow={indeterminate ? undefined : value}
 >
 	<div class="bar" style={indeterminate ? undefined : `width: ${pct}%`}></div>
+	{#each markers as m (m.at)}
+		<span
+			class="marker tone-{m.tone ? canonicalTone(m.tone) : 'text'}"
+			style="left: {markerPct(m.at)}%"
+			title={m.label}
+			aria-hidden="true"
+		></span>
+	{/each}
 </div>
+{/snippet}
+
+{#if showValue}
+	<span class="progress-row" class:grow={grow} class:no-shrink={!shrink} class:block={block}>
+		{@render track()}
+		<span class="progress-value">{indeterminate || value == null ? '' : format(value, max)}</span>
+	</span>
+{:else}
+	{@render track()}
+{/if}
 
 <style>
+	.progress-row {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--sp-2);
+		width: 100%;
+	}
+	.progress-value {
+		flex: none;
+		min-width: 3ch;
+		text-align: right;
+		font-size: var(--fs-xs);
+		font-variant-numeric: tabular-nums;
+		color: var(--text-muted);
+	}
+	.grow {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+	.no-shrink {
+		flex: none;
+	}
+	.block {
+		display: flex;
+		width: 100%;
+	}
 	.progress {
+		position: relative;
 		width: 100%;
 		height: 0.5rem;
 		background: var(--bg-elevated-2);
@@ -74,8 +159,38 @@
 		border-radius: inherit;
 		transition: width 0.2s var(--ease);
 	}
+	.marker {
+		position: absolute;
+		top: 0;
+		bottom: 0;
+		width: 2px;
+		transform: translateX(-50%);
+		background: var(--marker, var(--text));
+		pointer-events: none;
+	}
+	.marker.tone-ok {
+		--marker: var(--ok);
+	}
+	.marker.tone-warn {
+		--marker: var(--warn);
+	}
+	.marker.tone-danger {
+		--marker: var(--danger);
+	}
+	.marker.tone-info {
+		--marker: var(--info);
+	}
+	.marker.tone-accent {
+		--marker: var(--accent);
+	}
 	.tone-success {
 		--fill: var(--ok);
+	}
+	.tone-info {
+		--fill: var(--info);
+	}
+	.tone-neutral {
+		--fill: var(--text-faint);
 	}
 	.tone-warn {
 		--fill: var(--warn);

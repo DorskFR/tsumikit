@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { canonicalTone, type Tone } from '$lib/tone';
 	// Empty / placeholder state — the "nothing here yet" panel every unworked
 	// settings section, empty list, and zero-result table reaches for. Centered
 	// stack of:
@@ -25,9 +26,8 @@
 		// richer (multiple buttons, links) use the `action` snippet instead.
 		actionLabel,
 		onAction,
-		// Legacy alias for size="compact".
 		compact = false,
-		size = 'default',
+		size,
 		loading = false,
 		class: klass = '',
 		// Raw SVG markup for a custom glyph — passed straight to `Icon`.
@@ -39,9 +39,10 @@
 		title?: string;
 		description?: string | Snippet;
 		icon?: IconName;
-		tone?: 'neutral' | 'ok' | 'warn' | 'danger' | 'info';
+		tone?: Tone;
 		actionLabel?: string;
 		onAction?: () => void;
+		/** @deprecated use `size="compact"`; `size` wins when both are set. */
 		compact?: boolean;
 		size?: 'inline' | 'compact' | 'default';
 		loading?: boolean;
@@ -51,11 +52,11 @@
 		[key: string]: unknown;
 	} = $props();
 
-	const sz = $derived(compact ? 'compact' : size);
+	const sz = $derived(size ?? (compact ? 'compact' : 'default'));
 </script>
 
 <div
-	class="empty empty-{tone} {klass}"
+	class="empty empty-{canonicalTone(tone)} {klass}"
 	class:empty-compact={sz === 'compact'}
 	class:empty-inline={sz === 'inline'}
 	class:empty-loading={loading}
@@ -114,6 +115,9 @@
 	}
 	:global(.empty-info) {
 		--empty-tone: var(--info);
+	}
+	:global(.empty-accent) {
+		--empty-tone: var(--accent);
 	}
 	.empty-compact {
 		gap: var(--sp-2);

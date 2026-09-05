@@ -8,7 +8,7 @@ const [input, bar] = await Promise.all([
 ]);
 
 test('FilterInput gains size, shape, surface, hotkey, showHotkey and grow', () => {
-	assert.match(input, /size\?: 'sm' \| 'md'/);
+	assert.match(input, /size\?: ControlSize/);
 	assert.match(input, /shape\?: 'square' \| 'pill'/);
 	assert.match(input, /surface\?: 'base' \| 'raised' \| 'sunken'/);
 	assert.match(input, /hotkey\?: string/);

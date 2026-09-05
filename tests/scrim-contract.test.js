@@ -13,7 +13,7 @@ test('Scrim is a fixed full-viewport close target on the drawer layer', () => {
 	assert.match(source, /hideBelow\?: string/);
 	assert.match(source, /z = 'var\(--z-drawer\)'/);
 	assert.match(source, /label = 'Close'/);
-	assert.match(source, /<button\s+type="button"\s+class="scrim"/);
+	assert.match(source, /<button\s+type="button"\s+class="scrim {klass}"/);
 	assert.match(source, /style:z-index={z}/);
 	assert.match(source, /aria-label={label}/);
 	assert.match(source, /tabindex="-1"/);

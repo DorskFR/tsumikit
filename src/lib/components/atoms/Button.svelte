@@ -1,4 +1,6 @@
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
+	import { canonicalTone, type Tone } from '$lib/tone';
 	import type { Snippet } from 'svelte';
 	import type { HTMLButtonAttributes } from 'svelte/elements';
 
@@ -9,8 +11,8 @@
 		// Semantic state tint layered on top of the variant: tints text/border and
 		// adds a subtle fill on hover. For stateful controls — an "on"/active toggle
 		// (`accent`), positive actions (`success`), or cost/severity states.
-		tone?: 'none' | 'accent' | 'success' | 'info' | 'warn' | 'danger';
-		size?: 'sm' | 'md' | 'lg';
+		tone?: Tone | 'none';
+		size?: ControlSize;
 		control?: boolean;
 		// Fully rounded ends (`--r-pill`) on any size/variant.
 		pill?: boolean;
@@ -39,8 +41,8 @@
 		// Square text/icon control whose side equals the current height contract:
 		// `size` tier, or `--control-height` with `control`.
 		square?: boolean;
-		// Outlined `--box-lg` icon-chip (header/toolbar action). Pairs with `tone`
-		// for tinted severity chips (back/archive/interrupt/more).
+		// Outlined `--box-lg`-tall chip (header/toolbar action): a square for a lone
+		// glyph, otherwise sized to its text. Pairs with `tone` for tinted severity chips.
 		chip?: boolean;
 		iconInline?: boolean;
 		hoverDanger?: boolean;
@@ -86,6 +88,7 @@
 		children,
 		...rest
 	}: ButtonProps = $props();
+	const t = $derived(canonicalTone(tone));
 
 	// A link-flavoured Button is a real <a>; native `disabled`/`type` don't apply,
 	// so a disabled link is expressed via aria-disabled + inert pointer handling.
@@ -121,7 +124,7 @@
 	class:btn-grow={grow}
 	class:btn-primary={variant === 'primary'}
 	class:btn-ghost={variant === 'ghost'}
-	class:btn-danger={variant === 'danger' || (tone === 'danger' && variant === 'default')}
+	class:btn-danger={variant === 'danger' || (t === 'danger' && variant === 'default')}
 	class:btn-link={variant === 'link'}
 	class:btn-pill={pill}
 	class:no-shrink={!shrink}
@@ -137,11 +140,11 @@
 	class:btn-collapse-container={collapseLabel === 'container'}
 	class:hit-compact={hitArea === 'compact'}
 	style:--btn-box={box ? `var(--box-${box})` : undefined}
-	class:btn-tone-accent={tone === 'accent'}
-	class:btn-tone-success={tone === 'success'}
-	class:btn-tone-info={tone === 'info'}
-	class:btn-tone-warn={tone === 'warn'}
-	class:btn-tone-danger={tone === 'danger'}
+	class:btn-tone-accent={t === 'accent'}
+	class:btn-tone-success={t === 'ok'}
+	class:btn-tone-info={t === 'info'}
+	class:btn-tone-warn={t === 'warn'}
+	class:btn-tone-danger={t === 'danger'}
 	class:btn-icon-inline={iconInline}
 	class:hover-danger={hoverDanger}
 	class:loading
@@ -277,10 +280,15 @@
 		min-height: var(--box-lg);
 		min-width: var(--box-lg);
 		height: var(--box-lg);
-		width: var(--box-lg);
-		padding: 0;
+		width: auto;
+		padding: 0 var(--sp-2);
+		gap: var(--sp-1);
 		flex: none;
 		border-radius: var(--r-md);
+	}
+	.btn-chip:has(> :global(svg):only-child) {
+		width: var(--box-lg);
+		padding: 0;
 	}
 
 	/* Uniform-height control: icon buttons, inputs and action buttons that share a
@@ -333,6 +341,16 @@
 	.btn-control.btn-tone-success:hover:not(:disabled) {
 		background: color-mix(in srgb, var(--ok) 14%, transparent);
 		border-color: var(--ok);
+	}
+	.btn-control.btn-danger,
+	.btn-control.btn-tone-danger {
+		color: var(--danger);
+		border-color: color-mix(in srgb, var(--danger) 50%, var(--border));
+	}
+	.btn-control.btn-danger:hover:not(:disabled),
+	.btn-control.btn-tone-danger:hover:not(:disabled) {
+		background: color-mix(in srgb, var(--danger) 14%, transparent);
+		border-color: var(--danger);
 	}
 	/* A positive primary action uses success as its fill, not merely as the
 	   neutral tint. This follows the control override so both heights match. */

@@ -23,6 +23,7 @@
 </script>
 
 <script lang="ts">
+	import type { ControlSize } from '$lib/size';
 	// ───────────────────────────────────────────────────────────────────────
 	// FilterInput primitive — the headless base of the structured search bar.
 	//
@@ -64,7 +65,9 @@
 		onchange,
 		onsubmit,
 		inline,
-		below
+		below,
+		class: klass = '',
+		style: styleProp = '',
 	}: {
 		schema: Schema;
 		/** The raw textual query (two-way bindable). */
@@ -81,7 +84,7 @@
 		/** Leading icon; pass `null` to hide it. */
 		icon?: IconName | null;
 		/** `sm` renders a compact-toolbar bar (`--control-height-compact`). */
-		size?: 'sm' | 'md';
+		size?: ControlSize;
 		shape?: 'square' | 'pill';
 		/** Theme-aware surface shade of the bar (mirrors Card). */
 		surface?: 'base' | 'raised' | 'sunken';
@@ -110,6 +113,8 @@
 		 * passes its chip row here; single-field hosts simply omit it.
 		 */
 		below?: Snippet<[FilterInputContext]>;
+		class?: string;
+		style?: string;
 	} = $props();
 
 	const field = getFieldContext();
@@ -306,7 +311,8 @@
 </script>
 
 <div
-	class="fi"
+	class="fi {klass}"
+	style={styleProp}
 	class:fi--sm={size === 'sm'}
 	class:fi--pill={shape === 'pill'}
 	class:surface-raised={surface === 'raised'}
@@ -435,6 +441,10 @@
 	.fi__bar:focus-within {
 		border-color: var(--accent);
 		box-shadow: 0 0 0 3px var(--accent-dim);
+	}
+	.fi__bar:has(:focus-visible) {
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
 	}
 	.fi__icon {
 		display: flex;

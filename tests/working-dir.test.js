@@ -81,3 +81,10 @@ test('WorkingDir and its helper are exported from the package index', () => {
 test('WorkingDir rail keeps its height inside a column flex parent', () => {
 	assert.match(component, /\.rail\s*{[^}]*min-height: max-content;/s);
 });
+
+test('shrink caps the rail at the full path width so it sizes to content yet still truncates', () => {
+	assert.match(component, /shrink = false/);
+	assert.match(component, /shrink\?: boolean/);
+	assert.match(component, /const fullWidth = \$derived\(shrink && !full \? Math\.ceil\(candidates\[0\]\.length \* chPx \+ chrome \+ 2\) : undefined\)/);
+	assert.match(component, /style:max-width={fullWidth \? `\${fullWidth}px` : undefined}/);
+});

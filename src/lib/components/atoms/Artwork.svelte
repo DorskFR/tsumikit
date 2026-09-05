@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { HTMLAttributes } from 'svelte/elements';
 	// Cover / thumbnail tile: a lazy <img> that swaps to a seeded gradient with
 	// initials (or an icon) when there is no source or it fails to load. Width
 	// comes from `size`, height from `aspect`; `status` overlays a Dot/Badge in
@@ -8,22 +9,7 @@
 	import Icon from './Icon.svelte';
 	import type { IconName } from './Icon.svelte';
 
-	let {
-		src,
-		alt,
-		seed,
-		aspect = '1/1',
-		size,
-		radius = 'md',
-		fit = 'cover',
-		fallback = 'initials',
-		icon = 'image',
-		status,
-		hover = false,
-		onerror,
-		class: klass = '',
-		...rest
-	}: {
+	type Own = {
 		src?: string | null;
 		alt: string;
 		/** Drives the gradient hue and the initials. Defaults to `alt`. */
@@ -43,8 +29,23 @@
 		hover?: boolean;
 		onerror?: () => void;
 		class?: string;
-		[key: string]: unknown;
-	} = $props();
+	};
+	let {
+		src,
+		alt,
+		seed,
+		aspect = '1/1',
+		size,
+		radius = 'md',
+		fit = 'cover',
+		fallback = 'initials',
+		icon = 'image',
+		status,
+		hover = false,
+		onerror,
+		class: klass = '',
+		...rest
+	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
 
 	let failed = $state(false);
 	$effect(() => {

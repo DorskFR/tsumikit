@@ -8,7 +8,7 @@ const tabs = await readFile(
 );
 
 const tablist = tabs.match(/\.tablist \{[^}]*\}/)?.[0] ?? '';
-const tab = tabs.match(/\n\t\.tab \{[^}]*\}/)?.[0] ?? '';
+const tab = tabs.match(/(?:^|[}\n])\s*\.tab \{[^}]*\}/)?.[0] ?? '';
 
 test('Tabs scrolls its list instead of overflowing a narrow viewport', () => {
 	assert.match(tablist, /overflow-x: auto/);
