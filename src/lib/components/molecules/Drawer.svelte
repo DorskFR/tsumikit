@@ -141,14 +141,16 @@
 
 <style>
 	.drawer {
+		position: fixed;
+		inset: 0;
 		margin: 0;
 		padding: 0;
 		border: 0;
 		background: none;
-		max-width: 100vw;
-		max-height: 100dvh;
-		width: 100%;
-		height: 100%;
+		max-width: none;
+		max-height: none;
+		width: auto;
+		height: auto;
 		color: var(--text);
 		display: flex;
 		justify-content: flex-end;
@@ -178,9 +180,10 @@
 			'nav'
 			'body'
 			'foot';
-		width: 100vw;
-		height: 100dvh;
+		width: 100%;
+		height: 100%;
 		background: var(--bg-elevated);
+		will-change: transform;
 		padding-top: var(--safe-top);
 		padding-bottom: var(--safe-bottom);
 		animation: drawer-slide-right 0.2s var(--ease);
