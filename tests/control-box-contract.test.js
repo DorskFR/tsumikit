@@ -57,7 +57,7 @@ test('Button box/square/chip render square, padding-less, non-flexing boxes', ()
 test('Popover and FileButton own the same box geometry on their native element', () => {
 	assert.match(popover, /style:--pop-box={box \? `var\(--box-\${box}\)` : undefined}/);
 	assert.match(popover, /\.pop-trigger\.trigger-box\s*{[^}]*width: var\(--pop-box\);[^}]*padding: 0;/s);
-	assert.match(popover, /\.pop-trigger:not\(\.bare\)\s*{[^}]*min-width: var\(--box-md\);/s);
+	assert.match(popover, /:where\(\.pop-trigger:not\(\.bare\)\)\s*{[^}]*min-width: var\(--box-md\);/s);
 	assert.match(fileButton, /style:--file-box={box \? `var\(--box-\${box}\)` : undefined}/);
 	assert.match(fileButton, /\.file-btn\.box\s*{[^}]*width: var\(--file-box\);[^}]*padding: 0;/s);
 	assert.match(fileButton, /const onlyIcon = \$derived\(iconOnly \|\| box !== undefined\)/);

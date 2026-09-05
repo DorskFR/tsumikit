@@ -174,10 +174,10 @@
 	/* The trigger owns its look (a ghost icon-button) from tokens — it no longer
 	   borrows global .btn classes, so a consumer can restyle it via `triggerClass`
 	   (+ `bare`) from their own scoped CSS instead of fighting globals. */
-	/* All trigger chrome lives on non-bare triggers. A `bare` trigger (e.g. the
-	   Timestamp <time>) is plain inline text the consumer styles; nothing here
-	   may reach it regardless of specificity. */
-	.pop-trigger:not(.bare) {
+	/* Default trigger chrome. Zero specificity (`:where`) so any consumer class
+	   (triggerClass) overrides it; `:not(.bare)` keeps it off bare triggers such
+	   as the Timestamp <time>, which stay plain inline text. */
+	:where(.pop-trigger:not(.bare)) {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
@@ -192,7 +192,7 @@
 			background 0.12s var(--ease),
 			border-color 0.12s var(--ease);
 	}
-	.pop-trigger:not(.bare):hover:not(:disabled) {
+	:where(.pop-trigger:not(.bare):hover:not(:disabled)) {
 		background: var(--bg-elevated-2);
 	}
 	/* Supplying canonical chrome props opts into the same dimensions, variants
