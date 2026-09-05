@@ -88,3 +88,9 @@ test('overlay mode is a fixed non-modal dialog with scrim, Escape close and focu
 	assert.match(source, /overlay && clampToViewport && viewportWidth \? viewportWidth : Number\.POSITIVE_INFINITY/);
 	assert.match(source, /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.panel\s*{[^}]*animation: none;/s);
 });
+
+test('collapseControl defaults on inline and off in overlay mode', () => {
+	assert.match(source, /collapseControl\?: boolean/);
+	assert.match(source, /const showCollapseControl = \$derived\(collapseControl \?\? !overlay\)/);
+	assert.match(source, /{#if showCollapseControl}\s*<button/);
+});

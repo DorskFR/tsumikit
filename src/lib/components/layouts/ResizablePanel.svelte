@@ -26,7 +26,8 @@
 		onclose,
 		scrim,
 		fullWidthBelow,
-		clampToViewport = true
+		clampToViewport = true,
+		collapseControl
 	}: {
 		/** Content shown while the panel is expanded. */
 		panel: Snippet;
@@ -55,6 +56,9 @@
 		/** Keep the collapse handle in view when the panel scrolls past the
 		 *  viewport, repositioning on scroll/resize via requestAnimationFrame. */
 		stickyHandle?: boolean;
+		/** Render the edge chevron. Defaults to on inline, off in overlay mode
+		 *  (Escape and the scrim already close a drawer). */
+		collapseControl?: boolean;
 		/** `inline` shares the row with `children`; `overlay` fixes the panel to
 		 *  its viewport edge as a non-modal drawer above the page. */
 		mode?: 'inline' | 'overlay';
@@ -83,6 +87,7 @@
 	let fullBleed = $state(false);
 
 	const overlay = $derived(mode === 'overlay');
+	const showCollapseControl = $derived(collapseControl ?? !overlay);
 	const shown = $derived(overlay ? open : !collapsed);
 	const showScrim = $derived(overlay && open && (scrim ?? true));
 
@@ -319,6 +324,7 @@
 				></div>
 			{/if}
 
+			{#if showCollapseControl}
 			<button
 				bind:this={handleEl}
 				type="button"
@@ -333,6 +339,7 @@
 			>
 				<Icon name={toggleIcon} size={14} />
 			</button>
+			{/if}
 		</svelte:element>
 	{/if}
 
