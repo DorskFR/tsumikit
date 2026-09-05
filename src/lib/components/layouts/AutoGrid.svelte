@@ -73,7 +73,11 @@
 			`--ag-mode: ${mode}`,
 			maxCols != null ? `--ag-gap: ${gap}` : null,
 			maxCols != null ? `--ag-cols: ${maxCols}` : null,
-			template ? `grid-template-columns: ${template}` : null,
+			template
+				? `grid-template-columns: ${template}`
+				: max != null && maxCols == null
+					? `grid-template-columns: repeat(auto-fill, minmax(min(100%, ${min}), ${max}))`
+					: null,
 			`gap: ${gap}`,
 			`align-items: ${align}`,
 			justifyValue ? `justify-content: ${justifyValue}` : null

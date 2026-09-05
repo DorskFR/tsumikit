@@ -111,7 +111,7 @@ test('cctui nits: SegmentedControl onchange/justify/wrap, RadioGroup swatch, Nav
 
 test('cctui nits: AutoGrid template, Tabs panelPadding, Modal maxHeight, Badge href/external, SegmentedProgress rest, filterQuery namespace', () => {
 	assert.match(autoGrid, /template\?: string;/);
-	assert.match(autoGrid, /template \? `grid-template-columns: \${template}` : null/);
+	assert.match(autoGrid, /template\s*\? `grid-template-columns: \${template}`/);
 	assert.match(tabs, /panelPadding\?: 'none' \| 'sm' \| 'md';/);
 	assert.match(modal, /maxHeight\?: string;/);
 	assert.match(modal, /style:max-height={maxHeight}/);
