@@ -4,7 +4,8 @@
 	// it, `sticky` pins it under the app header and publishes its height as
 	// `--section-header-h` on the parent so sibling sticky content can offset
 	// itself. `collapsible` turns the title into a disclosure button that
-	// toggles the `children` block rendered beneath.
+	// toggles the `children` block rendered beneath. `variant="group"` is the
+	// non-wrapping list-group row: `lead` · title · count · flexible rule · actions.
 	import type { Snippet } from 'svelte';
 	import Heading from '../atoms/Heading.svelte';
 	import Icon, { type IconName } from '../atoms/Icon.svelte';
@@ -16,6 +17,8 @@
 	let {
 		title,
 		label,
+		variant = 'default',
+		lead,
 		level = 2,
 		size,
 		subtitle,
@@ -36,6 +39,9 @@
 		title?: string;
 		/** Alias for `title`. */
 		label?: string;
+		variant?: 'default' | 'group';
+		/** Leading content before the title (status dot, badge); group rows. */
+		lead?: Snippet;
 		level?: 1 | 2 | 3 | 4;
 		size?: Size;
 		subtitle?: string;
@@ -76,6 +82,7 @@
 	data-tsu="SectionHeader"
 	class="section-header sh-{tone} {klass}"
 	class:sh-divider={divider}
+	class:sh-group={variant === 'group'}
 	class:sh-sticky={sticky}
 	class:sh-uppercase={uppercase}
 	class:sh-open={open}
@@ -99,6 +106,9 @@
 		{#if subtitle}
 			<Text variant="caption" class="sh-subtitle">{subtitle}</Text>
 		{/if}
+		{#if variant === 'group'}
+			<span class="sh-rule" aria-hidden="true"></span>
+		{/if}
 		{#if actions}
 			<div class="sh-actions">{@render actions()}</div>
 		{/if}
@@ -109,6 +119,9 @@
 </div>
 
 {#snippet head()}
+	{#if lead}
+		<span class="sh-lead">{@render lead()}</span>
+	{/if}
 	{#if hue !== undefined}
 		<span class="sh-swatch" style:--sh-hue={hue} aria-hidden="true"></span>
 	{/if}
@@ -147,6 +160,27 @@
 	.sh-divider > .sh-row {
 		padding-bottom: var(--sp-2);
 		border-bottom: 1px solid var(--border);
+	}
+	.sh-group > .sh-row {
+		flex-wrap: nowrap;
+		gap: var(--sp-2);
+	}
+	.sh-lead {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--sp-2);
+		flex: none;
+	}
+	.sh-rule {
+		flex: 1 1 auto;
+		min-width: var(--sp-4);
+		height: 1px;
+		background: var(--border);
+	}
+	.sh-group .sh-actions {
+		flex: none;
+		flex-wrap: nowrap;
+		margin-inline-start: 0;
 	}
 	.sh-sticky {
 		position: sticky;

@@ -1,6 +1,7 @@
 <script lang="ts">
-	// A timestamp you can read five ways and inspect in one place. Inline it
-	// renders in the chosen `mode` (date / time / datetime / relative / iso),
+	// A timestamp you can read six ways and inspect in one place. Inline it
+	// renders in the chosen `mode` (date / time / datetime / relative / iso /
+	// short-iso),
 	// in the viewer's zone or UTC via the `utc` flag; by default clicking it
 	// opens a popover that lays out the same instant as ISO-UTC, local, relative,
 	// the IANA zone and the unix epoch — so the one value answers "when,
@@ -45,8 +46,8 @@
 		value: TimeInput | null | undefined;
 		/** Inline display mode. Default 'datetime'. */
 		mode?: TimestampMode;
-		/** Render the date/time/datetime modes in UTC rather than the viewer's
-		 *  zone. Default false. Ignored by 'iso' (always UTC) and 'relative'
+		/** Render the date/time/datetime/short-iso modes in UTC rather than the
+		 *  viewer's zone. Default false. Ignored by 'iso' (always UTC) and 'relative'
 		 *  (zoneless). Handy for calendar-date fields, where a local midnight-UTC
 		 *  value would otherwise show the wrong day. */
 		utc?: boolean;
@@ -101,7 +102,8 @@
 		{ id: 'time', name: 'Time' },
 		{ id: 'datetime', name: 'Date+time' },
 		{ id: 'relative', name: 'Relative' },
-		{ id: 'iso', name: 'ISO' }
+		{ id: 'iso', name: 'ISO' },
+		{ id: 'short-iso', name: 'YYYY-MM-DD' }
 	];
 
 	const rows = $derived(

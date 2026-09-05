@@ -147,7 +147,8 @@ for a light theme (`:root` defaults to dark, so dark themes may omit it).
 **Atoms:** Text, Heading, Button, Input (`icon` inset leading glyph,
 `clearable` + `onclear`, `shape="pill"`, `width` fixed + `flex: none`,
 `onenter(value)`; the bare `<input>` DOM is unchanged unless `icon`/`clearable`
-is used), Textarea, Select, Switch, Checkbox,
+is used), Textarea, Select (`options` array with per-option `icon`/`emoji`/`hint`/`disabled`;
+the trigger overlays the selected option's glyph + muted hint on the native control), Switch, Checkbox,
 Slider, Progress, Gauge (vertical consumption cell, `variant` continuous/segments,
 threshold tones via `warnAt`/`dangerAt`, `corner` snippet), Artwork (lazy cover image with seeded gradient + initials
 fallback, `aspect`, `status` overlay), Card (`tone` tints the surface for inline banners), Badge
@@ -158,12 +159,19 @@ always/hover/none, `align`), Icon (open registry — pass a `children` snippet f
 any custom SVG).
 
 **Molecules:** Field (`grow`), IconButton, SelectButton, Toggle, OptionButton, Modal,
-Popover, Menu, Tabs, RadioGroup, Tooltip, Accordion, CopyButton, FileButton,
+Popover, Menu (items take a free-form trailing `tag` + `tagTone`, or a `tag` snippet),
+Tabs, RadioGroup (`variant="rows"`: bordered rows, per-option `note`/`description`,
+`action(option)` trailing control that never toggles, `below(option)` inline panel),
+Tooltip, Accordion, CopyButton, FileButton,
 Dropzone, CodeBlock, Callout, EmptyState, ConfirmModal, Pagination, Toaster,
 ThemePicker, FontScalePicker, SectionHeader, KeyValue, LoadMore,
 GitRef (branch chip + PR link tinted by state + `+N −N` diff; `collapse`
 auto/never/glyph degrades to icons inside a narrow `.cq` container),
-CapBar (consumption track with a draggable, keyboard-steppable cap handle; `oninput` live, `onchange` on commit), WorkingDir
+CapBar (consumption track with a draggable, keyboard-steppable cap handle; `oninput` live, `onchange` on commit),
+Drawer (side-panel `<dialog>`: `side`, `width` clamped to the viewport, full-screen
+under 48rem; `nav` page column that turns into a horizontal strip on narrow
+screens, or `navMobile`; sticky `footer`; Escape / scrim / close button all close),
+Timestamp (`mode` date/time/datetime/relative/iso/`short-iso` for a locale-independent `YYYY-MM-DD`; `utc`; click for a details popover), WorkingDir
 (fish-style path chip: ancestors abbreviate left to right as the slot narrows,
 then the leaf ellipsises down to `minLeaf`; `full` skips the fit, `copy` makes it
 a copy-on-click button; candidates via the `workingDirCandidates` helper).
@@ -320,6 +328,8 @@ chip), `uppercase` (eyebrow group label), `divider`, `sticky` (pins at
 `--sticky-offset` / `--header-h` and publishes `--section-header-h` on its
 parent), `collapsible` + `bind:open` (title becomes a disclosure button with
 `aria-expanded`; `children` render beneath while open), `actions` snippet.
+`variant="group"` is the non-wrapping list-group row: `lead` snippet (dot /
+badge) · title · `count` · flexible 1px rule · `actions` (sort menu, eye toggle).
 
 `Card` gains `header` / `footer` snippets rendered outside the padded body
 behind a divider, `title` / `subtitle` / `actions` sugar that renders a

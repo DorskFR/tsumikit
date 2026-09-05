@@ -66,6 +66,7 @@
 		SectionHeader,
 		Artwork,
 		NavItem,
+		Drawer,
 		KeyValue,
 		LoadMore,
 		ThemePicker,
@@ -100,9 +101,17 @@
 	let textValue = $state('Editable text');
 	let areaValue = $state('Multi-line input.\nGrows if autoresize is on.');
 	let selectValue = $state('two');
+	let selectOptionValue = $state('personal');
 	let pickerValue = $state('a');
 	let modalOpen = $state(false);
 	let confirmOpen = $state(false);
+	let drawerOpen = $state(false);
+	let drawerPage = $state<'general' | 'credentials' | 'limits'>('general');
+	const drawerPages = [
+		{ id: 'general', label: 'General', icon: 'settings' },
+		{ id: 'credentials', label: 'Credentials', icon: 'lock' },
+		{ id: 'limits', label: 'Limits', icon: 'filter' }
+	] as const;
 	let confirmFails = $state(false);
 	let poolA = $state(['Ledger', 'Wallet']);
 	let poolB = $state(['Exchange']);
@@ -147,7 +156,8 @@
 		{ label: 'Edit', icon: 'edit', onselect: () => toasts.show('Edit') },
 		{ label: 'Duplicate', icon: 'copy', onselect: () => toasts.show('Duplicated') },
 		{ label: 'Share', icon: 'external', onselect: () => toasts.ok('Shared') },
-		{ label: 'Delete', icon: 'trash', danger: true, onselect: () => toasts.error('Deleted') }
+		{ label: 'Manage access', icon: 'settings', tag: 'admin', tagTone: 'info', onselect: () => toasts.show('Access') },
+		{ label: 'Delete', icon: 'trash', danger: true, tag: 'danger', tagTone: 'danger', onselect: () => toasts.error('Deleted') }
 	];
 	const tabs: TabItem[] = [
 		{ id: 'overview', label: 'Overview', icon: 'info' },
@@ -159,6 +169,13 @@
 		{ value: 'sms', label: 'SMS', hint: 'Urgent only' },
 		{ value: 'none', label: 'None', hint: 'No notifications', disabled: true }
 	];
+	const profileOptions: RadioOption[] = [
+		{ value: 'personal', label: 'Personal', note: '12× this week', description: 'Claude Code · 🐼 personal · Fable 5 · medium · Yolo' },
+		{ value: 'work', label: 'Work', note: '3× this week', description: 'Claude Code · 🏢 work · Opus · high · Ask' },
+		{ value: 'review', label: 'Reviewer', description: 'OpenCode · locked-down reviewer · read-only' }
+	];
+	let profileValue = $state('personal');
+	let profileOpen = $state<string | null>(null);
 
 	const sampleCode = `// install and use
 import { Button, theme } from '@dorsk/tsumikit';
@@ -688,6 +705,13 @@ function greet(name) {
 				<Text variant="caption">Group rows render here while open.</Text>
 			</SectionHeader>
 			<SectionHeader title="Failed" icon="warning" tone="danger" count={2} level={3} size="sm" />
+			<SectionHeader variant="group" title="sakura" count={7} level={3} size="sm">
+				{#snippet lead()}<Badge tone="ok" dot size="xs" border={false}>live</Badge>{/snippet}
+				{#snippet actions()}
+					<Button size="sm" variant="ghost">Sort</Button>
+					<Button size="sm" variant="ghost" aria-label="Hide group"><Icon name="eye" size={14} /></Button>
+				{/snippet}
+			</SectionHeader>
 			<Card title="Host" subtitle="sakura" gap="var(--sp-3)">
 				{#snippet actions()}
 					<Button size="sm" variant="ghost">Edit</Button>
@@ -754,6 +778,17 @@ function greet(name) {
 						<option value="two">Option two</option>
 						<option value="three">Option three</option>
 					</Select>
+				</Field>
+				<Field label="Select (options: emoji · icon · hint)" for="f-select-opts">
+					<Select
+						id="f-select-opts"
+						bind:value={selectOptionValue}
+						options={[
+							{ value: 'personal', label: 'personal', emoji: '🐼', hint: '62%' },
+							{ value: 'work', label: 'work', icon: 'users', hint: '18%' },
+							{ value: 'archive', label: 'archive', emoji: '📦', hint: '100%', disabled: true }
+						]}
+					/>
 				</Field>
 				<Field label="Select (width=auto, embedded)" for="f-select-emb">
 					<Select id="f-select-emb" width="auto" variant="embedded" bind:value={selectValue}>
@@ -944,6 +979,24 @@ function greet(name) {
 				</Field>
 				<Field label="Radio group">
 					<RadioGroup label="Notifications" options={radioOptions} bind:value={radioValue} />
+				</Field>
+				<Field label="Radio group · rows">
+					<RadioGroup label="Spawn profile" variant="rows" options={profileOptions} bind:value={profileValue}>
+						{#snippet action(o)}
+							<IconButton
+								icon="settings"
+								inline
+								label="Configure {o.label}"
+								pressed={profileOpen === o.value}
+								onclick={() => (profileOpen = profileOpen === o.value ? null : o.value)}
+							/>
+						{/snippet}
+						{#snippet below(o)}
+							{#if profileOpen === o.value}
+								<Text variant="caption" tone="muted">Inline settings panel for {o.label} — consumer-owned content.</Text>
+							{/if}
+						{/snippet}
+					</RadioGroup>
 				</Field>
 			</div>
 		</Card>
@@ -1355,7 +1408,7 @@ function greet(name) {
 		<Card>
 			<div class="stack">
 				<Text variant="caption">
-					Renders an instant in one of five modes (date, time, datetime, relative, iso), subdued
+					Renders an instant in one of six modes (date, time, datetime, relative, iso, short-iso), subdued
 					by default. The <code>date</code>/<code>time</code>/<code>datetime</code> modes follow
 					the viewer's zone unless you pass <code>utc</code>. Click it for a read-only popover
 					with the same instant as UTC, relative, your time zone and the unix epoch. Opt into
@@ -1368,6 +1421,9 @@ function greet(name) {
 						date (utc): <Timestamp value="2026-06-14T07:30:00Z" mode="date" utc />
 					</Text>
 					<Text variant="body">iso: <Timestamp value="2026-06-14T07:30:00Z" mode="iso" /></Text>
+					<Text variant="body">
+						short-iso: <Timestamp value="2026-06-14T07:30:00Z" mode="short-iso" mono />
+					</Text>
 					<Text variant="body">time: <Timestamp value="2026-06-14T07:30:00Z" mode="time" /></Text>
 					<Text variant="body">
 						relative: <Timestamp value={Date.now() - 7 * 86_400_000} mode="relative" />
@@ -1559,6 +1615,24 @@ function greet(name) {
 		</div>
 	</section>
 
+	<!-- DRAWER -->
+	<section class="section">
+		<Heading level={2}>Drawer</Heading>
+		<Card>
+			<Stack gap="var(--sp-4)">
+				<Text variant="body">
+					Side panel on the native <code>&lt;dialog&gt;</code>: Escape, scrim click and the close
+					button close it; focus is trapped; body scroll is locked. A <code>nav</code> snippet
+					becomes a 150px page column beside the content on wide viewports and a horizontal strip
+					above it under 48rem, where the panel goes full-screen.
+				</Text>
+				<div class="row row-wrap">
+					<Button variant="primary" onclick={() => (drawerOpen = true)}>Open drawer</Button>
+				</div>
+			</Stack>
+		</Card>
+	</section>
+
 	<!-- CONFIRM MODAL + PAGINATION -->
 	<section class="section">
 		<Heading level={2}>ConfirmModal &amp; Pagination</Heading>
@@ -1702,6 +1776,48 @@ function greet(name) {
 	confirmLabel="Delete"
 	onconfirm={demoConfirm}
 />
+
+<Drawer
+	bind:open={drawerOpen}
+	title="Provider"
+	page={drawerPages.find((p) => p.id === drawerPage)?.label}
+	icon="settings"
+>
+	{#snippet nav()}
+		{#each drawerPages as p (p.id)}
+			<NavItem
+				icon={p.icon}
+				label={p.label}
+				active={drawerPage === p.id}
+				onclick={() => (drawerPage = p.id)}
+			/>
+		{/each}
+	{/snippet}
+	<div class="stack">
+		{#if drawerPage === 'general'}
+			<Field label="Display name" for="dr-name">
+				<Input id="dr-name" placeholder="My provider" />
+			</Field>
+			<Field label="Base URL" for="dr-url">
+				<Input id="dr-url" placeholder="https://api.example.com" />
+			</Field>
+		{:else if drawerPage === 'credentials'}
+			<Field label="API key" for="dr-key">
+				<Input id="dr-key" type="password" placeholder="sk-…" />
+			</Field>
+		{:else}
+			<Field label="Requests per minute" for="dr-rpm">
+				<Input id="dr-rpm" type="number" placeholder="60" />
+			</Field>
+		{/if}
+	</div>
+	{#snippet footer()}
+		<Text variant="caption" tone="faint">2 changes</Text>
+		<div class="spacer"></div>
+		<Button onclick={() => (drawerOpen = false)}>Cancel</Button>
+		<Button variant="primary" onclick={() => (drawerOpen = false)}>Save</Button>
+	{/snippet}
+</Drawer>
 
 {#if modalOpen}
 	<Modal title="Example dialog" onclose={() => (modalOpen = false)} resizeKey="tsumikit-demo-modal">
