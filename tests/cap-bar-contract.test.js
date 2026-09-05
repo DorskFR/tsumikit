@@ -14,7 +14,7 @@ test('CapBar is exported from the molecules block', () => {
 
 test('label | track | readout grid with overridable widths', () => {
 	assert.match(component, /labelWidth = '96px'/);
-	assert.match(component, /readoutWidth = '76px'/);
+	assert.match(component, /readoutWidth = 'auto'/);
 	assert.match(component, /grid-template-columns: var\(--label-w\) 1fr var\(--readout-w\);/);
 	assert.match(component, /label\?: string \| Snippet/);
 	assert.match(component, /readout\?: string \| Snippet/);
