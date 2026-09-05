@@ -1,6 +1,7 @@
 <script lang="ts">
-	// Renders the toast queue in a bottom-centered, polite live region. Mount once
-	// near the app root. The stack lives in a manual popover so it paints in the
+	// Renders the toast queue bottom-centered in two live regions: polite for
+	// ok/info/neutral, assertive (role=alert) for errors. Mount once near the
+	// app root. The stack lives in a manual popover so it paints in the
 	// top layer above an open Modal <dialog>; without the Popover API the
 	// attribute is ignored and the fixed/z-index positioning applies instead.
 	import { toasts } from '$lib/stores/toast.svelte';
@@ -9,6 +10,8 @@
 	import Icon from '$lib/components/atoms/Icon.svelte';
 
 	let el: HTMLDivElement | undefined = $state();
+	const polite = $derived(toasts.items.filter((t) => t.tone !== 'error'));
+	const assertive = $derived(toasts.items.filter((t) => t.tone === 'error'));
 
 	$effect(() => {
 		if (!el || typeof el.showPopover !== 'function') return;
@@ -19,46 +22,51 @@
 	});
 </script>
 
-<div
-	class="toaster"
-	bind:this={el}
-	popover="manual"
-	role="status"
-	aria-live="polite"
-	aria-relevant="additions"
-	data-tsu="Toaster"
->
-	{#each toasts.items as t (t.id)}
-		{#if t.action}
-			<Card
-				as="div"
-				surface="raised"
-				class="toast"
-				tone={t.tone === 'ok' ? 'ok' : t.tone === 'error' ? 'danger' : t.tone === 'info' ? 'info' : undefined}
-			>
-				<button type="button" class="toast-text" onclick={() => toasts.dismiss(t.id)}>
-					{#if t.tone === 'ok'}<Icon name="check" />{:else if t.tone === 'error'}<Icon name="warning" />{:else if t.tone === 'info'}<Icon name="info" />{/if}
-					<span class="msg">{t.message}</span>
-				</button>
-				<Button size="sm" variant="ghost" loading={t.pending} onclick={() => toasts.act(t.id)}>
-					{t.action.label}
-				</Button>
-			</Card>
-		{:else}
-			<Card
-				as="button"
-				surface="raised"
-				class="toast"
-				tone={t.tone === 'ok' ? 'ok' : t.tone === 'error' ? 'danger' : t.tone === 'info' ? 'info' : undefined}
+{#snippet toast(t: (typeof toasts.items)[number])}
+	{@const tone = t.tone === 'ok' ? 'ok' : t.tone === 'error' ? 'danger' : t.tone === 'info' ? 'info' : undefined}
+	{#if t.action}
+		<Card as="div" surface="raised" class="toast" {tone}>
+			<button
 				type="button"
+				class="toast-text"
+				aria-label="Dismiss: {t.message}"
 				onclick={() => toasts.dismiss(t.id)}
 			>
-				{#if t.tone === 'ok'}<Icon name="check" />{:else if t.tone === 'error'}<Icon name="warning" />{:else if t.tone === 'info'}<Icon name="info" />{/if}
+				<span aria-hidden="true" class="toast-icon">
+					{#if t.tone === 'ok'}<Icon name="check" />{:else if t.tone === 'error'}<Icon name="warning" />{:else if t.tone === 'info'}<Icon name="info" />{/if}
+				</span>
 				<span class="msg">{t.message}</span>
-				<Icon name="x" />
-			</Card>
-		{/if}
-	{/each}
+			</button>
+			<Button size="sm" variant="ghost" loading={t.pending} onclick={() => toasts.act(t.id)}>
+				{t.action.label}
+			</Button>
+		</Card>
+	{:else}
+		<Card
+			as="button"
+			surface="raised"
+			class="toast"
+			{tone}
+			type="button"
+			aria-label="Dismiss: {t.message}"
+			onclick={() => toasts.dismiss(t.id)}
+		>
+			<span aria-hidden="true" class="toast-icon">
+				{#if t.tone === 'ok'}<Icon name="check" />{:else if t.tone === 'error'}<Icon name="warning" />{:else if t.tone === 'info'}<Icon name="info" />{/if}
+			</span>
+			<span class="msg">{t.message}</span>
+			<span aria-hidden="true" class="toast-icon"><Icon name="x" /></span>
+		</Card>
+	{/if}
+{/snippet}
+
+<div class="toaster" bind:this={el} popover="manual" data-tsu="Toaster">
+	<div class="region" role="status" aria-live="polite">
+		{#each polite as t (t.id)}{@render toast(t)}{/each}
+	</div>
+	<div class="region" role="alert" aria-live="assertive">
+		{#each assertive as t (t.id)}{@render toast(t)}{/each}
+	</div>
 </div>
 
 <style>
@@ -83,6 +91,12 @@
 	}
 	.toaster:not(:popover-open) {
 		display: none;
+	}
+	.region {
+		display: contents;
+	}
+	.toast-icon {
+		display: inline-flex;
 	}
 	.toaster :global(.toast) {
 		pointer-events: auto;
