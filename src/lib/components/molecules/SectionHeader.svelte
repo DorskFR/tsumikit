@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { canonicalTone, type Tone } from '$lib/tone';
 	// Section / group header: heading + optional subtitle, icon, count, hue
 	// swatch and right-aligned actions on one wrapping row. `divider` underlines
 	// it, `sticky` pins it under the app header and publishes its height as
@@ -11,7 +12,6 @@
 	import Icon, { type IconName } from '../atoms/Icon.svelte';
 	import Text from '../atoms/Text.svelte';
 
-	type Tone = 'neutral' | 'ok' | 'warn' | 'danger' | 'info';
 	type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 
 	let {
@@ -80,7 +80,7 @@
 	bind:this={el}
 	bind:offsetHeight={height}
 	data-tsu="SectionHeader"
-	class="section-header sh-{tone} {klass}"
+	class="section-header sh-{canonicalTone(tone)} {klass}"
 	class:sh-divider={divider}
 	class:sh-group={variant === 'group'}
 	class:sh-sticky={sticky}
@@ -149,6 +149,9 @@
 	}
 	.sh-info {
 		--sh-tone: var(--info);
+	}
+	.sh-accent {
+		--sh-tone: var(--accent);
 	}
 	.sh-row {
 		display: flex;

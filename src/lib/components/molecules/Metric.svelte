@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { canonicalTone, type Tone } from '$lib/tone';
 	// KPI / stat tile — the dashboard's repeating "one number" card. Composes on
 	// top of `Card` and lays out four parts:
 	//   • an uppercase, letter-spaced micro-label (top-left)
@@ -11,7 +12,6 @@
 	import Card from '../atoms/Card.svelte';
 	import Icon, { type IconName } from '../atoms/Icon.svelte';
 
-	type Tone = 'neutral' | 'ok' | 'warn' | 'danger' | 'info';
 
 	let {
 		label,
@@ -47,7 +47,7 @@
 
 <Card
 	data-tsu="Metric"
-	class="metric metric-{tone} {tintValue ? 'metric-tint' : ''} {klass}"
+	class="metric metric-{canonicalTone(tone)} {tintValue ? 'metric-tint' : ''} {klass}"
 	{surface}
 	{...rest}
 >

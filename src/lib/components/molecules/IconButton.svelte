@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { Tone } from '$lib/tone';
 	import type { Snippet } from 'svelte';
 	import type { HTMLButtonAttributes } from 'svelte/elements';
 	import Button from '$lib/components/atoms/Button.svelte';
@@ -22,7 +23,7 @@
 		// Forwarded to Button.
 		shrink?: boolean;
 		// Semantic state tint (forwarded to Button). Pairs well with `chip`.
-		tone?: 'none' | 'accent' | 'info' | 'warn' | 'danger';
+		tone?: Tone | 'none';
 		// Outlined `--box-lg` square icon-chip (header/toolbar actions).
 		chip?: boolean;
 		// Shared square box scale (`--box-xs/sm/md/lg`); default `md` is the classic

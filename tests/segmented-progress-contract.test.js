@@ -16,7 +16,7 @@ test('segments carry value/max, optional tone and label', () => {
 	assert.match(component, /export type ProgressSegment = {/);
 	assert.match(component, /value: number/);
 	assert.match(component, /max: number/);
-	assert.match(component, /tone\?: 'accent' \| 'success' \| 'ok' \| 'warn' \| 'danger' \| 'muted'/);
+	assert.match(component, /tone\?: Tone \| 'muted'/);
 	assert.match(component, /label\?: string/);
 });
 

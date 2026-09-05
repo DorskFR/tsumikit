@@ -78,20 +78,20 @@ test('Heading truncates like Text without the inline-block shim', () => {
 
 test('tone.ts exports Tone and canonicalTone (success → ok)', () => {
 	assert.match(tone, /export type Tone = 'neutral' \| 'ok' \| 'success' \| 'warn' \| 'danger' \| 'info' \| 'accent';/);
-	assert.match(tone, /export function canonicalTone\(t: string\): string/);
+	assert.match(tone, /export function canonicalTone<T extends string>\(t: T\)/);
 	assert.match(tone, /t === 'success' \? 'ok' : t/);
 	assert.match(index, /export { canonicalTone, type Tone } from '\.\/tone';/);
 });
 
 test("'ok' is accepted as an alias of 'success' in Text, Progress and SegmentedProgress", () => {
-	assert.match(text, /'ok' \| 'success'/);
-	assert.match(text, /tone === 'ok' \? 'success' : tone/);
+	assert.match(text, /tone\?: 'inherit' \| 'default' \| 'muted' \| 'faint' \| Tone;/);
+	assert.match(text, /canonicalTone\(tone\) === 'ok' \? 'success' : canonicalTone\(tone\)/);
 	assert.match(text, /tone-{toneClass}/);
 	assert.match(text, /\.tone-success\s*{\s*color: var\(--ok\);/);
-	assert.match(progress, /'ok' \| 'success'/);
-	assert.match(progress, /tone === 'ok' \? 'success' : tone/);
+	assert.match(progress, /tone\?: Tone;/);
+	assert.match(progress, /canonicalTone\(tone\) === 'ok' \? 'success' : canonicalTone\(tone\)/);
 	assert.match(progress, /tone-{toneClass}/);
 	assert.match(progress, /\.tone-success\s*{\s*--fill: var\(--ok\);/);
-	assert.match(segmented, /'success' \| 'ok'/);
+	assert.match(segmented, /tone\?: Tone \| 'muted'/);
 	assert.match(segmented, /\.tone-success,\s*\.tone-ok\s*{/);
 });

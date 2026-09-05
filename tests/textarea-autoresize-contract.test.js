@@ -10,6 +10,7 @@ const [textarea, action] = await Promise.all([
 
 test('autoresize keeps rows as a height floor', () => {
 	assert.match(action, /Math\.max\(parseFloat\(node\.style\.minHeight\) \|\| 0, rowsFloor\(node\)\)/);
+	// @ts-expect-error minimal stub
 	globalThis.getComputedStyle = () => ({
 		fontSize: '16px',
 		lineHeight: '20px',
@@ -18,8 +19,10 @@ test('autoresize keeps rows as a height floor', () => {
 		borderTopWidth: '1px',
 		borderBottomWidth: '1px'
 	});
-	assert.equal(rowsFloor({ rows: 3 }), 78);
-	assert.equal(rowsFloor({ rows: 1 }), 0);
+	/** @param {number} rows */
+	const ta = (rows) => /** @type {HTMLTextAreaElement} */ (/** @type {unknown} */ ({ rows }));
+	assert.equal(rowsFloor(ta(3)), 78);
+	assert.equal(rowsFloor(ta(1)), 0);
 });
 
 test('autoresize no longer suppresses the bottom grip', () => {

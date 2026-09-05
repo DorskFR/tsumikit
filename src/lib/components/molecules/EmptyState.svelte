@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { canonicalTone, type Tone } from '$lib/tone';
 	// Empty / placeholder state — the "nothing here yet" panel every unworked
 	// settings section, empty list, and zero-result table reaches for. Centered
 	// stack of:
@@ -39,7 +40,7 @@
 		title?: string;
 		description?: string | Snippet;
 		icon?: IconName;
-		tone?: 'neutral' | 'ok' | 'warn' | 'danger' | 'info';
+		tone?: Tone;
 		actionLabel?: string;
 		onAction?: () => void;
 		compact?: boolean;
@@ -55,7 +56,7 @@
 </script>
 
 <div
-	class="empty empty-{tone} {klass}"
+	class="empty empty-{canonicalTone(tone)} {klass}"
 	class:empty-compact={sz === 'compact'}
 	class:empty-inline={sz === 'inline'}
 	class:empty-loading={loading}
@@ -114,6 +115,9 @@
 	}
 	:global(.empty-info) {
 		--empty-tone: var(--info);
+	}
+	:global(.empty-accent) {
+		--empty-tone: var(--accent);
 	}
 	.empty-compact {
 		gap: var(--sp-2);

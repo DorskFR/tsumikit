@@ -36,8 +36,8 @@ test('clicks and keys from nested interactive elements are ignored', () => {
 });
 
 test('attention tone adds a class, a left bar and the attention background', () => {
-	assert.match(card, /type Tone = 'neutral' \| 'ok' \| 'warn' \| 'danger' \| 'info' \| 'attention'/);
-	assert.match(card, /class:card-attention={tone === 'attention'}/);
+	assert.match(card, /type Tone = SharedTone \| 'attention'/);
+	assert.match(card, /class:card-attention={t === 'attention'}/);
 	assert.match(card, /\.card-attention\s*{\s*--card-tone: var\(--attention-bar\);/);
 	assert.match(card, /box-shadow: inset 3px 0 0 var\(--attention-bar\)/);
 	assert.match(card, /background: var\(--attention-bg\)/);

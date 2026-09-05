@@ -1,4 +1,5 @@
 <script lang="ts" module>
+	import type { Tone } from '$lib/tone';
 	// One bar split into segments, each with its own tone. Two modes:
 	//   • segments (default): widths ∝ `max`, each filled value/max, thin gaps.
 	//   • stacked: one shared track, widths ∝ `value` (Σvalue = full width, or
@@ -10,7 +11,7 @@
 		max: number;
 		// Fill colour per segment. `ok` is an alias of `success`; `muted` renders a
 		// faint fill for empty parts.
-		tone?: 'accent' | 'success' | 'ok' | 'warn' | 'danger' | 'muted';
+		tone?: Tone | 'muted';
 		// Native tooltip / accessible name / legend caption for the segment.
 		label?: string;
 	};
@@ -21,6 +22,8 @@
 		ok: 'var(--ok)',
 		warn: 'var(--warn)',
 		danger: 'var(--danger)',
+		info: 'var(--info)',
+		neutral: 'var(--text-faint)',
 		muted: 'var(--text-faint)',
 	};
 </script>
@@ -186,6 +189,10 @@
 	.tone-danger {
 		--fill: var(--danger);
 	}
+	.tone-info {
+		--seg-fill: var(--info);
+	}
+	.tone-neutral,
 	.tone-muted {
 		--fill: var(--text-faint);
 	}

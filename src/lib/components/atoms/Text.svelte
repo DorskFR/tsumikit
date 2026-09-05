@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { canonicalTone, type Tone } from '$lib/tone';
 	// Text primitive: the ONLY place body/label/caption/code text and its bearing
 	// elements (<p>/<span>/<label>/<div> of pure text) are emitted. `variant` picks
 	// a token preset; `tone`/`weight`/`size` override individual axes; bare <Text>
@@ -36,7 +37,7 @@
 		// glue that should inherit its parent.
 		variant?: 'body' | 'label' | 'caption' | 'code' | 'eyebrow';
 		// `ok` and `success` are aliases.
-		tone?: 'inherit' | 'default' | 'muted' | 'faint' | 'ok' | 'success' | 'warn' | 'danger' | 'accent';
+		tone?: 'inherit' | 'default' | 'muted' | 'faint' | Tone;
 		weight?: 'normal' | 'medium' | 'semibold' | 'bold';
 		size?: Size;
 		// Tabular figures: digits share a fixed advance width so counts/percentages
@@ -59,7 +60,9 @@
 		[key: string]: unknown;
 	} = $props();
 
-	const toneClass = $derived(tone === 'ok' ? 'success' : tone);
+	const toneClass = $derived(
+		tone === 'neutral' ? 'default' : canonicalTone(tone) === 'ok' ? 'success' : canonicalTone(tone)
+	);
 	const styleAttr = $derived(measure ? `max-width: ${measure}` : undefined);
 </script>
 
@@ -133,6 +136,9 @@
 	}
 	.tone-danger {
 		color: var(--danger);
+	}
+	.tone-info {
+		color: var(--info);
 	}
 	.tone-accent {
 		color: var(--accent);

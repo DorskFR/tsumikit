@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { canonicalTone, type Tone as SharedTone } from '$lib/tone';
 	// Elevated surface primitive — the canonical card/panel container. Owns its
 	// background/border/radius/padding from theme tokens. `tap` adds the
 	// interactive hover/active affordance for tappable list items (e.g. session
@@ -25,7 +26,7 @@
 	import type { Snippet } from 'svelte';
 	import SectionHeader from '../molecules/SectionHeader.svelte';
 
-	type Tone = 'neutral' | 'ok' | 'warn' | 'danger' | 'info' | 'attention';
+	type Tone = SharedTone | 'attention';
 
 	let {
 		tap = false,
@@ -74,6 +75,7 @@
 		children?: Snippet;
 		[key: string]: unknown;
 	} = $props();
+	const t = $derived(canonicalTone(tone));
 
 	let stackStyle = $derived(
 		stacked ? `--stack-y:${stackY}px;--stack-x:${stackX}px;` : ''
@@ -112,11 +114,12 @@
 	class:surface-sunken={surface === 'sunken'}
 	class:card-tap={tap || interactive}
 	class:card-max={maxWidth !== undefined}
-	class:card-ok={tone === 'ok'}
-	class:card-warn={tone === 'warn'}
-	class:card-danger={tone === 'danger'}
-	class:card-info={tone === 'info'}
-	class:card-attention={tone === 'attention'}
+	class:card-ok={t === 'ok'}
+	class:card-warn={t === 'warn'}
+	class:card-danger={t === 'danger'}
+	class:card-info={t === 'info'}
+	class:card-attention={t === 'attention'}
+	class:card-accent={t === 'accent'}
 	class:card-stacked={stacked}
 	class:stack-ok={stacked && stackTone === 'ok'}
 	class:stack-warn={stacked && stackTone === 'warn'}
@@ -233,6 +236,9 @@
 	}
 	.card-attention {
 		--card-tone: var(--attention-bar);
+	}
+	.card-accent {
+		--card-tone: var(--accent);
 	}
 	.card-ok,
 	.card-warn,

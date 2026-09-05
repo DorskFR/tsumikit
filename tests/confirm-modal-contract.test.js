@@ -20,7 +20,7 @@ test('ConfirmModal prop surface', () => {
 	assert.match(source, /confirmLabel = 'Confirm'/);
 	assert.match(source, /cancelLabel = 'Cancel'/);
 	assert.match(source, /tone = 'primary'/);
-	assert.match(source, /tone\?: 'primary' \| 'danger' \| 'warn';/);
+	assert.match(source, /tone\?: Tone \| 'primary';/);
 	assert.match(source, /busy\?: boolean;/);
 	assert.match(source, /onconfirm: \(\) => void \| Promise<void>;/);
 	assert.match(source, /oncancel\?: \(\) => void;/);
@@ -28,10 +28,10 @@ test('ConfirmModal prop surface', () => {
 });
 
 test('ConfirmModal drives Modal open/tone/busy and maps tone onto the confirm Button', () => {
-	assert.match(source, /<Modal\s+bind:open\s+{title}\s+tone={tone === 'primary' \? 'neutral' : tone}\s+busy={working}/s);
+	assert.match(source, /<Modal\s+bind:open\s+{title}\s+tone={modalTone}\s+busy={working}/s);
 	assert.match(source, /const working = \$derived\(busy \|\| pending\);/);
-	assert.match(source, /variant={tone === 'danger' \? 'danger' : 'primary'}/);
-	assert.match(source, /tone={tone === 'warn' \? 'warn' : 'none'}/);
+	assert.match(source, /variant={t === 'danger' \? 'danger' : 'primary'}/);
+	assert.match(source, /tone={t === 'warn' \|\| t === 'ok' \|\| t === 'info' \? t : 'none'}/);
 	assert.match(source, /loading={working}/);
 	assert.match(source, /<Button onclick={cancel} disabled={working}>{cancelLabel}<\/Button>/);
 });
@@ -45,8 +45,8 @@ test('ConfirmModal waits for an async onconfirm, closes only on success and surf
 });
 
 test('Button accepts tone="danger" as an alias of variant="danger"', () => {
-	assert.match(button, /class:btn-danger={variant === 'danger' \|\| \(tone === 'danger' && variant === 'default'\)}/);
-	assert.match(button, /class:btn-tone-danger={tone === 'danger'}/);
+	assert.match(button, /class:btn-danger={variant === 'danger' \|\| \(t === 'danger' && variant === 'default'\)}/);
+	assert.match(button, /class:btn-tone-danger={t === 'danger'}/);
 });
 
 test('ConfirmModal is exported', () => {

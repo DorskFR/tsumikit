@@ -25,8 +25,8 @@ test('props: tone (default info), icon, title, dismissible, ondismiss, busy, act
 });
 
 test('composes a toned Card and announces as status, alert for danger', () => {
-	assert.match(component, /<Card\s+{tone}/);
-	assert.match(component, /role={tone === 'danger' \? 'alert' : 'status'}/);
+	assert.match(component, /<Card\s+tone={t}/);
+	assert.match(component, /role={t === 'danger' \? 'alert' : 'status'}/);
 });
 
 test('default glyphs per tone exist in the Icon registry', () => {

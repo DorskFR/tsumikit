@@ -9,9 +9,9 @@ const [button, popover, variables] = await Promise.all([
 ]);
 
 test('Button and Popover expose the same success tone and semantic color', () => {
-	assert.match(button, /tone\?:[^;]*'success'/);
+	assert.match(button, /tone\?: Tone \| 'none'/);
 	assert.match(popover, /type TriggerTone =[^;]*'success'/);
-	assert.match(button, /class:btn-tone-success={tone === 'success'}/);
+	assert.match(button, /class:btn-tone-success={t === 'ok'}/);
 	assert.match(popover, /class:trigger-tone-success={tone === 'success'}/);
 	assert.match(button, /\.btn-tone-success\s*{\s*--btn-tone: var\(--ok\);/);
 	assert.match(

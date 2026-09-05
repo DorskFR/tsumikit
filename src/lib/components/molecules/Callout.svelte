@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { canonicalTone, type Tone } from '$lib/tone';
 	// Inline message banner — the one way to say "heads up" inside a page:
 	// tone-tinted Card with a leading glyph, optional title, body, right-aligned
 	// actions and an optional dismiss button. `busy` swaps the glyph for a
@@ -10,12 +11,13 @@
 	import Spinner from '../atoms/Spinner.svelte';
 	import IconButton from './IconButton.svelte';
 
-	type Tone = 'neutral' | 'ok' | 'warn' | 'danger' | 'info';
 
 	const DEFAULT_ICON: Record<Tone, IconName> = {
 		neutral: 'info',
 		info: 'info',
 		ok: 'check',
+		success: 'check',
+		accent: 'info',
 		warn: 'warning',
 		danger: 'warning'
 	};
@@ -45,15 +47,16 @@
 		actions?: Snippet;
 		[key: string]: unknown;
 	} = $props();
+	const t = $derived(canonicalTone(tone));
 
 	let glyph = $derived(icon ?? DEFAULT_ICON[tone]);
 </script>
 
 <Card
-	{tone}
+	tone={t}
 	padding="none"
-	role={tone === 'danger' ? 'alert' : 'status'}
-	class="callout callout-{tone} {klass}"
+	role={t === 'danger' ? 'alert' : 'status'}
+	class="callout callout-{t} {klass}"
 	data-tsu="Callout"
 	{...rest}
 >
@@ -98,6 +101,9 @@
 	}
 	:global(.callout-info) {
 		--callout-tone: var(--info);
+	}
+	:global(.callout-accent) {
+		--callout-tone: var(--accent);
 	}
 
 	.callout-icon {

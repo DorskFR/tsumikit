@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { canonicalTone, type Tone } from '$lib/tone';
 	// Yes/no dialog on top of Modal. An async `onconfirm` keeps the dialog open
 	// and busy until it settles; a rejection surfaces its message and leaves the
 	// dialog open so the user can retry or cancel.
@@ -25,11 +26,14 @@
 		children?: Snippet;
 		confirmLabel?: string;
 		cancelLabel?: string;
-		tone?: 'primary' | 'danger' | 'warn';
+		/** `primary` is a legacy alias of `accent`. */
+		tone?: Tone | 'primary';
 		busy?: boolean;
 		onconfirm: () => void | Promise<void>;
 		oncancel?: () => void;
 	} = $props();
+	const t = $derived(canonicalTone(tone));
+	const modalTone = $derived(t === 'danger' || t === 'warn' || t === 'info' ? t : 'neutral');
 
 	let pending = $state(false);
 	let error = $state<string | null>(null);
@@ -66,7 +70,7 @@
 <Modal
 	bind:open
 	{title}
-	tone={tone === 'primary' ? 'neutral' : tone}
+	tone={modalTone}
 	busy={working}
 	onclose={oncancel}
 	size="sm"
@@ -83,8 +87,8 @@
 	{#snippet footer()}
 		<Button onclick={cancel} disabled={working}>{cancelLabel}</Button>
 		<Button
-			variant={tone === 'danger' ? 'danger' : 'primary'}
-			tone={tone === 'warn' ? 'warn' : 'none'}
+			variant={t === 'danger' ? 'danger' : 'primary'}
+			tone={t === 'warn' || t === 'ok' || t === 'info' ? t : 'none'}
 			loading={working}
 			onclick={confirm}
 		>

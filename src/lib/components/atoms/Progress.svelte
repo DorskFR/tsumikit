@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { canonicalTone, type Tone } from '$lib/tone';
 	// Progress bar. Determinate when `value` is a number (0..max); omit `value`
 	// (or pass `indeterminate`) for an indeterminate animation. Uses
 	// role="progressbar" with the right aria-value* attributes. Token-styled.
@@ -25,7 +26,7 @@
 		// Fill colour. `accent` is the default brand fill; the semantic tones
 		// retint the bar for severity (e.g. usage meters going warm/hot).
 		// `ok` and `success` are aliases.
-		tone?: 'accent' | 'ok' | 'success' | 'warn' | 'danger';
+		tone?: Tone;
 		// Track height. `sm` is a thin ~5px track for inline rows.
 		size?: 'sm' | 'md';
 		// Accent→teal gradient fill (overrides the flat tone colour).
@@ -39,7 +40,7 @@
 
 	const pct = $derived(value == null ? 0 : Math.max(0, Math.min(100, (value / max) * 100)));
 	const indeterminate = $derived(indeterminateProp || value == null);
-	const toneClass = $derived(tone === 'ok' ? 'success' : tone);
+	const toneClass = $derived(canonicalTone(tone) === 'ok' ? 'success' : canonicalTone(tone));
 </script>
 
 <div
@@ -76,6 +77,12 @@
 	}
 	.tone-success {
 		--fill: var(--ok);
+	}
+	.tone-info {
+		--fill: var(--info);
+	}
+	.tone-neutral {
+		--fill: var(--text-faint);
 	}
 	.tone-warn {
 		--fill: var(--warn);
