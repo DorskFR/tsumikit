@@ -58,8 +58,10 @@
     "package": "svelte-kit sync && svelte-package && publint",
     "package:watch": "svelte-kit sync && svelte-package --watch",
     "prepublishOnly": "npm run package",
+    "design": "npm run package && npm run design:bundle && npm run design:verify",
     "design:bundle": "node .design-sync/build-bundle.mjs",
-    "design:verify": "node .design-sync/verify-bundle.mjs"
+    "design:verify": "node .design-sync/verify-bundle.mjs",
+    "design:clean": "rm -rf ds-bundle .ds-proto"
   },
   "peerDependencies": {
     "svelte": "^5.0.0"

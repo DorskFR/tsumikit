@@ -53,24 +53,31 @@ const names = Object.keys(NS).filter((k) => /^[A-Z]/.test(k));
 log(`React: ${React.version} | createRoot: ${typeof ReactDOM.createRoot} | exports: ${names.length}`);
 
 const fails = [];
+let cells = 0;
 for (const name of names) {
-	const host = W.document.createElement('div');
-	W.document.body.appendChild(host);
-	const cfg = cardProps[name] ?? {};
-	try {
-		const root = ReactDOM.createRoot(host);
-		const props = cfg.propsExpr ? new Function('Tsumikit_a4c6ce', 'React', `return (${cfg.propsExpr})`)(NS, React) : (cfg.props ?? {});
-		root.render(React.createElement(NS[name], props, cfg.children ?? name));
-		// let the concurrent render commit and effects (which mount Svelte) run
-		for (let i = 0; i < 5; i++) await new Promise((r) => setTimeout(r, 10));
-		const rendered = host.innerHTML.replace(/<!---->/g, '').replace(/<span style="display: contents;"><\/span>/g, '').trim();
-		if (!rendered) fails.push([name, 'rendered EMPTY']);
-	} catch (e) {
-		fails.push([name, e.message]);
+	const card = cardProps[name] ?? {};
+	const variants = card.variants ?? [card];
+	for (const [i, v] of variants.entries()) {
+		const cfg = { ...card, ...v };
+		const tag = variants.length > 1 ? `${name}[${cfg.label || i}]` : name;
+		const host = W.document.createElement('div');
+		W.document.body.appendChild(host);
+		try {
+			const root = ReactDOM.createRoot(host);
+			const props = cfg.propsExpr ? new Function('Tsumikit_a4c6ce', 'React', `return (${cfg.propsExpr})`)(NS, React) : (cfg.props ?? {});
+			root.render(React.createElement(NS[name], props, cfg.children ?? name));
+			// let the concurrent render commit and effects (which mount Svelte) run
+			for (let i = 0; i < 5; i++) await new Promise((r) => setTimeout(r, 10));
+			const rendered = host.innerHTML.replace(/<!---->/g, '').replace(/<span style="display: contents;"><\/span>/g, '').trim();
+			if (!rendered) fails.push([tag, 'rendered EMPTY']);
+		} catch (e) {
+			fails.push([tag, e.message]);
+		}
+		cells++;
+		host.remove();
 	}
-	host.remove();
 }
-log(`rendered OK: ${names.length - fails.length}/${names.length}`);
+log(`rendered OK: ${cells - fails.length}/${cells} cells across ${names.length} exports`);
 if (fails.length) { log('FAILURES:'); for (const [n, e] of fails) log(`  ${n.padEnd(20)} ${e}`); }
 
 const dirs = [];
@@ -78,5 +85,6 @@ for (const g of readdirSync(join(OUT, 'components'))) for (const n of readdirSyn
 const badCards = dirs.filter(([g, n]) => !readFileSync(join(OUT, 'components', g, n, `${n}.html`), 'utf8').startsWith('<!-- @dsCard '));
 log(`component dirs: ${dirs.length} | cards with @dsCard: ${dirs.length - badCards.length}`);
 log(`styles.css -> _ds_bundle.css: ${readFileSync(join(OUT, 'styles.css'), 'utf8').includes('_ds_bundle.css') ? 'YES' : 'NO ***'}`);
+log(`@font-face JetBrains Mono: ${readFileSync(join(OUT, '_ds_fonts.css'), 'utf8').includes('JetBrainsMono-Regular.ttf') ? 'YES' : 'NO ***'}`);
 log(`bundle header: ${readFileSync(join(OUT, '_ds_bundle.js'), 'utf8').startsWith('/* @ds-bundle:') ? 'present' : 'MISSING ***'}`);
 process.exit(fails.length || badCards.length ? 1 : 0);
