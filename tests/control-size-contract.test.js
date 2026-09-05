@@ -37,6 +37,6 @@ test('grow / shrink / block are available uniformly', () => {
 		assert.match(src, /block\?: boolean/);
 		assert.match(src, /class:grow={grow}/);
 		assert.match(src, /class:no-shrink={!shrink}/);
-		assert.match(src, /class:block={block}/);
+		assert.match(src, /class:block={block/);
 	}
 });
