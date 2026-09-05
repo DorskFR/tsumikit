@@ -128,7 +128,9 @@
 <style>
 	.input {
 		width: 100%;
-		padding: var(--sp-3);
+		min-height: var(--control-height-default);
+		padding: var(--sp-2) var(--sp-3);
+		line-height: var(--lh-tight);
 		background: var(--bg);
 		border: 1px solid var(--border-strong);
 		border-radius: var(--r-md);
@@ -140,7 +142,8 @@
 		border-color: var(--accent);
 	}
 	.input-sm {
-		padding: var(--sp-2);
+		min-height: var(--control-height-compact);
+		padding: var(--sp-1) var(--sp-2);
 		font-size: var(--fs-sm);
 	}
 	.input-grow {

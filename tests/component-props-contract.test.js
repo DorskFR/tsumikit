@@ -67,3 +67,7 @@ test('AutoGrid fill keeps empty tracks so columns count by min', () => {
 	assert.match(autoGrid, /fill\?: boolean/);
 	assert.match(autoGrid, /max != null \|\| fill \? 'auto-fill' : 'auto-fit'/);
 });
+
+test('Select adopts the default control height like Input', () => {
+	assert.match(select, /\.select\s*{[^}]*min-height: var\(--control-height-default\);/s);
+});

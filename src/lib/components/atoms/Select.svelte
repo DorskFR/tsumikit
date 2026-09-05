@@ -187,7 +187,9 @@
 	}
 	.select {
 		width: 100%;
-		padding: var(--sp-3);
+		min-height: var(--control-height-default);
+		padding: var(--sp-2) var(--sp-3);
+		line-height: var(--lh-tight);
 		background: var(--bg);
 		border: 1px solid var(--border-strong);
 		border-radius: var(--r-md);
