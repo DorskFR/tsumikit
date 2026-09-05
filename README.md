@@ -167,7 +167,8 @@ Dropzone, CodeBlock, Callout, EmptyState, ConfirmModal, Pagination, Toaster,
 ThemePicker (popover grid of 2×2 palette swatches: bg · surface · text · accent per theme), FontScalePicker (popover with a stepped slider across the five text sizes), SectionHeader, KeyValue, LoadMore,
 GitRef (branch chip + PR link tinted by state + `+N −N` diff; `collapse`
 auto/never/glyph degrades to icons inside a narrow `.cq` container),
-CapBar (consumption track with a draggable, keyboard-steppable cap handle; `oninput` live, `onchange` on commit),
+CapBar (consumption track with a draggable, keyboard-steppable cap handle that
+shows a `N%` bubble while it is moved; `oninput` live, `onchange` on commit),
 Drawer (side-panel `<dialog>`: `side`, `width` clamped to the viewport, full-screen
 under 48rem; `nav` page column that turns into a horizontal strip on narrow
 screens, or `navMobile`; sticky `footer`; Escape / scrim / close button all close),

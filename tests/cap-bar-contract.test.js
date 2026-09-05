@@ -60,6 +60,15 @@ test('pointer sets the cap live, keyboard steps, oninput vs onchange', () => {
 	assert.match(component, /if \(readonly \|\| !trackEl \|\| e\.button !== 0\) return;/);
 });
 
+test('cap bubble reads the live cap while dragging or keyboard-focused', () => {
+	assert.match(component, /<div class="bubble" aria-hidden="true">{cap}%<\/div>/);
+	assert.match(component, /\.bubble\s*{[^}]*left: var\(--cap\);[^}]*pointer-events: none;[^}]*opacity: 0;[^}]*visibility: hidden;/s);
+	assert.match(component, /\.dragging \.bubble,\s*\.keying \.bubble\s*{\s*opacity: 1;\s*visibility: visible;/);
+	assert.match(component, /class:keying/);
+	assert.match(component, /onblur={\(\) => \(keying = false\)}/);
+	assert.match(component, /e\.preventDefault\(\);\s*keying = true;\s*setCap\(next\);/);
+});
+
 test('readout and tooltip defaults', () => {
 	assert.match(component, /hint \? `\${value}% · \${hint}` : `\${value}%`/);
 	assert.match(component, /tooltip \?\? `cap \${cap}% — drag the bar`/);

@@ -63,6 +63,7 @@
 
 	let trackEl = $state<HTMLDivElement | null>(null);
 	let dragging = $state(false);
+	let keying = $state(false);
 	let committed = cap;
 
 	function setCap(next: number) {
@@ -98,6 +99,7 @@
 		const next = capKeyStep(e.key, e.shiftKey, snapCap(cap, step, min, max), step, min, max);
 		if (next === null) return;
 		e.preventDefault();
+		keying = true;
 		setCap(next);
 	}
 	function keyUp(e: KeyboardEvent) {
@@ -111,6 +113,7 @@
 	class="cap-bar size-{size} tone-{tone} {klass}"
 	class:readonly
 	class:dragging
+	class:keying
 	style="--label-w: {labelWidth}; --readout-w: {readoutWidth}; --pct: {pct}%; --cap: {capPct}%; {styleProp}"
 >
 	{#if label}
@@ -141,7 +144,9 @@
 			aria-disabled={readonly ? 'true' : undefined}
 			onkeydown={keyDown}
 			onkeyup={keyUp}
+			onblur={() => (keying = false)}
 		></div>
+		<div class="bubble" aria-hidden="true">{cap}%</div>
 	</div>
 	<div class="readout" title={readoutTitle}>
 		{#if readout === undefined}{readoutText}{:else if typeof readout === 'string'}{readout}{:else}{@render readout()}{/if}
@@ -225,6 +230,34 @@
 		outline: 2px solid var(--accent);
 		outline-offset: 2px;
 	}
+	.bubble {
+		position: absolute;
+		bottom: calc(100% + 8px);
+		left: var(--cap);
+		transform: translateX(-50%);
+		padding: 1px var(--sp-1);
+		border: 1px solid var(--border-strong);
+		border-radius: var(--r-sm);
+		background: var(--bg-elevated-2);
+		box-shadow: var(--shadow-sm);
+		color: var(--text);
+		font-size: var(--fs-xs);
+		line-height: 1.4;
+		font-variant-numeric: tabular-nums;
+		white-space: nowrap;
+		pointer-events: none;
+		opacity: 0;
+		visibility: hidden;
+		transition:
+			opacity 0.12s var(--ease),
+			visibility 0.12s;
+		z-index: 3;
+	}
+	.dragging .bubble,
+	.keying .bubble {
+		opacity: 1;
+		visibility: visible;
+	}
 	.readonly .track,
 	.readonly .handle {
 		cursor: default;
@@ -251,7 +284,8 @@
 		grid-column: 1 / 3;
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.fill {
+		.fill,
+		.bubble {
 			transition: none;
 		}
 	}
