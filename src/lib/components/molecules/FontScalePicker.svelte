@@ -43,7 +43,9 @@
 		line-height: 1;
 	}
 	.panel {
-		width: 15rem;
+		width: min(15rem, calc(100vw - var(--sp-6)));
+		box-sizing: border-box;
+		overflow: hidden;
 		font-size: 0.875rem;
 		line-height: 1.4;
 		padding: var(--sp-2) var(--sp-3);
@@ -52,6 +54,11 @@
 		display: flex;
 		align-items: center;
 		gap: var(--sp-2);
+		min-width: 0;
+	}
+	.row > :global(.slider) {
+		flex: 1 1 0;
+		min-width: 0;
 	}
 	.end {
 		flex: none;

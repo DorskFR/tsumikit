@@ -34,7 +34,9 @@ test('Drawer sides, width clamp and full-screen narrow layout', () => {
 	assert.match(source, /width = '620px'/);
 	assert.match(source, /style:--drawer-w={width}/);
 	assert.match(source, /\.drawer\[data-side='left'\]\s*{\s*justify-content: flex-start;/s);
-	assert.match(narrow, /\.panel\s*{[^}]*width: 100vw;[^}]*height: 100dvh;[^}]*background: var\(--bg-elevated\);/s);
+	assert.match(source, /\.drawer\s*{[^}]*position: fixed;[^}]*inset: 0;/s);
+	assert.match(narrow, /\.panel\s*{[^}]*width: 100%;[^}]*height: 100%;[^}]*background: var\(--bg-elevated\);/s);
+	assert.doesNotMatch(narrow, /100dvh|100vw/);
 	assert.match(wide, /\.panel\s*{[^}]*width: min\(var\(--drawer-w\), 100vw\);[^}]*border-left: 1px solid var\(--border-strong\);/s);
 	assert.match(wide, /\.drawer\[data-side='left'\] \.panel\s*{[^}]*border-right: 1px solid var\(--border-strong\);/s);
 	assert.match(source, /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.drawer::backdrop,\s*\.panel\s*{\s*animation: none;/s);

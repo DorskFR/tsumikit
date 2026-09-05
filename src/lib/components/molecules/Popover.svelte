@@ -322,7 +322,7 @@
 		cursor: not-allowed;
 	}
 	/* `bare`: strip the chrome down to a plain button the consumer styles. */
-	.pop-trigger.bare {
+	:where(.pop-trigger.bare) {
 		height: auto;
 		min-height: 0;
 		min-width: 0;
@@ -331,7 +331,7 @@
 		border: 0;
 		background: none;
 	}
-	.pop-trigger.bare:hover:not(:disabled) {
+	:where(.pop-trigger.bare:hover:not(:disabled)) {
 		background: none;
 	}
 	.pop-panel {
