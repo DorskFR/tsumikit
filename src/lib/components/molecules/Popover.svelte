@@ -178,16 +178,20 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		min-height: var(--box-md);
-		min-width: var(--box-md);
-		padding: var(--sp-2);
-		border: 1px solid transparent;
 		border-radius: var(--r-md);
 		background: transparent;
 		color: var(--text);
 		transition:
 			background 0.12s var(--ease),
 			border-color 0.12s var(--ease);
+	}
+	/* Box sizing stays off `bare` triggers so an inline trigger (e.g. a
+	   Timestamp <time>) keeps its text's line box. */
+	.pop-trigger:not(.bare) {
+		min-height: var(--box-md);
+		min-width: var(--box-md);
+		padding: var(--sp-2);
+		border: 1px solid transparent;
 	}
 	.pop-trigger:hover:not(:disabled) {
 		background: var(--bg-elevated-2);
@@ -267,10 +271,10 @@
 	/* Coarse pointers: icon-only triggers extend their hit area to --touch-target
 	   via an invisible slab; layout does not move. */
 	@media (pointer: coarse) {
-		.pop-trigger:not(.canonical, .bare, .hit-compact) {
+		.pop-trigger:not(.canonical, .hit-compact) {
 			position: relative;
 		}
-		.pop-trigger:not(.canonical, .bare, .hit-compact)::after {
+		.pop-trigger:not(.canonical, .hit-compact)::after {
 			content: '';
 			position: absolute;
 			inset: min(0px, calc((100% - var(--touch-target)) / 2));
@@ -323,6 +327,7 @@
 	}
 	/* `bare`: strip the chrome down to a plain button the consumer styles. */
 	:where(.pop-trigger.bare) {
+		display: inline;
 		height: auto;
 		min-height: 0;
 		min-width: 0;
@@ -330,6 +335,9 @@
 		padding: 0;
 		border: 0;
 		background: none;
+		font: inherit;
+		line-height: inherit;
+		vertical-align: baseline;
 	}
 	:where(.pop-trigger.bare:hover:not(:disabled)) {
 		background: none;
