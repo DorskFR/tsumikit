@@ -174,10 +174,17 @@
 	/* The trigger owns its look (a ghost icon-button) from tokens — it no longer
 	   borrows global .btn classes, so a consumer can restyle it via `triggerClass`
 	   (+ `bare`) from their own scoped CSS instead of fighting globals. */
-	.pop-trigger {
+	/* All trigger chrome lives on non-bare triggers. A `bare` trigger (e.g. the
+	   Timestamp <time>) is plain inline text the consumer styles; nothing here
+	   may reach it regardless of specificity. */
+	.pop-trigger:not(.bare) {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
+		min-height: var(--box-md);
+		min-width: var(--box-md);
+		padding: var(--sp-2);
+		border: 1px solid transparent;
 		border-radius: var(--r-md);
 		background: transparent;
 		color: var(--text);
@@ -185,15 +192,7 @@
 			background 0.12s var(--ease),
 			border-color 0.12s var(--ease);
 	}
-	/* Box sizing stays off `bare` triggers so an inline trigger (e.g. a
-	   Timestamp <time>) keeps its text's line box. */
-	.pop-trigger:not(.bare) {
-		min-height: var(--box-md);
-		min-width: var(--box-md);
-		padding: var(--sp-2);
-		border: 1px solid transparent;
-	}
-	.pop-trigger:hover:not(:disabled) {
+	.pop-trigger:not(.bare):hover:not(:disabled) {
 		background: var(--bg-elevated-2);
 	}
 	/* Supplying canonical chrome props opts into the same dimensions, variants
@@ -328,19 +327,15 @@
 	/* `bare`: strip the chrome down to a plain button the consumer styles. */
 	:where(.pop-trigger.bare) {
 		display: inline;
-		height: auto;
-		min-height: 0;
-		min-width: 0;
-		width: auto;
 		padding: 0;
 		border: 0;
+		border-radius: 0;
 		background: none;
+		color: inherit;
 		font: inherit;
 		line-height: inherit;
 		vertical-align: baseline;
-	}
-	:where(.pop-trigger.bare:hover:not(:disabled)) {
-		background: none;
+		cursor: pointer;
 	}
 	.pop-panel {
 		position: fixed;

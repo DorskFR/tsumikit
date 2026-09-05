@@ -16,13 +16,16 @@ test('Timestamp details trigger is a bare Popover with an underlined inline <tim
 	for (const prop of ['min-height', 'height', 'padding', 'border']) assert.equal(t[prop], undefined, `${prop} must not be set`);
 });
 
-test('no Popover rule can size a bare trigger: box sizing lives on :not(.bare) only', () => {
-	const base = rule(popover, '.pop-trigger');
-	for (const prop of ['min-height', 'min-width', 'height', 'padding', 'border']) assert.equal(base[prop], undefined, `.pop-trigger sets ${prop}`);
+test('no Popover chrome can reach a bare trigger: box, radius, background and hover live on :not(.bare) only', () => {
+	assert.doesNotMatch(popover, /\n\t\.pop-trigger\s*{/, 'a bare `.pop-trigger` rule would leak chrome onto bare triggers');
+	assert.doesNotMatch(popover, /\n\t\.pop-trigger:hover/, 'hover chrome must be scoped to :not(.bare)');
 	const sized = rule(popover, '.pop-trigger:not(.bare)');
 	assert.equal(sized['min-height'], 'var(--box-md)');
+	assert.equal(sized['border-radius'], 'var(--r-md)');
+	assert.equal(rule(popover, '.pop-trigger:not(.bare):hover:not(:disabled)').background, 'var(--bg-elevated-2)');
 	const bare = rule(popover, ':where(.pop-trigger.bare)');
 	assert.equal(bare.display, 'inline');
 	assert.equal(bare.padding, '0');
-	assert.equal(bare['min-height'], '0');
+	assert.equal(bare['border-radius'], '0');
+	assert.equal(bare.background, 'none');
 });
