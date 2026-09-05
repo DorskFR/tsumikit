@@ -33,7 +33,7 @@ test('fill width follows value, tone thresholds default to 75 / cap', () => {
 test('track base up to the cap, subdued bg + border region past it', () => {
 	assert.match(component, /--track-h: 6px;/);
 	assert.match(component, /\.cap-bar\.size-lg\s*{\s*--track-h: 10px;/);
-	assert.match(component, /\.track\s*{[^}]*background: color-mix\(in oklab, var\(--accent\) 26%, var\(--bg\)\);/);
+	assert.match(component, /\.track\s*{[^}]*background: color-mix\(in oklab, var\(--fill\) 26%, var\(--bg\)\);/);
 	assert.match(component, /\.track::after\s*{[^}]*inset: 0 0 0 var\(--cap\);[^}]*background: var\(--bg\);[^}]*box-shadow: inset 0 0 0 1px var\(--border\);/);
 	assert.match(component, /\.track\s*{[^}]*cursor: ew-resize;/);
 });
@@ -109,4 +109,9 @@ test('capTone thresholds', () => {
 	assert.equal(capTone(75, 80), 'warn');
 	assert.equal(capTone(80, 80), 'danger');
 	assert.equal(capTone(60, 80, 50), 'warn');
+});
+
+test('track base tint follows the current tone, not the accent', () => {
+	assert.match(component, /\.track\s*{[^}]*background: color-mix\(in oklab, var\(--fill\) 26%, var\(--bg\)\);/s);
+	assert.doesNotMatch(component, /var\(--accent\) 26%/);
 });

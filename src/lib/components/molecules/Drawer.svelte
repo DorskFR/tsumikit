@@ -153,6 +153,9 @@
 		display: flex;
 		justify-content: flex-end;
 	}
+	.drawer:not([open]) {
+		display: none;
+	}
 	.drawer[data-side='left'] {
 		justify-content: flex-start;
 	}
