@@ -33,11 +33,12 @@ test('Menu picks its trigger chrome prop types from Popover', () => {
 
 test('Menu destructures and forwards every chrome prop to Popover', () => {
 	const popoverTag = menu.slice(menu.indexOf('<Popover'), menu.indexOf('\n>', menu.indexOf('<Popover')));
-	for (const p of chrome.filter((p) => p !== 'onopen')) {
+	for (const p of chrome.filter((p) => p !== 'onopen' && p !== 'onclose')) {
 		assert.match(menu, new RegExp(`^\\t\\t${p}[,\\n]`, 'm'), `${p} destructured`);
 		assert.match(popoverTag, new RegExp(`\\{${p}\\}`), `${p} forwarded`);
 	}
-	assert.match(popoverTag, /onopen=\{\(\) => \{\s*queueMicrotask\(\(\) => focusAt\(0\)\);\s*onopen\?\.\(\);\s*\}\}/);
+	assert.match(popoverTag, /onclose=\{\(\) => \{\s*open = false;\s*onclose\?\.\(\);\s*\}\}/);
+	assert.match(popoverTag, /onopen=\{\(\) => \{\s*open = true;\s*queueMicrotask\(\(\) => focusAt\(0\)\);\s*onopen\?\.\(\);\s*\}\}/);
 });
 
 test('Menu keeps its original props', () => {

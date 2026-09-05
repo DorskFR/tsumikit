@@ -49,6 +49,9 @@
 		// open-on-GitHub action. Forwarded to Button; `href` implies `as="a"`.
 		as?: 'button' | 'a';
 		href?: string;
+		/** Render `label` as visible text beside the glyph. `row` is a full-width,
+		 *  left-aligned menu-row form for overflow menus. */
+		showLabel?: boolean | 'row';
 		class?: string;
 	};
 
@@ -70,6 +73,7 @@
 		inline = false,
 		hoverDanger = false,
 		pressed,
+		showLabel = false,
 		disabled = false,
 		onclick,
 		class: klass = '',
@@ -97,11 +101,12 @@
 	{disabled}
 	{title}
 	{onclick}
-	icon={!inline && !chip}
+	icon={!inline && !chip && !showLabel}
 	iconInline={inline}
+	block={showLabel === 'row'}
 	{hoverDanger}
 	aria-pressed={pressed}
-	class={klass}
+	class="{showLabel ? 'ib-labelled' : ''} {showLabel === 'row' ? 'ib-row' : ''} {klass}"
 	aria-label={label}
 >
 	{#if children}
@@ -119,12 +124,24 @@
 			<Icon name={icon} {size} />
 		{/if}
 	{/if}
+	{#if showLabel}<span class="ib-label">{label}</span>{/if}
 </Button>
 
 <style>
 	/* Off-registry glyph (emoji) rendered as text rather than an SVG. Sized off the
 	   `size` prop (×1.35, since an emoji reads small next to an SVG glyph of the
 	   same px) unless `glyphSize` is exact; centered so it shares the tap target. */
+	.ib-label {
+		white-space: nowrap;
+	}
+	:global(.btn.ib-labelled) {
+		gap: var(--sp-2);
+	}
+	:global(.btn.ib-row) {
+		justify-content: flex-start;
+		width: 100%;
+		text-align: left;
+	}
 	.emoji,
 	.glyph {
 		display: inline-flex;

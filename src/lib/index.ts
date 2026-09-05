@@ -50,6 +50,7 @@ export {
 	resizeHandle,
 } from './components/layouts/resizable-panel-frame.js';
 export { default as Stack } from './components/layouts/Stack.svelte';
+export { default as Toolbar } from './components/layouts/Toolbar.svelte';
 export {
 	type AccordionItem,
 	default as Accordion,
