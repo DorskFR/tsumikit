@@ -231,6 +231,10 @@
 		outline: none;
 		border-color: var(--accent);
 	}
+	.select:focus-visible {
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
+	}
 	.select[aria-invalid='true'],
 	.select[aria-invalid='true']:focus {
 		border-color: var(--danger);

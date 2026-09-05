@@ -170,6 +170,9 @@
   --control-height-default: 2.5rem;
   --control-height-large: 3rem;
   --control-height: 2.75rem;
+  /* Keyboard focus indicator shared by every interactive atom. */
+  --focus-ring: 2px solid var(--accent);
+  --focus-ring-offset: 1px;
   /* Square box scale for icon-only controls (IconButton, Button `box`/`square`,
 	   SelectButton, Popover trigger, CopyButton, FileButton). md is the classic
 	   2.25rem icon button; sm/lg reuse the control heights so a boxed control

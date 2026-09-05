@@ -101,6 +101,10 @@
 		transform: translateX(1.15rem);
 		background: var(--text-on-accent);
 	}
+	.switch:focus-visible {
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
+	}
 	.switch:disabled {
 		opacity: 0.45;
 		cursor: not-allowed;

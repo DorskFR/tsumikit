@@ -108,7 +108,7 @@
 		clip-path: polygon(22% 42%, 78% 42%, 78% 58%, 22% 58%);
 	}
 	input:focus-visible + .box {
-		outline: 2px solid var(--accent);
+		outline: var(--focus-ring);
 		outline-offset: 2px;
 	}
 	input[aria-invalid='true']:not(:checked):not(:indeterminate) + .box {

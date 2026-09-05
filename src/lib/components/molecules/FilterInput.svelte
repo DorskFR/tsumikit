@@ -436,6 +436,10 @@
 		border-color: var(--accent);
 		box-shadow: 0 0 0 3px var(--accent-dim);
 	}
+	.fi__bar:has(:focus-visible) {
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
+	}
 	.fi__icon {
 		display: flex;
 		color: var(--text-faint);

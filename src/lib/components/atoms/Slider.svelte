@@ -160,11 +160,11 @@
 		outline: none;
 	}
 	input[type='range']:focus-visible::-webkit-slider-thumb {
-		outline: 2px solid var(--accent);
+		outline: var(--focus-ring);
 		outline-offset: 2px;
 	}
 	input[type='range']:focus-visible::-moz-range-thumb {
-		outline: 2px solid var(--accent);
+		outline: var(--focus-ring);
 		outline-offset: 2px;
 	}
 	input[type='range']:disabled {

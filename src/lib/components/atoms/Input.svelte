@@ -141,6 +141,10 @@
 		outline: none;
 		border-color: var(--accent);
 	}
+	.input:focus-visible {
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
+	}
 	.input-sm {
 		min-height: var(--control-height-compact);
 		padding: var(--sp-1) var(--sp-2);

@@ -210,6 +210,10 @@
 		outline: none;
 		border-color: var(--accent);
 	}
+	.textarea:focus-visible {
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
+	}
 	.textarea.capped {
 		overflow-y: auto;
 	}
