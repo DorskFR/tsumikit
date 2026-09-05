@@ -339,6 +339,16 @@
 		background: color-mix(in srgb, var(--ok) 14%, transparent);
 		border-color: var(--ok);
 	}
+	.btn-control.btn-danger,
+	.btn-control.btn-tone-danger {
+		color: var(--danger);
+		border-color: color-mix(in srgb, var(--danger) 50%, var(--border));
+	}
+	.btn-control.btn-danger:hover:not(:disabled),
+	.btn-control.btn-tone-danger:hover:not(:disabled) {
+		background: color-mix(in srgb, var(--danger) 14%, transparent);
+		border-color: var(--danger);
+	}
 	/* A positive primary action uses success as its fill, not merely as the
 	   neutral tint. This follows the control override so both heights match. */
 	.btn-primary.btn-tone-success {
