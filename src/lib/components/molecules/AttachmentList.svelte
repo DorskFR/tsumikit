@@ -7,13 +7,11 @@
 	let {
 		files,
 		onremove,
-		removeLabel = 'Remove',
 		class: klass = '',
 		style: styleProp = ''
 	}: {
 		files: (File | Attachment)[];
 		onremove?: (index: number) => void;
-		removeLabel?: string;
 		class?: string;
 		style?: string;
 	} = $props();
@@ -36,7 +34,6 @@
 					maxWidth="16rem"
 					removable={!!onremove}
 					onremove={() => onremove?.(i)}
-					{removeLabel}
 					title={f.name}
 				>
 					{f.name}{#if f.size !== undefined}<span class="size">{fmt(f.size)}</span>{/if}

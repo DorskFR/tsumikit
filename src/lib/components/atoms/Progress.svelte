@@ -24,7 +24,11 @@
 		indeterminate: indeterminateProp = false,
 		markers = [],
 		toneAt,
-		class: klass = ''
+		color,
+		showValue = false,
+		format = (v: number, m: number) => `${Math.round((v / m) * 100)}%`,
+		class: klass = '',
+		...rest
 	}: {
 		value?: number;
 		max?: number;
@@ -52,7 +56,13 @@
 		/** Percent thresholds that auto-pick warn/danger; an explicit `tone` other
 		 *  than the default `accent` wins. */
 		toneAt?: { warn?: number; danger?: number };
+		/** Any CSS colour for the fill; wins over `tone`. */
+		color?: string;
+		/** Trailing numeric readout after the track. */
+		showValue?: boolean;
+		format?: (value: number, max: number) => string;
 		class?: string;
+		[key: string]: unknown;
 	} = $props();
 
 	const pct = $derived(value == null ? 0 : Math.max(0, Math.min(100, (value / max) * 100)));
@@ -67,6 +77,7 @@
 	const markerPct = (at: number) => Math.max(0, Math.min(100, (at / max) * 100));
 </script>
 
+{#snippet track()}
 <div
 	data-tsu="Progress"
 	class="progress tone-{toneClass} size-{size} {klass}"
@@ -74,6 +85,8 @@
 	class:no-shrink={!shrink}
 	class:block={block}
 	class:indeterminate
+	style:--fill={color}
+	{...rest}
 	class:gradient
 	class:striped
 	role="progressbar"
@@ -92,8 +105,32 @@
 		></span>
 	{/each}
 </div>
+{/snippet}
+
+{#if showValue}
+	<span class="progress-row" class:grow={grow} class:no-shrink={!shrink} class:block={block}>
+		{@render track()}
+		<span class="progress-value">{indeterminate || value == null ? '' : format(value, max)}</span>
+	</span>
+{:else}
+	{@render track()}
+{/if}
 
 <style>
+	.progress-row {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--sp-2);
+		width: 100%;
+	}
+	.progress-value {
+		flex: none;
+		min-width: 3ch;
+		text-align: right;
+		font-size: var(--fs-xs);
+		font-variant-numeric: tabular-nums;
+		color: var(--text-muted);
+	}
 	.grow {
 		flex: 1 1 0;
 		min-width: 0;

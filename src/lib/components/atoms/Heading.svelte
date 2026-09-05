@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { HTMLAttributes } from 'svelte/elements';
 	// Heading primitive: the ONLY place an <h1>–<h6> is emitted. `level` picks both
 	// the semantic tag and the default display size; `size` overrides the visual
 	// size independently of the level (e.g. toolbar chrome pinned smaller than its
@@ -7,23 +8,7 @@
 
 	type Size = 'xs' | 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 
-	let {
-		level = 2,
-		size,
-		tone = 'default',
-		truncate = false,
-		italic = false,
-		nowrap = false,
-		wrap = 'normal',
-		uppercase = false,
-		leading,
-		measure,
-		grow = false,
-		scale = true,
-		class: klass = '',
-		children,
-		...rest
-	}: {
+	type Own = {
 		level?: 1 | 2 | 3 | 4 | 5 | 6;
 		size?: Size;
 		tone?: 'default' | 'muted' | 'faint';
@@ -40,8 +25,24 @@
 		scale?: boolean;
 		class?: string;
 		children?: Snippet;
-		[key: string]: unknown;
-	} = $props();
+	};
+	let {
+		level = 2,
+		size,
+		tone = 'default',
+		truncate = false,
+		italic = false,
+		nowrap = false,
+		wrap = 'normal',
+		uppercase = false,
+		leading,
+		measure,
+		grow = false,
+		scale = true,
+		class: klass = '',
+		children,
+		...rest
+	}: Omit<HTMLAttributes<HTMLHeadingElement>, keyof Own> & Own = $props();
 
 	// Default display size per rank (h1 biggest). `size` overrides it.
 	const DEFAULT_SIZE: Record<number, Size> = { 1: '2xl', 2: 'xl', 3: 'lg', 4: 'md', 5: 'sm', 6: 'xs' };

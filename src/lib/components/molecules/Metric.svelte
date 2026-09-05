@@ -40,6 +40,9 @@
 		surface = 'base',
 		size = 'md',
 		layout = 'card',
+		href,
+		external = false,
+		onclick,
 		segments,
 		class: klass = '',
 		// Raw SVG markup for a custom icon — passed through to `Icon` so any glyph
@@ -57,6 +60,11 @@
 		surface?: 'base' | 'raised' | 'sunken';
 		/** `sm` is a dense tile (smaller value, tighter padding). */
 		size?: 'sm' | 'md';
+		/** Render the tile as a link / button with tap feedback. */
+		href?: string;
+		/** With `href`: new tab plus an arrow glyph after the label. */
+		external?: boolean;
+		onclick?: (e: MouseEvent | KeyboardEvent) => void;
 		/** `inline` drops the Card and renders a single stat row. */
 		layout?: 'card' | 'inline';
 		/** Extra stats after the value, each with an optional Tooltip hint. */
@@ -110,10 +118,16 @@
 	class="metric metric-{canonicalTone(tone)} {tintValue ? 'metric-tint' : ''} {size === 'sm' ? 'metric-sm' : ''} {klass}"
 	padding={size === 'sm' ? 'sm' : undefined}
 	{surface}
+	as={href ? 'a' : onclick ? 'button' : 'div'}
+	{href}
+	target={href && external ? '_blank' : undefined}
+	rel={href && external ? 'noopener noreferrer' : undefined}
+	{onclick}
+	tap={!!(href || onclick)}
 	{...rest}
 >
 	<div class="metric-head">
-		<span class="metric-label">{label}</span>
+		<span class="metric-label">{label}{#if href && external}<Icon name="external" />{/if}</span>
 		{#if icon || iconChildren}
 			<span class="metric-chip" aria-hidden="true">
 				{#if iconChildren}
@@ -190,6 +204,8 @@
 		line-height: 1.1;
 	}
 	.metric-num {
+		min-width: 0;
+		overflow-wrap: anywhere;
 		font-size: var(--fs-2xl);
 		font-weight: var(--fw-semibold);
 		color: var(--text);

@@ -26,6 +26,9 @@
 		closeDelay = 250,
 		trigger,
 		cursor = true,
+		inline = false,
+		width,
+		maxWidth,
 		class: klass = '',
 		style: styleProp = '',
 	}: {
@@ -41,6 +44,11 @@
 		trigger: Snippet;
 		/** `cursor: help` on the trigger wrapper (default). */
 		cursor?: boolean;
+		/** `flex: none` on the wrapper so a flex row cannot squeeze the trigger. */
+		inline?: boolean;
+		/** Panel width / max-width (default max 16rem). */
+		width?: string;
+		maxWidth?: string;
 		class?: string;
 		style?: string;
 	} = $props();
@@ -89,10 +97,14 @@
 	// hover/focus listeners (attached via the DOM, so the wrapper stays a plain,
 	// role-less container — the interactive element is the trigger inside).
 	function tooltip(node: HTMLElement) {
-		const target = (node.matches(FOCUSABLE) ? node : node.querySelector(FOCUSABLE)) as
+		let target = (node.matches(FOCUSABLE) ? node : node.querySelector(FOCUSABLE)) as
 			| HTMLElement
 			| null;
-		target?.setAttribute('aria-describedby', id);
+		if (!target) {
+			node.tabIndex = 0;
+			target = node;
+		}
+		target.setAttribute('aria-describedby', id);
 		const onkey = (e: KeyboardEvent) => e.key === 'Escape' && hideNow();
 		node.addEventListener('mouseenter', show);
 		node.addEventListener('mouseleave', scheduleHide);
@@ -101,7 +113,7 @@
 		node.addEventListener('keydown', onkey);
 		return {
 			destroy() {
-				target?.removeAttribute('aria-describedby');
+				target.removeAttribute('aria-describedby');
 				node.removeEventListener('mouseenter', show);
 				node.removeEventListener('mouseleave', scheduleHide);
 				node.removeEventListener('focusin', show);
@@ -132,7 +144,7 @@
 	}
 </script>
 
-<span class="tip-wrap {klass}" class:help={cursor} style={styleProp} data-tsu="Tooltip" bind:this={wrapEl} use:tooltip>
+<span class="tip-wrap {klass}" class:help={cursor} class:inline style={styleProp} data-tsu="Tooltip" bind:this={wrapEl} use:tooltip>
 	{@render trigger()}
 </span>
 
@@ -143,6 +155,8 @@
 	popover="manual"
 	class="tip"
 	class:rich={!!content}
+	style:width
+	style:max-width={maxWidth}
 	use:panel
 >
 	{#if content}{@render content()}{:else}{text}{/if}
@@ -151,6 +165,9 @@
 <style>
 	.tip-wrap {
 		display: inline-flex;
+	}
+	.tip-wrap.inline {
+		flex: none;
 	}
 	.tip-wrap.help:not(:has(a, button, input, select, textarea)) {
 		cursor: help;

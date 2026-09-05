@@ -81,7 +81,7 @@ test('IconButton glyphSize sizes SVG and text glyphs alike', () => {
 	assert.match(iconButton, /glyphSize\?: number \| string/);
 	assert.match(iconButton, /const emojiCss = \$derived\(glyphCss \?\? `\${size \* 1\.35}px`\)/);
 	assert.match(iconButton, /<span class="emoji" style="font-size: {emojiCss}"/);
-	assert.match(iconButton, /<span class="glyph" style="font-size: {glyphCss}"><Icon name={icon} \/><\/span>/);
+	assert.match(iconButton, /<span class="glyph" style="font-size: {glyphCss}"><Icon name={icon} {spin} \/><\/span>/);
 });
 
 test('Button collapseLabel hides data-label children and names the button from them', () => {

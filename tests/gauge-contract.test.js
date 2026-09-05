@@ -24,7 +24,7 @@ test('props: value, variant, segments, tone thresholds, label, polymorphic as, c
 	assert.match(component, /corner\?: Snippet/);
 	assert.match(component, /class\?: string/);
 	assert.match(component, /style\?: string/);
-	assert.match(component, /\[key: string\]: unknown/);
+	assert.match(component, /Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own/);
 	assert.match(component, /\.\.\.rest/);
 	assert.match(component, /{\.\.\.rest}/);
 });

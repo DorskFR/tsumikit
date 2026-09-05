@@ -27,6 +27,10 @@
 		wrap = true,
 		size,
 		grow = false,
+		shrink = true,
+		fill = false,
+		push,
+		wrapAt,
 		stackAt,
 		class: klass = '',
 		children,
@@ -39,18 +43,56 @@
 		wrap?: boolean;
 		size?: 'sm' | 'md' | 'lg';
 		grow?: boolean;
+		/** `false` pins the cluster (`flex: none`) inside a parent row. */
+		shrink?: boolean;
+		/** `height: 100%` to fill a flex parent. */
+		fill?: boolean;
+		/** Auto margin that pushes the cluster to the start/end of its parent. */
+		push?: 'start' | 'end';
+		/** Width (px/em/rem) under which the row starts wrapping (wraps always when unset and `wrap`). */
+		wrapAt?: string;
 		stackAt?: 'xs' | 'sm' | 'md' | 'lg';
 		class?: string;
+		style?: string;
 		children?: Snippet;
 		[key: string]: unknown;
 	} = $props();
+
+	let el = $state<HTMLElement | null>(null);
+	let narrow = $state(false);
+	function toPx(length: string, node: HTMLElement): number {
+		const n = Number.parseFloat(length);
+		const fontSize = (x: Element) => Number.parseFloat(getComputedStyle(x).fontSize);
+		if (length.endsWith('rem')) return n * fontSize(document.documentElement);
+		if (length.endsWith('em')) return n * fontSize(node);
+		return n;
+	}
+	$effect(() => {
+		if (!wrapAt || !el) {
+			narrow = false;
+			return;
+		}
+		const node = el;
+		const limit = toPx(wrapAt, node);
+		const ro = new ResizeObserver(([entry]) => {
+			narrow = entry.contentRect.width < limit;
+		});
+		ro.observe(node);
+		return () => ro.disconnect();
+	});
+	const wrapping = $derived(wrapAt ? narrow : wrap);
 </script>
 
 <svelte:element
 	this={as}
+	bind:this={el}
 	data-tsu="Cluster"
 	class="cluster-c {klass}"
 	class:cluster-grow={grow}
+	class:no-shrink={!shrink}
+	class:fill
+	class:push-start={push === 'start'}
+	class:push-end={push === 'end'}
 	class:cluster-stack={stackAt !== undefined}
 	class:stack-xs={stackAt === 'xs'}
 	class:stack-sm={stackAt === 'sm'}
@@ -59,7 +101,7 @@
 	style:gap
 	style:align-items={align}
 	style:justify-content={justify}
-	style:flex-wrap={wrap ? 'wrap' : 'nowrap'}
+	style:flex-wrap={wrapping ? 'wrap' : 'nowrap'}
 	style:--control-height={size ? CONTROL_TIER[size] : undefined}
 	{...rest}
 >
@@ -73,6 +115,25 @@
 	.cluster-grow > :global(*) {
 		flex: 1 1 0;
 		min-width: 0;
+	}
+	.cluster-c > :global([data-grow]) {
+		flex: 1 1 0;
+		min-width: 0;
+	}
+	.cluster-c > :global([data-shrink='false']) {
+		flex: none;
+	}
+	.no-shrink {
+		flex: none;
+	}
+	.fill {
+		height: 100%;
+	}
+	.push-start {
+		margin-inline-end: auto;
+	}
+	.push-end {
+		margin-inline-start: auto;
 	}
 	.cluster-stack {
 		container-type: inline-size;

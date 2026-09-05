@@ -39,6 +39,7 @@
 		mono = false,
 		tone = 'muted',
 		size,
+		short = false,
 		tickMs = 30_000,
 		class: klass = '',
 		style: styleProp = '',
@@ -70,6 +71,8 @@
 		/** Font size, mirroring <Text> sizes (maps to --fs-* tokens). Omit to
 		 *  inherit the surrounding size. */
 		size?: Size;
+		/** Relative mode without the "ago" suffix ("6m", "2h", "3d"). */
+		short?: boolean;
 		/** How often relative mode re-renders so "3m ago" stays fresh. */
 		tickMs?: number;
 		class?: string;
@@ -92,7 +95,7 @@
 	});
 
 	const date = $derived(toDate(value));
-	const label = $derived(formatTimestamp(value, current, now, utc, precision));
+	const label = $derived(formatTimestamp(value, current, now, utc, precision, short));
 	// datetime= wants a valid ISO string; omit it entirely on bad input.
 	const machine = $derived(date ? toISO(date) : undefined);
 	const showPopover = $derived(details || selectable);

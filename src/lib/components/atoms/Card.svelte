@@ -1,4 +1,5 @@
 <script lang="ts">
+	import type { HTMLAttributes } from 'svelte/elements';
 	import { canonicalTone, type Tone as SharedTone } from '$lib/tone';
 	// Elevated surface primitive — the canonical card/panel container. Owns its
 	// background/border/radius/padding from theme tokens. `tap` adds the
@@ -28,6 +29,36 @@
 
 	type Tone = SharedTone | 'attention';
 
+	type Own = {
+		/** Polymorphic attributes for `as="a"` / `as="button"`. */
+		href?: string;
+		target?: string;
+		rel?: string;
+		type?: 'button' | 'submit' | 'reset';
+		tap?: boolean;
+		interactive?: boolean;
+		as?: 'div' | 'button' | 'a' | 'li' | 'section' | 'form';
+		padding?: 'none' | 'sm' | 'md' | 'lg';
+		surface?: 'base' | 'raised' | 'sunken';
+		tone?: Tone;
+		stacked?: boolean;
+		stackTone?: Tone;
+		stackY?: number;
+		stackX?: number;
+		title?: string;
+		subtitle?: string;
+		gap?: string;
+		/** `hidden` clips children to the rounded box. */
+		overflow?: 'visible' | 'hidden';
+		maxWidth?: string;
+		onclick?: (e: MouseEvent | KeyboardEvent) => void;
+		class?: string;
+		style?: string;
+		header?: Snippet;
+		footer?: Snippet;
+		actions?: Snippet;
+		children?: Snippet;
+	};
 	let {
 		tap = false,
 		interactive = false,
@@ -42,6 +73,7 @@
 		title,
 		subtitle,
 		gap,
+		overflow,
 		maxWidth,
 		onclick,
 		class: klass = '',
@@ -51,30 +83,7 @@
 		actions,
 		children,
 		...rest
-	}: {
-		tap?: boolean;
-		interactive?: boolean;
-		as?: 'div' | 'button' | 'a' | 'li' | 'section' | 'form';
-		padding?: 'none' | 'sm' | 'md' | 'lg';
-		surface?: 'base' | 'raised' | 'sunken';
-		tone?: Tone;
-		stacked?: boolean;
-		stackTone?: Tone;
-		stackY?: number;
-		stackX?: number;
-		title?: string;
-		subtitle?: string;
-		gap?: string;
-		maxWidth?: string;
-		onclick?: (e: MouseEvent | KeyboardEvent) => void;
-		class?: string;
-		style?: string;
-		header?: Snippet;
-		footer?: Snippet;
-		actions?: Snippet;
-		children?: Snippet;
-		[key: string]: unknown;
-	} = $props();
+	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
 	const t = $derived(canonicalTone(tone));
 
 	let stackStyle = $derived(
@@ -129,6 +138,7 @@
 	class:card-gap={!framed && gap !== undefined}
 	style:--card-gap={gap}
 	style:max-width={maxWidth}
+	style:overflow={overflow}
 	style={`${stackStyle}${style}`}
 	role={interactive && !native ? 'button' : undefined}
 	tabindex={interactive && !native ? 0 : undefined}
@@ -156,6 +166,7 @@
 <style>
 	.card {
 		--card-pad: var(--sp-4);
+		min-width: 0;
 		background: var(--bg-elevated);
 		border: 1px solid var(--border);
 		border-radius: var(--r-lg);

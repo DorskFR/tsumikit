@@ -17,6 +17,7 @@
 		layout = 'stack',
 		labelWidth,
 		grow = false,
+		shrink = true,
 		class: klass = '',
 		children
 	}: {
@@ -29,6 +30,8 @@
 		labelWidth?: string;
 		/** Fill the available width of a flex/Cluster row (flex: 1). */
 		grow?: boolean;
+		/** `false` pins the field (`flex: none`) in a row. */
+		shrink?: boolean;
 		class?: string;
 		children?: Snippet;
 	} = $props();
@@ -54,7 +57,7 @@
 	});
 </script>
 
-<div class="field {klass}" class:field-grow={grow} class:field-inline={layout === 'inline'} data-tsu="Field">
+<div class="field {klass}" class:field-grow={grow} class:field-no-shrink={!shrink} class:field-inline={layout === 'inline'} data-tsu="Field">
 	{#if label}
 		<label class="label" for={forId} style:width={labelWidth}>{label}</label>
 	{/if}
@@ -74,6 +77,9 @@
 	.field-grow {
 		flex: 1 1 0;
 		min-width: 0;
+	}
+	.field-no-shrink {
+		flex: none;
 	}
 	.field-inline {
 		flex-direction: row;

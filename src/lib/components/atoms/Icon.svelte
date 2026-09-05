@@ -116,18 +116,11 @@
 </script>
 
 <script lang="ts">
+	import type { SVGAttributes } from 'svelte/elements';
 	import type { Snippet } from 'svelte';
+	import { canonicalTone, type Tone } from '$lib/tone';
 
-	let {
-		name,
-		size,
-		label,
-		spin = false,
-		children,
-		class: klass = '',
-		style: styleProp = '',
-		...rest
-	}: {
+	type Own = {
 		/** Named glyph from the registry. Omit when supplying `children`. */
 		name?: IconName;
 		/** Explicit pixel size. Omit to track the surrounding text (1em) — best
@@ -142,19 +135,35 @@
 		/** Raw SVG markup (24×24 viewBox) — overrides `name`. Pass a lucide-svelte
 		 *  component's contents here to render any icon not in the registry. */
 		children?: Snippet;
-		[key: string]: unknown;
+		/** Force fill (or outline) regardless of the glyph's default. */
+		filled?: boolean;
+		/** Semantic colour. */
+		tone?: Tone;
 		class?: string;
 		style?: string;
-	} = $props();
+	};
+	let {
+		name,
+		size,
+		label,
+		spin = false,
+		filled: filledProp,
+		tone,
+		children,
+		class: klass = '',
+		style: styleProp = '',
+		...rest
+	}: Omit<SVGAttributes<SVGSVGElement>, keyof Own> & Own = $props();
 
-	const filled = $derived(name ? FILLED.has(name) : false);
+	const filled = $derived(filledProp ?? (name ? FILLED.has(name) : false));
+	const toneColor = $derived(tone && tone !== 'neutral' ? `var(--${canonicalTone(tone)})` : undefined);
 </script>
 
 <svg
 	data-tsu="Icon"
 	class="icon {klass}"
 	class:spin
-	style="{size ? `font-size: ${size}px;` : ''}{styleProp}"
+	style="{size ? `font-size: ${size}px;` : ''}{toneColor ? `color: ${toneColor};` : ''}{styleProp}"
 	viewBox="0 0 24 24"
 	fill={filled ? 'currentColor' : 'none'}
 	stroke={filled ? 'none' : 'currentColor'}

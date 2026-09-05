@@ -52,6 +52,10 @@
 		/** Render `label` as visible text beside the glyph. `row` is a full-width,
 		 *  left-aligned menu-row form for overflow menus. */
 		showLabel?: boolean | 'row';
+		/** Rotate the glyph (refresh in flight). */
+		spin?: boolean;
+		/** Forwarded to Button: spinner, blocks clicks, aria-busy. */
+		loading?: boolean;
 		class?: string;
 	};
 
@@ -74,6 +78,8 @@
 		hoverDanger = false,
 		pressed,
 		showLabel = false,
+		spin = false,
+		loading = false,
 		disabled = false,
 		onclick,
 		class: klass = '',
@@ -99,6 +105,7 @@
 	{box}
 	{hitArea}
 	{disabled}
+	{loading}
 	{title}
 	{onclick}
 	icon={!inline && !chip && !showLabel}
@@ -111,17 +118,17 @@
 >
 	{#if children}
 		{#if glyphCss}
-			<span class="glyph" style="font-size: {glyphCss}"><Icon>{@render children()}</Icon></span>
+			<span class="glyph" style="font-size: {glyphCss}"><Icon {spin}>{@render children()}</Icon></span>
 		{:else}
-			<Icon {size}>{@render children()}</Icon>
+			<Icon {size} {spin}>{@render children()}</Icon>
 		{/if}
 	{:else if emoji}
 		<span class="emoji" style="font-size: {emojiCss}" aria-hidden="true">{emoji}</span>
 	{:else if icon}
 		{#if glyphCss}
-			<span class="glyph" style="font-size: {glyphCss}"><Icon name={icon} /></span>
+			<span class="glyph" style="font-size: {glyphCss}"><Icon name={icon} {spin} /></span>
 		{:else}
-			<Icon name={icon} {size} />
+			<Icon name={icon} {size} {spin} />
 		{/if}
 	{/if}
 	{#if showLabel}<span class="ib-label">{label}</span>{/if}
