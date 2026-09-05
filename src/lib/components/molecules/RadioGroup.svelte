@@ -155,12 +155,13 @@
 		gap: var(--sp-1);
 	}
 	.row-wrap {
-		display: flex;
-		flex-direction: column;
+		min-width: 0;
 	}
 	.row {
+		width: 100%;
 		display: flex;
 		align-items: flex-start;
+		min-width: 0;
 		gap: var(--sp-2);
 		padding: var(--pad, var(--sp-2) var(--sp-3));
 		border: 1px solid var(--border);
@@ -179,6 +180,7 @@
 	}
 	.row .texts {
 		flex: 1 1 auto;
+		min-width: 0;
 	}
 	.label-line {
 		display: flex;

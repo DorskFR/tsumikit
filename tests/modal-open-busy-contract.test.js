@@ -38,3 +38,7 @@ test('Modal tone paints a title glyph and a 3px top border; footer is right-alig
 	assert.match(source, /\.sheet-toned\s*{\s*border-top: 3px solid var\(--modal-tone\);/s);
 	assert.match(source, /\.sheet-foot\s*{[^}]*justify-content: flex-end;[^}]*gap: var\(--sp-2\);/s);
 });
+
+test('Modal stays hidden while closed under a controlled `open`', () => {
+	assert.match(source, /\.modal:not\(\[open\]\)\s*{\s*display: none;/s);
+});
