@@ -10,10 +10,9 @@
 	// handle on the top or bottom edge, styled like the Modal/AppShell grips: a
 	// centered pill that's a thicker portion of the border.
 	//
-	// With `autoresize`, only a `top` handle is offered and it sets a manual
-	// *floor* (min-height) rather than a fixed height: the textarea still grows
-	// with content, but dragging up reserves extra space. (A bottom handle makes
-	// no sense alongside content-driven sizing, so it's suppressed.)
+	// With `autoresize`, the handle (either edge) sets a manual *floor*
+	// (min-height) rather than a fixed height: the textarea still grows with
+	// content, but dragging reserves extra space. `rows` is the initial floor.
 	//
 	// `onsubmit` fires with the value on Enter (`submitOn="enter"`, Shift+Enter
 	// still inserts a newline) or Ctrl/Meta+Enter (`submitOn="mod-enter"`, the
@@ -27,8 +26,8 @@
 		autoresize?: boolean;
 		size?: 'sm' | 'md';
 		/** Manual resize handle edge, or 'none' to disable. Defaults to a bottom
-		 *  handle. With `autoresize`, only `top` is honored and it drags a
-		 *  min-height floor (the textarea still grows with content). */
+		 *  handle. With `autoresize` it drags a min-height floor (the textarea
+		 *  still grows with content). */
 		resize?: 'none' | 'top' | 'bottom';
 		/** Error state: danger border + aria-invalid (also styles if a consumer
 		 *  sets aria-invalid directly). */
@@ -70,8 +69,7 @@
 
 	$effect(() => warnUnlabelled(el, 'Textarea'));
 
-	// With autoresize, only the top handle (a min-height floor) is meaningful.
-	const handleEdge = $derived(autoresize ? (resize === 'top' ? 'top' : 'none') : resize);
+	const handleEdge = $derived(resize);
 	const showHandle = $derived(handleEdge !== 'none');
 	const submitMode = $derived(submitOn === 'none' && onsubmit ? 'mod-enter' : submitOn);
 

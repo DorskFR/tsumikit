@@ -5,12 +5,27 @@
  *
  * Usage: <textarea use:autoresize={value} ...></textarea>
  */
+/** Height `rows` lines would occupy: line boxes plus vertical padding and borders. */
+export function rowsFloor(node: HTMLTextAreaElement): number {
+	const rows = node.rows || 0;
+	if (rows <= 1) return 0;
+	const cs = getComputedStyle(node);
+	const fontSize = parseFloat(cs.fontSize) || 16;
+	const lh = parseFloat(cs.lineHeight) || fontSize * 1.2;
+	const box =
+		(parseFloat(cs.paddingTop) || 0) +
+		(parseFloat(cs.paddingBottom) || 0) +
+		(parseFloat(cs.borderTopWidth) || 0) +
+		(parseFloat(cs.borderBottomWidth) || 0);
+	return rows * lh + box;
+}
+
 export function autoresize(node: HTMLTextAreaElement, _value?: string) {
 	const resize = () => {
 		// A manual drag handle may set `min-height` as a user-chosen floor; grow
 		// with content but never collapse below it. Content always wins the lower
 		// bound, so dragging shorter than the text can't shrink past it.
-		const floor = parseFloat(node.style.minHeight) || 0;
+		const floor = Math.max(parseFloat(node.style.minHeight) || 0, rowsFloor(node));
 		node.style.height = 'auto';
 		node.style.height = `${Math.max(node.scrollHeight, floor)}px`;
 	};
