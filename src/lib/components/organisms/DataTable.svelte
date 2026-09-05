@@ -28,8 +28,8 @@
 	// Generic, accessible data table. Columns are typed against the row type; a
 	// column renders row[key] by default, a `get` accessor, or a custom
 	// `cellSnippets[key]` snippet for full control (badges, actions…). Sticky
-	// header, empty state, optional row click (rows become buttons with the
-	// right keyboard semantics). Horizontal scroll is contained so it never
+	// header, empty state, optional row click (the table becomes a grid whose
+	// rows are focusable and Enter/Space-activatable; rows stay rows for AT). Horizontal scroll is contained so it never
 	// breaks the page layout on mobile.
 	import type { Snippet } from 'svelte';
 
@@ -96,6 +96,17 @@
 
 	let wrapEl = $state<HTMLDivElement | null>(null);
 	let stacked = $state(false);
+	let actionsW = $state(0);
+
+	function measureActions(node: HTMLElement) {
+		const update = () => {
+			actionsW = Math.max(actionsW, Math.ceil(node.getBoundingClientRect().width));
+		};
+		update();
+		const observer = new ResizeObserver(update);
+		observer.observe(node);
+		return { destroy: () => observer.disconnect() };
+	}
 
 	function toPx(length: string, el: HTMLElement): number {
 		const n = Number.parseFloat(length);
@@ -172,6 +183,8 @@
 		class:head-hidden={hideHeader}
 		class:sm={size === 'sm'}
 		style:--dt-sticky-offset={stickyOffset}
+		style:--dt-actions-w={actionsW ? `calc(${actionsW}px + 2 * var(--sp-3))` : undefined}
+		role={onrowclick ? 'grid' : undefined}
 	>
 		<thead data-part="head">
 			<tr>
@@ -227,7 +240,6 @@
 						class:clickable={!!onrowclick}
 						class:toned={!!tone && tone !== 'neutral'}
 						tabindex={onrowclick ? 0 : undefined}
-						role={onrowclick ? 'button' : undefined}
 						onclick={onrowclick ? () => onrowclick(row) : undefined}
 						onkeydown={onrowclick
 							? (e) => {
@@ -257,7 +269,7 @@
 						{/each}
 						{#if rowActions}
 							<td data-part="actions" class="dt-actions">
-								{@render rowActions(row)}
+								<span class="dt-actions-inner" use:measureActions>{@render rowActions(row)}</span>
 							</td>
 						{/if}
 					</tr>
@@ -414,6 +426,12 @@
 		opacity: 0;
 		transition: opacity 0.12s var(--ease);
 	}
+	.dt-actions-inner {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--sp-1);
+		white-space: nowrap;
+	}
 	tr:hover .dt-actions,
 	tr:focus-within .dt-actions {
 		opacity: 1;
@@ -444,7 +462,7 @@
 	[data-stacked] {
 		overflow-x: visible;
 	}
-	[data-stacked] thead th {
+	[data-stacked] thead {
 		position: absolute;
 		width: 1px;
 		height: 1px;
@@ -460,7 +478,8 @@
 	[data-stacked] td {
 		display: block;
 	}
-	[data-stacked] tr {
+	[data-stacked] tbody tr,
+	[data-stacked] tfoot tr {
 		display: flex;
 		flex-wrap: wrap;
 		align-items: baseline;
@@ -487,7 +506,8 @@
 		box-shadow: inset 3px 0 0 var(--dt-tone);
 	}
 	[data-stacked] td[data-role='title'] {
-		flex: 1 1 0;
+		flex: 1 1 auto;
+		min-width: min(100%, 12rem);
 		order: -2;
 		font-weight: var(--fw-semibold);
 		font-size: var(--fs-md);

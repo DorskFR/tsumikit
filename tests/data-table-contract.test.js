@@ -75,7 +75,7 @@ test('rowActions is a trailing cell with a labelled header, hover-revealed, visi
 	assert.match(component, /rowActions\?: Snippet<\[T\]>/);
 	assert.match(component, /rowActionsLabel = 'Actions'/);
 	assert.match(component, /<th scope="col" class="dt-actions-head"><span class="sr-only">{rowActionsLabel}<\/span><\/th>/);
-	assert.match(component, /<td data-part="actions" class="dt-actions">\s*{@render rowActions\(row\)}/);
+	assert.match(component, /<td data-part="actions" class="dt-actions">\s*<span class="dt-actions-inner" use:measureActions>{@render rowActions\(row\)}/);
 	assert.match(component, /const colCount = \$derived\(columns\.length \+ \(rowActions \? 1 : 0\)\)/);
 	assert.match(component, /colspan={colCount}/);
 	assert.match(component, /\.dt-actions\s*{\s*opacity: 0;/);
@@ -119,10 +119,13 @@ test('semantics kept: real table, th scope, keyboard-operable sort and rows', ()
 	assert.match(component, /<th\s+scope="col"/);
 	assert.match(component, /<button type="button" class="dt-sort" onclick={\(\) => toggleSort\(col\)}>/);
 	assert.match(component, /aria-sort={col\.sortable/);
-	assert.match(component, /role={onrowclick \? 'button' : undefined}/);
+	assert.match(component, /role={onrowclick \? 'grid' : undefined}/);
+	assert.doesNotMatch(component, /<tr[\s\S]*?role={onrowclick/);
 	assert.match(component, /e\.key === 'Enter' \|\| e\.key === ' '/);
 });
 
 test('fixed layout gives the actions column a definite width so it never overflows the scroll wrapper', () => {
 	assert.match(component, /\.dt\.fixed \.dt-actions-head,\s*\.dt\.fixed \.dt-actions\s*{\s*width: var\(--dt-actions-w, 3\.5rem\);/s);
+	assert.match(component, /<span class="dt-actions-inner" use:measureActions>{@render rowActions\(row\)}<\/span>/);
+	assert.match(component, /style:--dt-actions-w={actionsW \? `calc\(\${actionsW}px \+ 2 \* var\(--sp-3\)\)` : undefined}/);
 });
