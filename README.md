@@ -183,7 +183,8 @@ drop target with `accepts`/`ondrop`/`dropHint` — keyboard alternative is the c
 `nowrap` / `hideBelow="sm|md|lg"` (container-query on the table's own box),
 `hideHeader` clips the header but keeps it for assistive tech, `rowTone(row)`
 paints a left accent bar + `data-tone`, `rowClass(row)`, `rowActions` snippet
-for a hover/focus-revealed trailing cell (always visible on touch),
+for a hover/focus-revealed trailing cell (always visible on touch; under
+`layout="fixed"` its column is `--dt-actions-w`, default 3.5rem),
 `stickyOffset` for the sticky header's `top`, `size="sm"`, `loading`,
 `onloadmore` footer button, `empty` as string or snippet; `data-part`
 hooks on head/row/cell; `responsive="stack"` turns rows into cards below
