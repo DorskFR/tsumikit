@@ -42,3 +42,9 @@ test('rows: below snippet renders under its own option row only', () => {
 	assert.match(src, /<div class="row-wrap">[\s\S]*<\/div>\s*{#if below}<div class="below">{@render below\(o\)}<\/div>{\/if}\s*<\/div>/);
 	assert.match(src, /\.below:empty\s*{[^}]*display: none;/s);
 });
+
+test('rows never exceed their column: wrapper is a block, row fills it, text column can shrink', () => {
+	assert.match(src, /\.row-wrap\s*{\s*min-width: 0;\s*}/s);
+	assert.match(src, /\.row\s*{\s*width: 100%;\s*display: flex;[^}]*min-width: 0;/s);
+	assert.match(src, /\.row \.texts\s*{[^}]*min-width: 0;/s);
+});

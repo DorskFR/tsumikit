@@ -206,6 +206,9 @@
 		align-items: flex-end;
 		justify-content: center;
 	}
+	.modal:not([open]) {
+		display: none;
+	}
 	.modal::backdrop {
 		background: rgba(0, 0, 0, 0.55);
 		/* animate the backdrop in (progressive enhancement) */
