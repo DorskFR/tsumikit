@@ -13,7 +13,7 @@
 		label,
 		labelWidth = '96px',
 		readout,
-		readoutWidth = '76px',
+		readoutWidth = 'auto',
 		hint,
 		caption,
 		tooltip,
