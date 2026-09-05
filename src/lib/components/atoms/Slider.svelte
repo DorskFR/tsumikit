@@ -148,6 +148,9 @@
 		appearance: none;
 		-webkit-appearance: none;
 		flex: 1;
+		/* Firefox sizes a range input's min-content at ~12em, so without this it
+		   refuses to shrink and paints over whatever shares its row. */
+		min-width: 0;
 		position: relative;
 		z-index: 1;
 		height: 1.25rem;
