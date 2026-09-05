@@ -56,12 +56,18 @@ export {
 	default as Accordion,
 } from './components/molecules/Accordion.svelte';
 export {
+	type Attachment,
+	default as AttachmentList,
+} from './components/molecules/AttachmentList.svelte';
+export {
 	type BreadcrumbItem,
 	default as Breadcrumb,
 } from './components/molecules/Breadcrumb.svelte';
 export { default as Callout } from './components/molecules/Callout.svelte';
 export { default as CapBar } from './components/molecules/CapBar.svelte';
+export { default as ChatBubble } from './components/molecules/ChatBubble.svelte';
 export { default as CodeBlock } from './components/molecules/CodeBlock.svelte';
+export { default as Composer } from './components/molecules/Composer.svelte';
 export { default as ConfirmModal } from './components/molecules/ConfirmModal.svelte';
 export { default as CopyButton } from './components/molecules/CopyButton.svelte';
 export { default as Drawer } from './components/molecules/Drawer.svelte';
@@ -101,6 +107,7 @@ export { default as Modal } from './components/molecules/Modal.svelte';
 export { default as OptionButton } from './components/molecules/OptionButton.svelte';
 export { default as Pagination } from './components/molecules/Pagination.svelte';
 export { default as Popover } from './components/molecules/Popover.svelte';
+export { default as Prose } from './components/molecules/Prose.svelte';
 export {
 	default as RadioGroup,
 	type RadioOption,

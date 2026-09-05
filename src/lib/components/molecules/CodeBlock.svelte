@@ -20,6 +20,11 @@
 		showLineNumbers = false,
 		wrap = false,
 		copy = true,
+		maxHeight,
+		collapsible = false,
+		expandLabel = 'Show more',
+		collapseLabel = 'Show less',
+		breakAll = false,
 		class: klass = ''
 	}: {
 		code: string;
@@ -33,12 +38,23 @@
 		showLineNumbers?: boolean;
 		wrap?: boolean;
 		copy?: boolean;
+		/** Cap the body height; scrolls past it (or expands when `collapsible`). */
+		maxHeight?: string;
+		/** With `maxHeight`, a toggle in the header expands the body instead of scrolling. */
+		collapsible?: boolean;
+		expandLabel?: string;
+		collapseLabel?: string;
+		/** Break long unbroken strings (secrets, hashes) anywhere. */
+		breakAll?: boolean;
 		class?: string;
 	} = $props();
 
+	let expanded = $state(false);
+
 	const rendered = $derived(html ?? (highlight ? highlight(code, lang) : null));
 	const lines = $derived(showLineNumbers ? code.replace(/\n$/, '').split('\n').length : 0);
-	const hasHeader = $derived(!!(filename || lang || copy));
+	const hasHeader = $derived(!!(filename || lang || copy || (collapsible && maxHeight)));
+	const capped = $derived(!!maxHeight && !(collapsible && expanded));
 </script>
 
 <figure class="codeblock {klass}" data-tsu="CodeBlock">
@@ -46,10 +62,15 @@
 		<figcaption class="cb-head">
 			<span class="cb-name">{filename ?? lang ?? ''}</span>
 			<div class="spacer"></div>
+			{#if collapsible && maxHeight}
+				<button type="button" class="cb-toggle" aria-expanded={expanded} onclick={() => (expanded = !expanded)}>
+					{expanded ? collapseLabel : expandLabel}
+				</button>
+			{/if}
 			{#if copy}<CopyButton text={code} showLabel={false} />{/if}
 		</figcaption>
 	{/if}
-	<div class="cb-body" class:wrap class:numbered={showLineNumbers}>
+	<div class="cb-body" class:wrap class:numbered={showLineNumbers} class:break-all={breakAll} style:max-height={capped ? maxHeight : undefined}>
 		{#if showLineNumbers}
 			<span class="cb-gutter" aria-hidden="true">
 				{#each { length: lines } as _, i (i)}<span>{i + 1}</span>{/each}
@@ -82,7 +103,7 @@
 	}
 	.cb-body {
 		display: flex;
-		overflow-x: auto;
+		overflow: auto;
 		-webkit-overflow-scrolling: touch;
 	}
 	.cb-gutter {
@@ -112,6 +133,18 @@
 	.cb-body.wrap .cb-pre {
 		white-space: pre-wrap;
 		word-break: break-word;
+	}
+	.cb-body.break-all .cb-pre {
+		white-space: pre-wrap;
+		word-break: break-all;
+	}
+	.cb-toggle {
+		border: 0;
+		background: none;
+		padding: 0 var(--sp-1);
+		font: inherit;
+		color: var(--accent);
+		cursor: pointer;
 	}
 	.cb-body.numbered .cb-pre {
 		white-space: pre; /* keep lines aligned with the gutter */
