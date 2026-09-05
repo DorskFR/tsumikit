@@ -19,3 +19,9 @@ test('alert aliases warning instead of duplicating its path data', () => {
 	assert.match(icon, /export type IconName = keyof typeof ICONS;/);
 	assert.equal((icon.match(/m21\.73 18-8-14a2 2 0 0 0-3\.48 0/g) ?? []).length, 1);
 });
+
+test('VCS glyphs: pull-request, git-branch, git-commit, git-merge', () => {
+	for (const name of ['pull-request', 'git-branch', 'git-commit', 'git-merge']) {
+		assert.match(icon, new RegExp(`'${name}': '<`));
+	}
+});
