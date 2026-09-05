@@ -51,3 +51,8 @@ test('the dark swatch carries the :root palette values (tokens.css stays theme-l
 		assert.match(themePicker, new RegExp(`\\.swatch\\[data-theme='dark'\\]\\s*{[^}]*--c-${k}: ${root};`, 's'), k);
 	}
 });
+
+test('FontScalePicker chrome never uses scaled font tokens, so the panel cannot move under the pointer mid-drag', () => {
+	assert.doesNotMatch(fontScale, /var\(--fs-/);
+	assert.match(fontScale, /\.panel\s*{[^}]*font-size: 0\.875rem;/s);
+});
