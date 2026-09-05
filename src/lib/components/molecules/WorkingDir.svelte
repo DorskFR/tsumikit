@@ -13,6 +13,7 @@
 		minLeaf = 18,
 		mono = true,
 		full = false,
+		shrink = false,
 		icon = 'folder',
 		title,
 		copy = false,
@@ -27,6 +28,8 @@
 		mono?: boolean;
 		/** Skip the fit algorithm: render the whole path and size to content. */
 		full?: boolean;
+		/** Size to the path when it fits; keep truncating when it does not. */
+		shrink?: boolean;
 		icon?: IconName;
 		/** Defaults to the full path. */
 		title?: string;
@@ -64,6 +67,8 @@
 		return () => ro.disconnect();
 	});
 
+	const fullWidth = $derived(shrink && !full ? Math.ceil(candidates[0].length * chPx + chrome + 2) : undefined);
+
 	const shown = $derived.by(() => {
 		if (full) return normalized;
 		const budget = Math.max(0, avail - chrome - 1);
@@ -87,6 +92,7 @@
 	class="rail {klass}"
 	class:full
 	bind:this={rail}
+	style:max-width={fullWidth ? `${fullWidth}px` : undefined}
 	{style}
 >
 	<Badge
