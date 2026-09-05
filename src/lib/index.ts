@@ -14,6 +14,7 @@ export { default as Button } from './components/atoms/Button.svelte';
 export { default as Card } from './components/atoms/Card.svelte';
 export { default as Checkbox } from './components/atoms/Checkbox.svelte';
 export { default as Dot } from './components/atoms/Dot.svelte';
+export { default as Gauge, type GaugeTone } from './components/atoms/Gauge.svelte';
 export { default as Heading } from './components/atoms/Heading.svelte';
 export type { IconName } from './components/atoms/Icon.svelte';
 export { default as Icon } from './components/atoms/Icon.svelte';
@@ -39,6 +40,7 @@ export { default as AppShell } from './components/layouts/AppShell.svelte';
 export { default as AutoGrid } from './components/layouts/AutoGrid.svelte';
 export { default as Cluster } from './components/layouts/Cluster.svelte';
 export { default as Container } from './components/layouts/Container.svelte';
+export { default as MasterDetail } from './components/layouts/MasterDetail.svelte';
 export { default as NavItem } from './components/layouts/NavItem.svelte';
 export { default as NavSection } from './components/layouts/NavSection.svelte';
 export { default as ResizablePanel } from './components/layouts/ResizablePanel.svelte';
@@ -56,6 +58,7 @@ export {
 	default as Breadcrumb,
 } from './components/molecules/Breadcrumb.svelte';
 export { default as Callout } from './components/molecules/Callout.svelte';
+export { default as CapBar } from './components/molecules/CapBar.svelte';
 export { default as CodeBlock } from './components/molecules/CodeBlock.svelte';
 export { default as ConfirmModal } from './components/molecules/ConfirmModal.svelte';
 export { default as CopyButton } from './components/molecules/CopyButton.svelte';
@@ -63,12 +66,19 @@ export { default as Dropzone } from './components/molecules/Dropzone.svelte';
 export { default as EmptyState } from './components/molecules/EmptyState.svelte';
 // ---- molecules ----
 export { default as Field } from './components/molecules/Field.svelte';
+export { default as Fieldset } from './components/molecules/Fieldset.svelte';
 export { default as FileButton } from './components/molecules/FileButton.svelte';
 export {
 	default as FilterInput,
 	type FilterInputContext,
 } from './components/molecules/FilterInput.svelte';
 export { default as FontScalePicker } from './components/molecules/FontScalePicker.svelte';
+export {
+	type DiffStats,
+	default as GitRef,
+	type PrState,
+	type PullRequest,
+} from './components/molecules/GitRef.svelte';
 export { default as IconButton } from './components/molecules/IconButton.svelte';
 export {
 	default as KeyValue,
@@ -103,6 +113,7 @@ export { default as Toaster } from './components/molecules/Toaster.svelte';
 export { default as Toggle } from './components/molecules/Toggle.svelte';
 export { default as Tooltip } from './components/molecules/Tooltip.svelte';
 export { default as Truncate } from './components/molecules/Truncate.svelte';
+export { default as WorkingDir } from './components/molecules/WorkingDir.svelte';
 // ---- organisms ----
 export {
 	type Column,
@@ -177,3 +188,4 @@ export {
 } from './timestamp';
 export { canonicalTone, type Tone } from './tone';
 export { type TruncateMode, type TruncateOptions, truncate } from './truncate';
+export { normalizeWorkingDir, type WorkingDirOptions, workingDirCandidates } from './working-dir';

@@ -29,10 +29,15 @@
 		CodeBlock,
 		FileButton,
 		Dropzone,
+		Fieldset,
 		Tooltip,
 		Truncate,
+		WorkingDir,
+		ResizablePanel,
 		Timestamp,
+		GitRef,
 		Progress,
+		Gauge,
 		Accordion,
 		Breadcrumb,
 		Popover,
@@ -53,9 +58,11 @@
 		Stack,
 		Cluster,
 		AutoGrid,
+		MasterDetail,
 		Metric,
 		EmptyState,
 		Callout,
+		CapBar,
 		SectionHeader,
 		Artwork,
 		NavItem,
@@ -71,6 +78,7 @@
 		type Column
 	} from '$lib';
 	import { base } from '$app/paths';
+	let capBarCap = $state(80);
 
 	theme.register({
 		id: 'showcase-plum',
@@ -82,6 +90,9 @@
 
 	// interactive demo state
 	let switchOn = $state(true);
+	const mdItems = ['Alice', 'Bob', 'Chidi', 'Dana'];
+	let mdSelectedWide = $state<string | null>('Alice');
+	let mdSelectedNarrow = $state<string | null>(null);
 	let toggleA = $state(true);
 	let toggleB = $state(false);
 	let toggleC = $state(false);
@@ -93,6 +104,14 @@
 	let modalOpen = $state(false);
 	let confirmOpen = $state(false);
 	let confirmFails = $state(false);
+	let poolA = $state(['Ledger', 'Wallet']);
+	let poolB = $state(['Exchange']);
+	function movePool(name: string, to: 'a' | 'b') {
+		poolA = poolA.filter((n) => n !== name);
+		poolB = poolB.filter((n) => n !== name);
+		if (to === 'a') poolA = [...poolA, name];
+		else poolB = [...poolB, name];
+	}
 	let demoPage = $state(3);
 	let demoOffset = $state(40);
 	async function demoConfirm() {
@@ -1021,6 +1040,26 @@ function greet(name) {
 		</Card>
 	</section>
 
+	<!-- CAPBAR -->
+	<section class="section">
+		<Heading level={2}>CapBar</Heading>
+		<Card>
+			<div class="stack">
+				<CapBar
+					label="Anthropic"
+					value={62}
+					bind:cap={capBarCap}
+					hint="resets 3h"
+					onchange={(c) => toasts.show(`Cap set to ${c}%`)}
+				>
+					{#snippet caption()}▲ using 62% · cap {capBarCap}%{/snippet}
+				</CapBar>
+				<CapBar label="OpenAI" value={81} cap={90} hint="resets 12h" size="lg" />
+				<CapBar label="Locked" value={95} cap={80} hint="over cap" readonly />
+			</div>
+		</Card>
+	</section>
+
 	<!-- DATATABLE -->
 	<section class="section">
 		<Heading level={2}>DataTable <Badge>generic &lt;T&gt;</Badge></Heading>
@@ -1228,6 +1267,20 @@ function greet(name) {
 						]}
 					/>
 				</div>
+				<div class="row row-wrap">
+					<Gauge value={35} label="Session usage 35%" />
+					<Gauge value={75} label="Session usage 75%" />
+					<Gauge value={95} label="Session usage 95%" />
+					<Gauge value={35} variant="segments" label="Weekly usage 35%" />
+					<Gauge value={75} variant="segments" label="Weekly usage 75%" />
+					<Gauge value={100} variant="segments" label="Weekly usage 100%" />
+					<Gauge value={60} tone="ok" label="Forced ok tone">
+						{#snippet corner()}🍃{/snippet}
+					</Gauge>
+					<Gauge value={92} variant="segments" as="button" label="Hot pace, click for details">
+						{#snippet corner()}🔥{/snippet}
+					</Gauge>
+				</div>
 				{#snippet c1()}<Text variant="body">Built on native &lt;details&gt; — zero JS, full keyboard support.</Text>{/snippet}
 				{#snippet c2()}<Text variant="body">With <code>multiple=false</code> it uses the platform's exclusive-accordion (one open at a time).</Text>{/snippet}
 				{#snippet c3()}<Text variant="body">The chevron rotates via a CSS transition on <code>[open]</code>.</Text>{/snippet}
@@ -1270,6 +1323,32 @@ function greet(name) {
 		</Card>
 	</section>
 
+	<!-- WORKING DIR -->
+	<section class="section">
+		<Heading level={2}>WorkingDir <Badge>fish-style · degrades with width</Badge></Heading>
+		<Card>
+			<div class="stack">
+				<Text variant="caption">
+					Drag the handle: ancestors abbreviate one at a time left to right, then only the leaf
+					stays, then the leaf ellipsises down to <code>minLeaf</code> chars. The full path is always
+					in the tooltip.
+				</Text>
+				<ResizablePanel label="WorkingDir demo" width={360} minWidth={120} maxWidth={640} widthKey="demo-working-dir">
+					{#snippet panel()}
+						<div class="stack" style="padding: var(--sp-3)">
+							<WorkingDir path="/home/dorsk/Documents/tsumikit/src/lib/components" />
+							<WorkingDir path="/srv/app/releases/2026-09-05-a-really-long-release-name" copy />
+							<WorkingDir path="~/projects/cctui" minLeaf={4} />
+						</div>
+					{/snippet}
+					<div style="padding: var(--sp-3)">
+						<WorkingDir path="/home/dorsk/Documents/tsumikit" full />
+					</div>
+				</ResizablePanel>
+			</div>
+		</Card>
+	</section>
+
 	<!-- TIMESTAMP -->
 	<section class="section">
 		<Heading level={2}>Timestamp <Badge>subdued · click for UTC / epoch / zone</Badge></Heading>
@@ -1301,6 +1380,44 @@ function greet(name) {
 					</Text>
 					<Text variant="body">
 						no popover: <Timestamp value="2026-06-14T07:30:00Z" details={false} />
+					</Text>
+				</div>
+			</div>
+		</Card>
+	</section>
+
+	<!-- GIT REF -->
+	<section class="section">
+		<Heading level={2}>GitRef <Badge>branch · PR · ±diff</Badge></Heading>
+		<Card>
+			<div class="stack">
+				<Text variant="caption">
+					Branch chip, pull-request link and +/− diff stats in one inline row; every part is
+					optional. The PR state picks its tone (open ok, merged accent, closed danger, draft
+					muted). <code>collapse="auto"</code> keeps only the glyphs when the nearest
+					<code>.cq</code> container is narrower than 18rem; <code>glyph</code> forces it.
+				</Text>
+				<div class="stack">
+					<Text variant="body">
+						branch: <GitRef branch="feat/wave-1-new-components-with-a-long-name" />
+					</Text>
+					<Text variant="body">
+						pr: <GitRef pr={{ url: 'https://github.com/DorskFR/tsumikit/pull/77', owner: 'DorskFR', repo: 'tsumikit', number: 77, state: 'merged' }} />
+					</Text>
+					<Text variant="body">
+						all three: <GitRef
+							branch="fix/resizable-panel"
+							pr={{ url: 'https://github.com/DorskFR/tsumikit/pull/78', number: 78 }}
+							diff={{ additions: 128, deletions: 42 }}
+						/>
+					</Text>
+					<Text variant="body">
+						glyph: <GitRef
+							branch="fix/resizable-panel"
+							pr={{ url: 'https://github.com/DorskFR/tsumikit/pull/79', owner: 'DorskFR', repo: 'tsumikit', number: 79, state: 'draft' }}
+							diff={{ additions: 3, deletions: 1 }}
+							collapse="glyph"
+						/>
 					</Text>
 				</div>
 			</div>
@@ -1352,6 +1469,46 @@ function greet(name) {
 						</div>
 					</Card>
 				</Dropzone>
+			</div>
+		</Card>
+	</section>
+
+	<!-- FIELDSET -->
+	<section class="section">
+		<Heading level={2}>Fieldset</Heading>
+		<Card>
+			<div class="stack">
+				<Text variant="caption" tone="muted">Drag a card between pools (HTML5 DnD); buttons are the keyboard path.</Text>
+				<div class="row row-wrap" style="align-items: stretch">
+					{#each [['a', 'Pool A', poolA], ['b', 'Pool B', poolB]] as [id, name, items] (id)}
+						<Fieldset
+							legend={name as string}
+							tone={(items as string[]).length ? 'accent' : 'strong'}
+							droppable
+							accepts={(d) => !(items as string[]).includes(d)}
+							ondrop={(d) => movePool(d, id as 'a' | 'b')}
+							dropHint="Drop to add to {name}"
+							style="flex: 1 1 14rem"
+						>
+							<div class="stack">
+								{#each items as string[] as item (item)}
+									<Card
+										padding="sm"
+										draggable="true"
+										ondragstart={(e: DragEvent) => e.dataTransfer?.setData('text/plain', item)}
+									>
+										<div class="row" style="justify-content: space-between">
+											<Text variant="body">{item}</Text>
+											<Button size="sm" variant="ghost" onclick={() => movePool(item, id === 'a' ? 'b' : 'a')}>Move</Button>
+										</div>
+									</Card>
+								{:else}
+									<Text variant="caption" tone="muted">Empty — drop something here.</Text>
+								{/each}
+							</div>
+						</Fieldset>
+					{/each}
+				</div>
 			</div>
 		</Card>
 	</section>
@@ -1417,6 +1574,50 @@ function greet(name) {
 				<Pagination bind:offset={demoOffset} limit={20} total={412} size="sm" showRange />
 				<Text variant="caption" tone="muted">Compact collapse under 24rem of container width:</Text>
 				<div style="max-width: 18rem"><Pagination bind:page={demoPage} pageCount={12} /></div>
+			</Stack>
+		</Card>
+	</section>
+
+	<section class="section">
+		<Heading level={2}>MasterDetail</Heading>
+		{#snippet mdDemo(selected: string | null, select: (v: string | null) => void)}
+			<MasterDetail
+				selected={selected !== null}
+				onback={() => select(null)}
+				style="border: 1px solid var(--border); border-radius: var(--r-md); height: 16rem"
+			>
+				{#snippet list()}
+					<Stack gap="0">
+						{#each mdItems as name (name)}
+							<NavItem label={name} active={selected === name} onclick={() => select(name)} />
+						{/each}
+					</Stack>
+				{/snippet}
+				{#snippet detailHeader()}
+					<Text variant="caption" tone="muted">{selected ?? 'Nothing selected'}</Text>
+				{/snippet}
+				{#snippet detail()}
+					<div style="padding: var(--sp-4)">
+						<Heading level={3}>{selected}</Heading>
+						<Text>Detail pane for {selected}.</Text>
+					</div>
+				{/snippet}
+				{#snippet empty()}
+					<div style="padding: var(--sp-4)"><Text tone="muted">Pick someone on the left.</Text></div>
+				{/snippet}
+			</MasterDetail>
+		{/snippet}
+		<Card>
+			<Stack gap="var(--sp-4)">
+				<Text variant="caption" tone="muted">
+					Two columns above its own 48rem breakpoint; below it one pane at a time with a sticky back
+					header. Drive <code>selected</code> from the URL to make each pane a route.
+				</Text>
+				{@render mdDemo(mdSelectedWide, (v) => (mdSelectedWide = v))}
+				<Text variant="caption" tone="muted">Same component boxed at 22rem — the mobile regime on desktop:</Text>
+				<div style="max-width: 22rem">
+					{@render mdDemo(mdSelectedNarrow, (v) => (mdSelectedNarrow = v))}
+				</div>
 			</Stack>
 		</Card>
 	</section>

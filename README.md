@@ -148,7 +148,8 @@ for a light theme (`:root` defaults to dark, so dark themes may omit it).
 `clearable` + `onclear`, `shape="pill"`, `width` fixed + `flex: none`,
 `onenter(value)`; the bare `<input>` DOM is unchanged unless `icon`/`clearable`
 is used), Textarea, Select, Switch, Checkbox,
-Slider, Progress, Artwork (lazy cover image with seeded gradient + initials
+Slider, Progress, Gauge (vertical consumption cell, `variant` continuous/segments,
+threshold tones via `warnAt`/`dangerAt`, `corner` snippet), Artwork (lazy cover image with seeded gradient + initials
 fallback, `aspect`, `status` overlay), Card (`tone` tints the surface for inline banners), Badge
 (`tone` semantic palette or `color` for any CSS colour, `size` xs/sm/md, `dot`,
 `icon`, `numeric`, `truncate`, `variant="text"`; all tints derive from
@@ -159,7 +160,15 @@ any custom SVG).
 **Molecules:** Field (`grow`), IconButton, SelectButton, Toggle, OptionButton, Modal,
 Popover, Menu, Tabs, RadioGroup, Tooltip, Accordion, CopyButton, FileButton,
 Dropzone, CodeBlock, Callout, EmptyState, ConfirmModal, Pagination, Toaster,
-ThemePicker, FontScalePicker, SectionHeader, KeyValue, LoadMore.
+ThemePicker, FontScalePicker, SectionHeader, KeyValue, LoadMore,
+GitRef (branch chip + PR link tinted by state + `+N −N` diff; `collapse`
+auto/never/glyph degrades to icons inside a narrow `.cq` container),
+CapBar (consumption track with a draggable, keyboard-steppable cap handle; `oninput` live, `onchange` on commit), WorkingDir
+(fish-style path chip: ancestors abbreviate left to right as the slot narrows,
+then the leaf ellipsises down to `minLeaf`; `full` skips the fit, `copy` makes it
+a copy-on-click button; candidates via the `workingDirCandidates` helper).
+Fieldset (bordered zone, legend rides the border; `droppable` makes it an HTML5
+drop target with `accepts`/`ondrop`/`dropHint` — keyboard alternative is the consumer's job).
 
 **Organisms:** DataTable (generic `<T>`, typed columns + cell snippets;
 `layout="fixed"` makes column widths authoritative, `Column.truncate` /
@@ -186,7 +195,9 @@ children are `min-width: 0` so a wide title/actions row can't widen the grid on
 mobile), NavItem
 (collapses to an icon rail when the sidebar is narrow; `icon` from the
 registry, `iconPath` / `iconChildren` for custom glyphs, `activeStyle="bar"`
-for the inset-bar active look), Container, Stack
+for the inset-bar active look), MasterDetail (list + detail columns that
+become two pages — one pane at a time with a sticky 44px back header — below
+their own `breakpoint`, so `selected` can be driven from the URL), Container, Stack
 (vertical), Cluster (wrapping row; `stackAt="xs|sm|md|lg"` makes it its own
 query container and stacks children full-width below 18/30/40/48rem — phone
 action rows without a viewport query), AutoGrid (intrinsically responsive
