@@ -94,9 +94,10 @@ and `components/<Group>/<Name>/{.jsx,.d.ts,.prompt.md,.html}` in
 Atoms/Molecules/Layouts/Organisms.
 
 Kept deliberately: `tokens/Typography.html` (pure token card, no React) and
-`fonts/JetBrainsMono-Regular.ttf`. **Note:** no `@font-face` declares that font
-anywhere in the CSS, so the Typography card's "self-hosted" claim is aspirational
-— `--font-mono` only picks it up if the viewer's OS has it installed.
+`fonts/JetBrainsMono-Regular.ttf`. The build emits `_ds_fonts.css` with the
+`@font-face` for that file, imported first from `styles.css`, so `--font-mono`
+resolves to the hosted font. The ttf is NOT in this repo; locally the card just
+falls back. Never delete `fonts/` from the project.
 
 ### Build gotchas specific to THIS bundle
 
@@ -123,6 +124,49 @@ wrapped in `snippet()` receives the `@render` arguments. The bundle re-exports
 `verify-bundle.mjs` passes the global into the `propsExpr` evaluator. Every
 `.prompt.md` now states the verbatim-prop rule (`onclick`/`class`, never
 `onClick`/`className`) and lists any `Snippet`-typed props.
+
+### Preview cards
+
+`card-props.json` drives every card. An entry is either one render
+(`props`/`propsExpr`/`children`) or `variants: [{label, props|propsExpr, children}]`,
+rendered as labelled rows; `design:verify` renders every variant cell.
+Button, Badge, Input, Switch, Progress, Select and Kbd have variants; everything
+else is the one-render floor. `npm run design` = package + bundle + verify;
+`npm run design:clean` removes the regenerable output.
+
+## Upload runbook (needs the design-sync bundled skill)
+
+The upload goes through the skill's `DesignSync` tool; there is no CLI, and
+`finalize_plan` shows an interactive approval prompt, so it cannot run headless
+or with bundled skills disabled. From a normal interactive session:
+
+1. `npm run design` (must print `rendered OK: N/N`).
+2. `DesignSync(list_files)` — confirm `fonts/` and `tokens/Typography.html` are
+   there; they are not produced by this build and must survive.
+3. `DesignSync(finalize_plan)` with `localDir: "./ds-bundle"`, writes
+   `["components/**", "tokens/**", "_vendor/**", "_ds_bundle.js", "_ds_bundle.css",
+   "_ds_fonts.css", "styles.css", "README.md", ...]`, and `deletes: []` unless a
+   component was removed from `src/lib/index.ts` (then its `components/<Group>/<Name>/`
+   only). Cards are stale after a rename because no `_ds_sync.json` anchor exists here.
+4. `write_files` in <=256-file chunks, then `list_files` to confirm the count.
+
+## Reverse sync: designs -> Svelte
+
+No tool brings a design back automatically. The workflow:
+
+1. In the design project, finish the design, then `DesignSync(list_files)` to
+   see whether it landed as a file inside the project (expected under a
+   non-`components/` path) or only exists as a design artifact. **Still
+   unconfirmed** — record the answer here the first time.
+2. `DesignSync(get_file)` the JSX. Because the design was built from the real
+   bridged components, its JSX is already in tsumikit vocabulary: same component
+   names, same props (`onclick`/`class`), snippet props as `snippet(...)` calls.
+3. Port by hand to a `.svelte` route/component: `<Tabs panel={snippet((id) => …)}>`
+   becomes `{#snippet panel(id)}…{/snippet}`, JSX children become default
+   children, `className` on plain elements becomes `class`. Tokens and utility
+   classes carry over verbatim since both sides load the same `styles.css`.
+4. Anything the design invented outside the kit (new class names, ad-hoc
+   colors) is a signal to add a token/utility or component here, then re-sync.
 
 ## Background: how the bridge was proven (2026-09-05)
 

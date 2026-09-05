@@ -9,18 +9,120 @@
     "subtitle": "Generated avatar art"
   },
   "Badge": {
-    "props": {
-      "variant": "ok"
-    },
+    "subtitle": "Tones, sizes and dot",
     "children": "shipped",
-    "subtitle": "Status pill"
+    "variants": [
+      {
+        "label": "tones",
+        "props": {
+          "tone": "ok"
+        },
+        "children": "ok"
+      },
+      {
+        "label": "",
+        "props": {
+          "tone": "warn"
+        },
+        "children": "warn"
+      },
+      {
+        "label": "",
+        "props": {
+          "tone": "danger"
+        },
+        "children": "danger"
+      },
+      {
+        "label": "",
+        "props": {
+          "tone": "info"
+        },
+        "children": "info"
+      },
+      {
+        "label": "",
+        "props": {
+          "tone": "accent",
+          "dot": true
+        },
+        "children": "accent dot"
+      },
+      {
+        "label": "text",
+        "props": {
+          "variant": "text",
+          "tone": "neutral"
+        },
+        "children": "text variant"
+      },
+      {
+        "label": "sizes",
+        "props": {
+          "size": "xs"
+        },
+        "children": "xs"
+      }
+    ]
   },
   "Button": {
-    "props": {
-      "variant": "primary"
-    },
+    "subtitle": "Variants, tones and sizes",
     "children": "Save changes",
-    "subtitle": "Primary action"
+    "variants": [
+      {
+        "label": "variants",
+        "props": {
+          "variant": "primary"
+        },
+        "children": "Primary"
+      },
+      {
+        "label": "",
+        "props": {
+          "variant": "default"
+        },
+        "children": "Default"
+      },
+      {
+        "label": "",
+        "props": {
+          "variant": "ghost"
+        },
+        "children": "Ghost"
+      },
+      {
+        "label": "",
+        "props": {
+          "variant": "danger"
+        },
+        "children": "Danger"
+      },
+      {
+        "label": "sizes",
+        "props": {
+          "size": "sm",
+          "variant": "primary"
+        },
+        "children": "Small"
+      },
+      {
+        "label": "",
+        "props": {
+          "size": "lg",
+          "variant": "primary",
+          "pill": true
+        },
+        "children": "Large pill"
+      },
+      {
+        "label": "loading",
+        "props": {
+          "variant": "primary",
+          "loading": true
+        },
+        "children": "Saving"
+      }
+    ]
   },
   "Card": {
     "children": "Card body",
@@ -56,22 +158,56 @@
     "subtitle": "Inline icon"
   },
   "Input": {
-    "props": {
-      "value": "hello",
-      "placeholder": "Type here"
-    },
+    "subtitle": "Sizes and shapes",
     "children": null,
-    "subtitle": "Text field"
+    "variants": [
+      {
+        "label": "md",
+        "props": {
+          "value": "hello",
+          "placeholder": "Type here"
+        }
+      },
+      {
+        "label": "sm",
+        "props": {
+          "size": "sm",
+          "placeholder": "Small"
+        }
+      },
+      {
+        "label": "pill",
+        "props": {
+          "shape": "pill",
+          "placeholder": "Search"
+        }
+      }
+    ]
   },
   "Kbd": {
-    "props": {
-      "keys": [
-        "Ctrl",
-        "K"
-      ]
-    },
+    "subtitle": "Sizes",
     "children": null,
-    "subtitle": "Keyboard shortcut"
+    "variants": [
+      {
+        "label": "md",
+        "props": {
+          "keys": [
+            "Ctrl",
+            "K"
+          ]
+        }
+      },
+      {
+        "label": "sm",
+        "props": {
+          "keys": [
+            "Shift",
+            "Enter"
+          ],
+          "size": "sm"
+        }
+      }
+    ]
   },
   "Link": {
     "props": {
@@ -81,11 +217,38 @@
     "subtitle": "Inline link"
   },
   "Progress": {
-    "props": {
-      "value": 64
-    },
+    "subtitle": "Tones and sizes",
     "children": null,
-    "subtitle": "Determinate progress"
+    "variants": [
+      {
+        "label": "accent",
+        "props": {
+          "value": 64
+        }
+      },
+      {
+        "label": "ok",
+        "props": {
+          "value": 100,
+          "tone": "ok"
+        }
+      },
+      {
+        "label": "warn sm",
+        "props": {
+          "value": 30,
+          "tone": "warn",
+          "size": "sm"
+        }
+      },
+      {
+        "label": "danger",
+        "props": {
+          "value": 12,
+          "tone": "danger"
+        }
+      }
+    ]
   },
   "Scrim": {
     "props": {
@@ -117,21 +280,60 @@
     "subtitle": "Multi-segment progress"
   },
   "Select": {
-    "props": {
-      "value": "b",
-      "options": [
-        {
-          "value": "a",
-          "label": "Alpha"
-        },
-        {
-          "value": "b",
-          "label": "Beta"
-        }
-      ]
-    },
+    "subtitle": "Variants",
     "children": null,
-    "subtitle": "Dropdown"
+    "variants": [
+      {
+        "label": "default",
+        "props": {
+          "value": "b",
+          "options": [
+            {
+              "value": "a",
+              "label": "Alpha"
+            },
+            {
+              "value": "b",
+              "label": "Beta"
+            }
+          ]
+        }
+      },
+      {
+        "label": "ghost",
+        "props": {
+          "variant": "ghost",
+          "value": "a",
+          "options": [
+            {
+              "value": "a",
+              "label": "Alpha"
+            },
+            {
+              "value": "b",
+              "label": "Beta"
+            }
+          ]
+        }
+      },
+      {
+        "label": "sm",
+        "props": {
+          "size": "sm",
+          "value": "a",
+          "options": [
+            {
+              "value": "a",
+              "label": "Alpha"
+            },
+            {
+              "value": "b",
+              "label": "Beta"
+            }
+          ]
+        }
+      }
+    ]
   },
   "Skeleton": {
     "props": {
@@ -152,12 +354,24 @@
     "subtitle": "Busy indicator"
   },
   "Switch": {
-    "props": {
-      "checked": true,
-      "label": "Dark mode"
-    },
+    "subtitle": "On and off",
     "children": null,
-    "subtitle": "Toggle switch"
+    "variants": [
+      {
+        "label": "on",
+        "props": {
+          "checked": true,
+          "label": "Dark mode"
+        }
+      },
+      {
+        "label": "off",
+        "props": {
+          "checked": false,
+          "label": "Notifications"
+        }
+      }
+    ]
   },
   "Text": {
     "children": "Body copy",

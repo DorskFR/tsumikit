@@ -116,7 +116,14 @@ for (const f of ['tokens', 'themes', 'variables']) cpSync(join(ROOT, `dist/style
 
 // Rendered designs receive ONLY the styles.css @import closure — component CSS
 // must be reachable from it, not just linked by the cards.
-writeFileSync(join(OUT, 'styles.css'), '@import "./app.css";\n@import "./_ds_bundle.css";\n');
+writeFileSync(join(OUT, 'styles.css'), '@import "./_ds_fonts.css";\n@import "./app.css";\n@import "./_ds_bundle.css";\n');
+
+// The design project hosts fonts/JetBrainsMono-Regular.ttf (not in this repo);
+// --font-mono names the family, so declare the face it resolves to.
+writeFileSync(
+	join(OUT, '_ds_fonts.css'),
+	'@font-face {\n  font-family: "JetBrains Mono";\n  src: url("./fonts/JetBrainsMono-Regular.ttf") format("truetype");\n  font-weight: 400;\n  font-style: normal;\n  font-display: swap;\n}\n',
+);
 
 // Resolves `react` to the window global so the react-dom vendor shares the one
 // React instance published by _vendor/react.js.
@@ -206,11 +213,17 @@ for (const c of components) {
 		`---\ncategory: ${c.group}\n---\n\n# ${c.name}\n\nA real Svelte component from \`@dorsk/tsumikit\`, exposed to React via a bridge.\nStyling comes from the kit's own scoped CSS — do not restyle it; compose around it\nwith the design tokens and utility classes documented in the README.\n\n\`\`\`jsx\nconst { ${c.name} } = window.${GLOBAL};\n\`\`\`\n\n## Props\n\n| Prop | Type | |\n|---|---|---|\n${rows}\n\nChildren are passed through as the component's default snippet. Props are passed to the Svelte component verbatim: use \`onclick\` / \`class\`, not React's \`onClick\` / \`className\`.\n${snippetNote}`,
 	);
 
-	// .html — preview card
+	// .html — preview card. `variants` renders a labelled row per entry;
+	// `propsExpr` is raw JS for props JSON cannot express (callbacks, snippets).
 	const cfg = CARD_DEFAULTS[c.name] ?? {};
-	// `propsExpr` is raw JS, for props JSON cannot express (callbacks, etc.)
-	const propsJson = cfg.propsExpr ?? JSON.stringify(cfg.props ?? {});
-	const kids = JSON.stringify(cfg.children ?? c.name);
+	const variants = (cfg.variants ?? [cfg]).map((v) => ({
+		label: v.label ?? null,
+		props: v.propsExpr ?? JSON.stringify(v.props ?? cfg.props ?? {}),
+		children: JSON.stringify(v.children === undefined ? (cfg.children === undefined ? c.name : cfg.children) : v.children),
+	}));
+	const renders = variants
+		.map((v) => `h('div', { className: 'variant' }, ${variants.length > 1 ? `h('span', { className: 'label faint' }, ${JSON.stringify(v.label ?? '')}), ` : ''}h(C, ${v.props}, ${v.children}))`)
+		.join(',\n      ');
 	writeFileSync(
 		join(dir, `${c.name}.html`),
 		`<!-- @dsCard group="${esc(c.group)}" viewport="520x220" name="${esc(c.name)}" subtitle="${esc(cfg.subtitle ?? `${c.group.replace(/s$/, '')} · @dorsk/tsumikit`)}" -->
@@ -219,7 +232,7 @@ for (const c of components) {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${esc(c.name)} — tsumikit</title>
 <link rel="stylesheet" href="../../../styles.css">
-<style>body{margin:0;padding:var(--sp-6);background:var(--bg);color:var(--text);font-family:var(--font-sans)}#root{display:flex;flex-direction:column;gap:var(--sp-3)}</style>
+<style>body{margin:0;padding:var(--sp-6);background:var(--bg);color:var(--text);font-family:var(--font-sans)}#root{display:flex;flex-direction:column;gap:var(--sp-3)}.variant{display:flex;align-items:center;gap:var(--sp-3)}.label{font-size:var(--fs-xs);min-width:5rem}</style>
 </head><body>
 <div id="root"></div>
 <script src="../../../_vendor/react.js"></script>
@@ -230,7 +243,9 @@ for (const c of components) {
   var C = window.${GLOBAL}[${JSON.stringify(c.name)}];
   var root = document.getElementById('root');
   try {
-    ReactDOM.createRoot(root).render(h(C, ${propsJson}, ${kids}));
+    ReactDOM.createRoot(root).render(h(React.Fragment, null,
+      ${renders}
+    ));
   } catch (e) {
     root.textContent = '\\u26A0 ' + (e && e.message || e);
   }
