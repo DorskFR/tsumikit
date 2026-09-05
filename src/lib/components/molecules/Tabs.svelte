@@ -5,10 +5,13 @@
 		icon?: import('$lib/components/atoms/Icon.svelte').IconName;
 		/** Greyed out, not selectable, skipped by keyboard navigation. */
 		disabled?: boolean;
+		/** Trailing count badge. */
+		count?: number | string;
 	}
 </script>
 
 <script lang="ts">
+	import Badge from '$lib/components/atoms/Badge.svelte';
 	// WAI-ARIA tabs. A `tablist` of `tab`s controlling a single `tabpanel`.
 	// Follows the automatic-activation pattern: ←/→ (and Home/End) move selection
 	// and reveal the panel in one step; roving tabindex keeps exactly one tab in
@@ -25,6 +28,7 @@
 		class: klass = '',
 		style: styleProp = '',
 		panelClass = '',
+		panelPadding = 'md',
 	}: {
 		tabs: TabItem[];
 		value?: string;
@@ -33,6 +37,7 @@
 		class?: string;
 		style?: string;
 		panelClass?: string;
+		panelPadding?: 'none' | 'sm' | 'md';
 	} = $props();
 
 	// Default to the first selectable tab when no value is supplied.
@@ -96,10 +101,11 @@
 			>
 				{#if t.icon}<Icon name={t.icon} />{/if}
 				<span>{t.label}</span>
+				{#if t.count !== undefined}<Badge size="sm" tone={value === t.id ? 'accent' : 'neutral'}>{t.count}</Badge>{/if}
 			</button>
 		{/each}
 	</div>
-	<div role="tabpanel" id="{baseId}-panel" tabindex="0" class="tabpanel {panelClass}">
+	<div role="tabpanel" id="{baseId}-panel" tabindex="0" class="tabpanel {panelClass}" class:pad-none={panelPadding === 'none'} class:pad-sm={panelPadding === 'sm'}>
 		{#if value !== undefined}{@render panel(value)}{/if}
 	</div>
 </div>
@@ -144,6 +150,12 @@
 	}
 	.tabpanel {
 		padding-top: var(--sp-4);
+	}
+	.tabpanel.pad-sm {
+		padding-top: var(--sp-2);
+	}
+	.tabpanel.pad-none {
+		padding-top: 0;
 	}
 	.tabpanel:focus-visible {
 		outline: 2px solid var(--accent);

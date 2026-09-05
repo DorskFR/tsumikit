@@ -141,6 +141,7 @@ export {
 	warnUnlabelled,
 } from './field-context';
 // ---- query core (headless: schema / parser / AST / suggest / compilers) ----
+export * as filterQuery from './query';
 export {
 	type AndNode,
 	activeToken,

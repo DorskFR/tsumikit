@@ -28,6 +28,7 @@
 		fill = false,
 		gap = 'var(--sp-4)',
 		maxCols,
+		template,
 		align = 'start',
 		justify,
 		class: klass = '',
@@ -45,6 +46,8 @@
 		fill?: boolean;
 		gap?: string;
 		maxCols?: number;
+		/** Explicit `grid-template-columns` (e.g. `1fr 1fr auto`); bypasses `min`/`max`. */
+		template?: string;
 		/** Cross-axis alignment of items in their row (align-items). Defaults to `start`. */
 		align?: 'start' | 'center' | 'end' | 'stretch';
 		/** Inline (main-axis) distribution of tracks (justify-content). Defaults to
@@ -70,6 +73,7 @@
 			`--ag-mode: ${mode}`,
 			maxCols != null ? `--ag-gap: ${gap}` : null,
 			maxCols != null ? `--ag-cols: ${maxCols}` : null,
+			template ? `grid-template-columns: ${template}` : null,
 			`gap: ${gap}`,
 			`align-items: ${align}`,
 			justifyValue ? `justify-content: ${justifyValue}` : null

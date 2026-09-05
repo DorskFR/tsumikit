@@ -43,6 +43,7 @@
 		max,
 		legend = false,
 		class: klass = '',
+		...rest
 	}: {
 		segments: ProgressSegment[];
 		label?: string;
@@ -57,6 +58,7 @@
 		// `true` = 'below'. A snippet receives the segments for custom rendering.
 		legend?: boolean | 'inline' | 'below' | Snippet<[ProgressSegment[]]>;
 		class?: string;
+		[key: string]: unknown;
 	} = $props();
 
 	const stacked = $derived(mode === 'stacked');
@@ -94,6 +96,7 @@
 		<div
 			data-tsu="SegmentedProgress"
 			class="segmented-progress stacked size-{size} {rootClass}"
+			{...rest}
 			style="gap: {gapCss}"
 			role="img"
 			aria-label={stackedLabel}
@@ -111,6 +114,7 @@
 		<div
 			data-tsu="SegmentedProgress"
 			class="segmented-progress size-{size} {rootClass}"
+			{...rest}
 			style="gap: {gapCss}"
 			role="progressbar"
 			aria-label={label}

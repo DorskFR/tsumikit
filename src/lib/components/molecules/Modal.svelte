@@ -34,6 +34,7 @@
 		class: klass = '',
 		style: styleProp = '',
 		bodyClass = '',
+		maxHeight,
 	}: {
 		title: string;
 		/** Controlled visibility. When provided the `<dialog>` stays mounted and
@@ -58,6 +59,8 @@
 		style?: string;
 		/** Class on the inner sheet (the visible panel). */
 		bodyClass?: string;
+		/** Cap the sheet height; the body scrolls inside it. */
+		maxHeight?: string;
 	} = $props();
 	const t = $derived(canonicalTone(tone));
 
@@ -162,6 +165,7 @@
 >
 	<div
 		class="sheet {bodyClass}"
+		style:max-height={maxHeight}
 		class:sheet-sm={size === 'sm'}
 		class:sheet-lg={size === 'lg'}
 		class:sheet-xl={size === 'xl'}

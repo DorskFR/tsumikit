@@ -28,6 +28,9 @@
 	let {
 		options,
 		value = $bindable(),
+		onchange,
+		justify,
+		wrap = false,
 		// `icon` packs the segments into compact square buttons (label hidden as an
 		// accessible name only); `pill` keeps the labelled filter-pill layout.
 		variant = 'pill',
@@ -48,6 +51,12 @@
 	}: {
 		options: SegmentOption[];
 		value?: string;
+		/** Fires after a selection (click or keyboard). */
+		onchange?: (value: string) => void;
+		/** Pin the control to the start/end of a flex row. */
+		justify?: 'start' | 'end';
+		/** Allow segments to wrap onto multiple lines. */
+		wrap?: boolean;
 		variant?: 'pill' | 'icon';
 		size?: ControlSize;
 		/** Adopt the shared `--control-height` toolbar contract (like Popover/Button
@@ -80,6 +89,7 @@
 	function select(val: string, focus = false) {
 		if (options.find((o) => o.value === val)?.disabled) return;
 		value = val;
+		onchange?.(val);
 		if (focus) {
 			queueMicrotask(() =>
 				listEl?.querySelector<HTMLButtonElement>(`#${baseId}-${val}`)?.focus()
@@ -103,6 +113,9 @@
 	class="seg seg-{variant} seg-{size} {klass}"
 	class:seg-control={control}
 	class:seg-box={box}
+	class:seg-wrap={wrap}
+	class:justify-start={justify === 'start'}
+	class:justify-end={justify === 'end'}
 	class:seg-collapse-mobile={collapseLabels === 'mobile'}
 	class:collapse-container={collapseLabels === 'container'}
 	class:seg-scroll={scroll}
@@ -148,6 +161,15 @@
 	}
 	.seg-icon {
 		border-radius: var(--r-md);
+	}
+	.seg-wrap {
+		flex-wrap: wrap;
+	}
+	.justify-start {
+		margin-inline-end: auto;
+	}
+	.justify-end {
+		margin-inline-start: auto;
 	}
 	.seg-scroll {
 		flex: 1 0 100%;
