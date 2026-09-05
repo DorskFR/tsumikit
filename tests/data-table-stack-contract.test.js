@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { normalize } from './helpers.mjs';
 
 const source = await readFile(
 	new URL('../src/lib/components/organisms/DataTable.svelte', import.meta.url),
@@ -16,7 +17,7 @@ test('responsive defaults to scroll and stackBelow to 48rem', () => {
 });
 
 test('stack mode measures the table box with a ResizeObserver and flags the wrapper', () => {
-	assert.match(source, /if \(responsive !== 'stack' \|\| !wrapEl\) {\s*stacked = false;\s*return;/);
+	assert.match(normalize(source), /if \(responsive !== 'stack' \|\| !wrapEl\) { stacked = false; return;/);
 	assert.match(source, /new ResizeObserver\(/);
 	assert.match(source, /stacked = entry\.contentRect\.width < limit;/);
 	assert.match(source, /return \(\) => observer\.disconnect\(\);/);

@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { hasDecl } from './helpers.mjs';
 
 /** @param {string} p */
 const component = (p) => readFile(new URL(`../src/lib/components/${p}`, import.meta.url), 'utf8');
@@ -15,7 +16,7 @@ test('Button pill rounds to --r-pill', () => {
 	assert.match(button, /pill\?: boolean/);
 	assert.match(button, /pill = false,/);
 	assert.match(button, /class:btn-pill={pill}/);
-	assert.match(button, /\.btn-pill\s*{\s*border-radius: var\(--r-pill\);\s*}/);
+	assert.ok(hasDecl(button, '.btn-pill', 'border-radius', 'var(--r-pill)'));
 });
 
 test('Button link variant is boxless, inherits text size and underlines on hover/focus', () => {
@@ -39,8 +40,10 @@ test('Button link variant is boxless, inherits text size and underlines on hover
 		button,
 		/\.btn-link:hover:not\(:disabled\),\s*\.btn-link:focus-visible\s*{[^}]*text-decoration: underline;/s
 	);
-	assert.ok(button.indexOf('.btn-link {') > button.indexOf('.btn-lg {'));
-	assert.ok(button.indexOf('.btn-link {') > button.indexOf('.btn-control {'));
+	// Cascade: link chrome must win over size/control padding at equal specificity.
+	const after = (/** @type {string} */ a, /** @type {string} */ b) => button.indexOf(a) > button.indexOf(b);
+	assert.ok(after('.btn-link {', '.btn-lg {'));
+	assert.ok(after('.btn-link {', '.btn-control {'));
 });
 
 test('Button shrink defaults true and shrink={false} pins the width', () => {
