@@ -248,3 +248,27 @@ components with zero React and zero drift. Caveats: `.btn`/`.row`/`.card` are
 collision-prone as globals (needs a prefix), the 39 `:global()` + 27 `[data-*]`
 rules need review, and it needs a build step since Svelte only emits that CSS at
 compile time.
+
+## Sync record — 2026-09-05 (v0.38.1)
+
+Uploaded 297 files to `a4c6ceb9`, writes-only (`deletes: []`). Build clean:
+70 components, 91/91 preview cells, 70/70 `@dsCard`, bundle 621kB / CSS 126kB.
+
+- **+7 components** since the previous sync (63 → 70): `Gauge`, `MasterDetail`,
+  `CapBar`, `Drawer`, `Fieldset`, `GitRef`, `WorkingDir`. No removals, so no
+  component deletes were needed.
+- `conventions.md` re-validated against the fresh build and **needed no edits**:
+  92 tokens, 25 themes and 17 utility classes all resolve in the `styles.css`
+  closure. It names no individual components (it points at the cards instead),
+  which is why 7 additions did not stale it — keep it that way.
+- Validation false positives to expect, all benign: `--sp-7/9/11` (documented as
+  *absent*, and they are), `.g` / `.cq-` (comment prose, not classes), a `dark`
+  "theme" (prose, there is no `[data-theme="dark"]` block), and ~44 undefined
+  `var(--x)` in `_ds_bundle.css` which are component-local props set from inline
+  `style` (`--gauge-w`, `--drawer-w`, …) plus the known `--mh` / `--mach-`.
+- Left in the project deliberately: `_ds_manifest.json` and `.thumbnail`
+  (app-generated), `fonts/`, `tokens/Typography.html`, and
+  `_adherence.oxlintrc.json` — the last is a leftover of the deleted React-mirror
+  half; harmless, and deleting app-side files is the documented top risk.
+- Still no `_ds_sync.json` anchor (off-script build), so every sync re-verifies
+  from scratch. Correct, not a bug.
