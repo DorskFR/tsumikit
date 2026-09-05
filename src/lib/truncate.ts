@@ -11,7 +11,7 @@
 // combining marks / ZWJ sequences can still be cut; that trade-off keeps it
 // dependency-free.
 
-export type TruncateMode = 'end' | 'middle' | 'start';
+export type TruncateMode = 'end' | 'middle' | 'start' | 'path';
 
 export interface TruncateOptions {
 	/** Maximum number of characters in the result, ellipsis included. */
@@ -20,6 +20,52 @@ export interface TruncateOptions {
 	mode?: TruncateMode;
 	/** Ellipsis string. Default '…' (one char). */
 	ellipsis?: string;
+	/** `path` mode: segment separator. Default '/'. */
+	separator?: string;
+	/** `path` mode: chars the leaf keeps at minimum before the ellipsis. Default 3. */
+	minLeaf?: number;
+	/** `path` mode: leading segments never abbreviated (e.g. 1 keeps `~`). Default 0. */
+	keepFirst?: number;
+}
+
+/**
+ * Path renderings richest → poorest: full, ancestors abbreviated to their first
+ * char left to right, leading ancestors dropped behind the ellipsis, leaf only,
+ * leaf end-truncated down to `minLeaf` chars.
+ */
+export function pathCandidates(
+	value: string,
+	options: Omit<TruncateOptions, 'max' | 'mode'> = {},
+): string[] {
+	const { ellipsis = '…', separator = '/', minLeaf = 3, keepFirst = 0 } = options;
+	const trimmed =
+		value.endsWith(separator) && value.length > separator.length
+			? value.slice(0, -separator.length)
+			: value;
+	const absolute = trimmed.startsWith(separator);
+	const segs = trimmed.split(separator).filter(Boolean);
+	if (segs.length === 0) return [trimmed || separator];
+	const leaf = segs[segs.length - 1];
+	const parents = segs.slice(0, -1);
+	const out: string[] = [];
+	const push = (c: string) => {
+		if (out[out.length - 1] !== c && !out.includes(c)) out.push(c);
+	};
+	const join = (parts: string[]) => (absolute ? separator : '') + parts.join(separator);
+	for (let n = 0; n <= parents.length; n++) {
+		push(
+			join([...parents.map((p, i) => (i >= keepFirst && i < keepFirst + n ? [...p][0] : p)), leaf]),
+		);
+	}
+	const abbreviated = parents.map((p, i) => (i >= keepFirst ? [...p][0] : p));
+	for (let drop = 1; drop < abbreviated.length; drop++) {
+		push(`${ellipsis}${separator}${[...abbreviated.slice(drop), leaf].join(separator)}`);
+	}
+	push(leaf);
+	for (let keep = [...leaf].length - 1; keep >= minLeaf; keep--) {
+		push(truncate(leaf, { max: keep + [...ellipsis].length, mode: 'end', ellipsis }));
+	}
+	return out;
 }
 
 /**
@@ -31,6 +77,11 @@ export function truncate(value: string, options: TruncateOptions): string {
 	const { max, mode = 'end', ellipsis = '…' } = options;
 	const chars = [...value];
 	if (chars.length <= max) return value;
+
+	if (mode === 'path') {
+		const candidates = pathCandidates(value, options);
+		return candidates.find((c) => [...c].length <= max) ?? candidates[candidates.length - 1];
+	}
 
 	const ell = [...ellipsis];
 	const budget = max - ell.length; // chars of real content we can keep

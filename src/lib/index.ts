@@ -190,5 +190,5 @@ export {
 	type TimestampMode,
 } from './timestamp';
 export { canonicalTone, type Tone } from './tone';
-export { type TruncateMode, type TruncateOptions, truncate } from './truncate';
+export { pathCandidates, type TruncateMode, type TruncateOptions, truncate } from './truncate';
 export { normalizeWorkingDir, type WorkingDirOptions, workingDirCandidates } from './working-dir';
