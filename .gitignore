@@ -10,3 +10,6 @@ vite.config.ts.timestamp-*
 ds-bundle/
 .ds-proto/
 tmp/
+
+# local QA artifacts
+.qa/

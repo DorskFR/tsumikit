@@ -89,6 +89,158 @@
 		mode: 'dark'
 	});
 
+	// Index of the page: drives the sidebar, the filter and the scroll-spy. Every
+	// `id` here must match a `<section class="section" id="…">` below, in order.
+	const navGroups = [
+		{
+			id: 'foundations',
+			label: 'Foundations',
+			items: [
+				{ id: 'typography', label: 'Typography', keywords: 'text heading font tone weight' },
+				{ id: 'theme-tokens', label: 'Theme tokens', keywords: 'color palette css variables swatch' },
+				{ id: 'text-scaling', label: 'Text scaling', keywords: 'font size accessibility zoom' }
+			]
+		},
+		{
+			id: 'layout',
+			label: 'Layout',
+			items: [
+				{ id: 'layout-primitives', label: 'Stack · Cluster · AutoGrid', keywords: 'grid spacing gap flow' },
+				{ id: 'card', label: 'Card', keywords: 'surface panel tile stacked tone' },
+				{ id: 'master-detail', label: 'MasterDetail', keywords: 'list split responsive back' }
+			]
+		},
+		{
+			id: 'actions',
+			label: 'Actions',
+			items: [
+				{ id: 'button', label: 'Button', keywords: 'cta submit variant primary ghost danger' },
+				{ id: 'icon', label: 'Icon · IconButton', keywords: 'glyph svg spinner registry' },
+				{ id: 'toggle', label: 'Toggle · OptionButton', keywords: 'switch chip choice selectbutton' },
+				{ id: 'segmented-control', label: 'SegmentedControl', keywords: 'switcher choice group' }
+			]
+		},
+		{
+			id: 'forms',
+			label: 'Forms',
+			items: [
+				{ id: 'form-atoms', label: 'Form atoms · Field', keywords: 'input textarea select switch slider label kbd' },
+				{ id: 'checkbox-radio', label: 'Checkbox · RadioGroup', keywords: 'choice tick option' },
+				{ id: 'fieldset', label: 'Fieldset', keywords: 'group legend form' },
+				{ id: 'file-dropzone', label: 'FileButton · Dropzone', keywords: 'upload drag drop attachment' }
+			]
+		},
+		{
+			id: 'navigation',
+			label: 'Navigation',
+			items: [
+				{ id: 'tabs', label: 'Tabs', keywords: 'switcher panels overflow' },
+				{ id: 'breadcrumb', label: 'Breadcrumb', keywords: 'path trail crumbs' },
+				{ id: 'pagination', label: 'Pagination', keywords: 'pages offset paging' },
+				{ id: 'accordion', label: 'Accordion', keywords: 'details disclosure collapse' },
+				{ id: 'nav-item', label: 'Artwork · NavItem', keywords: 'sidebar avatar menu entry' }
+			]
+		},
+		{
+			id: 'data',
+			label: 'Data display',
+			items: [
+				{ id: 'badge', label: 'Badge · Link · Dot', keywords: 'tag pill status chip' },
+				{ id: 'metric', label: 'Metric · StatTile', keywords: 'kpi number stat' },
+				{ id: 'section-header', label: 'SectionHeader · KeyValue', keywords: 'header list loadmore' },
+				{ id: 'data-table', label: 'DataTable', keywords: 'table rows columns sort generic' },
+				{ id: 'filter-search-bar', label: 'FilterSearchBar', keywords: 'query search filter sql predicate' },
+				{ id: 'timestamp', label: 'Timestamp', keywords: 'date time relative utc epoch' },
+				{ id: 'git-ref', label: 'GitRef', keywords: 'branch pr commit diff' },
+				{ id: 'working-dir', label: 'WorkingDir', keywords: 'path directory shell fish' },
+				{ id: 'truncate', label: 'Truncate', keywords: 'ellipsis overflow text reveal' },
+				{ id: 'code-block', label: 'CodeBlock', keywords: 'pre syntax highlight copy' }
+			]
+		},
+		{
+			id: 'feedback',
+			label: 'Feedback',
+			items: [
+				{ id: 'empty-state', label: 'EmptyState', keywords: 'placeholder nothing skeleton loading' },
+				{ id: 'callout', label: 'Callout', keywords: 'alert note banner tone' },
+				{ id: 'toasts', label: 'Toasts', keywords: 'notification snackbar' },
+				{ id: 'progress', label: 'Progress', keywords: 'bar loading segmented meter striped' },
+				{ id: 'gauge', label: 'Gauge', keywords: 'dial usage meter' },
+				{ id: 'cap-bar', label: 'CapBar', keywords: 'limit quota threshold' }
+			]
+		},
+		{
+			id: 'overlays',
+			label: 'Overlays',
+			items: [
+				{ id: 'popover-menu', label: 'Popover · Menu', keywords: 'dropdown floating context top layer' },
+				{ id: 'tooltip', label: 'Tooltip', keywords: 'hint hovercard' },
+				{ id: 'modal', label: 'Modal', keywords: 'dialog popup resize' },
+				{ id: 'confirm-modal', label: 'ConfirmModal', keywords: 'dialog destructive confirm' },
+				{ id: 'drawer', label: 'Drawer', keywords: 'panel sheet settings side' }
+			]
+		}
+	];
+
+	let filter = $state('');
+	let navOpen = $state(false);
+	let active = $state(navGroups[0].items[0].id);
+
+	const query = $derived(filter.trim().toLowerCase());
+	const visibleGroups = $derived(
+		navGroups
+			.map((g) => {
+				const all = !query || g.label.toLowerCase().includes(query);
+				return {
+					...g,
+					items: g.items.filter(
+						(i) => all || `${i.label} ${i.id} ${i.keywords}`.toLowerCase().includes(query)
+					)
+				};
+			})
+			.filter((g) => g.items.length > 0)
+	);
+	const visibleIds = $derived(new Set(visibleGroups.flatMap((g) => g.items.map((i) => i.id))));
+
+	$effect(() => {
+		const ids = visibleIds;
+		for (const el of document.querySelectorAll<HTMLElement>('.page .section[id]'))
+			el.hidden = !ids.has(el.id);
+		for (const el of document.querySelectorAll<HTMLElement>('.page .group[id]'))
+			el.hidden = ![...el.querySelectorAll<HTMLElement>('.section[id]')].some((s) => !s.hidden);
+	});
+
+	$effect(() => {
+		const sections = [...document.querySelectorAll<HTMLElement>('.page .section[id]')];
+		const onscreen = new Set<string>();
+		const io = new IntersectionObserver(
+			(entries) => {
+				for (const e of entries) {
+					if (e.isIntersecting) onscreen.add(e.target.id);
+					else onscreen.delete(e.target.id);
+				}
+				const first = sections.find((el) => onscreen.has(el.id));
+				if (first) active = first.id;
+			},
+			{ rootMargin: '-20% 0px -65% 0px' }
+		);
+		for (const el of sections) io.observe(el);
+		return () => io.disconnect();
+	});
+
+	$effect(() => {
+		document
+			.querySelector(`.sidebar a[href="#${active}"]`)
+			?.scrollIntoView({ block: 'nearest' });
+	});
+
+	// The browser resolves a deep link before hydration lays the sections out, so
+	// re-aim at the target once.
+	$effect(() => {
+		const id = location.hash.slice(1);
+		if (id) requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView());
+	});
+
 	// interactive demo state
 	let switchOn = $state(true);
 	const mdItems = ['Alice', 'Bob', 'Chidi', 'Dana'];
@@ -282,12 +434,22 @@ function greet(name) {
 	];
 </script>
 
+<svelte:window onkeydown={(e) => e.key === 'Escape' && (navOpen = false)} />
+
 <svelte:head>
 	<title>@dorsk/tsumikit — component showcase</title>
 </svelte:head>
 
 <header class="top">
-	<div class="container top-row">
+	<div class="shell top-row">
+		<IconButton
+			class="nav-toggle"
+			icon={navOpen ? 'x' : 'menu'}
+			label={navOpen ? 'Hide the component index' : 'Show the component index'}
+			aria-expanded={navOpen}
+			aria-controls="component-index"
+			onclick={() => (navOpen = !navOpen)}
+		/>
 		<Heading level={1} size="lg">@dorsk/tsumikit</Heading>
 		<Text variant="caption" class="hide-sm">Svelte 5 · pure CSS · zero deps</Text>
 		<div class="spacer"></div>
@@ -296,1515 +458,1586 @@ function greet(name) {
 	</div>
 </header>
 
-<main id="top" class="container page">
-	<Text variant="body" tone="muted">
-		One token contract, themeable atoms &amp; molecules. Current theme:
-		<Text weight="semibold" tone="accent">{theme.label}</Text>. Try the pickers
-		top-right — every section below re-themes live and scales with the text control.
-		<Text weight="semibold">Showcase Plum</Text> is not built in: this page calls
-		<code>theme.register()</code> and ships its own <code>[data-theme]</code> block.
-	</Text>
-
-	<!-- TYPOGRAPHY -->
-	<section class="section">
-		<Heading level={2}>Typography</Heading>
-		<Card>
-			<div class="stack">
-				<Heading level={1}>Heading level 1</Heading>
-				<Heading level={2}>Heading level 2</Heading>
-				<Heading level={3}>Heading level 3</Heading>
-				<Heading level={4}>Heading level 4</Heading>
-				<hr class="divider" />
-				<Text variant="body">Body — the default reading text.</Text>
-				<Text variant="label">Label — form labels &amp; field captions.</Text>
-				<Text variant="caption">Caption — small meta text.</Text>
-				<Text variant="code">Code — monospace inline.</Text>
-				<div class="row row-wrap">
-					<Text tone="default">default</Text>
-					<Text tone="muted">muted</Text>
-					<Text tone="faint">faint</Text>
-					<Text tone="accent">accent</Text>
-					<Text tone="success">success</Text>
-					<Text tone="warn">warn</Text>
-					<Text tone="danger">danger</Text>
-				</div>
-				<div class="row row-wrap">
-					<Text weight="normal">normal</Text>
-					<Text weight="medium">medium</Text>
-					<Text weight="semibold">semibold</Text>
-					<Text weight="bold">bold</Text>
-				</div>
-				<div class="row row-wrap">
-					<Text numeric>numeric 1234.50%</Text>
-					<Text>default 1234.50%</Text>
-				</div>
-				<div class="row row-wrap">
-					<Text variant="eyebrow">eyebrow</Text>
-					<Text italic>italic</Text>
-					<Text nowrap>nowrap text</Text>
-					<Text uppercase>uppercase</Text>
-					<Text leading="none">leading none</Text>
-					<Text scale={false} size="sm">scale=false 13px</Text>
-				</div>
-				<Text variant="caption" tone="muted">Font-scale slider vs a pinned run — only the first line follows the picker:</Text>
-				<div class="row row-wrap">
-					<Text size="lg">size="lg" scales with --fs-scale</Text>
-					<Text size="lg" scale={false}>size="lg" scale=false stays pinned</Text>
-				</div>
-				<Text variant="body" measure="40ch">
-					measure="40ch" — a paragraph capped at forty characters wide so long lines stay readable.
-				</Text>
-				<div style="width: 220px">
-					<Heading level={4} truncate>Truncated heading that runs past its container</Heading>
-				</div>
+<div class="shell layout">
+	<nav id="component-index" class="sidebar" class:open={navOpen} aria-label="Component index">
+		<Input
+			bind:value={filter}
+			icon="search"
+			size="sm"
+			clearable
+			placeholder="Filter components…"
+			aria-label="Filter components"
+		/>
+		{#each visibleGroups as g (g.id)}
+			<div class="nav-group">
+				<Text variant="eyebrow" tone="faint">{g.label}</Text>
+				{#each g.items as item (item.id)}
+					<a
+						href="#{item.id}"
+						class="nav-link"
+						class:active={active === item.id}
+						aria-current={active === item.id ? 'true' : undefined}
+						onclick={() => (navOpen = false)}>{item.label}</a
+					>
+				{/each}
 			</div>
-		</Card>
-	</section>
+		{/each}
+		{#if visibleGroups.length === 0}
+			<Text variant="caption" tone="faint">No component matches “{filter}”.</Text>
+		{/if}
+	</nav>
 
-	<!-- BUTTONS -->
-	<section class="section">
-		<Heading level={2}>Button</Heading>
-		<Card>
-			<div class="stack">
-				<div class="row row-wrap">
-					<Button>Default</Button>
-					<Button variant="primary">Primary</Button>
-					<Button variant="ghost">Ghost</Button>
-					<Button variant="danger">Danger</Button>
-					<Button disabled>Disabled</Button>
-				</div>
-				<div class="row row-wrap">
-					<Button size="sm">Small</Button>
-					<Button size="md">Medium</Button>
-					<Button size="lg">Large</Button>
-					<Button control>Control height</Button>
-					<Button control variant="primary">Control primary</Button>
-				</div>
-				<div class="row row-wrap">
-					<Button tone="accent">Notify on</Button>
-					<Button tone="info">Cold</Button>
-					<Button tone="warn">Warning</Button>
-					<Button tone="warn" control>Send <Text numeric>0:09</Text></Button>
-				</div>
-				<div class="row row-wrap">
-					<Button pill>Pill</Button>
-					<Button pill variant="primary" size="sm">Pill small</Button>
-					<Button variant="link">Link</Button>
-					<Button variant="link" tone="danger">Link danger</Button>
-					<Button grow>Grow</Button>
-					<Button shrink={false}>No shrink</Button>
-					<IconButton icon="star" label="No shrink icon" shrink={false} />
-					<Toggle shrink={false} pressed={false}>No shrink toggle</Toggle>
-				</div>
-				<Text variant="caption" tone="muted">Polymorphic roots — <code>as="a"</code> / <code>as="button"</code> keep the same chrome and focus ring:</Text>
-				<div class="row row-wrap">
-					<Button as="a" href="#top">Button as="a"</Button>
-					<Badge as="button" tone="info">Badge as="button"</Badge>
-					<IconButton as="a" href="#top" icon="link" label="IconButton as=a" />
-					<Card as="a" href="#top" padding="sm" tap>Card as="a"</Card>
-				</div>
-				<Text variant="caption" tone="muted">Hit area — <code>hitArea="compact"</code> drops the 44px touch slab (outlined box shows the real hit box on touch):</Text>
-				<div class="row row-wrap demo-hit">
-					<IconButton icon="search" label="Default hit area" box="sm" variant="default" />
-					<IconButton icon="search" label="Compact hit area" box="sm" variant="default" hitArea="compact" />
-					<Popover label="Default hit" box="sm">{#snippet trigger()}<Icon name="info" />{/snippet}<Text size="sm">default</Text></Popover>
-					<Popover label="Compact hit" box="sm" hitArea="compact">{#snippet trigger()}<Icon name="info" />{/snippet}<Text size="sm">compact</Text></Popover>
-				</div>
-				<Text variant="caption">Variant × tone matrix (primary keeps a readable on-accent label):</Text>
-				{#each ['default', 'primary', 'ghost', 'danger'] as const as v}
-					<div class="row row-wrap">
-						{#each ['none', 'accent', 'success', 'info', 'warn', 'danger'] as const as t}
-							<Button variant={v} tone={t}>{v}/{t}</Button>
+	<main id="top" class="page">
+		<Text variant="body" tone="muted">
+			One token contract, themeable atoms &amp; molecules. Current theme:
+			<Text weight="semibold" tone="accent">{theme.label}</Text>. Try the pickers
+			top-right — every section below re-themes live and scales with the text control.
+			<Text weight="semibold">Showcase Plum</Text> is not built in: this page calls
+			<code>theme.register()</code> and ships its own <code>[data-theme]</code> block.
+		</Text>
+
+		<section class="group" id="g-foundations" aria-labelledby="gh-foundations">
+			<Heading level={2} id="gh-foundations" size="sm" uppercase tone="muted" class="group-title">Foundations</Heading>
+			<section class="section" id="typography">
+				<Heading level={3} size="lg">Typography</Heading>
+				<Card>
+					<div class="stack">
+						<Heading level={1}>Heading level 1</Heading>
+						<Heading level={2}>Heading level 2</Heading>
+						<Heading level={3}>Heading level 3</Heading>
+						<Heading level={4}>Heading level 4</Heading>
+						<hr class="divider" />
+						<Text variant="body">Body — the default reading text.</Text>
+						<Text variant="label">Label — form labels &amp; field captions.</Text>
+						<Text variant="caption">Caption — small meta text.</Text>
+						<Text variant="code">Code — monospace inline.</Text>
+						<div class="row row-wrap">
+							<Text tone="default">default</Text>
+							<Text tone="muted">muted</Text>
+							<Text tone="faint">faint</Text>
+							<Text tone="accent">accent</Text>
+							<Text tone="success">success</Text>
+							<Text tone="warn">warn</Text>
+							<Text tone="danger">danger</Text>
+						</div>
+						<div class="row row-wrap">
+							<Text weight="normal">normal</Text>
+							<Text weight="medium">medium</Text>
+							<Text weight="semibold">semibold</Text>
+							<Text weight="bold">bold</Text>
+						</div>
+						<div class="row row-wrap">
+							<Text numeric>numeric 1234.50%</Text>
+							<Text>default 1234.50%</Text>
+						</div>
+						<div class="row row-wrap">
+							<Text variant="eyebrow">eyebrow</Text>
+							<Text italic>italic</Text>
+							<Text nowrap>nowrap text</Text>
+							<Text uppercase>uppercase</Text>
+							<Text leading="none">leading none</Text>
+							<Text scale={false} size="sm">scale=false 13px</Text>
+						</div>
+						<Text variant="caption" tone="muted">Font-scale slider vs a pinned run — only the first line follows the picker:</Text>
+						<div class="row row-wrap">
+							<Text size="lg">size="lg" scales with --fs-scale</Text>
+							<Text size="lg" scale={false}>size="lg" scale=false stays pinned</Text>
+						</div>
+						<Text variant="body" measure="40ch">
+							measure="40ch" — a paragraph capped at forty characters wide so long lines stay readable.
+						</Text>
+						<div style="width: 220px">
+							<Heading level={4} truncate>Truncated heading that runs past its container</Heading>
+						</div>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="theme-tokens">
+				<Heading level={3} size="lg">Theme tokens</Heading>
+				<Card>
+					<div class="swatch-grid">
+						{#each tokens as t (t)}
+							<div class="swatch">
+								<span class="chip-color" style={`background: var(${t})`}></span>
+								<Text variant="caption" class="mono">{t}</Text>
+							</div>
 						{/each}
 					</div>
-				{/each}
-				<Button block variant="primary">Block button</Button>
-				<div class="row row-wrap">
-					<CopyButton text="npm i @dorsk/tsumikit" />
-					<CopyButton text="npm i @dorsk/tsumikit" variant="default" label="Copy install" />
-					<Badge mono>npm i @dorsk/tsumikit</Badge>
-				</div>
-			</div>
-		</Card>
-	</section>
+				</Card>
+			</section>
 
-	<!-- ICON BUTTONS + ICONS -->
-	<section class="section">
-		<Heading level={2}>Icon &amp; IconButton</Heading>
-		<Card>
-			<div class="stack">
-				<div class="row row-wrap">
-					<IconButton icon="search" label="Search" />
-					<IconButton icon="edit" label="Edit" variant="default" />
-					<IconButton icon="star" label="Star" variant="primary" />
-					<IconButton icon="trash" label="Delete" variant="danger" />
-					<IconButton icon="x" label="Remove" inline />
-					<IconButton icon="trash" label="Remove" inline hoverDanger />
-				</div>
-				<div class="row row-wrap">
-					<IconButton icon="chevron-left" label="Back" chip variant="default" />
-					<IconButton icon="star" label="Pin" chip variant="default" tone="accent" />
-					<IconButton icon="bell" label="Archive" chip variant="default" tone="warn" />
-					<IconButton icon="trash" label="Interrupt" chip variant="default" tone="danger" hoverDanger />
-				</div>
-				<Text variant="caption" tone="muted">Shared box scale (xs/sm/md/lg) across IconButton, SelectButton, Popover and Button square — 44px hit slab on touch:</Text>
-				<div class="row row-wrap">
-					<IconButton icon="x" label="Remove" box="xs" variant="default" />
-					<IconButton icon="search" label="Search" box="sm" variant="default" />
-					<IconButton icon="edit" label="Edit" box="md" variant="default" />
-					<IconButton icon="star" label="Star" box="lg" variant="default" />
-					<IconButton emoji="←" label="Back" box="lg" glyphSize="1.5rem" variant="default" />
-					<Button square variant="default" aria-label="Square control">A</Button>
-					<Button square size="sm" variant="default" aria-label="Square small">A</Button>
-					<Button collapseLabel="container"><Icon name="search" /><span data-label>Search</span></Button>
-				</div>
-				<hr class="divider" />
-				<Text variant="caption">All registry glyphs (sized at 1em — they scale with text):</Text>
-				<div class="icon-grid">
-					{#each allIcons as name (name)}
-						<div class="icon-cell" title={name}>
-							<Icon {name} size={22} />
-							<Text variant="caption" tone="faint">{name}</Text>
-						</div>
-					{/each}
-				</div>
-				<Text variant="caption">Custom (open) icon via children snippet:</Text>
-				<div class="row">
-					<Icon label="Heart" size={22}>
-						<path d="M12 21s-7-4.5-9.5-8.5A5 5 0 0 1 12 6a5 5 0 0 1 9.5 6.5C19 16.5 12 21 12 21z" />
-					</Icon>
-				</div>
-				<Text variant="caption">Spinner (halts under prefers-reduced-motion):</Text>
-				<div class="row">
-					<Spinner size={18} />
-					<Spinner size={28} />
-					<Icon name="loader" spin size={22} label="Loading" />
-				</div>
-			</div>
-		</Card>
-	</section>
-
-	<!-- BADGES / CHIPS / LINKS / DOTS -->
-	<section class="section">
-		<Heading level={2}>Badge · Link · Dot</Heading>
-		<Card>
-			<div class="stack">
-				<div class="row row-wrap">
-					<Badge>neutral</Badge>
-					<Badge tone="ok">ok</Badge>
-					<Badge tone="warn">warn</Badge>
-					<Badge tone="danger">danger</Badge>
-					<Badge tone="info">info</Badge>
-				</div>
-				<div class="row row-wrap">
-					<Badge mono>~/path/to/file</Badge>
-					<Badge as="button">interactive</Badge>
-					<Badge removable onremove={() => {}}>removable</Badge>
-					<Badge tone="info" removable onremove={() => {}}>typescript</Badge>
-				</div>
-				<div class="row row-wrap">
-					<Badge uppercase>uppercase</Badge>
-					<Badge uppercase tone="ok" size="sm">stable</Badge>
-					<Badge as="button" tone="info" active>active count 3</Badge>
-					<Badge as="button" tone="ok" active size="sm">on</Badge>
-					<Badge as="button" tone="info">off</Badge>
-				</div>
-				<div class="row row-wrap">
-					<Badge border={false}>soft</Badge>
-					<Badge border={false} tone="ok">ok</Badge>
-					<Badge border={false} tone="warn">warn</Badge>
-					<Badge border={false} tone="danger">danger</Badge>
-					<Badge border={false} tone="info" size="sm">3</Badge>
-				</div>
-				<div class="row row-wrap">
-					<Badge tone="accent">accent</Badge>
-					<Badge tone="muted">muted</Badge>
-					<Badge tone="violet">violet</Badge>
-					<Badge color="hsl(160 60% 50%)">color</Badge>
-					<Badge color="var(--role-system)" dot>dot</Badge>
-					<Badge tone="ok" icon="check">icon</Badge>
-					<Badge tone="info" variant="text" mono>text · 12:34</Badge>
-				</div>
-				<div class="row row-wrap">
-					<Badge size="xs">xs</Badge>
-					<Badge size="xs" tone="ok" numeric>8</Badge>
-					<Badge size="sm" numeric>128</Badge>
-					<Badge truncate maxWidth="12ch">a very long account name that clips</Badge>
-					<Badge as="button" color="hsl(30 80% 55%)">focus me</Badge>
-				</div>
-				<div class="row row-wrap">
-					<Link href="https://svelte.dev" target="_blank" rel="noreferrer">Anchor link</Link>
-					<Link>Button-as-link</Link>
-					<Link href="#" tone="info" underline="hover">View all →</Link>
-					<Link tone="muted" underline="none">Quiet action</Link>
-					<Link tone="inherit">Inherit</Link>
-				</div>
-				<div class="row row-wrap">
-					<Dot status="active" glow label="active" />
-					<Dot status="stale" label="stale" />
-					<Dot status="dead" label="dead" />
-					<Dot status="hibernated" label="hibernated" />
-					<Dot color="var(--accent)" label="custom" />
-					<Dot status="active" ring label="ring" />
-				</div>
-			</div>
-		</Card>
-	</section>
-
-	<!-- METRIC / STATTILE -->
-	<section class="section">
-		<Heading level={2}>Metric · StatTile</Heading>
-		<Card>
-			<div class="stack">
-				<AutoGrid min="200px">
-					<Metric label="Tracks" value={1284} icon="file" />
-					<Metric
-						label="Size"
-						value="42.7"
-						unit="GB"
-						icon="archive"
-						tone="info"
-					/>
-					<Metric
-						label="Quality"
-						value="FLAC"
-						sub="lossless · 16-bit"
-						icon="check"
-						tone="ok"
-						tintValue
-					/>
-					<Metric
-						label="Added"
-						value={37}
-						unit="this week"
-						sub="+12% vs last week"
-						icon="plus"
-						tone="warn"
-					/>
-				</AutoGrid>
-				<hr class="divider" />
-				<Text variant="caption">
-					Surface variants — tiles (via Metric) and panels (via Card) opt into the
-					same theme-aware shade by prop, no <code>:global</code> override:
-				</Text>
-				<AutoGrid min="200px">
-					<Metric label="Base" value="base" icon="file" />
-					<Metric label="Raised" value="raised" icon="file" surface="raised" />
-					<Metric label="Sunken" value="sunken" icon="file" surface="sunken" />
-				</AutoGrid>
-				<div class="row row-wrap">
-					<Card surface="base" padding="sm"><Text variant="caption">surface base</Text></Card>
-					<Card surface="raised" padding="sm"><Text variant="caption">surface raised</Text></Card>
-					<Card surface="sunken" padding="sm"><Text variant="caption">surface sunken</Text></Card>
-				</div>
-			</div>
-		</Card>
-	</section>
-
-	<!-- EMPTY STATE -->
-	<section class="section">
-		<Heading level={2}>EmptyState</Heading>
-		<AutoGrid min="280px">
-			<Card>
-				<EmptyState
-					icon="search"
-					title="No results"
-					description="No albums match your filters. Try broadening the search or clearing filters."
-					actionLabel="Clear filters"
-					onAction={() => {}}
-				/>
-			</Card>
-			<Card>
-				<EmptyState
-					icon="archive"
-					title="Your library is empty"
-					description="Add an artist or album to start building your collection."
-					tone="info"
-				/>
-			</Card>
-			<Card>
-				<EmptyState
-					icon="settings"
-					title="Nothing here yet"
-					description="This section hasn't been set up."
-					compact
-				/>
-			</Card>
-			<Card>
-				<EmptyState loading title="Loading sessions…" />
-			</Card>
-			<Card>
-				<EmptyState size="inline" title="No results" description="Try a different query." />
-			</Card>
-			<Card>
-				<Stack gap="var(--sp-3)">
-					<Text variant="caption">Skeleton:</Text>
-					<Cluster gap="var(--sp-3)" align="center">
-						<Skeleton circle width="40px" />
-						<Skeleton width="12rem" />
-					</Cluster>
-					<Skeleton lines={3} />
-				</Stack>
-			</Card>
-		</AutoGrid>
-	</section>
-
-	<!-- CALLOUT -->
-	<section class="section">
-		<Heading level={2}>Callout</Heading>
-		<Stack gap="var(--sp-3)">
-			<Callout>Auto-search runs in the background and links matches as it goes.</Callout>
-			<Callout tone="ok" title="Linked" dismissible ondismiss={() => toasts.show('Dismissed')}>
-				12 releases matched and were linked to this collection.
-			</Callout>
-			<Callout tone="warn" title="Some matches need review">
-				3 releases had several candidates and were left unlinked.
-				{#snippet actions()}
-					<Button size="sm">Review</Button>
-				{/snippet}
-			</Callout>
-			<Callout tone="danger" title="Search failed" dismissible ondismiss={() => toasts.show('Dismissed')}>
-				The provider returned 503. Try again in a minute.
-				{#snippet actions()}
-					<Button size="sm" variant="danger">Retry</Button>
-				{/snippet}
-			</Callout>
-			<Callout tone="info" busy>Searching MusicBrainz for 48 releases…</Callout>
-			<div style="max-width: 16rem">
-				<Callout tone="neutral" title="Narrow container" dismissible>
-					Wraps its body and actions instead of overflowing.
-					{#snippet actions()}
-						<Button size="sm">Action</Button>
-					{/snippet}
-				</Callout>
-			</div>
-		</Stack>
-	</section>
-
-	<!-- ARTWORK / NAV ITEM -->
-	<section class="section">
-		<Heading level={2}>Artwork · NavItem</Heading>
-		<Card>
-			<div class="stack">
-				<div class="row row-wrap">
-					<Artwork src="https://picsum.photos/seed/tsumikit/240" alt="Loaded cover" size="7rem" hover />
-					<Artwork src="https://example.invalid/missing.jpg" alt="Broken source" size="7rem" hover>
-						{#snippet status()}<Dot status="dead" ring />{/snippet}
-					</Artwork>
-					<Artwork alt="Kusaritoi Radio" aspect="2/3" size="5rem" radius="sm" />
-					<Artwork alt="Still frame" aspect="16/9" size="10rem" fallback="icon" icon="film" />
-					<Artwork alt="Dorsk" size="3.5rem" radius="pill" />
-				</div>
-				<div class="row row-wrap">
-					<div style="width: 14rem; display: grid; gap: var(--sp-1)">
-						<NavItem icon="music" label="Music" active />
-						<NavItem icon="tv" label="TV" badge={3} />
-						<NavItem iconPath="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" label="Custom path" />
+			<section class="section" id="text-scaling">
+				<Heading level={3} size="lg">Text scaling <Badge>opt-in</Badge></Heading>
+				<Card>
+					<div class="row row-wrap">
+						<FontScalePicker />
+						<Text variant="caption" tone="muted">
+							Optional in-app text-size control (drives <code>--fs-scale</code>, text tokens only).
+							Most apps should rely on browser zoom and the user's OS/browser font-size instead —
+							the kit is <code>rem</code>-based and never resets the root size, so both are respected
+							out of the box. Reach for this only in reading-dense apps (chat, docs) that want to grow
+							body text while keeping chrome compact.
+						</Text>
 					</div>
-					<div style="width: 14rem; display: grid; gap: var(--sp-1)">
-						<NavItem icon="film" label="Movies" active activeStyle="bar" />
-						<NavItem icon="book" label="Books" activeStyle="bar" />
-						<NavItem label="Raw SVG" activeStyle="bar">
-							{#snippet iconChildren()}<circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" />{/snippet}
-						</NavItem>
-					</div>
-				</div>
-			</div>
-		</Card>
-	</section>
+				</Card>
+			</section>
 
-	<!-- SECTION HEADER / KEY VALUE / LOAD MORE -->
-	<section class="section">
-		<Heading level={2}>SectionHeader · KeyValue · LoadMore</Heading>
-		<Stack gap="var(--sp-4)">
-			<SectionHeader title="Recent sessions" subtitle="last 24h" count={12} divider>
-				{#snippet actions()}
-					<Button size="sm">View all</Button>
-				{/snippet}
-			</SectionHeader>
-			<SectionHeader label="Blocked" count={4} uppercase hue={12} level={3} collapsible>
-				<Text variant="caption">Group rows render here while open.</Text>
-			</SectionHeader>
-			<SectionHeader title="Failed" icon="warning" tone="danger" count={2} level={3} size="sm" />
-			<SectionHeader variant="group" title="sakura" count={7} level={3} size="sm">
-				{#snippet lead()}<Badge tone="ok" dot size="xs" border={false}>live</Badge>{/snippet}
-				{#snippet actions()}
-					<Button size="sm" variant="ghost">Sort</Button>
-					<Button size="sm" variant="ghost" aria-label="Hide group"><Icon name="eye" size={14} /></Button>
-				{/snippet}
-			</SectionHeader>
-			<Card title="Host" subtitle="sakura" gap="var(--sp-3)">
-				{#snippet actions()}
-					<Button size="sm" variant="ghost">Edit</Button>
-				{/snippet}
-				<KeyValue
-					columns={2}
-					rows={[
-						{ label: 'Running', value: 3, tone: 'ok' },
-						{ label: 'Queued', value: 0 },
-						{ label: 'Image', value: 'cctui-worker:0.7.3', mono: true, hint: 'pulled 2h ago' },
-						{ label: 'Load', value: '1.42', tone: 'warn' }
-					]}
-				/>
-				<KeyValue dense align="end" rows={[{ label: 'Tokens', value: 128000 }, { label: 'Cost', value: '$0.42' }]} />
-				{#snippet footer()}
-					<LoadMore state="idle" onload={() => toasts.show('Loading more…')} />
-				{/snippet}
-			</Card>
-			<Cluster gap="var(--sp-3)">
-				<LoadMore state="loading" />
-				<LoadMore state="error" onload={() => toasts.show('Retrying…')} />
-				<LoadMore state="done" />
-				<LoadMore pill label="Load older" onload={() => toasts.show('Loading older…')} />
-			</Cluster>
-		</Stack>
-	</section>
+		</section>
 
-	<!-- FORM ATOMS -->
-	<section class="section">
-		<Heading level={2}>Form atoms &amp; Field</Heading>
-		<Card>
-			<div class="form-grid">
-				<Field label="Text input" for="f-input" hint="Helper text below the control.">
-					<Input id="f-input" bind:value={textValue} placeholder="Type here" />
-				</Field>
-				<Field label="With error" for="f-err" error="This field is required.">
-					<Input id="f-err" placeholder="Invalid" aria-invalid="true" />
-				</Field>
-				<Field label="Monospace input" for="f-mono">
-					<Input id="f-mono" mono value="export TOKEN=…" />
-				</Field>
-				<Field label="Icon + clearable + width=14rem, pill" for="f-icon">
-					<Input
-						id="f-icon"
-						icon="search"
-						clearable
-						shape="pill"
-						width="14rem"
-						placeholder="Search…"
-						bind:value={iconValue}
-						onenter={(v) => toasts.show(`Enter: ${v || '∅'}`)}
-					/>
-				</Field>
-				<Field label="Select" for="f-select">
-					<Select id="f-select" bind:value={selectValue}>
-						<option value="one">Option one</option>
-						<option value="two">Option two</option>
-						<option value="three">Option three</option>
-					</Select>
-				</Field>
-				<Field label="Select (compact, no chevron)" for="f-select-mini">
-					<Select id="f-select-mini" compact chevron={false} bind:value={selectValue}>
-						<option value="one">Option one</option>
-						<option value="two">Option two</option>
-						<option value="three">Option three</option>
-					</Select>
-				</Field>
-				<Field label="Select (options: emoji · icon · hint)" for="f-select-opts">
-					<Select
-						id="f-select-opts"
-						bind:value={selectOptionValue}
-						options={[
-							{ value: 'personal', label: 'personal', emoji: '🐼', hint: '62%' },
-							{ value: 'work', label: 'work', icon: 'users', hint: '18%' },
-							{ value: 'archive', label: 'archive', emoji: '📦', hint: '100%', disabled: true }
-						]}
-					/>
-				</Field>
-				<Field label="Select (width=auto, embedded)" for="f-select-emb">
-					<Select id="f-select-emb" width="auto" variant="embedded" bind:value={selectValue}>
-						<option value="one">Option one</option>
-						<option value="two">Option two</option>
-						<option value="three">Option three</option>
-					</Select>
-				</Field>
-				<Field label="Inline field" for="f-inline" layout="inline" labelWidth="8rem" class="span-2">
-					<Input id="f-inline" grow placeholder="Enter submits" onsubmit={(v) => toasts.show(`Submit: ${v || '∅'}`)} />
-				</Field>
-				<Field label="Textarea (maxHeight=6rem, submit on mod+enter)" for="f-area-submit" class="span-2">
-					{#snippet hint()}Press <Kbd keys="mod+enter" /> to submit.{/snippet}
-					<Textarea
-						id="f-area-submit"
-						autoresize
-						maxHeight="6rem"
-						submitOn="mod-enter"
-						placeholder="Grows to 6rem, then scrolls"
-						onsubmit={(v) => toasts.show(`Submit: ${v || '∅'}`)}
-					/>
-				</Field>
-				<Field label="Kbd" class="span-2">
-					<div class="row">
-						<Kbd keys="mod+k" />
-						<Kbd keys="shift+enter" />
-						<Kbd keys={['ctrl', 'alt', 'esc']} size="md" />
-						<Kbd keys="up" />
-					</div>
-				</Field>
-				<Field label="Textarea (autoresize)" for="f-area" class="span-2">
-					<Textarea id="f-area" autoresize bind:value={areaValue} />
-				</Field>
-				<Field label="Textarea (autoresize, starts at one row)" for="f-area-1" class="span-2">
-					<Textarea id="f-area-1" autoresize rows={1} placeholder="One row when empty, grows as you type" />
-				</Field>
-				<Field label="Textarea (resize from bottom)" for="f-area-2" class="span-2">
-					<Textarea id="f-area-2" rows={2} resize="bottom" placeholder="Drag the bottom grip" />
-				</Field>
-				<Field label="Textarea (resize from top)" for="f-area-3" class="span-2">
-					<Textarea id="f-area-3" rows={2} resize="top" placeholder="Drag the top grip" />
-				</Field>
-				<Field label="Textarea (autoresize + top handle floor)" for="f-area-4" class="span-2">
-					<Textarea
-						id="f-area-4"
-						autoresize
-						resize="top"
-						rows={1}
-						placeholder="One row, grows as you type — drag the top grip to reserve more space"
-					/>
-				</Field>
-				<Field label="Switch" class="span-2">
-					<div class="row">
-						<Switch checked={switchOn} label="Toggle setting" onclick={() => (switchOn = !switchOn)} />
-						<Text variant="caption">{switchOn ? 'On' : 'Off'}</Text>
-					</div>
-				</Field>
-				<Field label="Slider" for="f-slider" class="span-2">
-					<Slider id="f-slider" bind:value={sliderValue} label="Volume" showValue format={(v) => `${v}%`} />
-				</Field>
-				<Field label="Slider (ticks, step 25)">
-					<Slider id="f-slider-ticks" value={50} min={0} max={100} step={25} ticks label="Quality" showValue />
-				</Field>
-			</div>
-		</Card>
-	</section>
+		<section class="group" id="g-layout" aria-labelledby="gh-layout">
+			<Heading level={2} id="gh-layout" size="sm" uppercase tone="muted" class="group-title">Layout</Heading>
+			<section class="section" id="layout-primitives">
+				<Heading level={3} size="lg">Layout: Stack · Cluster · AutoGrid</Heading>
+				<Card>
+					<Stack gap="var(--sp-4)">
+						<Text variant="caption" tone="muted">Cluster — wraps, never overflows:</Text>
+						<Cluster>
+							{#each ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta'] as t (t)}
+								<Badge>{t}</Badge>
+							{/each}
+						</Cluster>
+						<Text variant="caption" tone="muted">Cluster stackAt="md" — buttons stack full-width when the cluster is under 40rem:</Text>
+						<Cluster stackAt="md">
+							<Button>Cancel</Button>
+							<Button variant="primary">Save</Button>
+						</Cluster>
+						<Text variant="caption" tone="muted">AutoGrid — columns adapt to available width (resize the window):</Text>
+						<AutoGrid min="10rem">
+							{#each Array(6) as _, i (i)}
+								<Card><Text weight="semibold">Cell {i + 1}</Text></Card>
+							{/each}
+						</AutoGrid>
+						<Text variant="caption" tone="muted">AutoGrid — capped column width (max), left-packed instead of stretching:</Text>
+						<AutoGrid min="12rem" max="16rem">
+							{#each Array(3) as _, i (i)}
+								<Card><Text weight="semibold">Fixed {i + 1}</Text></Card>
+							{/each}
+						</AutoGrid>
+					</Stack>
+				</Card>
+			</section>
 
-	<!-- TOGGLES + OPTION BUTTONS + SELECT BUTTON -->
-	<section class="section">
-		<Heading level={2}>Toggle · OptionButton · SelectButton</Heading>
-		<Card>
-			<div class="stack">
-				<div class="row row-wrap">
-					<Toggle pressed={toggleA} onclick={() => (toggleA = !toggleA)}>Filter A</Toggle>
-					<Toggle pressed={toggleB} onclick={() => (toggleB = !toggleB)}>Filter B</Toggle>
-					<Toggle pill pressed={toggleC} onclick={() => (toggleC = !toggleC)}>Pill</Toggle>
-					<Toggle struck pressed onclick={() => {}}>Struck</Toggle>
-					<Toggle size="md" pressed={toggleA} onclick={() => (toggleA = !toggleA)}>Medium</Toggle>
-					<Toggle grow pressed={toggleB} onclick={() => (toggleB = !toggleB)}>Grow</Toggle>
-				</div>
-				<hr class="divider" />
-				<div class="opt-grid">
-					{#each effortOptions as o (o.id)}
-						<OptionButton selected={selectedOpt === o.id} onclick={() => (selectedOpt = o.id)}>
-							<Text weight="semibold">{o.label}</Text>
-							<Text variant="caption" class="faint">{o.hint}</Text>
-						</OptionButton>
-					{/each}
-				</div>
-				<hr class="divider" />
-				<div class="row">
-					<Text variant="caption">SelectButton (native select over a glyph button):</Text>
-					<SelectButton
-						glyph="⚙"
-						label="Pick a value"
-						value={pickerValue}
-						options={[
-							{ value: 'a', label: 'Alpha' },
-							{ value: 'b', label: 'Beta' },
-							{ value: 'c', label: 'Gamma' }
-						]}
-						onchange={(v) => (pickerValue = v)}
-					/>
-					<Text variant="caption" tone="muted">selected: {pickerValue}</Text>
-				</div>
-			</div>
-		</Card>
-	</section>
-
-	<!-- SEGMENTED CONTROL -->
-	<section class="section">
-		<Heading level={2}>SegmentedControl</Heading>
-		<Card>
-			<Stack gap="var(--sp-4)">
-				<Field label="Filter pills with counts">
-					<Cluster gap="var(--sp-3)" align="center">
-						<SegmentedControl
-							options={libFilters}
-							bind:value={filterValue}
-							label="Library filter"
-						/>
-						<Text variant="caption" tone="muted">selected: {filterValue}</Text>
-					</Cluster>
-				</Field>
-				<Field label="Icon view toggle">
-					<Cluster gap="var(--sp-3)" align="center">
-						<SegmentedControl
-							variant="icon"
-							options={viewModes}
-							bind:value={viewValue}
-							label="View mode"
-						/>
-						<Text variant="caption" tone="muted">view: {viewValue}</Text>
-					</Cluster>
-				</Field>
-				<Field label="Icon + label (collapseLabels='mobile' — text hides under 48rem)">
-					<Cluster gap="var(--sp-3)" align="center">
-						<SegmentedControl
-							variant="icon"
-							collapseLabels="mobile"
-							options={scopeModes}
-							bind:value={scopeValue}
-							label="Scope"
-						/>
-						<Text variant="caption" tone="muted">scope: {scopeValue}</Text>
-					</Cluster>
-				</Field>
-				<Field label="Compact (size=sm)">
-					<SegmentedControl
-						size="sm"
-						options={libFilters}
-						bind:value={filterValue}
-						label="Library filter compact"
-					/>
-				</Field>
-				<Field label="Block (fills the parent width)">
-					<SegmentedControl block options={libFilters} bind:value={filterValue} label="Library filter block" />
-				</Field>
-				<Field label="Scroll (single row inside a 16rem box)">
-					<div style="max-width: 16rem">
-						<SegmentedControl scroll options={libFilters} bind:value={filterValue} label="Library filter scroll" />
-					</div>
-				</Field>
-				<Field label="collapseLabels='container' (20rem inline-size container)">
-					<div style="container-type: inline-size; width: 20rem">
-						<SegmentedControl
-							variant="icon"
-							collapseLabels="container"
-							options={scopeModes}
-							bind:value={scopeValue}
-							label="Scope in container"
-						/>
-					</div>
-				</Field>
-			</Stack>
-		</Card>
-	</section>
-
-	<!-- CHECKBOX / RADIO -->
-	<section class="section">
-		<Heading level={2}>Checkbox &amp; RadioGroup</Heading>
-		<Card>
-			<div class="form-grid">
-				<Field label="Checkboxes">
-					<div class="stack">
-						<Checkbox bind:checked={check1} label="Enabled" />
-						<Checkbox bind:checked={check2} label="Beta features" />
-						<Checkbox indeterminate label="Partially selected" />
-						<Checkbox disabled label="Disabled" />
-					</div>
-				</Field>
-				<Field label="Radio group">
-					<RadioGroup label="Notifications" options={radioOptions} bind:value={radioValue} />
-				</Field>
-				<Field label="Radio group · rows">
-					<RadioGroup label="Spawn profile" variant="rows" options={profileOptions} bind:value={profileValue}>
-						{#snippet action(o)}
-							<IconButton
-								icon="settings"
-								inline
-								label="Configure {o.label}"
-								pressed={profileOpen === o.value}
-								onclick={() => (profileOpen = profileOpen === o.value ? null : o.value)}
-							/>
-						{/snippet}
-						{#snippet below(o)}
-							{#if profileOpen === o.value}
-								<Text variant="caption" tone="muted">Inline settings panel for {o.label} — consumer-owned content.</Text>
-							{/if}
-						{/snippet}
-					</RadioGroup>
-				</Field>
-			</div>
-		</Card>
-	</section>
-
-	<!-- POPOVER / MENU -->
-	<section class="section">
-		<Heading level={2}>Popover &amp; Menu <Badge tone="info">native top layer</Badge></Heading>
-		<Card>
-			<div class="row row-wrap">
-				<Popover label="Info popover">
-					{#snippet trigger()}<Icon name="info" size={18} />{/snippet}
-					<div style="padding: var(--sp-2)">
-						<Text variant="body">A native popover — renders in the top layer, light-dismiss + Escape for free.</Text>
-					</div>
-				</Popover>
-
-				<Menu label="Row actions" items={menuItems}>
-					{#snippet trigger()}<Icon name="more" size={18} />{/snippet}
-				</Menu>
-
-				<Menu label="Row actions (ghost sm trigger)" items={menuItems} variant="ghost" size="sm">
-					{#snippet trigger()}Actions <Icon name="chevron-down" size={14} />{/snippet}
-				</Menu>
-
-				<Text variant="caption" tone="muted">Open a menu and navigate with ↑/↓, Enter to select.</Text>
-			</div>
-		</Card>
-	</section>
-
-	<!-- TABS -->
-	<section class="section">
-		<Heading level={2}>Tabs</Heading>
-		<Card>
-			<Tabs {tabs} bind:value={tabValue} label="Demo tabs">
-				{#snippet panel(id)}
-					{#if id === 'overview'}
-						<Text variant="body">Overview panel — arrow keys move between tabs.</Text>
-					{:else if id === 'activity'}
-						<Text variant="body">Activity panel — roving tabindex keeps one tab tabbable.</Text>
-					{:else}
-						<Text variant="body">Settings panel — aria-controls links each tab to this panel.</Text>
-					{/if}
-				{/snippet}
-			</Tabs>
-		</Card>
-	</section>
-
-	<!-- BREADCRUMB -->
-	<section class="section">
-		<Heading level={2}>Breadcrumb</Heading>
-		<Card>
-			<Stack gap="var(--sp-3)">
-				<Breadcrumb
-					items={[
-						{ label: 'Musique', href: '#' },
-						{ label: 'Artist', href: '#' },
-						{ label: 'Album', href: '#' },
-						{ label: 'Track' }
-					]}
-				/>
-				<Breadcrumb
-					char="/"
-					maxItems={3}
-					items={[
-						{ label: 'Home', href: '#' },
-						{ label: 'Library', href: '#' },
-						{ label: 'Artist', href: '#' },
-						{ label: 'Album', href: '#' },
-						{ label: 'Track' }
-					]}
-				/>
-			</Stack>
-		</Card>
-	</section>
-
-	<!-- TOASTS -->
-	<section class="section">
-		<Heading level={2}>Toasts</Heading>
-		<Card>
-			<div class="row row-wrap">
-				<Button onclick={() => toasts.show('Saved to drafts')}>Neutral</Button>
-				<Button variant="primary" onclick={() => toasts.ok('Changes published')}>Success</Button>
-				<Button variant="danger" onclick={() => toasts.error('Something went wrong')}>Error</Button>
-				<Button onclick={() => toasts.info('Sync scheduled for tonight')}>Info</Button>
-				<Button
-					onclick={() =>
-						toasts.show('Item archived', {
-							tone: 'ok',
-							action: { label: 'Undo', run: () => new Promise((r) => setTimeout(r, 800)) }
-						})}>With action</Button
-				>
-			</div>
-		</Card>
-	</section>
-
-	<!-- CAPBAR -->
-	<section class="section">
-		<Heading level={2}>CapBar</Heading>
-		<Card>
-			<div class="stack">
-				<CapBar
-					label="Anthropic"
-					value={62}
-					bind:cap={capBarCap}
-					hint="resets 3h"
-					onchange={(c) => toasts.show(`Cap set to ${c}%`)}
-				>
-					{#snippet caption()}▲ using 62% · cap {capBarCap}%{/snippet}
-				</CapBar>
-				<CapBar label="OpenAI" value={81} cap={90} hint="resets 12h" size="lg" />
-				<CapBar label="Locked" value={95} cap={80} hint="over cap" readonly />
-			</div>
-		</Card>
-	</section>
-
-	<!-- DATATABLE -->
-	<section class="section">
-		<Heading level={2}>DataTable <Badge>generic &lt;T&gt;</Badge></Heading>
-		<DataTable
-			columns={tableCols}
-			rows={tableRows}
-			rowKey={(r) => r.id}
-			onrowclick={(r) => toasts.show(`Row: ${r.name}`)}
-			cellSnippets={{ status }}
-		/>
-		<Text tone="muted">
-			<code>layout="fixed"</code> + <code>truncate</code>, <code>hideBelow</code> on the role column,
-			<code>rowTone</code> accent bar, hover-revealed <code>rowActions</code>, <code>size="sm"</code>.
-		</Text>
-		<DataTable
-			columns={denseCols}
-			rows={tableRows}
-			rowKey={(r) => r.id}
-			layout="fixed"
-			size="sm"
-			rowTone={(r) => r.status}
-			cellSnippets={{ status }}
-		>
-			{#snippet rowActions(r: Row)}
-				<IconButton icon="copy" label="Copy {r.name}" onclick={() => toasts.show(`Copy: ${r.name}`)} />
-			{/snippet}
-		</DataTable>
-		<Text tone="muted">
-			<code>responsive="stack"</code> in a 22rem-wide box: rows become cards via
-			<code>Column.role</code> (title / detail / meta / hidden), actions stay on the title line.
-		</Text>
-		<div style="max-width: 22rem">
-			<DataTable
-				columns={stackCols}
-				rows={tableRows}
-				rowKey={(r) => r.id}
-				responsive="stack"
-				cellSnippets={{ status }}
-			>
-				{#snippet rowActions(r: Row)}
-					<IconButton icon="copy" label="Copy {r.name}" onclick={() => toasts.show(`Copy: ${r.name}`)} />
-				{/snippet}
-			</DataTable>
-		</div>
-		<Text tone="muted">
-			Same table with <code>stackBelow="30rem"</code>: it stays tabular in this 34rem box and stacks
-			once the box drops under 30rem.
-		</Text>
-		<div style="max-width: 34rem">
-			<DataTable
-				columns={stackCols}
-				rows={tableRows}
-				rowKey={(r) => r.id}
-				responsive="stack"
-				stackBelow="30rem"
-				cellSnippets={{ status }}
-			/>
-		</div>
-		{#snippet status(r: Row)}
-			<Badge tone={r.status === 'ok' ? 'ok' : r.status === 'warn' ? 'warn' : 'danger'}>
-				{r.status}
-			</Badge>
-		{/snippet}
-	</section>
-
-	<!-- FILTER SEARCH BAR -->
-	<section class="section">
-		<Heading level={2}>FilterSearchBar <Badge tone="info">organism</Badge></Heading>
-		<Text tone="muted">
-			YouTrack-style structured search. Type <code>role:worker</code>, <code>status=ok</code>, or
-			free text — drive it from the dropdown or type the query language by hand. The bar owns the
-			query (emits an AST); the host runs it and renders results.
-		</Text>
-		<Card>
-			<div class="stack">
-				<FilterSearchBar
-					schema={searchSchema}
-					bind:value={searchValue}
-					placeholder={'name:api role:worker status=ok'}
-					onchange={(q) => (searchQuery = q)}
-				/>
-				<div class="row row-wrap">
-					{#each ['role:worker', 'status=danger', 'name:cache', 'id>=2'] as ex (ex)}
-						<Badge as="button" tone="neutral" onclick={() => (searchValue = ex)}>{ex}</Badge>
-					{/each}
-				</div>
-				<DataTable
-					columns={tableCols}
-					rows={searchResults}
-					rowKey={(r) => r.id}
-					empty="No rows match the query."
-				/>
-				<CodeBlock code={searchSql} lang="sql" />
-			</div>
-		</Card>
-
-		<Text tone="muted">
-			<code>FilterInput</code> is the headless primitive underneath — same schema-driven dropdown, but
-			single-field with no below-bar chips. Its <code>inline</code> snippet renders custom nodes inside
-			the bar (here, a badge per parsed filter):
-		</Text>
-		<Card>
-			<FilterInput
-				schema={searchSchema}
-				bind:value={singleValue}
-				placeholder={'role:worker'}
-			>
-				{#snippet inline({ filters: fs })}
-					{#each fs as f (f.span[0])}
-						<Badge tone="info">{f.field}: {f.values.join(', ') || '∅'}</Badge>
-					{/each}
-				{/snippet}
-			</FilterInput>
-		</Card>
-
-		<Text tone="muted">
-			<code>size="sm" shape="pill" surface="sunken"</code> with <code>hotkey="/"</code> — press
-			<kbd>/</kbd> anywhere outside a field to focus it.
-		</Text>
-		<Card>
-			<FilterInput
-				schema={searchSchema}
-				bind:value={hotkeyValue}
-				size="sm"
-				shape="pill"
-				surface="sunken"
-				hotkey="/"
-				showHotkey
-				placeholder="Search"
-			/>
-		</Card>
-	</section>
-
-	<!-- TOOLTIP / PROGRESS / ACCORDION -->
-	<section class="section">
-		<Heading level={2}>Tooltip · Progress · Accordion</Heading>
-		<Card>
-			<div class="stack">
-				<div class="row row-wrap">
-					<Tooltip text="Tooltips appear on hover and keyboard focus, dismiss with Escape.">
-						{#snippet trigger()}<Button>Hover or focus me</Button>{/snippet}
-					</Tooltip>
-					<Tooltip text="Also works on icon buttons." placement="bottom">
-						{#snippet trigger()}<IconButton icon="info" label="Info" />{/snippet}
-					</Tooltip>
-					<!-- Rich hovercard: `content` snippet + persist-on-hover — move into the
-					     panel to select text or click the copy button. -->
-					<Tooltip placement="bottom">
-						{#snippet trigger()}
-							<button type="button" class="status-dot" aria-label="api-gateway status"></button>
-						{/snippet}
-						{#snippet content()}
-							<dl class="tip-kv">
-								<dt>service</dt>
-								<dd>api-gateway</dd>
-								<dt>region</dt>
-								<dd>ap-northeast-1</dd>
-								<dt>build</dt>
-								<dd><code>7f3c9e2</code> <CopyButton text="7f3c9e2" /></dd>
-							</dl>
-						{/snippet}
-					</Tooltip>
-				</div>
-				<div class="stack">
-					<Progress value={65} label="Upload progress" />
-					<Progress value={45} tone="success" label="Healthy usage" />
-					<Progress value={78} tone="warn" label="Warm usage" />
-					<Progress value={94} tone="danger" label="Hot usage" />
-					<Progress value={72} size="sm" label="Thin inline row" />
-					<Progress value={58} gradient label="Storage meter (gradient)" />
-					<Progress value={40} striped label="Unpacking (striped)" />
-					<Progress value={40} gradient striped size="sm" label="Thin gradient striped" />
-					<Progress indeterminate striped label="Importing…" />
-					<Progress label="Working…" />
-					<SegmentedProgress
-						label="Series completion by season"
-						segments={[
-							{ value: 10, max: 10, tone: 'success', label: 'Season 1 · 10/10' },
-							{ value: 6, max: 13, tone: 'warn', label: 'Season 2 · 6/13' },
-							{ value: 0, max: 8, tone: 'muted', label: 'Season 3 · 0/8' }
-						]}
-					/>
-					<SegmentedProgress
-						size="sm"
-						label="Thin segmented"
-						segments={[
-							{ value: 4, max: 4, tone: 'success' },
-							{ value: 2, max: 6, tone: 'warn' },
-							{ value: 5, max: 5, tone: 'success' }
-						]}
-					/>
-					<SegmentedProgress
-						mode="stacked"
-						label="Maintenance"
-						legend
-						segments={[
-							{ value: 412, max: 0, tone: 'ok', label: 'conforming' },
-							{ value: 12, max: 0, tone: 'warn', label: 'nonconforming' },
-							{ value: 0, max: 0, tone: 'danger', label: 'blocked' }
-						]}
-					/>
-					<SegmentedProgress
-						mode="stacked"
-						size="sm"
-						max={600}
-						legend="inline"
-						label="Stacked with remainder"
-						segments={[
-							{ value: 300, max: 0, tone: 'accent', label: 'done' },
-							{ value: 120, max: 0, tone: 'muted', label: 'skipped' }
-						]}
-					/>
-					<SegmentedProgress
-						gap={6}
-						label="Wide gap"
-						segments={[
-							{ value: 3, max: 4, tone: 'success', label: 'S1' },
-							{ value: 1, max: 6, tone: 'warn', label: 'S2' }
-						]}
-					/>
-				</div>
-				<div class="row row-wrap">
-					<Gauge value={35} label="Session usage 35%" />
-					<Gauge value={75} label="Session usage 75%" />
-					<Gauge value={95} label="Session usage 95%" />
-					<Gauge value={35} variant="segments" label="Weekly usage 35%" />
-					<Gauge value={75} variant="segments" label="Weekly usage 75%" />
-					<Gauge value={100} variant="segments" label="Weekly usage 100%" />
-					<Gauge value={60} tone="ok" label="Forced ok tone">
-						{#snippet corner()}🍃{/snippet}
-					</Gauge>
-					<Gauge value={92} variant="segments" as="button" label="Hot pace, click for details">
-						{#snippet corner()}🔥{/snippet}
-					</Gauge>
-				</div>
-				{#snippet c1()}<Text variant="body">Built on native &lt;details&gt; — zero JS, full keyboard support.</Text>{/snippet}
-				{#snippet c2()}<Text variant="body">With <code>multiple=false</code> it uses the platform's exclusive-accordion (one open at a time).</Text>{/snippet}
-				{#snippet c3()}<Text variant="body">The chevron rotates via a CSS transition on <code>[open]</code>.</Text>{/snippet}
-				<Accordion
-					multiple={false}
-					items={[
-						{ id: 'a', title: 'What is it?', content: c1, open: true },
-						{ id: 'b', title: 'Single-open mode', content: c2 },
-						{ id: 'c', title: 'Styling', content: c3 }
-					]}
-				/>
-			</div>
-		</Card>
-	</section>
-
-	<!-- TRUNCATE -->
-	<section class="section">
-		<Heading level={2}>Truncate <Badge>char-count · hover reveal</Badge></Heading>
-		<Card>
-			<div class="stack">
-				<Text variant="caption">
-					Character-count truncation (the counterpart to <code>&lt;Text truncate&gt;</code>'s CSS
-					ellipsis). Hover or focus a truncated value to reveal the full text.
-				</Text>
-				<div class="stack">
-					<Text variant="body">
-						middle: <Truncate text="0x71C7656EC7ab88b098defB751B7401B5f6d8976F" max={16} mode="middle" />
-					</Text>
-					<Text variant="body">
-						end: <Truncate text="a-very-long-resource-identifier-that-keeps-going" max={20} />
-					</Text>
-					<Text variant="body">
-						start: <Truncate text="/srv/app/var/logs/2026/06/14/request-trace.log" max={22} mode="start" />
-					</Text>
-					<Text variant="body">
-						fits (no tooltip): <Truncate text="short" max={20} />
-					</Text>
-				</div>
-			</div>
-		</Card>
-	</section>
-
-	<!-- WORKING DIR -->
-	<section class="section">
-		<Heading level={2}>WorkingDir <Badge>fish-style · degrades with width</Badge></Heading>
-		<Card>
-			<div class="stack">
-				<Text variant="caption">
-					Drag the handle: ancestors abbreviate one at a time left to right, then only the leaf
-					stays, then the leaf ellipsises down to <code>minLeaf</code> chars. The full path is always
-					in the tooltip.
-				</Text>
-				<ResizablePanel label="WorkingDir demo" width={360} minWidth={120} maxWidth={640} widthKey="demo-working-dir">
-					{#snippet panel()}
-						<div class="stack" style="padding: var(--sp-3)">
-							<WorkingDir path="/home/dorsk/Documents/tsumikit/src/lib/components" />
-							<WorkingDir path="/srv/app/releases/2026-09-05-a-really-long-release-name" copy />
-							<WorkingDir path="~/projects/cctui" minLeaf={4} />
-						</div>
-					{/snippet}
-					<div style="padding: var(--sp-3)">
-						<WorkingDir path="/home/dorsk/Documents/tsumikit" full />
-					</div>
-				</ResizablePanel>
-			</div>
-		</Card>
-	</section>
-
-	<!-- TIMESTAMP -->
-	<section class="section">
-		<Heading level={2}>Timestamp <Badge>subdued · click for UTC / epoch / zone</Badge></Heading>
-		<Card>
-			<div class="stack">
-				<Text variant="caption">
-					Renders an instant in one of six modes (date, time, datetime, relative, iso, short-iso), subdued
-					by default. The <code>date</code>/<code>time</code>/<code>datetime</code> modes follow
-					the viewer's zone unless you pass <code>utc</code>. Click it for a read-only popover
-					with the same instant as UTC, relative, your time zone and the unix epoch. Opt into
-					<code>selectable</code> to let viewers switch the inline mode.
-				</Text>
-				<div class="stack">
-					<Text variant="body">datetime: <Timestamp value="2026-06-14T07:30:00Z" /></Text>
-					<Text variant="body">date: <Timestamp value="2026-06-14T07:30:00Z" mode="date" /></Text>
-					<Text variant="body">
-						date (utc): <Timestamp value="2026-06-14T07:30:00Z" mode="date" utc />
-					</Text>
-					<Text variant="body">iso: <Timestamp value="2026-06-14T07:30:00Z" mode="iso" /></Text>
-					<Text variant="body">
-						short-iso: <Timestamp value="2026-06-14T07:30:00Z" mode="short-iso" mono />
-					</Text>
-					<Text variant="body">time: <Timestamp value="2026-06-14T07:30:00Z" mode="time" /></Text>
-					<Text variant="body">
-						relative: <Timestamp value={Date.now() - 7 * 86_400_000} mode="relative" />
-					</Text>
-					<Text variant="body">
-						mono: <Timestamp value="2026-06-14T07:30:00Z" mono />
-					</Text>
-					<Text variant="body">
-						selectable: <Timestamp value="2026-06-14T07:30:00Z" mode="relative" selectable />
-					</Text>
-					<Text variant="body">
-						no popover: <Timestamp value="2026-06-14T07:30:00Z" details={false} />
-					</Text>
-				</div>
-			</div>
-		</Card>
-	</section>
-
-	<!-- GIT REF -->
-	<section class="section">
-		<Heading level={2}>GitRef <Badge>branch · PR · ±diff</Badge></Heading>
-		<Card>
-			<div class="stack">
-				<Text variant="caption">
-					Branch chip, pull-request link and +/− diff stats in one inline row; every part is
-					optional. The PR state picks its tone (open ok, merged accent, closed danger, draft
-					muted). <code>collapse="auto"</code> keeps only the glyphs when the nearest
-					<code>.cq</code> container is narrower than 18rem; <code>glyph</code> forces it.
-				</Text>
-				<div class="stack">
-					<Text variant="body">
-						branch: <GitRef branch="feat/wave-1-new-components-with-a-long-name" />
-					</Text>
-					<Text variant="body">
-						pr: <GitRef pr={{ url: 'https://github.com/DorskFR/tsumikit/pull/77', owner: 'DorskFR', repo: 'tsumikit', number: 77, state: 'merged' }} />
-					</Text>
-					<Text variant="body">
-						all three: <GitRef
-							branch="fix/resizable-panel"
-							pr={{ url: 'https://github.com/DorskFR/tsumikit/pull/78', number: 78 }}
-							diff={{ additions: 128, deletions: 42 }}
-						/>
-					</Text>
-					<Text variant="body">
-						glyph: <GitRef
-							branch="fix/resizable-panel"
-							pr={{ url: 'https://github.com/DorskFR/tsumikit/pull/79', owner: 'DorskFR', repo: 'tsumikit', number: 79, state: 'draft' }}
-							diff={{ additions: 3, deletions: 1 }}
-							collapse="glyph"
-						/>
-					</Text>
-				</div>
-			</div>
-		</Card>
-	</section>
-
-	<!-- CODE BLOCK -->
-	<section class="section">
-		<Heading level={2}>CodeBlock <Badge>BYO highlighter</Badge></Heading>
-		<div class="stack">
-			<CodeBlock code={sampleCode} lang="typescript" highlight={demoHighlight} showLineNumbers />
-			<Text variant="caption" tone="muted">
-				Plain (no highlighter, no line numbers):
-			</Text>
-			<CodeBlock code={`git clone …\nnpm install\nnpm run dev`} filename="setup.sh" />
-		</div>
-	</section>
-
-	<!-- FILE UPLOAD -->
-	<section class="section">
-		<Heading level={2}>FileButton &amp; Dropzone</Heading>
-		<Card>
-			<div class="stack">
-				<div class="row row-wrap">
-					<FileButton
-						variant="primary"
-						label="Choose files"
-						multiple
-						onfiles={(f) => toasts.ok(`Picked ${f.length} file(s): ${f.map((x) => x.name).join(', ')}`)}
-					/>
-					<Text variant="caption" tone="muted">native picker, keyboard-focusable</Text>
-				</div>
-				<Dropzone
-					accept="image/*,.pdf"
-					onfiles={(f) => toasts.show(`Dropped ${f.length}: ${f.map((x) => x.name).join(', ')}`)}
-				/>
-				<Text variant="caption" tone="muted">overlay mode — wraps content, drop UI shows only while dragging a file over it</Text>
-				<Dropzone
-					overlay
-					accept="image/*,.pdf"
-					label="Drop files to attach"
-					onfiles={(f) => toasts.show(`Dropped ${f.length}: ${f.map((x) => x.name).join(', ')}`)}
-				>
-					<Card padding="lg">
-						<Heading level={3} size="md">Drawer-like surface</Heading>
-						<Text variant="body" tone="muted">Buttons and content stay clickable. Drag a file anywhere over this card.</Text>
-						<div class="row" style="margin-top: var(--sp-3)">
-							<Button onclick={() => toasts.ok('Click still works')}>A button</Button>
-						</div>
+			<section class="section" id="card">
+				<Heading level={3} size="lg">Card</Heading>
+				<div class="card-row">
+					<Card>
+						<Heading level={3} size="md">Static card</Heading>
+						<Text variant="body" tone="muted">An elevated surface with token-driven padding, border and radius.</Text>
 					</Card>
-				</Dropzone>
-			</div>
-		</Card>
-	</section>
+					<Card tap as="button" onclick={() => (modalOpen = true)}>
+						<Heading level={3} size="md">Tappable card</Heading>
+						<Text variant="body" tone="muted">Hover/press affordance. Click to open the modal.</Text>
+					</Card>
+				</div>
+				<div class="card-row" style="margin-top: var(--sp-4)">
+					<Card stacked>
+						<Heading level={3} size="md">Stacked card</Heading>
+						<Text variant="body" tone="muted">Looks like a pile — two layers peek out bottom-right.</Text>
+					</Card>
+					<Card stacked stackTone="info">
+						<Heading level={3} size="md">Stacked (info)</Heading>
+						<Text variant="body" tone="muted">Back layers tinted with the info/blue hue.</Text>
+					</Card>
+				</div>
+				<div class="card-row" style="margin-top: var(--sp-4)">
+					<Card tone="info" padding="sm"><Text variant="caption">tone info</Text></Card>
+					<Card tone="ok" padding="sm"><Text variant="caption">tone ok</Text></Card>
+					<Card tone="warn" padding="sm"><Text variant="caption">tone warn</Text></Card>
+					<Card tone="danger" padding="sm"><Text variant="caption">tone danger</Text></Card>
+					<Card tone="attention" padding="sm"><Text variant="caption">tone attention</Text></Card>
+				</div>
+				<div class="card-row" style="margin-top: var(--sp-4)">
+					<Card interactive onclick={() => toasts.show('Card activated')}>
+						<Heading level={3} size="md">Interactive card</Heading>
+						<Text variant="body" tone="muted">Enter/Space activate; the nested button stays independent.</Text>
+						<Button size="sm" variant="ghost" onclick={() => toasts.show('Nested button')}>Nested</Button>
+					</Card>
+					<Card maxWidth="22rem">
+						<Heading level={3} size="md">maxWidth 22rem</Heading>
+						<Text variant="body" tone="muted">Fills its row up to the cap.</Text>
+					</Card>
+				</div>
+			</section>
 
-	<!-- FIELDSET -->
-	<section class="section">
-		<Heading level={2}>Fieldset</Heading>
-		<Card>
-			<div class="stack">
-				<Text variant="caption" tone="muted">Drag a card between pools (HTML5 DnD); buttons are the keyboard path.</Text>
-				<div class="row row-wrap" style="align-items: stretch">
-					{#each [['a', 'Pool A', poolA], ['b', 'Pool B', poolB]] as [id, name, items] (id)}
-						<Fieldset
-							legend={name as string}
-							tone={(items as string[]).length ? 'accent' : 'strong'}
-							droppable
-							accepts={(d) => !(items as string[]).includes(d)}
-							ondrop={(d) => movePool(d, id as 'a' | 'b')}
-							dropHint="Drop to add to {name}"
-							style="flex: 1 1 14rem"
-						>
-							<div class="stack">
-								{#each items as string[] as item (item)}
-									<Card
-										padding="sm"
-										draggable="true"
-										ondragstart={(e: DragEvent) => e.dataTransfer?.setData('text/plain', item)}
-									>
-										<div class="row" style="justify-content: space-between">
-											<Text variant="body">{item}</Text>
-											<Button size="sm" variant="ghost" onclick={() => movePool(item, id === 'a' ? 'b' : 'a')}>Move</Button>
-										</div>
-									</Card>
-								{:else}
-									<Text variant="caption" tone="muted">Empty — drop something here.</Text>
+			<section class="section" id="master-detail">
+				<Heading level={3} size="lg">MasterDetail</Heading>
+				{#snippet mdDemo(selected: string | null, select: (v: string | null) => void)}
+					<MasterDetail
+						selected={selected !== null}
+						onback={() => select(null)}
+						style="border: 1px solid var(--border); border-radius: var(--r-md); height: 16rem"
+					>
+						{#snippet list()}
+							<Stack gap="0">
+								{#each mdItems as name (name)}
+									<NavItem label={name} active={selected === name} onclick={() => select(name)} />
+								{/each}
+							</Stack>
+						{/snippet}
+						{#snippet detailHeader()}
+							<Text variant="caption" tone="muted">{selected ?? 'Nothing selected'}</Text>
+						{/snippet}
+						{#snippet detail()}
+							<div style="padding: var(--sp-4)">
+								<Heading level={3}>{selected}</Heading>
+								<Text>Detail pane for {selected}.</Text>
+							</div>
+						{/snippet}
+						{#snippet empty()}
+							<div style="padding: var(--sp-4)"><Text tone="muted">Pick someone on the left.</Text></div>
+						{/snippet}
+					</MasterDetail>
+				{/snippet}
+				<Card>
+					<Stack gap="var(--sp-4)">
+						<Text variant="caption" tone="muted">
+							Two columns above its own 48rem breakpoint; below it one pane at a time with a sticky back
+							header. Drive <code>selected</code> from the URL to make each pane a route.
+						</Text>
+						{@render mdDemo(mdSelectedWide, (v) => (mdSelectedWide = v))}
+						<Text variant="caption" tone="muted">Same component boxed at 22rem — the mobile regime on desktop:</Text>
+						<div style="max-width: 22rem">
+							{@render mdDemo(mdSelectedNarrow, (v) => (mdSelectedNarrow = v))}
+						</div>
+					</Stack>
+				</Card>
+			</section>
+
+		</section>
+
+		<section class="group" id="g-actions" aria-labelledby="gh-actions">
+			<Heading level={2} id="gh-actions" size="sm" uppercase tone="muted" class="group-title">Actions</Heading>
+			<section class="section" id="button">
+				<Heading level={3} size="lg">Button</Heading>
+				<Card>
+					<div class="stack">
+						<div class="row row-wrap">
+							<Button>Default</Button>
+							<Button variant="primary">Primary</Button>
+							<Button variant="ghost">Ghost</Button>
+							<Button variant="danger">Danger</Button>
+							<Button disabled>Disabled</Button>
+						</div>
+						<div class="row row-wrap">
+							<Button size="sm">Small</Button>
+							<Button size="md">Medium</Button>
+							<Button size="lg">Large</Button>
+							<Button control>Control height</Button>
+							<Button control variant="primary">Control primary</Button>
+						</div>
+						<div class="row row-wrap">
+							<Button tone="accent">Notify on</Button>
+							<Button tone="info">Cold</Button>
+							<Button tone="warn">Warning</Button>
+							<Button tone="warn" control>Send <Text numeric>0:09</Text></Button>
+						</div>
+						<div class="row row-wrap">
+							<Button pill>Pill</Button>
+							<Button pill variant="primary" size="sm">Pill small</Button>
+							<Button variant="link">Link</Button>
+							<Button variant="link" tone="danger">Link danger</Button>
+							<Button grow>Grow</Button>
+							<Button shrink={false}>No shrink</Button>
+							<IconButton icon="star" label="No shrink icon" shrink={false} />
+							<Toggle shrink={false} pressed={false}>No shrink toggle</Toggle>
+						</div>
+						<Text variant="caption" tone="muted">Polymorphic roots — <code>as="a"</code> / <code>as="button"</code> keep the same chrome and focus ring:</Text>
+						<div class="row row-wrap">
+							<Button as="a" href="#top">Button as="a"</Button>
+							<Badge as="button" tone="info">Badge as="button"</Badge>
+							<IconButton as="a" href="#top" icon="link" label="IconButton as=a" />
+							<Card as="a" href="#top" padding="sm" tap>Card as="a"</Card>
+						</div>
+						<Text variant="caption" tone="muted">Hit area — <code>hitArea="compact"</code> drops the 44px touch slab (outlined box shows the real hit box on touch):</Text>
+						<div class="row row-wrap demo-hit">
+							<IconButton icon="search" label="Default hit area" box="sm" variant="default" />
+							<IconButton icon="search" label="Compact hit area" box="sm" variant="default" hitArea="compact" />
+							<Popover label="Default hit" box="sm">{#snippet trigger()}<Icon name="info" />{/snippet}<Text size="sm">default</Text></Popover>
+							<Popover label="Compact hit" box="sm" hitArea="compact">{#snippet trigger()}<Icon name="info" />{/snippet}<Text size="sm">compact</Text></Popover>
+						</div>
+						<Text variant="caption">Variant × tone matrix (primary keeps a readable on-accent label):</Text>
+						{#each ['default', 'primary', 'ghost', 'danger'] as const as v}
+							<div class="row row-wrap">
+								{#each ['none', 'accent', 'success', 'info', 'warn', 'danger'] as const as t}
+									<Button variant={v} tone={t}>{v}/{t}</Button>
 								{/each}
 							</div>
-						</Fieldset>
-					{/each}
-				</div>
-			</div>
-		</Card>
-	</section>
-
-	<!-- CARDS + MODAL -->
-	<section class="section">
-		<Heading level={2}>Card &amp; Modal</Heading>
-		<div class="card-row">
-			<Card>
-				<Heading level={3} size="md">Static card</Heading>
-				<Text variant="body" tone="muted">An elevated surface with token-driven padding, border and radius.</Text>
-			</Card>
-			<Card tap as="button" onclick={() => (modalOpen = true)}>
-				<Heading level={3} size="md">Tappable card</Heading>
-				<Text variant="body" tone="muted">Hover/press affordance. Click to open the modal.</Text>
-			</Card>
-		</div>
-		<div class="card-row" style="margin-top: var(--sp-4)">
-			<Card stacked>
-				<Heading level={3} size="md">Stacked card</Heading>
-				<Text variant="body" tone="muted">Looks like a pile — two layers peek out bottom-right.</Text>
-			</Card>
-			<Card stacked stackTone="info">
-				<Heading level={3} size="md">Stacked (info)</Heading>
-				<Text variant="body" tone="muted">Back layers tinted with the info/blue hue.</Text>
-			</Card>
-		</div>
-		<div class="card-row" style="margin-top: var(--sp-4)">
-			<Card tone="info" padding="sm"><Text variant="caption">tone info</Text></Card>
-			<Card tone="ok" padding="sm"><Text variant="caption">tone ok</Text></Card>
-			<Card tone="warn" padding="sm"><Text variant="caption">tone warn</Text></Card>
-			<Card tone="danger" padding="sm"><Text variant="caption">tone danger</Text></Card>
-			<Card tone="attention" padding="sm"><Text variant="caption">tone attention</Text></Card>
-		</div>
-		<div class="card-row" style="margin-top: var(--sp-4)">
-			<Card interactive onclick={() => toasts.show('Card activated')}>
-				<Heading level={3} size="md">Interactive card</Heading>
-				<Text variant="body" tone="muted">Enter/Space activate; the nested button stays independent.</Text>
-				<Button size="sm" variant="ghost" onclick={() => toasts.show('Nested button')}>Nested</Button>
-			</Card>
-			<Card maxWidth="22rem">
-				<Heading level={3} size="md">maxWidth 22rem</Heading>
-				<Text variant="body" tone="muted">Fills its row up to the cap.</Text>
-			</Card>
-		</div>
-		<div class="row" style="margin-top: var(--sp-3)">
-			<Button variant="primary" onclick={() => (modalOpen = true)}>Open modal</Button>
-		</div>
-	</section>
-
-	<!-- DRAWER -->
-	<section class="section">
-		<Heading level={2}>Drawer</Heading>
-		<Card>
-			<Stack gap="var(--sp-4)">
-				<Text variant="body">
-					Side panel on the native <code>&lt;dialog&gt;</code>: Escape, scrim click and the close
-					button close it; focus is trapped; body scroll is locked. A <code>nav</code> snippet
-					becomes a 150px page column beside the content on wide viewports and a horizontal strip
-					above it under 48rem, where the panel goes full-screen.
-				</Text>
-				<div class="row row-wrap">
-					<Button variant="primary" onclick={() => (drawerOpen = true)}>Open drawer</Button>
-				</div>
-			</Stack>
-		</Card>
-	</section>
-
-	<!-- CONFIRM MODAL + PAGINATION -->
-	<section class="section">
-		<Heading level={2}>ConfirmModal &amp; Pagination</Heading>
-		<Card>
-			<Stack gap="var(--sp-4)">
-				<div class="row row-wrap">
-					<Button tone="danger" onclick={() => (confirmOpen = true)}>Delete library…</Button>
-					<Checkbox bind:checked={confirmFails} label="Make the confirm fail" />
-				</div>
-				<Text variant="caption" tone="muted">Page mode — bind:page + pageCount:</Text>
-				<Pagination bind:page={demoPage} pageCount={12} />
-				<Text variant="caption" tone="muted">Offset mode, small, with range — bind:offset + limit + total:</Text>
-				<Pagination bind:offset={demoOffset} limit={20} total={412} size="sm" showRange />
-				<Text variant="caption" tone="muted">Compact collapse under 24rem of container width:</Text>
-				<div style="max-width: 18rem"><Pagination bind:page={demoPage} pageCount={12} /></div>
-			</Stack>
-		</Card>
-	</section>
-
-	<section class="section">
-		<Heading level={2}>MasterDetail</Heading>
-		{#snippet mdDemo(selected: string | null, select: (v: string | null) => void)}
-			<MasterDetail
-				selected={selected !== null}
-				onback={() => select(null)}
-				style="border: 1px solid var(--border); border-radius: var(--r-md); height: 16rem"
-			>
-				{#snippet list()}
-					<Stack gap="0">
-						{#each mdItems as name (name)}
-							<NavItem label={name} active={selected === name} onclick={() => select(name)} />
 						{/each}
+						<Button block variant="primary">Block button</Button>
+						<div class="row row-wrap">
+							<CopyButton text="npm i @dorsk/tsumikit" />
+							<CopyButton text="npm i @dorsk/tsumikit" variant="default" label="Copy install" />
+							<Badge mono>npm i @dorsk/tsumikit</Badge>
+						</div>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="icon">
+				<Heading level={3} size="lg">Icon &amp; IconButton</Heading>
+				<Card>
+					<div class="stack">
+						<div class="row row-wrap">
+							<IconButton icon="search" label="Search" />
+							<IconButton icon="edit" label="Edit" variant="default" />
+							<IconButton icon="star" label="Star" variant="primary" />
+							<IconButton icon="trash" label="Delete" variant="danger" />
+							<IconButton icon="x" label="Remove" inline />
+							<IconButton icon="trash" label="Remove" inline hoverDanger />
+						</div>
+						<div class="row row-wrap">
+							<IconButton icon="chevron-left" label="Back" chip variant="default" />
+							<IconButton icon="star" label="Pin" chip variant="default" tone="accent" />
+							<IconButton icon="bell" label="Archive" chip variant="default" tone="warn" />
+							<IconButton icon="trash" label="Interrupt" chip variant="default" tone="danger" hoverDanger />
+						</div>
+						<Text variant="caption" tone="muted">Shared box scale (xs/sm/md/lg) across IconButton, SelectButton, Popover and Button square — 44px hit slab on touch:</Text>
+						<div class="row row-wrap">
+							<IconButton icon="x" label="Remove" box="xs" variant="default" />
+							<IconButton icon="search" label="Search" box="sm" variant="default" />
+							<IconButton icon="edit" label="Edit" box="md" variant="default" />
+							<IconButton icon="star" label="Star" box="lg" variant="default" />
+							<IconButton emoji="←" label="Back" box="lg" glyphSize="1.5rem" variant="default" />
+							<Button square variant="default" aria-label="Square control">A</Button>
+							<Button square size="sm" variant="default" aria-label="Square small">A</Button>
+							<Button collapseLabel="container"><Icon name="search" /><span data-label>Search</span></Button>
+						</div>
+						<hr class="divider" />
+						<Text variant="caption">All registry glyphs (sized at 1em — they scale with text):</Text>
+						<div class="icon-grid">
+							{#each allIcons as name (name)}
+								<div class="icon-cell" title={name}>
+									<Icon {name} size={22} />
+									<Text variant="caption" tone="faint">{name}</Text>
+								</div>
+							{/each}
+						</div>
+						<Text variant="caption">Custom (open) icon via children snippet:</Text>
+						<div class="row">
+							<Icon label="Heart" size={22}>
+								<path d="M12 21s-7-4.5-9.5-8.5A5 5 0 0 1 12 6a5 5 0 0 1 9.5 6.5C19 16.5 12 21 12 21z" />
+							</Icon>
+						</div>
+						<Text variant="caption">Spinner (halts under prefers-reduced-motion):</Text>
+						<div class="row">
+							<Spinner size={18} />
+							<Spinner size={28} />
+							<Icon name="loader" spin size={22} label="Loading" />
+						</div>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="toggle">
+				<Heading level={3} size="lg">Toggle · OptionButton · SelectButton</Heading>
+				<Card>
+					<div class="stack">
+						<div class="row row-wrap">
+							<Toggle pressed={toggleA} onclick={() => (toggleA = !toggleA)}>Filter A</Toggle>
+							<Toggle pressed={toggleB} onclick={() => (toggleB = !toggleB)}>Filter B</Toggle>
+							<Toggle pill pressed={toggleC} onclick={() => (toggleC = !toggleC)}>Pill</Toggle>
+							<Toggle struck pressed onclick={() => {}}>Struck</Toggle>
+							<Toggle size="md" pressed={toggleA} onclick={() => (toggleA = !toggleA)}>Medium</Toggle>
+							<Toggle grow pressed={toggleB} onclick={() => (toggleB = !toggleB)}>Grow</Toggle>
+						</div>
+						<hr class="divider" />
+						<div class="opt-grid">
+							{#each effortOptions as o (o.id)}
+								<OptionButton selected={selectedOpt === o.id} onclick={() => (selectedOpt = o.id)}>
+									<Text weight="semibold">{o.label}</Text>
+									<Text variant="caption" class="faint">{o.hint}</Text>
+								</OptionButton>
+							{/each}
+						</div>
+						<hr class="divider" />
+						<div class="row">
+							<Text variant="caption">SelectButton (native select over a glyph button):</Text>
+							<SelectButton
+								glyph="⚙"
+								label="Pick a value"
+								value={pickerValue}
+								options={[
+									{ value: 'a', label: 'Alpha' },
+									{ value: 'b', label: 'Beta' },
+									{ value: 'c', label: 'Gamma' }
+								]}
+								onchange={(v) => (pickerValue = v)}
+							/>
+							<Text variant="caption" tone="muted">selected: {pickerValue}</Text>
+						</div>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="segmented-control">
+				<Heading level={3} size="lg">SegmentedControl</Heading>
+				<Card>
+					<Stack gap="var(--sp-4)">
+						<Field label="Filter pills with counts">
+							<Cluster gap="var(--sp-3)" align="center">
+								<SegmentedControl
+									options={libFilters}
+									bind:value={filterValue}
+									label="Library filter"
+								/>
+								<Text variant="caption" tone="muted">selected: {filterValue}</Text>
+							</Cluster>
+						</Field>
+						<Field label="Icon view toggle">
+							<Cluster gap="var(--sp-3)" align="center">
+								<SegmentedControl
+									variant="icon"
+									options={viewModes}
+									bind:value={viewValue}
+									label="View mode"
+								/>
+								<Text variant="caption" tone="muted">view: {viewValue}</Text>
+							</Cluster>
+						</Field>
+						<Field label="Icon + label (collapseLabels='mobile' — text hides under 48rem)">
+							<Cluster gap="var(--sp-3)" align="center">
+								<SegmentedControl
+									variant="icon"
+									collapseLabels="mobile"
+									options={scopeModes}
+									bind:value={scopeValue}
+									label="Scope"
+								/>
+								<Text variant="caption" tone="muted">scope: {scopeValue}</Text>
+							</Cluster>
+						</Field>
+						<Field label="Compact (size=sm)">
+							<SegmentedControl
+								size="sm"
+								options={libFilters}
+								bind:value={filterValue}
+								label="Library filter compact"
+							/>
+						</Field>
+						<Field label="Block (fills the parent width)">
+							<SegmentedControl block options={libFilters} bind:value={filterValue} label="Library filter block" />
+						</Field>
+						<Field label="Scroll (single row inside a 16rem box)">
+							<div style="max-width: 16rem">
+								<SegmentedControl scroll options={libFilters} bind:value={filterValue} label="Library filter scroll" />
+							</div>
+						</Field>
+						<Field label="collapseLabels='container' (20rem inline-size container)">
+							<div style="container-type: inline-size; width: 20rem">
+								<SegmentedControl
+									variant="icon"
+									collapseLabels="container"
+									options={scopeModes}
+									bind:value={scopeValue}
+									label="Scope in container"
+								/>
+							</div>
+						</Field>
 					</Stack>
-				{/snippet}
-				{#snippet detailHeader()}
-					<Text variant="caption" tone="muted">{selected ?? 'Nothing selected'}</Text>
-				{/snippet}
-				{#snippet detail()}
-					<div style="padding: var(--sp-4)">
-						<Heading level={3}>{selected}</Heading>
-						<Text>Detail pane for {selected}.</Text>
+				</Card>
+			</section>
+
+		</section>
+
+		<section class="group" id="g-forms" aria-labelledby="gh-forms">
+			<Heading level={2} id="gh-forms" size="sm" uppercase tone="muted" class="group-title">Forms</Heading>
+			<section class="section" id="form-atoms">
+				<Heading level={3} size="lg">Form atoms &amp; Field</Heading>
+				<Card>
+					<div class="form-grid">
+						<Field label="Text input" for="f-input" hint="Helper text below the control.">
+							<Input id="f-input" bind:value={textValue} placeholder="Type here" />
+						</Field>
+						<Field label="With error" for="f-err" error="This field is required.">
+							<Input id="f-err" placeholder="Invalid" aria-invalid="true" />
+						</Field>
+						<Field label="Monospace input" for="f-mono">
+							<Input id="f-mono" mono value="export TOKEN=…" />
+						</Field>
+						<Field label="Icon + clearable + width=14rem, pill" for="f-icon">
+							<Input
+								id="f-icon"
+								icon="search"
+								clearable
+								shape="pill"
+								width="14rem"
+								placeholder="Search…"
+								bind:value={iconValue}
+								onenter={(v) => toasts.show(`Enter: ${v || '∅'}`)}
+							/>
+						</Field>
+						<Field label="Select" for="f-select">
+							<Select id="f-select" bind:value={selectValue}>
+								<option value="one">Option one</option>
+								<option value="two">Option two</option>
+								<option value="three">Option three</option>
+							</Select>
+						</Field>
+						<Field label="Select (compact, no chevron)" for="f-select-mini">
+							<Select id="f-select-mini" compact chevron={false} bind:value={selectValue}>
+								<option value="one">Option one</option>
+								<option value="two">Option two</option>
+								<option value="three">Option three</option>
+							</Select>
+						</Field>
+						<Field label="Select (options: emoji · icon · hint)" for="f-select-opts">
+							<Select
+								id="f-select-opts"
+								bind:value={selectOptionValue}
+								options={[
+									{ value: 'personal', label: 'personal', emoji: '🐼', hint: '62%' },
+									{ value: 'work', label: 'work', icon: 'users', hint: '18%' },
+									{ value: 'archive', label: 'archive', emoji: '📦', hint: '100%', disabled: true }
+								]}
+							/>
+						</Field>
+						<Field label="Select (width=auto, embedded)" for="f-select-emb">
+							<Select id="f-select-emb" width="auto" variant="embedded" bind:value={selectValue}>
+								<option value="one">Option one</option>
+								<option value="two">Option two</option>
+								<option value="three">Option three</option>
+							</Select>
+						</Field>
+						<Field label="Inline field" for="f-inline" layout="inline" labelWidth="8rem" class="span-2">
+							<Input id="f-inline" grow placeholder="Enter submits" onsubmit={(v) => toasts.show(`Submit: ${v || '∅'}`)} />
+						</Field>
+						<Field label="Textarea (maxHeight=6rem, submit on mod+enter)" for="f-area-submit" class="span-2">
+							{#snippet hint()}Press <Kbd keys="mod+enter" /> to submit.{/snippet}
+							<Textarea
+								id="f-area-submit"
+								autoresize
+								maxHeight="6rem"
+								submitOn="mod-enter"
+								placeholder="Grows to 6rem, then scrolls"
+								onsubmit={(v) => toasts.show(`Submit: ${v || '∅'}`)}
+							/>
+						</Field>
+						<Field label="Kbd" class="span-2">
+							<div class="row">
+								<Kbd keys="mod+k" />
+								<Kbd keys="shift+enter" />
+								<Kbd keys={['ctrl', 'alt', 'esc']} size="md" />
+								<Kbd keys="up" />
+							</div>
+						</Field>
+						<Field label="Textarea (autoresize)" for="f-area" class="span-2">
+							<Textarea id="f-area" autoresize bind:value={areaValue} />
+						</Field>
+						<Field label="Textarea (autoresize, starts at one row)" for="f-area-1" class="span-2">
+							<Textarea id="f-area-1" autoresize rows={1} placeholder="One row when empty, grows as you type" />
+						</Field>
+						<Field label="Textarea (resize from bottom)" for="f-area-2" class="span-2">
+							<Textarea id="f-area-2" rows={2} resize="bottom" placeholder="Drag the bottom grip" />
+						</Field>
+						<Field label="Textarea (resize from top)" for="f-area-3" class="span-2">
+							<Textarea id="f-area-3" rows={2} resize="top" placeholder="Drag the top grip" />
+						</Field>
+						<Field label="Textarea (autoresize + top handle floor)" for="f-area-4" class="span-2">
+							<Textarea
+								id="f-area-4"
+								autoresize
+								resize="top"
+								rows={1}
+								placeholder="One row, grows as you type — drag the top grip to reserve more space"
+							/>
+						</Field>
+						<Field label="Switch" class="span-2">
+							<div class="row">
+								<Switch checked={switchOn} label="Toggle setting" onclick={() => (switchOn = !switchOn)} />
+								<Text variant="caption">{switchOn ? 'On' : 'Off'}</Text>
+							</div>
+						</Field>
+						<Field label="Slider" for="f-slider" class="span-2">
+							<Slider id="f-slider" bind:value={sliderValue} label="Volume" showValue format={(v) => `${v}%`} />
+						</Field>
+						<Field label="Slider (ticks, step 25)">
+							<Slider id="f-slider-ticks" value={50} min={0} max={100} step={25} ticks label="Quality" showValue />
+						</Field>
 					</div>
-				{/snippet}
-				{#snippet empty()}
-					<div style="padding: var(--sp-4)"><Text tone="muted">Pick someone on the left.</Text></div>
-				{/snippet}
-			</MasterDetail>
-		{/snippet}
-		<Card>
-			<Stack gap="var(--sp-4)">
-				<Text variant="caption" tone="muted">
-					Two columns above its own 48rem breakpoint; below it one pane at a time with a sticky back
-					header. Drive <code>selected</code> from the URL to make each pane a route.
+				</Card>
+			</section>
+
+			<section class="section" id="checkbox-radio">
+				<Heading level={3} size="lg">Checkbox &amp; RadioGroup</Heading>
+				<Card>
+					<div class="form-grid">
+						<Field label="Checkboxes">
+							<div class="stack">
+								<Checkbox bind:checked={check1} label="Enabled" />
+								<Checkbox bind:checked={check2} label="Beta features" />
+								<Checkbox indeterminate label="Partially selected" />
+								<Checkbox disabled label="Disabled" />
+							</div>
+						</Field>
+						<Field label="Radio group">
+							<RadioGroup label="Notifications" options={radioOptions} bind:value={radioValue} />
+						</Field>
+						<Field label="Radio group · rows">
+							<RadioGroup label="Spawn profile" variant="rows" options={profileOptions} bind:value={profileValue}>
+								{#snippet action(o)}
+									<IconButton
+										icon="settings"
+										inline
+										label="Configure {o.label}"
+										pressed={profileOpen === o.value}
+										onclick={() => (profileOpen = profileOpen === o.value ? null : o.value)}
+									/>
+								{/snippet}
+								{#snippet below(o)}
+									{#if profileOpen === o.value}
+										<Text variant="caption" tone="muted">Inline settings panel for {o.label} — consumer-owned content.</Text>
+									{/if}
+								{/snippet}
+							</RadioGroup>
+						</Field>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="fieldset">
+				<Heading level={3} size="lg">Fieldset</Heading>
+				<Card>
+					<div class="stack">
+						<Text variant="caption" tone="muted">Drag a card between pools (HTML5 DnD); buttons are the keyboard path.</Text>
+						<div class="row row-wrap" style="align-items: stretch">
+							{#each [['a', 'Pool A', poolA], ['b', 'Pool B', poolB]] as [id, name, items] (id)}
+								<Fieldset
+									legend={name as string}
+									tone={(items as string[]).length ? 'accent' : 'strong'}
+									droppable
+									accepts={(d) => !(items as string[]).includes(d)}
+									ondrop={(d) => movePool(d, id as 'a' | 'b')}
+									dropHint="Drop to add to {name}"
+									style="flex: 1 1 14rem"
+								>
+									<div class="stack">
+										{#each items as string[] as item (item)}
+											<Card
+												padding="sm"
+												draggable="true"
+												ondragstart={(e: DragEvent) => e.dataTransfer?.setData('text/plain', item)}
+											>
+												<div class="row" style="justify-content: space-between">
+													<Text variant="body">{item}</Text>
+													<Button size="sm" variant="ghost" onclick={() => movePool(item, id === 'a' ? 'b' : 'a')}>Move</Button>
+												</div>
+											</Card>
+										{:else}
+											<Text variant="caption" tone="muted">Empty — drop something here.</Text>
+										{/each}
+									</div>
+								</Fieldset>
+							{/each}
+						</div>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="file-dropzone">
+				<Heading level={3} size="lg">FileButton &amp; Dropzone</Heading>
+				<Card>
+					<div class="stack">
+						<div class="row row-wrap">
+							<FileButton
+								variant="primary"
+								label="Choose files"
+								multiple
+								onfiles={(f) => toasts.ok(`Picked ${f.length} file(s): ${f.map((x) => x.name).join(', ')}`)}
+							/>
+							<Text variant="caption" tone="muted">native picker, keyboard-focusable</Text>
+						</div>
+						<Dropzone
+							accept="image/*,.pdf"
+							onfiles={(f) => toasts.show(`Dropped ${f.length}: ${f.map((x) => x.name).join(', ')}`)}
+						/>
+						<Text variant="caption" tone="muted">overlay mode — wraps content, drop UI shows only while dragging a file over it</Text>
+						<Dropzone
+							overlay
+							accept="image/*,.pdf"
+							label="Drop files to attach"
+							onfiles={(f) => toasts.show(`Dropped ${f.length}: ${f.map((x) => x.name).join(', ')}`)}
+						>
+							<Card padding="lg">
+								<Heading level={3} size="md">Drawer-like surface</Heading>
+								<Text variant="body" tone="muted">Buttons and content stay clickable. Drag a file anywhere over this card.</Text>
+								<div class="row" style="margin-top: var(--sp-3)">
+									<Button onclick={() => toasts.ok('Click still works')}>A button</Button>
+								</div>
+							</Card>
+						</Dropzone>
+					</div>
+				</Card>
+			</section>
+
+		</section>
+
+		<section class="group" id="g-navigation" aria-labelledby="gh-navigation">
+			<Heading level={2} id="gh-navigation" size="sm" uppercase tone="muted" class="group-title">Navigation</Heading>
+			<section class="section" id="tabs">
+				<Heading level={3} size="lg">Tabs</Heading>
+				<Card>
+					<Tabs {tabs} bind:value={tabValue} label="Demo tabs">
+						{#snippet panel(id)}
+							{#if id === 'overview'}
+								<Text variant="body">Overview panel — arrow keys move between tabs.</Text>
+							{:else if id === 'activity'}
+								<Text variant="body">Activity panel — roving tabindex keeps one tab tabbable.</Text>
+							{:else}
+								<Text variant="body">Settings panel — aria-controls links each tab to this panel.</Text>
+							{/if}
+						{/snippet}
+					</Tabs>
+				</Card>
+			</section>
+
+			<section class="section" id="breadcrumb">
+				<Heading level={3} size="lg">Breadcrumb</Heading>
+				<Card>
+					<Stack gap="var(--sp-3)">
+						<Breadcrumb
+							items={[
+								{ label: 'Musique', href: '#' },
+								{ label: 'Artist', href: '#' },
+								{ label: 'Album', href: '#' },
+								{ label: 'Track' }
+							]}
+						/>
+						<Breadcrumb
+							char="/"
+							maxItems={3}
+							items={[
+								{ label: 'Home', href: '#' },
+								{ label: 'Library', href: '#' },
+								{ label: 'Artist', href: '#' },
+								{ label: 'Album', href: '#' },
+								{ label: 'Track' }
+							]}
+						/>
+					</Stack>
+				</Card>
+			</section>
+
+			<section class="section" id="pagination">
+				<Heading level={3} size="lg">Pagination</Heading>
+				<Card>
+					<Stack gap="var(--sp-4)">
+						<Text variant="caption" tone="muted">Page mode — bind:page + pageCount:</Text>
+						<Pagination bind:page={demoPage} pageCount={12} />
+						<Text variant="caption" tone="muted">Offset mode, small, with range — bind:offset + limit + total:</Text>
+						<Pagination bind:offset={demoOffset} limit={20} total={412} size="sm" showRange />
+						<Text variant="caption" tone="muted">Compact collapse under 24rem of container width:</Text>
+						<div style="max-width: 18rem"><Pagination bind:page={demoPage} pageCount={12} /></div>
+					</Stack>
+				</Card>
+			</section>
+
+			<section class="section" id="accordion">
+				<Heading level={3} size="lg">Accordion</Heading>
+				<Card>
+					<div class="stack">
+						{#snippet c1()}<Text variant="body">Built on native &lt;details&gt; — zero JS, full keyboard support.</Text>{/snippet}
+						{#snippet c2()}<Text variant="body">With <code>multiple=false</code> it uses the platform's exclusive-accordion (one open at a time).</Text>{/snippet}
+						{#snippet c3()}<Text variant="body">The chevron rotates via a CSS transition on <code>[open]</code>.</Text>{/snippet}
+						<Accordion
+							multiple={false}
+							items={[
+								{ id: 'a', title: 'What is it?', content: c1, open: true },
+								{ id: 'b', title: 'Single-open mode', content: c2 },
+								{ id: 'c', title: 'Styling', content: c3 }
+							]}
+						/>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="nav-item">
+				<Heading level={3} size="lg">Artwork · NavItem</Heading>
+				<Card>
+					<div class="stack">
+						<div class="row row-wrap">
+							<Artwork src="https://picsum.photos/seed/tsumikit/240" alt="Loaded cover" size="7rem" hover />
+							<Artwork src="https://example.invalid/missing.jpg" alt="Broken source" size="7rem" hover>
+								{#snippet status()}<Dot status="dead" ring />{/snippet}
+							</Artwork>
+							<Artwork alt="Kusaritoi Radio" aspect="2/3" size="5rem" radius="sm" />
+							<Artwork alt="Still frame" aspect="16/9" size="10rem" fallback="icon" icon="film" />
+							<Artwork alt="Dorsk" size="3.5rem" radius="pill" />
+						</div>
+						<div class="row row-wrap">
+							<div style="width: 14rem; display: grid; gap: var(--sp-1)">
+								<NavItem icon="music" label="Music" active />
+								<NavItem icon="tv" label="TV" badge={3} />
+								<NavItem iconPath="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H19a1 1 0 0 1 1 1v18a1 1 0 0 1-1 1H6.5a1 1 0 0 1 0-5H20" label="Custom path" />
+							</div>
+							<div style="width: 14rem; display: grid; gap: var(--sp-1)">
+								<NavItem icon="film" label="Movies" active activeStyle="bar" />
+								<NavItem icon="book" label="Books" activeStyle="bar" />
+								<NavItem label="Raw SVG" activeStyle="bar">
+									{#snippet iconChildren()}<circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" />{/snippet}
+								</NavItem>
+							</div>
+						</div>
+					</div>
+				</Card>
+			</section>
+
+		</section>
+
+		<section class="group" id="g-data" aria-labelledby="gh-data">
+			<Heading level={2} id="gh-data" size="sm" uppercase tone="muted" class="group-title">Data display</Heading>
+			<section class="section" id="badge">
+				<Heading level={3} size="lg">Badge · Link · Dot</Heading>
+				<Card>
+					<div class="stack">
+						<div class="row row-wrap">
+							<Badge>neutral</Badge>
+							<Badge tone="ok">ok</Badge>
+							<Badge tone="warn">warn</Badge>
+							<Badge tone="danger">danger</Badge>
+							<Badge tone="info">info</Badge>
+						</div>
+						<div class="row row-wrap">
+							<Badge mono>~/path/to/file</Badge>
+							<Badge as="button">interactive</Badge>
+							<Badge removable onremove={() => {}}>removable</Badge>
+							<Badge tone="info" removable onremove={() => {}}>typescript</Badge>
+						</div>
+						<div class="row row-wrap">
+							<Badge uppercase>uppercase</Badge>
+							<Badge uppercase tone="ok" size="sm">stable</Badge>
+							<Badge as="button" tone="info" active>active count 3</Badge>
+							<Badge as="button" tone="ok" active size="sm">on</Badge>
+							<Badge as="button" tone="info">off</Badge>
+						</div>
+						<div class="row row-wrap">
+							<Badge border={false}>soft</Badge>
+							<Badge border={false} tone="ok">ok</Badge>
+							<Badge border={false} tone="warn">warn</Badge>
+							<Badge border={false} tone="danger">danger</Badge>
+							<Badge border={false} tone="info" size="sm">3</Badge>
+						</div>
+						<div class="row row-wrap">
+							<Badge tone="accent">accent</Badge>
+							<Badge tone="muted">muted</Badge>
+							<Badge tone="violet">violet</Badge>
+							<Badge color="hsl(160 60% 50%)">color</Badge>
+							<Badge color="var(--role-system)" dot>dot</Badge>
+							<Badge tone="ok" icon="check">icon</Badge>
+							<Badge tone="info" variant="text" mono>text · 12:34</Badge>
+						</div>
+						<div class="row row-wrap">
+							<Badge size="xs">xs</Badge>
+							<Badge size="xs" tone="ok" numeric>8</Badge>
+							<Badge size="sm" numeric>128</Badge>
+							<Badge truncate maxWidth="12ch">a very long account name that clips</Badge>
+							<Badge as="button" color="hsl(30 80% 55%)">focus me</Badge>
+						</div>
+						<div class="row row-wrap">
+							<Link href="https://svelte.dev" target="_blank" rel="noreferrer">Anchor link</Link>
+							<Link>Button-as-link</Link>
+							<Link href="#" tone="info" underline="hover">View all →</Link>
+							<Link tone="muted" underline="none">Quiet action</Link>
+							<Link tone="inherit">Inherit</Link>
+						</div>
+						<div class="row row-wrap">
+							<Dot status="active" glow label="active" />
+							<Dot status="stale" label="stale" />
+							<Dot status="dead" label="dead" />
+							<Dot status="hibernated" label="hibernated" />
+							<Dot color="var(--accent)" label="custom" />
+							<Dot status="active" ring label="ring" />
+						</div>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="metric">
+				<Heading level={3} size="lg">Metric · StatTile</Heading>
+				<Card>
+					<div class="stack">
+						<AutoGrid min="200px">
+							<Metric label="Tracks" value={1284} icon="file" />
+							<Metric
+								label="Size"
+								value="42.7"
+								unit="GB"
+								icon="archive"
+								tone="info"
+							/>
+							<Metric
+								label="Quality"
+								value="FLAC"
+								sub="lossless · 16-bit"
+								icon="check"
+								tone="ok"
+								tintValue
+							/>
+							<Metric
+								label="Added"
+								value={37}
+								unit="this week"
+								sub="+12% vs last week"
+								icon="plus"
+								tone="warn"
+							/>
+						</AutoGrid>
+						<hr class="divider" />
+						<Text variant="caption">
+							Surface variants — tiles (via Metric) and panels (via Card) opt into the
+							same theme-aware shade by prop, no <code>:global</code> override:
+						</Text>
+						<AutoGrid min="200px">
+							<Metric label="Base" value="base" icon="file" />
+							<Metric label="Raised" value="raised" icon="file" surface="raised" />
+							<Metric label="Sunken" value="sunken" icon="file" surface="sunken" />
+						</AutoGrid>
+						<div class="row row-wrap">
+							<Card surface="base" padding="sm"><Text variant="caption">surface base</Text></Card>
+							<Card surface="raised" padding="sm"><Text variant="caption">surface raised</Text></Card>
+							<Card surface="sunken" padding="sm"><Text variant="caption">surface sunken</Text></Card>
+						</div>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="section-header">
+				<Heading level={3} size="lg">SectionHeader · KeyValue · LoadMore</Heading>
+				<Stack gap="var(--sp-4)">
+					<SectionHeader title="Recent sessions" subtitle="last 24h" count={12} divider>
+						{#snippet actions()}
+							<Button size="sm">View all</Button>
+						{/snippet}
+					</SectionHeader>
+					<SectionHeader label="Blocked" count={4} uppercase hue={12} level={3} collapsible>
+						<Text variant="caption">Group rows render here while open.</Text>
+					</SectionHeader>
+					<SectionHeader title="Failed" icon="warning" tone="danger" count={2} level={3} size="sm" />
+					<SectionHeader variant="group" title="sakura" count={7} level={3} size="sm">
+						{#snippet lead()}<Badge tone="ok" dot size="xs" border={false}>live</Badge>{/snippet}
+						{#snippet actions()}
+							<Button size="sm" variant="ghost">Sort</Button>
+							<Button size="sm" variant="ghost" aria-label="Hide group"><Icon name="eye" size={14} /></Button>
+						{/snippet}
+					</SectionHeader>
+					<Card title="Host" subtitle="sakura" gap="var(--sp-3)">
+						{#snippet actions()}
+							<Button size="sm" variant="ghost">Edit</Button>
+						{/snippet}
+						<KeyValue
+							columns={2}
+							rows={[
+								{ label: 'Running', value: 3, tone: 'ok' },
+								{ label: 'Queued', value: 0 },
+								{ label: 'Image', value: 'cctui-worker:0.7.3', mono: true, hint: 'pulled 2h ago' },
+								{ label: 'Load', value: '1.42', tone: 'warn' }
+							]}
+						/>
+						<KeyValue dense align="end" rows={[{ label: 'Tokens', value: 128000 }, { label: 'Cost', value: '$0.42' }]} />
+						{#snippet footer()}
+							<LoadMore state="idle" onload={() => toasts.show('Loading more…')} />
+						{/snippet}
+					</Card>
+					<Cluster gap="var(--sp-3)">
+						<LoadMore state="loading" />
+						<LoadMore state="error" onload={() => toasts.show('Retrying…')} />
+						<LoadMore state="done" />
+						<LoadMore pill label="Load older" onload={() => toasts.show('Loading older…')} />
+					</Cluster>
+				</Stack>
+			</section>
+
+			<section class="section" id="data-table">
+				<Heading level={3} size="lg">DataTable <Badge>generic &lt;T&gt;</Badge></Heading>
+				<DataTable
+					columns={tableCols}
+					rows={tableRows}
+					rowKey={(r) => r.id}
+					onrowclick={(r) => toasts.show(`Row: ${r.name}`)}
+					cellSnippets={{ status }}
+				/>
+				<Text tone="muted">
+					<code>layout="fixed"</code> + <code>truncate</code>, <code>hideBelow</code> on the role column,
+					<code>rowTone</code> accent bar, hover-revealed <code>rowActions</code>, <code>size="sm"</code>.
 				</Text>
-				{@render mdDemo(mdSelectedWide, (v) => (mdSelectedWide = v))}
-				<Text variant="caption" tone="muted">Same component boxed at 22rem — the mobile regime on desktop:</Text>
+				<DataTable
+					columns={denseCols}
+					rows={tableRows}
+					rowKey={(r) => r.id}
+					layout="fixed"
+					size="sm"
+					rowTone={(r) => r.status}
+					cellSnippets={{ status }}
+				>
+					{#snippet rowActions(r: Row)}
+						<IconButton icon="copy" label="Copy {r.name}" onclick={() => toasts.show(`Copy: ${r.name}`)} />
+					{/snippet}
+				</DataTable>
+				<Text tone="muted">
+					<code>responsive="stack"</code> in a 22rem-wide box: rows become cards via
+					<code>Column.role</code> (title / detail / meta / hidden), actions stay on the title line.
+				</Text>
 				<div style="max-width: 22rem">
-					{@render mdDemo(mdSelectedNarrow, (v) => (mdSelectedNarrow = v))}
+					<DataTable
+						columns={stackCols}
+						rows={tableRows}
+						rowKey={(r) => r.id}
+						responsive="stack"
+						cellSnippets={{ status }}
+					>
+						{#snippet rowActions(r: Row)}
+							<IconButton icon="copy" label="Copy {r.name}" onclick={() => toasts.show(`Copy: ${r.name}`)} />
+						{/snippet}
+					</DataTable>
 				</div>
-			</Stack>
-		</Card>
-	</section>
-
-	<!-- LAYOUT -->
-	<section class="section">
-		<Heading level={2}>Layout: Stack · Cluster · AutoGrid</Heading>
-		<Card>
-			<Stack gap="var(--sp-4)">
-				<Text variant="caption" tone="muted">Cluster — wraps, never overflows:</Text>
-				<Cluster>
-					{#each ['alpha', 'beta', 'gamma', 'delta', 'epsilon', 'zeta'] as t (t)}
-						<Badge>{t}</Badge>
-					{/each}
-				</Cluster>
-				<Text variant="caption" tone="muted">Cluster stackAt="md" — buttons stack full-width when the cluster is under 40rem:</Text>
-				<Cluster stackAt="md">
-					<Button>Cancel</Button>
-					<Button variant="primary">Save</Button>
-				</Cluster>
-				<Text variant="caption" tone="muted">AutoGrid — columns adapt to available width (resize the window):</Text>
-				<AutoGrid min="10rem">
-					{#each Array(6) as _, i (i)}
-						<Card><Text weight="semibold">Cell {i + 1}</Text></Card>
-					{/each}
-				</AutoGrid>
-				<Text variant="caption" tone="muted">AutoGrid — capped column width (max), left-packed instead of stretching:</Text>
-				<AutoGrid min="12rem" max="16rem">
-					{#each Array(3) as _, i (i)}
-						<Card><Text weight="semibold">Fixed {i + 1}</Text></Card>
-					{/each}
-				</AutoGrid>
-			</Stack>
-		</Card>
-	</section>
-
-	<!-- TOKENS -->
-	<section class="section">
-		<Heading level={2}>Theme tokens</Heading>
-		<Card>
-			<div class="swatch-grid">
-				{#each tokens as t (t)}
-					<div class="swatch">
-						<span class="chip-color" style={`background: var(${t})`}></span>
-						<Text variant="caption" class="mono">{t}</Text>
-					</div>
-				{/each}
-			</div>
-		</Card>
-	</section>
-
-	<!-- OPTIONAL: in-app text scaling -->
-	<section class="section">
-		<Heading level={2}>Text scaling <Badge>opt-in</Badge></Heading>
-		<Card>
-			<div class="row row-wrap">
-				<FontScalePicker />
-				<Text variant="caption" tone="muted">
-					Optional in-app text-size control (drives <code>--fs-scale</code>, text tokens only).
-					Most apps should rely on browser zoom and the user's OS/browser font-size instead —
-					the kit is <code>rem</code>-based and never resets the root size, so both are respected
-					out of the box. Reach for this only in reading-dense apps (chat, docs) that want to grow
-					body text while keeping chrome compact.
+				<Text tone="muted">
+					Same table with <code>stackBelow="30rem"</code>: it stays tabular in this 34rem box and stacks
+					once the box drops under 30rem.
 				</Text>
-			</div>
-		</Card>
-	</section>
+				<div style="max-width: 34rem">
+					<DataTable
+						columns={stackCols}
+						rows={tableRows}
+						rowKey={(r) => r.id}
+						responsive="stack"
+						stackBelow="30rem"
+						cellSnippets={{ status }}
+					/>
+				</div>
+				{#snippet status(r: Row)}
+					<Badge tone={r.status === 'ok' ? 'ok' : r.status === 'warn' ? 'warn' : 'danger'}>
+						{r.status}
+					</Badge>
+				{/snippet}
+			</section>
 
-	<footer class="foot">
-		<Text variant="caption" tone="faint">
-			Edit <code>src/lib/styles/variables.css</code> to retheme everything · add a
-			<code>[data-theme]</code> block for a new theme · components never hard-code a color or pixel.
-		</Text>
-	</footer>
-</main>
+			<section class="section" id="filter-search-bar">
+				<Heading level={3} size="lg">FilterSearchBar <Badge tone="info">organism</Badge></Heading>
+				<Text tone="muted">
+					YouTrack-style structured search. Type <code>role:worker</code>, <code>status=ok</code>, or
+					free text — drive it from the dropdown or type the query language by hand. The bar owns the
+					query (emits an AST); the host runs it and renders results.
+				</Text>
+				<Card>
+					<div class="stack">
+						<FilterSearchBar
+							schema={searchSchema}
+							bind:value={searchValue}
+							placeholder={'name:api role:worker status=ok'}
+							onchange={(q) => (searchQuery = q)}
+						/>
+						<div class="row row-wrap">
+							{#each ['role:worker', 'status=danger', 'name:cache', 'id>=2'] as ex (ex)}
+								<Badge as="button" tone="neutral" onclick={() => (searchValue = ex)}>{ex}</Badge>
+							{/each}
+						</div>
+						<DataTable
+							columns={tableCols}
+							rows={searchResults}
+							rowKey={(r) => r.id}
+							empty="No rows match the query."
+						/>
+						<CodeBlock code={searchSql} lang="sql" />
+					</div>
+				</Card>
+
+				<Text tone="muted">
+					<code>FilterInput</code> is the headless primitive underneath — same schema-driven dropdown, but
+					single-field with no below-bar chips. Its <code>inline</code> snippet renders custom nodes inside
+					the bar (here, a badge per parsed filter):
+				</Text>
+				<Card>
+					<FilterInput
+						schema={searchSchema}
+						bind:value={singleValue}
+						placeholder={'role:worker'}
+					>
+						{#snippet inline({ filters: fs })}
+							{#each fs as f (f.span[0])}
+								<Badge tone="info">{f.field}: {f.values.join(', ') || '∅'}</Badge>
+							{/each}
+						{/snippet}
+					</FilterInput>
+				</Card>
+
+				<Text tone="muted">
+					<code>size="sm" shape="pill" surface="sunken"</code> with <code>hotkey="/"</code> — press
+					<kbd>/</kbd> anywhere outside a field to focus it.
+				</Text>
+				<Card>
+					<FilterInput
+						schema={searchSchema}
+						bind:value={hotkeyValue}
+						size="sm"
+						shape="pill"
+						surface="sunken"
+						hotkey="/"
+						showHotkey
+						placeholder="Search"
+					/>
+				</Card>
+			</section>
+
+			<section class="section" id="timestamp">
+				<Heading level={3} size="lg">Timestamp <Badge>subdued · click for UTC / epoch / zone</Badge></Heading>
+				<Card>
+					<div class="stack">
+						<Text variant="caption">
+							Renders an instant in one of six modes (date, time, datetime, relative, iso, short-iso), subdued
+							by default. The <code>date</code>/<code>time</code>/<code>datetime</code> modes follow
+							the viewer's zone unless you pass <code>utc</code>. Click it for a read-only popover
+							with the same instant as UTC, relative, your time zone and the unix epoch. Opt into
+							<code>selectable</code> to let viewers switch the inline mode.
+						</Text>
+						<div class="stack">
+							<Text variant="body">datetime: <Timestamp value="2026-06-14T07:30:00Z" /></Text>
+							<Text variant="body">date: <Timestamp value="2026-06-14T07:30:00Z" mode="date" /></Text>
+							<Text variant="body">
+								date (utc): <Timestamp value="2026-06-14T07:30:00Z" mode="date" utc />
+							</Text>
+							<Text variant="body">iso: <Timestamp value="2026-06-14T07:30:00Z" mode="iso" /></Text>
+							<Text variant="body">
+								short-iso: <Timestamp value="2026-06-14T07:30:00Z" mode="short-iso" mono />
+							</Text>
+							<Text variant="body">time: <Timestamp value="2026-06-14T07:30:00Z" mode="time" /></Text>
+							<Text variant="body">
+								relative: <Timestamp value={Date.now() - 7 * 86_400_000} mode="relative" />
+							</Text>
+							<Text variant="body">
+								mono: <Timestamp value="2026-06-14T07:30:00Z" mono />
+							</Text>
+							<Text variant="body">
+								selectable: <Timestamp value="2026-06-14T07:30:00Z" mode="relative" selectable />
+							</Text>
+							<Text variant="body">
+								no popover: <Timestamp value="2026-06-14T07:30:00Z" details={false} />
+							</Text>
+						</div>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="git-ref">
+				<Heading level={3} size="lg">GitRef <Badge>branch · PR · ±diff</Badge></Heading>
+				<Card>
+					<div class="stack">
+						<Text variant="caption">
+							Branch chip, pull-request link and +/− diff stats in one inline row; every part is
+							optional. The PR state picks its tone (open ok, merged accent, closed danger, draft
+							muted). <code>collapse="auto"</code> keeps only the glyphs when the nearest
+							<code>.cq</code> container is narrower than 18rem; <code>glyph</code> forces it.
+						</Text>
+						<div class="stack">
+							<Text variant="body">
+								branch: <GitRef branch="feat/wave-1-new-components-with-a-long-name" />
+							</Text>
+							<Text variant="body">
+								pr: <GitRef pr={{ url: 'https://github.com/DorskFR/tsumikit/pull/77', owner: 'DorskFR', repo: 'tsumikit', number: 77, state: 'merged' }} />
+							</Text>
+							<Text variant="body">
+								all three: <GitRef
+									branch="fix/resizable-panel"
+									pr={{ url: 'https://github.com/DorskFR/tsumikit/pull/78', number: 78 }}
+									diff={{ additions: 128, deletions: 42 }}
+								/>
+							</Text>
+							<Text variant="body">
+								glyph: <GitRef
+									branch="fix/resizable-panel"
+									pr={{ url: 'https://github.com/DorskFR/tsumikit/pull/79', owner: 'DorskFR', repo: 'tsumikit', number: 79, state: 'draft' }}
+									diff={{ additions: 3, deletions: 1 }}
+									collapse="glyph"
+								/>
+							</Text>
+						</div>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="working-dir">
+				<Heading level={3} size="lg">WorkingDir <Badge>fish-style · degrades with width</Badge></Heading>
+				<Card>
+					<div class="stack">
+						<Text variant="caption">
+							Drag the handle: ancestors abbreviate one at a time left to right, then only the leaf
+							stays, then the leaf ellipsises down to <code>minLeaf</code> chars. The full path is always
+							in the tooltip.
+						</Text>
+						<ResizablePanel label="WorkingDir demo" width={360} minWidth={120} maxWidth={640} widthKey="demo-working-dir">
+							{#snippet panel()}
+								<div class="stack" style="padding: var(--sp-3)">
+									<WorkingDir path="/home/dorsk/Documents/tsumikit/src/lib/components" />
+									<WorkingDir path="/srv/app/releases/2026-09-05-a-really-long-release-name" copy />
+									<WorkingDir path="~/projects/cctui" minLeaf={4} />
+								</div>
+							{/snippet}
+							<div style="padding: var(--sp-3)">
+								<WorkingDir path="/home/dorsk/Documents/tsumikit" full />
+							</div>
+						</ResizablePanel>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="truncate">
+				<Heading level={3} size="lg">Truncate <Badge>char-count · hover reveal</Badge></Heading>
+				<Card>
+					<div class="stack">
+						<Text variant="caption">
+							Character-count truncation (the counterpart to <code>&lt;Text truncate&gt;</code>'s CSS
+							ellipsis). Hover or focus a truncated value to reveal the full text.
+						</Text>
+						<div class="stack">
+							<Text variant="body">
+								middle: <Truncate text="0x71C7656EC7ab88b098defB751B7401B5f6d8976F" max={16} mode="middle" />
+							</Text>
+							<Text variant="body">
+								end: <Truncate text="a-very-long-resource-identifier-that-keeps-going" max={20} />
+							</Text>
+							<Text variant="body">
+								start: <Truncate text="/srv/app/var/logs/2026/06/14/request-trace.log" max={22} mode="start" />
+							</Text>
+							<Text variant="body">
+								fits (no tooltip): <Truncate text="short" max={20} />
+							</Text>
+						</div>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="code-block">
+				<Heading level={3} size="lg">CodeBlock <Badge>BYO highlighter</Badge></Heading>
+				<div class="stack">
+					<CodeBlock code={sampleCode} lang="typescript" highlight={demoHighlight} showLineNumbers />
+					<Text variant="caption" tone="muted">
+						Plain (no highlighter, no line numbers):
+					</Text>
+					<CodeBlock code={`git clone …\nnpm install\nnpm run dev`} filename="setup.sh" />
+				</div>
+			</section>
+
+		</section>
+
+		<section class="group" id="g-feedback" aria-labelledby="gh-feedback">
+			<Heading level={2} id="gh-feedback" size="sm" uppercase tone="muted" class="group-title">Feedback</Heading>
+			<section class="section" id="empty-state">
+				<Heading level={3} size="lg">EmptyState</Heading>
+				<AutoGrid min="280px">
+					<Card>
+						<EmptyState
+							icon="search"
+							title="No results"
+							description="No albums match your filters. Try broadening the search or clearing filters."
+							actionLabel="Clear filters"
+							onAction={() => {}}
+						/>
+					</Card>
+					<Card>
+						<EmptyState
+							icon="archive"
+							title="Your library is empty"
+							description="Add an artist or album to start building your collection."
+							tone="info"
+						/>
+					</Card>
+					<Card>
+						<EmptyState
+							icon="settings"
+							title="Nothing here yet"
+							description="This section hasn't been set up."
+							compact
+						/>
+					</Card>
+					<Card>
+						<EmptyState loading title="Loading sessions…" />
+					</Card>
+					<Card>
+						<EmptyState size="inline" title="No results" description="Try a different query." />
+					</Card>
+					<Card>
+						<Stack gap="var(--sp-3)">
+							<Text variant="caption">Skeleton:</Text>
+							<Cluster gap="var(--sp-3)" align="center">
+								<Skeleton circle width="40px" />
+								<Skeleton width="12rem" />
+							</Cluster>
+							<Skeleton lines={3} />
+						</Stack>
+					</Card>
+				</AutoGrid>
+			</section>
+
+			<section class="section" id="callout">
+				<Heading level={3} size="lg">Callout</Heading>
+				<Stack gap="var(--sp-3)">
+					<Callout>Auto-search runs in the background and links matches as it goes.</Callout>
+					<Callout tone="ok" title="Linked" dismissible ondismiss={() => toasts.show('Dismissed')}>
+						12 releases matched and were linked to this collection.
+					</Callout>
+					<Callout tone="warn" title="Some matches need review">
+						3 releases had several candidates and were left unlinked.
+						{#snippet actions()}
+							<Button size="sm">Review</Button>
+						{/snippet}
+					</Callout>
+					<Callout tone="danger" title="Search failed" dismissible ondismiss={() => toasts.show('Dismissed')}>
+						The provider returned 503. Try again in a minute.
+						{#snippet actions()}
+							<Button size="sm" variant="danger">Retry</Button>
+						{/snippet}
+					</Callout>
+					<Callout tone="info" busy>Searching MusicBrainz for 48 releases…</Callout>
+					<div style="max-width: 16rem">
+						<Callout tone="neutral" title="Narrow container" dismissible>
+							Wraps its body and actions instead of overflowing.
+							{#snippet actions()}
+								<Button size="sm">Action</Button>
+							{/snippet}
+						</Callout>
+					</div>
+				</Stack>
+			</section>
+
+			<section class="section" id="toasts">
+				<Heading level={3} size="lg">Toasts</Heading>
+				<Card>
+					<div class="row row-wrap">
+						<Button onclick={() => toasts.show('Saved to drafts')}>Neutral</Button>
+						<Button variant="primary" onclick={() => toasts.ok('Changes published')}>Success</Button>
+						<Button variant="danger" onclick={() => toasts.error('Something went wrong')}>Error</Button>
+						<Button onclick={() => toasts.info('Sync scheduled for tonight')}>Info</Button>
+						<Button
+							onclick={() =>
+								toasts.show('Item archived', {
+									tone: 'ok',
+									action: { label: 'Undo', run: () => new Promise((r) => setTimeout(r, 800)) }
+								})}>With action</Button
+						>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="progress">
+				<Heading level={3} size="lg">Progress</Heading>
+				<Card>
+					<div class="stack">
+						<div class="stack">
+							<Progress value={65} label="Upload progress" />
+							<Progress value={45} tone="success" label="Healthy usage" />
+							<Progress value={78} tone="warn" label="Warm usage" />
+							<Progress value={94} tone="danger" label="Hot usage" />
+							<Progress value={72} size="sm" label="Thin inline row" />
+							<Progress value={58} gradient label="Storage meter (gradient)" />
+							<Progress value={40} striped label="Unpacking (striped)" />
+							<Progress value={40} gradient striped size="sm" label="Thin gradient striped" />
+							<Progress indeterminate striped label="Importing…" />
+							<Progress label="Working…" />
+							<SegmentedProgress
+								label="Series completion by season"
+								segments={[
+									{ value: 10, max: 10, tone: 'success', label: 'Season 1 · 10/10' },
+									{ value: 6, max: 13, tone: 'warn', label: 'Season 2 · 6/13' },
+									{ value: 0, max: 8, tone: 'muted', label: 'Season 3 · 0/8' }
+								]}
+							/>
+							<SegmentedProgress
+								size="sm"
+								label="Thin segmented"
+								segments={[
+									{ value: 4, max: 4, tone: 'success' },
+									{ value: 2, max: 6, tone: 'warn' },
+									{ value: 5, max: 5, tone: 'success' }
+								]}
+							/>
+							<SegmentedProgress
+								mode="stacked"
+								label="Maintenance"
+								legend
+								segments={[
+									{ value: 412, max: 0, tone: 'ok', label: 'conforming' },
+									{ value: 12, max: 0, tone: 'warn', label: 'nonconforming' },
+									{ value: 0, max: 0, tone: 'danger', label: 'blocked' }
+								]}
+							/>
+							<SegmentedProgress
+								mode="stacked"
+								size="sm"
+								max={600}
+								legend="inline"
+								label="Stacked with remainder"
+								segments={[
+									{ value: 300, max: 0, tone: 'accent', label: 'done' },
+									{ value: 120, max: 0, tone: 'muted', label: 'skipped' }
+								]}
+							/>
+							<SegmentedProgress
+								gap={6}
+								label="Wide gap"
+								segments={[
+									{ value: 3, max: 4, tone: 'success', label: 'S1' },
+									{ value: 1, max: 6, tone: 'warn', label: 'S2' }
+								]}
+							/>
+						</div>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="gauge">
+				<Heading level={3} size="lg">Gauge</Heading>
+				<Card>
+					<div class="stack">
+						<div class="row row-wrap">
+							<Gauge value={35} label="Session usage 35%" />
+							<Gauge value={75} label="Session usage 75%" />
+							<Gauge value={95} label="Session usage 95%" />
+							<Gauge value={35} variant="segments" label="Weekly usage 35%" />
+							<Gauge value={75} variant="segments" label="Weekly usage 75%" />
+							<Gauge value={100} variant="segments" label="Weekly usage 100%" />
+							<Gauge value={60} tone="ok" label="Forced ok tone">
+								{#snippet corner()}🍃{/snippet}
+							</Gauge>
+							<Gauge value={92} variant="segments" as="button" label="Hot pace, click for details">
+								{#snippet corner()}🔥{/snippet}
+							</Gauge>
+						</div>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="cap-bar">
+				<Heading level={3} size="lg">CapBar</Heading>
+				<Card>
+					<div class="stack">
+						<CapBar
+							label="Anthropic"
+							value={62}
+							bind:cap={capBarCap}
+							hint="resets 3h"
+							onchange={(c) => toasts.show(`Cap set to ${c}%`)}
+						>
+							{#snippet caption()}▲ using 62% · cap {capBarCap}%{/snippet}
+						</CapBar>
+						<CapBar label="OpenAI" value={81} cap={90} hint="resets 12h" size="lg" />
+						<CapBar label="Locked" value={95} cap={80} hint="over cap" readonly />
+					</div>
+				</Card>
+			</section>
+
+		</section>
+
+		<section class="group" id="g-overlays" aria-labelledby="gh-overlays">
+			<Heading level={2} id="gh-overlays" size="sm" uppercase tone="muted" class="group-title">Overlays</Heading>
+			<section class="section" id="popover-menu">
+				<Heading level={3} size="lg">Popover &amp; Menu <Badge tone="info">native top layer</Badge></Heading>
+				<Card>
+					<div class="row row-wrap">
+						<Popover label="Info popover">
+							{#snippet trigger()}<Icon name="info" size={18} />{/snippet}
+							<div style="padding: var(--sp-2)">
+								<Text variant="body">A native popover — renders in the top layer, light-dismiss + Escape for free.</Text>
+							</div>
+						</Popover>
+
+						<Menu label="Row actions" items={menuItems}>
+							{#snippet trigger()}<Icon name="more" size={18} />{/snippet}
+						</Menu>
+
+						<Menu label="Row actions (ghost sm trigger)" items={menuItems} variant="ghost" size="sm">
+							{#snippet trigger()}Actions <Icon name="chevron-down" size={14} />{/snippet}
+						</Menu>
+
+						<Text variant="caption" tone="muted">Open a menu and navigate with ↑/↓, Enter to select.</Text>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="tooltip">
+				<Heading level={3} size="lg">Tooltip</Heading>
+				<Card>
+					<div class="stack">
+						<div class="row row-wrap">
+							<Tooltip text="Tooltips appear on hover and keyboard focus, dismiss with Escape.">
+								{#snippet trigger()}<Button>Hover or focus me</Button>{/snippet}
+							</Tooltip>
+							<Tooltip text="Also works on icon buttons." placement="bottom">
+								{#snippet trigger()}<IconButton icon="info" label="Info" />{/snippet}
+							</Tooltip>
+							<!-- Rich hovercard: `content` snippet + persist-on-hover — move into the
+							     panel to select text or click the copy button. -->
+							<Tooltip placement="bottom">
+								{#snippet trigger()}
+									<button type="button" class="status-dot" aria-label="api-gateway status"></button>
+								{/snippet}
+								{#snippet content()}
+									<dl class="tip-kv">
+										<dt>service</dt>
+										<dd>api-gateway</dd>
+										<dt>region</dt>
+										<dd>ap-northeast-1</dd>
+										<dt>build</dt>
+										<dd><code>7f3c9e2</code> <CopyButton text="7f3c9e2" /></dd>
+									</dl>
+								{/snippet}
+							</Tooltip>
+						</div>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="modal">
+				<Heading level={3} size="lg">Modal</Heading>
+				<Card>
+					<Text variant="body" tone="muted">
+						Accessible dialog in the native top layer — Escape to close, click-outside to close, focus
+						trapped inside and restored to the trigger on close. Drag the right edge to resize (persisted).
+					</Text>
+					<div class="row" style="margin-top: var(--sp-3)">
+						<Button variant="primary" onclick={() => (modalOpen = true)}>Open modal</Button>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="confirm-modal">
+				<Heading level={3} size="lg">ConfirmModal</Heading>
+				<Card>
+					<Stack gap="var(--sp-4)">
+						<div class="row row-wrap">
+							<Button tone="danger" onclick={() => (confirmOpen = true)}>Delete library…</Button>
+							<Checkbox bind:checked={confirmFails} label="Make the confirm fail" />
+						</div>
+					</Stack>
+				</Card>
+			</section>
+
+			<section class="section" id="drawer">
+				<Heading level={3} size="lg">Drawer</Heading>
+				<Card>
+					<Stack gap="var(--sp-4)">
+						<Text variant="body">
+							Side panel on the native <code>&lt;dialog&gt;</code>: Escape, scrim click and the close
+							button close it; focus is trapped; body scroll is locked. A <code>nav</code> snippet
+							becomes a 150px page column beside the content on wide viewports and a horizontal strip
+							above it under 48rem, where the panel goes full-screen.
+						</Text>
+						<div class="row row-wrap">
+							<Button variant="primary" onclick={() => (drawerOpen = true)}>Open drawer</Button>
+						</div>
+					</Stack>
+				</Card>
+			</section>
+
+		</section>
+
+
+		<footer class="foot">
+			<Text variant="caption" tone="faint">
+				Edit <code>src/lib/styles/variables.css</code> to retheme everything · add a
+				<code>[data-theme]</code> block for a new theme · components never hard-code a color or pixel.
+			</Text>
+		</footer>
+	</main>
+</div>
 
 <ConfirmModal
 	bind:open={confirmOpen}
@@ -1923,17 +2156,115 @@ function greet(name) {
 		gap: var(--sp-3);
 		height: var(--header-h);
 	}
+	.shell {
+		width: 100%;
+		max-width: calc(var(--content-max) + 16rem);
+		margin-inline: auto;
+		padding-inline: max(var(--sp-4), var(--safe-left)) max(var(--sp-4), var(--safe-right));
+	}
+	.layout {
+		display: grid;
+		grid-template-columns: 14rem minmax(0, 1fr);
+		gap: var(--sp-6);
+		align-items: start;
+	}
+	.sidebar {
+		position: sticky;
+		top: calc(var(--header-h) + var(--safe-top));
+		max-height: calc(100dvh - var(--header-h) - var(--safe-top));
+		overflow-y: auto;
+		overscroll-behavior: contain;
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp-4);
+		padding-block: var(--sp-6) var(--sp-8);
+	}
+	.nav-group {
+		display: flex;
+		flex-direction: column;
+		gap: 1px;
+	}
+	.nav-group :global([data-tsu='Text']) {
+		padding: var(--sp-1) var(--sp-2);
+	}
+	.nav-link {
+		display: block;
+		padding: var(--sp-1) var(--sp-2);
+		border-radius: var(--r-sm);
+		border-left: 2px solid transparent;
+		color: var(--text-muted);
+		font-size: var(--fs-sm);
+		text-decoration: none;
+		line-height: 1.4;
+	}
+	.nav-link:hover {
+		background: var(--bg-elevated);
+		color: var(--text);
+	}
+	.nav-link.active {
+		background: var(--bg-elevated);
+		border-left-color: var(--accent);
+		color: var(--text);
+		font-weight: var(--fw-medium);
+	}
+	.top-row :global(.nav-toggle) {
+		display: none;
+	}
 	.page {
 		display: flex;
 		flex-direction: column;
-		gap: var(--sp-6);
+		gap: var(--sp-8);
 		padding-top: var(--sp-6);
 		padding-bottom: var(--sp-12);
+		min-width: 0;
+	}
+	.group {
+		display: flex;
+		flex-direction: column;
+		gap: var(--sp-6);
+		scroll-margin-top: calc(var(--header-h) + var(--sp-4));
+	}
+	.group :global(.group-title) {
+		position: sticky;
+		top: calc(var(--header-h) + var(--safe-top));
+		z-index: 1;
+		margin: 0;
+		padding-block: var(--sp-2);
+		background: color-mix(in srgb, var(--bg) 88%, transparent);
+		backdrop-filter: blur(8px);
+		border-bottom: 1px solid var(--border);
+		letter-spacing: 0.08em;
 	}
 	.section {
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp-3);
+		scroll-margin-top: calc(var(--header-h) + var(--sp-8));
+	}
+	/* `hidden` is set from JS, so the compiler cannot see it — global, or the
+	   selector is pruned and `display: flex` above wins over the UA rule. */
+	.page :global(.group[hidden]),
+	.page :global(.section[hidden]) {
+		display: none;
+	}
+	@media (max-width: 900px) {
+		.layout {
+			grid-template-columns: minmax(0, 1fr);
+			gap: 0;
+		}
+		.top-row :global(.nav-toggle) {
+			display: inline-flex;
+		}
+		.sidebar {
+			display: none;
+			position: static;
+			max-height: none;
+			padding-block: var(--sp-4);
+			border-bottom: 1px solid var(--border);
+		}
+		.sidebar.open {
+			display: flex;
+		}
 	}
 	.form-grid,
 	.card-row {

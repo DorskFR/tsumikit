@@ -15,8 +15,10 @@ html {
 	text-size-adjust: 100%;
 	/* The font scaler drives --fs-scale, so only --fs-* text tokens grow — chrome
 	   rem dimensions stay fixed. A scaled-up token can still push a min-width child
-	   past the viewport; clip sideways so the page never gains a horizontal bar. */
-	overflow-x: hidden;
+	   past the viewport; clip sideways so the page never gains a horizontal bar.
+	   `clip`, not `hidden`: hidden would make html/body scroll containers and
+	   break every `position: sticky` header, sidebar and table head below. */
+	overflow-x: clip;
 	max-width: 100%;
 	scrollbar-gutter: stable;
 }
@@ -30,7 +32,7 @@ body {
 	line-height: var(--lh-normal);
 	-webkit-font-smoothing: antialiased;
 	text-rendering: optimizeLegibility;
-	overflow-x: hidden;
+	overflow-x: clip;
 	scrollbar-gutter: stable;
 }
 
