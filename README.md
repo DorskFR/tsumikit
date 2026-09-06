@@ -211,7 +211,9 @@ their own `breakpoint`, so `selected` can be driven from the URL), Container, St
 (vertical), Cluster (wrapping row; `stackAt="xs|sm|md|lg"` makes it its own
 query container and stacks children full-width below 18/30/40/48rem — phone
 action rows without a viewport query), AutoGrid (intrinsically responsive
-columns — no media/container query needed).
+columns — no media/container query needed; a child marked
+`data-span="2|3|4|full"` claims that many tracks, so a primary action can sit
+at 2 of 4 columns and take the whole row once the columns halve).
 
 ### Container
 
@@ -296,7 +298,9 @@ and drive `showModal()`/`close()` from state (closing writes `open = false`).
 `tone="danger" | "warn" | "info"` adds a title glyph and a 3px top border;
 `busy` makes the body inert, shows a spinner by the title and disables Escape,
 backdrop and the close button. The `footer` snippet is a right-aligned flex row
-(`justify-content: flex-end; gap: var(--sp-2)`).
+(`justify-content: flex-end; gap: var(--sp-2)`); `footerFill` stretches its
+children instead, for a footer that is one layout wrapper rather than a short
+row of buttons.
 
 `ConfirmModal` wraps it as a yes/no dialog: `title`, `message` (or `children`),
 `confirmLabel`/`cancelLabel`, `tone="primary" | "danger" | "warn"`, `busy`,
