@@ -35,7 +35,16 @@ test('sections are wrapped in labelled thematic groups', () => {
 test('the sidebar links every entry and tracks the active section', () => {
 	assert.match(page, /href="#\{item\.id\}"/);
 	assert.match(page, /class:active=\{active === item\.id\}/);
-	assert.match(page, /new IntersectionObserver/);
+});
+
+test('the scroll-spy marks the last section past the line, not the one filling a band', () => {
+	assert.doesNotMatch(page, /new IntersectionObserver/);
+	assert.match(page, /if \(el\.getBoundingClientRect\(\)\.top > line\) break;/);
+	assert.match(page, /window\.innerHeight \+ window\.scrollY >= document\.documentElement\.scrollHeight/);
+});
+
+test('the footer leaves scroll room so the last anchors can reach the header', () => {
+	assert.match(page, /margin-top: max\(var\(--sp-6\), 60dvh\);/);
 });
 
 test('html and body clip sideways instead of hiding, so sticky chrome still sticks', () => {

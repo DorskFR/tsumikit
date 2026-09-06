@@ -210,22 +210,43 @@
 			el.hidden = ![...el.querySelectorAll<HTMLElement>('.section[id]')].some((s) => !s.hidden);
 	});
 
+	// Scroll-spy: the last section that has crossed the line under the header. An
+	// IntersectionObserver band cannot do this — a section shorter than the band
+	// never intersects it and the highlight sticks to a neighbour.
 	$effect(() => {
-		const sections = [...document.querySelectorAll<HTMLElement>('.page .section[id]')];
-		const onscreen = new Set<string>();
-		const io = new IntersectionObserver(
-			(entries) => {
-				for (const e of entries) {
-					if (e.isIntersecting) onscreen.add(e.target.id);
-					else onscreen.delete(e.target.id);
-				}
-				const first = sections.find((el) => onscreen.has(el.id));
-				if (first) active = first.id;
-			},
-			{ rootMargin: '-20% 0px -65% 0px' }
-		);
-		for (const el of sections) io.observe(el);
-		return () => io.disconnect();
+		visibleIds;
+		let queued = false;
+		const update = () => {
+			queued = false;
+			const sections = [...document.querySelectorAll<HTMLElement>('.page .section[id]')].filter(
+				(el) => !el.hidden
+			);
+			if (sections.length === 0) return;
+			const line = (document.querySelector('.top')?.getBoundingClientRect().height ?? 0) + 48;
+			// The last sections can never reach the line, so the page bottom owns the last one.
+			if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 2) {
+				active = sections[sections.length - 1].id;
+				return;
+			}
+			let current = sections[0].id;
+			for (const el of sections) {
+				if (el.getBoundingClientRect().top > line) break;
+				current = el.id;
+			}
+			active = current;
+		};
+		const onscroll = () => {
+			if (queued) return;
+			queued = true;
+			requestAnimationFrame(update);
+		};
+		update();
+		addEventListener('scroll', onscroll, { passive: true });
+		addEventListener('resize', onscroll);
+		return () => {
+			removeEventListener('scroll', onscroll);
+			removeEventListener('resize', onscroll);
+		};
 	});
 
 	$effect(() => {
@@ -2343,7 +2364,9 @@ function greet(name) {
 		flex: none;
 	}
 	.foot {
-		margin-top: var(--sp-6);
+		/* Scroll room, so an anchor to one of the last sections can still put it
+		   under the header instead of stopping at the page bottom. */
+		margin-top: max(var(--sp-6), 60dvh);
 		padding-top: var(--sp-4);
 		border-top: 1px solid var(--border);
 	}
