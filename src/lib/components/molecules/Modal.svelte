@@ -27,6 +27,7 @@
 		onclose,
 		body,
 		footer,
+		footerFill = false,
 		size = 'md',
 		tone = 'neutral',
 		busy = false,
@@ -44,6 +45,10 @@
 		onclose?: () => void;
 		body: Snippet;
 		footer?: Snippet;
+		/** Let the footer's content own the full width instead of hugging the
+		 *  right edge — for a footer that is one layout wrapper (an AutoGrid of
+		 *  actions, say) rather than a short row of buttons. */
+		footerFill?: boolean;
 		/** Title glyph + 3px top border in the semantic colour. */
 		tone?: Tone;
 		/** Work in flight: body is inert, a spinner sits by the title and Escape,
@@ -185,7 +190,7 @@
 			{@render body()}
 		</div>
 		{#if footer}
-			<div class="sheet-foot">{@render footer()}</div>
+			<div class="sheet-foot" class:foot-fill={footerFill}>{@render footer()}</div>
 		{/if}
 		{#if resizeKey}
 			<div
@@ -318,6 +323,12 @@
 		gap: var(--sp-2);
 		padding: var(--sp-4);
 		border-top: 1px solid var(--border);
+	}
+	/* Opt-in: a flex item is shrink-to-fit, so a layout wrapper handed to the
+	   footer would size to its content and hug the right edge instead of
+	   spanning the sheet. */
+	.sheet-foot.foot-fill > :global(*) {
+		flex: 1;
 	}
 
 	.sheet-resize {

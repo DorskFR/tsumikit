@@ -104,6 +104,24 @@
 		grid-template-columns: repeat(var(--ag-mode), minmax(min(100%, var(--ag-min)), var(--ag-track)));
 	}
 
+	/* A child may claim several tracks (`data-span="2"`, `data-span="full"`) —
+	   the grid counterpart to Cluster's `data-grow`. Handy for an action row
+	   whose primary sits at 2/4 of a wide grid and takes the whole row once the
+	   columns halve. A numeric span wider than the current column count would
+	   add an implicit track, so pick one no larger than `maxCols`. */
+	.autogrid-c > :global([data-span='2']) {
+		grid-column: span 2;
+	}
+	.autogrid-c > :global([data-span='3']) {
+		grid-column: span 3;
+	}
+	.autogrid-c > :global([data-span='4']) {
+		grid-column: span 4;
+	}
+	.autogrid-c > :global([data-span='full']) {
+		grid-column: 1 / -1;
+	}
+
 	/* Cap at N columns: the per-column floor becomes the larger of `min` and the
 	   width each column gets when N share the row (minus the N-1 gaps), so
 	   auto-fit stops adding tracks once N fit. `min(100%, …)` keeps it from
