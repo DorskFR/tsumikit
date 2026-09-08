@@ -1960,6 +1960,16 @@ function greet(name) {
 							</div>
 						</Popover>
 
+						<Popover label="Self-closing popover">
+							{#snippet trigger()}<Icon name="check" size={18} />{/snippet}
+							{#snippet children({ close }: { close: () => void })}
+								<div class="stack" style="padding: var(--sp-2)">
+									<Text variant="body">Children receive <code>close()</code> — no DOM walk needed.</Text>
+									<Button size="sm" onclick={close}>Close from inside</Button>
+								</div>
+							{/snippet}
+						</Popover>
+
 						<Menu label="Row actions" items={menuItems}>
 							{#snippet trigger()}<Icon name="more" size={18} />{/snippet}
 						</Menu>

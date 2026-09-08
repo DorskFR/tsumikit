@@ -50,8 +50,9 @@
 		label: string;
 		/** Trigger content (rendered inside a button that owns the popover wiring). */
 		trigger: Snippet;
-		/** Panel content. */
-		children: Snippet;
+		/** Panel content. Receives `{ close }` to dismiss the panel from inside;
+		 *  zero-argument snippets keep working. */
+		children: Snippet<[{ close: () => void }]>;
 		/** Extra class on the trigger button — style it from your own scoped CSS,
 		 *  no :global needed (you supply the class). */
 		triggerClass?: string;
@@ -97,6 +98,12 @@
 	// `popovertarget` wiring needs its id present in the DOM at all times.
 	let opened = $state(false);
 	let open = $state(false);
+
+	function close() {
+		try {
+			panelEl?.hidePopover();
+		} catch {}
+	}
 
 	function reposition() {
 		if (triggerEl && panelEl) place(triggerEl, panelEl, placement, gap);
@@ -166,7 +173,7 @@
 	ontoggle={onToggle}
 >
 	{#if opened}
-		{@render children()}
+		{@render children({ close })}
 	{/if}
 </div>
 

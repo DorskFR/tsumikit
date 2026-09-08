@@ -10,7 +10,7 @@ const popover = await readFile(
 test('panel content mounts only after the first open, then stays mounted', () => {
 	assert.match(popover, /let opened = \$state\(false\);/);
 	assert.match(popover, /if \(e\.newState === 'open'\)\s*{\s*const firstOpen = !opened;\s*opened = true;/);
-	assert.match(popover, /{#if opened}\s*{@render children\(\)}\s*{\/if}/);
+	assert.match(popover, /{#if opened}\s*{@render children\(\{ close \}\)}\s*{\/if}/);
 });
 
 test('the panel element itself always renders so the native popovertarget stays wired', () => {
