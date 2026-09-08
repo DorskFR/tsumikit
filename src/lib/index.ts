@@ -65,6 +65,7 @@ export {
 } from './components/molecules/Breadcrumb.svelte';
 export { default as Callout } from './components/molecules/Callout.svelte';
 export { default as CapBar } from './components/molecules/CapBar.svelte';
+export { default as Carousel } from './components/molecules/Carousel.svelte';
 export { default as ChatBubble } from './components/molecules/ChatBubble.svelte';
 export { default as CodeBlock } from './components/molecules/CodeBlock.svelte';
 export { default as Composer } from './components/molecules/Composer.svelte';
