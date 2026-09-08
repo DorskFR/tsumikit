@@ -64,8 +64,10 @@
 		variant?: TriggerVariant;
 		tone?: TriggerTone;
 		size?: TriggerSize;
-		/** Shared square box scale (`--box-xs/sm/md/lg`) for an icon-only trigger;
-		 *  the default trigger is the `md` 2.25rem box. */
+		/** Shared square box scale (`--box-xs/sm/md/lg`) for an icon-only trigger,
+		 *  pinning the square exactly. The default trigger floors at the `sm` box
+		 *  and grows with its content; override that floor from `triggerClass`
+		 *  with `--pop-box`. */
 		box?: 'xs' | 'sm' | 'md' | 'lg';
 		/** Use the shared `--control-height` toolbar/composer contract. */
 		control?: boolean;
@@ -184,13 +186,16 @@
 	/* Default trigger chrome. Zero specificity (`:where`) so any consumer class
 	   (triggerClass) overrides it; `:not(.bare)` keeps it off bare triggers such
 	   as the Timestamp <time>, which stay plain inline text. */
+	/* The square is one knob, `--pop-box`: the `box` prop sets it inline, and a
+	   consumer's `triggerClass` can set it too (`--pop-box: var(--box-xs)`) — a
+	   plain width/height there would not have beaten a `min-*` floor. */
 	:where(.pop-trigger:not(.bare)) {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		min-height: var(--box-md);
-		min-width: var(--box-md);
-		padding: var(--sp-2);
+		min-height: var(--pop-box, var(--box-sm));
+		min-width: var(--pop-box, var(--box-sm));
+		padding: var(--sp-1);
 		border: 1px solid transparent;
 		border-radius: var(--r-md);
 		background: transparent;

@@ -21,7 +21,7 @@ test('no Popover chrome can reach a bare trigger: box, radius, background and ho
 	assert.doesNotMatch(popover, /\n\t\.pop-trigger:hover/, 'hover chrome must be scoped to :not(.bare)');
 	assert.doesNotMatch(popover, /\n\t\.pop-trigger:not\(\.bare\)/, 'default chrome must be zero-specificity so triggerClass wins');
 	const sized = rule(popover, ':where(.pop-trigger:not(.bare))');
-	assert.equal(sized['min-height'], 'var(--box-md)');
+	assert.equal(sized['min-height'], 'var(--pop-box, var(--box-sm))');
 	assert.equal(sized['border-radius'], 'var(--r-md)');
 	assert.equal(rule(popover, ':where(.pop-trigger:not(.bare):hover:not(:disabled))').background, 'var(--bg-elevated-2)');
 	const bare = rule(popover, ':where(.pop-trigger.bare)');
