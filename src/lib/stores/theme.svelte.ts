@@ -1,11 +1,25 @@
 import { browser } from '$lib/env';
+import {
+	AUTO_THEME,
+	chooseTheme,
+	DEFAULT_THEME_PREFERENCE,
+	preferenceFrom,
+	resolveTheme,
+	type SlotOf,
+	type ThemeChoice,
+	type ThemePreference,
+} from '$lib/theme-mode';
 
 // Theme registry. Built-ins live in THEMES (+ one [data-theme="id"] block in
 // styles/themes.css); consumers append their own with theme.register() and ship
 // the matching block in their own stylesheet. `themeColor` drives the mobile
 // browser-chrome <meta theme-color>; `mode` groups the theme into the picker's
 // light/dark sections.
+//
+// `tsumikit-theme` holds a {mode,light,dark} blob; a bare theme id there is a
+// legacy value and migrates through `preferenceFrom`.
 const KEY = 'tsumikit-theme';
+const SCHEME_QUERY = '(prefers-color-scheme: dark)';
 
 export const THEMES = [
 	// ── Light ── bright, paper-white surfaces
@@ -70,6 +84,12 @@ const FALLBACK_ICON = '◈';
 
 class Theme {
 	current = $state<ThemeId>('dark');
+	/** True while the system asks for a dark scheme; only read in `auto`. */
+	systemDark = $state(false);
+	pref = $state<ThemePreference>(DEFAULT_THEME_PREFERENCE);
+	/** Called with the new preference whenever the user changes it, so an app
+	 *  can mirror it into its own (server-side) settings. */
+	onchange?: (pref: ThemePreference) => void;
 	readonly fallbackIcon = FALLBACK_ICON;
 	private registered = $state<ThemeDef[]>([]);
 	private fallback: ThemeId = 'dark';
@@ -77,9 +97,30 @@ class Theme {
 
 	constructor() {
 		if (browser) {
+			const mq = typeof matchMedia === 'function' ? matchMedia(SCHEME_QUERY) : null;
+			this.systemDark = mq?.matches ?? false;
+			mq?.addEventListener?.('change', (e) => {
+				this.systemDark = e.matches;
+				this.paint();
+			});
 			this.saved = localStorage.getItem(KEY);
 			this.resolve();
 		}
+	}
+	get slotOf(): SlotOf {
+		return (id) => this.all.find((t) => t.id === id)?.mode ?? null;
+	}
+	/** `auto`, or the pinned slot. */
+	get mode(): ThemeChoice {
+		return this.pref.mode;
+	}
+	/** The theme id painted for the current preference. */
+	get resolved(): ThemeId {
+		return resolveTheme(this.pref, this.systemDark);
+	}
+	/** What a picker shows as selected: `auto`, or the pinned slot's theme id. */
+	get choice(): string {
+		return this.pref.mode === AUTO_THEME ? AUTO_THEME : this.resolved;
 	}
 	get all(): readonly ThemeDef[] {
 		const byId = new Map<string, ThemeDef>();
@@ -100,8 +141,37 @@ class Theme {
 		this.resolve();
 	}
 	private resolve() {
-		this.current = this.has(this.saved) ? this.saved : this.fallback;
+		this.pref = this.read();
+		this.paint();
+	}
+	private read(): ThemePreference {
+		const seed = chooseTheme(DEFAULT_THEME_PREFERENCE, this.fallback, this.slotOf);
+		if (!this.saved) return seed;
+		let blob: Partial<ThemePreference> | null = null;
+		try {
+			const parsed: unknown = JSON.parse(this.saved);
+			if (parsed && typeof parsed === 'object') blob = parsed as Partial<ThemePreference>;
+		} catch {}
+		return preferenceFrom(
+			blob
+				? { themeMode: blob.mode, lightTheme: blob.light, darkTheme: blob.dark }
+				: { theme: this.saved },
+			this.slotOf,
+			seed,
+		);
+	}
+	private paint() {
+		this.current = this.resolved;
 		this.apply();
+	}
+	private persist() {
+		this.saved = JSON.stringify(this.pref);
+		if (browser) {
+			try {
+				localStorage.setItem(KEY, this.saved);
+			} catch {}
+		}
+		this.onchange?.(this.pref);
 	}
 	private apply() {
 		if (!browser) return;
@@ -130,10 +200,22 @@ class Theme {
 		this.set(this.next.id);
 	}
 	set(mode: ThemeId) {
-		this.saved = mode;
-		this.current = mode;
-		if (browser) localStorage.setItem(KEY, mode);
-		this.apply();
+		this.choose(mode);
+	}
+	/** A picker choice: `auto`, or a theme id, which also becomes its slot's
+	 *  remembered theme. An unregistered id is ignored. */
+	choose(choice: string): ThemePreference {
+		this.pref = chooseTheme(this.pref, choice, this.slotOf);
+		this.paint();
+		this.persist();
+		return this.pref;
+	}
+	/** Replay a preference an app persisted itself, without echoing it back
+	 *  through `onchange`. */
+	hydrate(pref: ThemePreference) {
+		this.pref = pref;
+		this.saved = JSON.stringify(pref);
+		this.paint();
 	}
 }
 

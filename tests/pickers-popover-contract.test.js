@@ -36,8 +36,8 @@ test('ThemePicker: popover grid of data-theme scoped 2x2 swatches reading the ra
 	assert.match(themePicker, /\.q\.surface\s*{\s*background: var\(--c-surface\);/s);
 	assert.match(themePicker, /\.q\.text\s*{\s*background: var\(--c-text\);/s);
 	assert.match(themePicker, /\.q\.accent\s*{\s*background: var\(--c-accent\);/s);
-	assert.match(themePicker, /aria-pressed=\{t\.id === theme\.current\}/);
-	assert.match(themePicker, /class:current=\{t\.id === theme\.current\}/);
+	assert.match(themePicker, /aria-pressed=\{!isAuto && t\.id === theme\.current\}/);
+	assert.match(themePicker, /class:current=\{!isAuto && t\.id === theme\.current\}/);
 	assert.match(themePicker, /\.cell\.current\s*{\s*border-color: var\(--accent\);/s);
 	assert.match(themePicker, /\['light', 'dark'\] as const/);
 	assert.doesNotMatch(themePicker, /SelectButton/);

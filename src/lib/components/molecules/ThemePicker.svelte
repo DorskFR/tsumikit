@@ -7,16 +7,44 @@
 	// has no [data-theme] block, so its swatch carries the :root values.
 	import Popover from '$lib/components/molecules/Popover.svelte';
 	import { type ThemeDef, theme } from '$lib/stores/theme.svelte';
+	import { AUTO_THEME } from '$lib/theme-mode';
 
-	let { class: klass = '' }: { class?: string } = $props();
+	let {
+		auto = false,
+		autoLabel = 'Auto',
+		autoHelp = 'Follow the system light/dark setting',
+		lightLabel = 'Light',
+		darkLabel = 'Dark',
+		class: klass = '',
+	}: {
+		/** Offer an "auto" row that follows `prefers-color-scheme`, remembering
+		 *  one light and one dark theme. */
+		auto?: boolean;
+		autoLabel?: string;
+		autoHelp?: string;
+		lightLabel?: string;
+		darkLabel?: string;
+		class?: string;
+	} = $props();
 
 	let hovered = $state<ThemeDef | null>(null);
+	let hoveredAuto = $state(false);
+	const isAuto = $derived(auto && theme.mode === AUTO_THEME);
 	const shown = $derived(hovered ?? theme.option);
 	const groups = $derived(
 		(['light', 'dark'] as const).map((mode) => ({
 			mode,
-			themes: theme.all.filter((t) => t.mode === mode)
+			label: mode === 'light' ? lightLabel : darkLabel,
+			themes: theme.all.filter((t) => t.mode === mode),
 		}))
+	);
+	const named = (id: string) => theme.all.find((t) => t.id === id)?.label ?? id;
+	const autoCaption = $derived(`${autoLabel} · ${named(theme.pref.light)} / ${named(theme.pref.dark)}`);
+	const title = $derived(isAuto ? `${autoLabel} · ${theme.label}` : `Theme: ${theme.label}`);
+	const caption = $derived(
+		hoveredAuto || (isAuto && !hovered)
+			? autoCaption
+			: `${shown.icon ?? theme.fallbackIcon} ${shown.label}`
 	);
 </script>
 
@@ -26,18 +54,19 @@
 	</span>
 {/snippet}
 
-<Popover label="Theme: {theme.label}" placement="bottom-end" triggerClass={klass} box="md">
-	{#snippet trigger()}<span class="trigger" data-tsu="ThemePicker" title="Theme: {theme.label}">{@render swatch(theme.current)}</span>{/snippet}
+<Popover label={title} placement="bottom-end" triggerClass={klass} box="md">
+	{#snippet trigger()}<span class="trigger" data-tsu="ThemePicker" {title}>{@render swatch(theme.current)}{#if isAuto}<span class="auto-dot" aria-hidden="true">◐</span>{/if}</span>{/snippet}
 	<div class="panel">
 		{#each groups as g (g.mode)}
-			<div class="group-label">{g.mode}</div>
-			<div class="grid" role="group" aria-label="{g.mode} themes">
+			<div class="group-label">{g.label}</div>
+			<div class="grid" role="group" aria-label="{g.label} themes">
 				{#each g.themes as t (t.id)}
 					<button
 						type="button"
 						class="cell"
-						class:current={t.id === theme.current}
-						aria-pressed={t.id === theme.current}
+						class:current={!isAuto && t.id === theme.current}
+						class:remembered={isAuto && t.id === theme.pref[g.mode]}
+						aria-pressed={!isAuto && t.id === theme.current}
 						aria-label={t.label}
 						title="{t.icon ?? theme.fallbackIcon} {t.label}"
 						onclick={() => theme.set(t.id)}
@@ -51,13 +80,49 @@
 				{/each}
 			</div>
 		{/each}
-		<div class="caption" aria-live="polite">{shown.icon ?? theme.fallbackIcon} {shown.label}</div>
+		{#if auto}
+			<button
+				type="button"
+				class="auto"
+				class:current={isAuto}
+				aria-pressed={isAuto}
+				title={autoCaption}
+				onclick={() => theme.choose(AUTO_THEME)}
+				onpointerenter={() => (hoveredAuto = true)}
+				onpointerleave={() => (hoveredAuto = false)}
+				onfocus={() => (hoveredAuto = true)}
+				onblur={() => (hoveredAuto = false)}
+			>
+				<span class="auto-glyph" aria-hidden="true">◐</span>
+				<span class="auto-text">
+					<span class="auto-name">{autoLabel}</span>
+					<span class="auto-help">{autoHelp}</span>
+				</span>
+				<span class="auto-pair" aria-hidden="true">
+					{@render swatch(theme.pref.light)}
+					<span class="slash">/</span>
+					{@render swatch(theme.pref.dark)}
+				</span>
+			</button>
+		{/if}
+		<div class="caption" aria-live="polite">{caption}</div>
 	</div>
 </Popover>
 
 <style>
 	.trigger {
+		position: relative;
 		display: inline-flex;
+	}
+	.auto-dot {
+		position: absolute;
+		right: -0.35rem;
+		bottom: -0.35rem;
+		border-radius: 50%;
+		background: var(--bg);
+		color: var(--text-muted);
+		font-size: var(--fs-xs);
+		line-height: 1;
 	}
 	.swatch {
 		display: grid;
@@ -123,14 +188,68 @@
 	.cell.current {
 		border-color: var(--accent);
 	}
-	.cell:focus-visible {
+	.cell.remembered {
+		border-color: var(--accent);
+		border-style: dashed;
+	}
+	.cell:focus-visible,
+	.auto:focus-visible {
 		outline: 2px solid var(--accent);
 		outline-offset: 1px;
+	}
+	.auto {
+		display: flex;
+		align-items: center;
+		gap: var(--sp-2);
+		width: 100%;
+		margin-top: var(--sp-2);
+		padding: var(--sp-1) var(--sp-2);
+		border: 2px solid transparent;
+		border-top: 1px solid var(--border);
+		border-radius: var(--r-md);
+		background: none;
+		color: inherit;
+		text-align: left;
+		cursor: pointer;
+	}
+	.auto:hover {
+		background: var(--bg-elevated-2);
+	}
+	.auto.current {
+		border-color: var(--accent);
+	}
+	.auto-glyph {
+		font-size: var(--fs-md);
+		line-height: 1;
+	}
+	.auto-text {
+		display: flex;
+		flex-direction: column;
+		flex: 1 1 auto;
+		min-width: 0;
+	}
+	.auto-name {
+		font-size: var(--fs-sm);
+	}
+	.auto-help {
+		font-size: var(--fs-xs);
+		color: var(--text-faint);
+		white-space: normal;
+	}
+	.auto-pair {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--sp-1);
+	}
+	.slash {
+		color: var(--text-faint);
+		font-size: var(--fs-xs);
 	}
 	.caption {
 		margin-top: var(--sp-2);
 		text-align: center;
 		font-size: var(--fs-sm);
 		color: var(--text-muted);
+		white-space: normal;
 	}
 </style>
