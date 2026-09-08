@@ -45,3 +45,23 @@ test('Menu does not double the menu role: inner list is presentational', () => {
 	assert.equal(menu.split('role="menu"').length - 1, 1);
 	assert.match(menu, /role="menuitem"/);
 });
+
+test('Popover hands its children a close() that hides the panel', () => {
+	assert.match(popover, /children: Snippet<\[\{ close: \(\) => void \}\]>;/);
+	assert.match(popover, /function close\(\)\s*{[\s\S]*panelEl\?\.hidePopover\(\)/);
+	assert.match(popover, /\{@render children\(\{ close \}\)\}/);
+});
+
+test('closing through close() runs the same toggle path, so onclose fires', () => {
+	// hidePopover() emits the native toggle event the panel already listens to;
+	// no separate onclose call may bypass or double it.
+	assert.match(popover, /ontoggle=\{onToggle\}/);
+	assert.equal(popover.split('onclose?.()').length - 1, 1);
+	assert.match(popover, /} else {\s*open = false;[\s\S]*onclose\?\.\(\);/);
+});
+
+test('Menu closes via the handed-down close(), not a DOM walk', () => {
+	assert.match(menu, /\{#snippet children\(\{ close \}: \{ close: \(\) => void \}\)\}/);
+	assert.match(menu, /function select\(item: MenuItem, close: \(\) => void\)\s*{[\s\S]*close\(\);/);
+	assert.doesNotMatch(menu.slice(menu.indexOf('function select')), /closest/);
+});

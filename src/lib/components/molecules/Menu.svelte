@@ -120,10 +120,9 @@
 			focusAt(b.length - 1);
 		}
 	}
-	function select(item: MenuItem) {
+	function select(item: MenuItem, close: () => void) {
 		if (item.disabled) return;
-		// Close the popover, then run the action.
-		listEl?.closest<HTMLElement>('[popover]')?.hidePopover();
+		close();
 		item.onselect();
 	}
 </script>
@@ -158,6 +157,7 @@
 		onopen?.();
 	}}
 >
+	{#snippet children({ close }: { close: () => void })}
 	<div bind:this={listEl} role="none" class="menu" data-tsu="Menu" tabindex="-1" {onkeydown}>
 		{#each items as item (item.label)}
 			<button
@@ -169,7 +169,7 @@
 				class:on={item.pressed}
 				disabled={item.disabled}
 				tabindex="-1"
-				onclick={() => select(item)}
+				onclick={() => select(item, close)}
 			>
 				{#if item.content}
 					{@render item.content(item)}
@@ -189,6 +189,7 @@
 			</button>
 		{/each}
 	</div>
+	{/snippet}
 </Popover>
 
 <style>
