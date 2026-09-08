@@ -275,6 +275,7 @@
 	let areaValue = $state('Multi-line input.\nGrows if autoresize is on.');
 	let selectValue = $state('two');
 	let selectOptionValue = $state('personal');
+	let selectGroupValue = $state('auto');
 	let pickerValue = $state('a');
 	let modalOpen = $state(false);
 	let confirmOpen = $state(false);
@@ -1010,6 +1011,20 @@ function greet(name) {
 									{ value: 'personal', label: 'personal', emoji: '🐼', hint: '62%' },
 									{ value: 'work', label: 'work', icon: 'users', hint: '18%' },
 									{ value: 'archive', label: 'archive', emoji: '📦', hint: '100%', disabled: true }
+								]}
+							/>
+						</Field>
+						<Field label="Select (grouped: native optgroup sections)" for="f-select-groups">
+							<Select
+								id="f-select-groups"
+								bind:value={selectGroupValue}
+								options={[
+									{ value: 'auto', label: 'Auto', emoji: '✨' },
+									{ value: 'pool-eu', label: 'eu-pool', group: 'Pools', hint: '3 seats' },
+									{ value: 'acc-personal', label: 'personal', group: 'Accounts', emoji: '🐼' },
+									{ value: 'pool-us', label: 'us-pool', group: 'Pools', hint: '1 seat' },
+									{ value: 'acc-work', label: 'work', group: 'Accounts', icon: 'users' },
+									{ value: 'none', label: 'No account', group: 'Other' }
 								]}
 							/>
 						</Field>

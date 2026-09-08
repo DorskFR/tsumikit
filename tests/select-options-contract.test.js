@@ -41,7 +41,7 @@ test('trigger face shows the selected option icon/emoji, label and muted right-a
 test('native text hides under the face without bleeding into the popup', () => {
 	assert.match(select, /class:has-face={hasFace}/);
 	assert.match(select, /\.select\.has-face\s*{\s*color: transparent;\s*}/);
-	assert.match(select, /\.select\.has-face option\s*{[^}]*color: var\(--text\);/s);
+	assert.match(select, /\.select\.has-face option,\s*\.select\.has-face optgroup\s*{[^}]*color: var\(--text\);/s);
 });
 
 test('demo shows emoji, icon and hint options', () => {
