@@ -581,6 +581,14 @@ function greet(name) {
 			<section class="section" id="theme-tokens">
 				<Heading level={3} size="lg">Theme tokens</Heading>
 				<Card>
+					<div class="row row-wrap">
+						<ThemePicker />
+						<ThemePicker auto />
+						<Text variant="caption" tone="muted">
+							The picker on the right passes <code>auto</code>: it adds a row that follows the system
+							light/dark setting, remembering one light and one dark palette (dashed swatches).
+						</Text>
+					</div>
 					<div class="swatch-grid">
 						{#each tokens as t (t)}
 							<div class="swatch">

@@ -64,6 +64,18 @@ import { Button, Field, Input, Modal, ThemePicker } from '@dorsk/tsumikit';
 - `<ThemePicker />` and `<FontScalePicker />` wire the stores to the UI. Theme
   is persisted to `localStorage` and applied with no flash (head snippet in
   `app.html`) and updates the mobile `<meta name="theme-color">`.
+- The store keeps a **preference**, not just an id: one remembered light theme,
+  one remembered dark theme, and which of the two is pinned — or `auto`, which
+  follows `prefers-color-scheme` and repaints when the system flips.
+  `theme.choose(id | 'auto')`, `theme.mode`, `theme.pref`, `theme.resolved`,
+  `theme.hydrate(pref)` (replay a server-side preference) and
+  `theme.onchange = (pref) => …` (mirror it back). `theme.set(id)` and
+  `theme.current` are unchanged. `<ThemePicker auto />` adds the "Auto" row;
+  its labels (`autoLabel`, `autoHelp`, `lightLabel`, `darkLabel`) are props.
+- **Storage format (0.47):** `localStorage['tsumikit-theme']` now holds
+  `{"mode","light","dark"}` instead of a bare theme id. A bare id left by an
+  older version still loads — it pins its own slot — but a downgrade will not
+  read the new blob and falls back to the default theme.
 
 ### Stylesheets
 

@@ -197,6 +197,18 @@ export {
 	toasts,
 } from './stores/toast.svelte';
 export {
+	AUTO_THEME,
+	chooseTheme,
+	DEFAULT_THEME_PREFERENCE,
+	pickerValue,
+	preferenceFrom,
+	resolveTheme,
+	type SlotOf,
+	type ThemeChoice,
+	type ThemePreference,
+	type ThemeSlot,
+} from './theme-mode';
+export {
 	formatTimestamp,
 	localTimeZone,
 	relativeTime,

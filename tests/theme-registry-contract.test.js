@@ -71,10 +71,8 @@ test('registered themes override built-ins by id and re-resolve the persisted th
 	assert.match(store, /for \(const t of THEMES\) byId\.set\(t\.id, t\);\s*for \(const t of this\.registered\) byId\.set\(t\.id, t\);/);
 	assert.match(store, /register\([^)]*\) {[^}]*this\.resolve\(\);/s);
 	assert.match(store, /setDefault\([^)]*\) {[^}]*this\.resolve\(\);/s);
-	assert.match(
-		store,
-		/private resolve\(\) {\s*this\.current = this\.has\(this\.saved\) \? this\.saved : this\.fallback;\s*this\.apply\(\);/
-	);
+	assert.match(store, /private resolve\(\) {\s*this\.pref = this\.read\(\);\s*this\.paint\(\);/);
+	assert.match(store, /private paint\(\) {\s*this\.current = this\.resolved;\s*this\.apply\(\);/);
 	assert.match(store, /const color = this\.option\.themeColor;\s*if \(color\)/);
 });
 
@@ -85,6 +83,7 @@ test('ThemePicker lists theme.all (not the closed THEMES array) and tolerates a 
 	assert.match(picker, /theme\.all\.filter\(\(t\) => t\.mode === mode\)/);
 	assert.match(picker, /t\.icon \?\? theme\.fallbackIcon/);
 	assert.match(picker, /onclick=\{\(\) => theme\.set\(t\.id\)\}/);
+	assert.match(picker, /onclick=\{\(\) => theme\.choose\(AUTO_THEME\)\}/);
 });
 
 test('app.css and variables.css are import shells over the layered files', () => {
