@@ -1960,6 +1960,14 @@ function greet(name) {
 							</div>
 						</Popover>
 
+						<Popover label="Chip-sized trigger" triggerClass="pop-chip">
+							{#snippet trigger()}<Icon name="tag" size={12} />{/snippet}
+							<div style="padding: var(--sp-2)">
+								<Text variant="body">The default trigger floors at the <code>sm</code> box; a
+								<code>triggerClass</code> setting <code>--pop-box</code> shrinks it for dense rows.</Text>
+							</div>
+						</Popover>
+
 						<Popover label="Self-closing popover">
 							{#snippet trigger()}<Icon name="check" size={18} />{/snippet}
 							{#snippet children({ close }: { close: () => void })}
@@ -2384,6 +2392,11 @@ function greet(name) {
 		:global(.hide-sm) {
 			display: none;
 		}
+	}
+	:global(.pop-chip) {
+		--pop-box: var(--box-xs);
+		padding: 2px;
+		border-color: var(--border);
 	}
 	@media (pointer: coarse) {
 		.demo-hit :global([data-tsu='IconButton']),
