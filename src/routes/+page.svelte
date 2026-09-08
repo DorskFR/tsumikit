@@ -24,6 +24,7 @@
 		OptionButton,
 		Modal,
 		ConfirmModal,
+		Carousel,
 		Pagination,
 		CopyButton,
 		CodeBlock,
@@ -139,6 +140,7 @@
 				{ id: 'tabs', label: 'Tabs', keywords: 'switcher panels overflow' },
 				{ id: 'breadcrumb', label: 'Breadcrumb', keywords: 'path trail crumbs' },
 				{ id: 'pagination', label: 'Pagination', keywords: 'pages offset paging' },
+				{ id: 'carousel', label: 'Carousel', keywords: 'slides deck tour gallery swipe dots' },
 				{ id: 'accordion', label: 'Accordion', keywords: 'details disclosure collapse' },
 				{ id: 'nav-item', label: 'Artwork · NavItem', keywords: 'sidebar avatar menu entry' }
 			]
@@ -299,6 +301,12 @@
 		else poolB = [...poolB, name];
 	}
 	let demoPage = $state(3);
+	let slideIndex = $state(0);
+	const demoSlides = [
+		{ title: 'Ordered panels', body: 'Each slide is a full-bleed group named “N of M”. Prev/next, dots, ← → and Home/End move through them.' },
+		{ title: 'Swipe friendly', body: 'Horizontal swipe steps a slide; vertical drags still scroll the page.' },
+		{ title: 'Reduced motion', body: 'The slide transition is dropped when the OS asks for reduced motion.' }
+	];
 	let demoOffset = $state(40);
 	async function demoConfirm() {
 		await new Promise((r) => setTimeout(r, 900));
@@ -1289,6 +1297,31 @@ function greet(name) {
 						<Pagination bind:offset={demoOffset} limit={20} total={412} size="sm" showRange />
 						<Text variant="caption" tone="muted">Compact collapse under 24rem of container width:</Text>
 						<div style="max-width: 18rem"><Pagination bind:page={demoPage} pageCount={12} /></div>
+					</Stack>
+				</Card>
+			</section>
+
+			<section class="section" id="carousel">
+				<Heading level={3} size="lg">Carousel</Heading>
+				<Card>
+					<Stack gap="var(--sp-4)">
+						<Text variant="caption" tone="muted">Default — bind:index, dots, prev/next, counter:</Text>
+						<Carousel slides={demoSlides} bind:index={slideIndex} counter label="Feature deck">
+							{#snippet slide(item, i)}
+								<Card tone={i % 2 ? 'accent' : 'neutral'}>
+									<Stack gap="var(--sp-2)">
+										<Heading level={4} size="md">{item.title}</Heading>
+										<Text variant="body">{item.body}</Text>
+									</Stack>
+								</Card>
+							{/snippet}
+						</Carousel>
+						<Text variant="caption" tone="muted">Loop + autoplay (pauses on hover/focus, stoppable):</Text>
+						<Carousel slides={demoSlides} loop autoplay={4000} label="Auto-rotating deck">
+							{#snippet slide(item)}
+								<Card><Text variant="body">{item.title} — {item.body}</Text></Card>
+							{/snippet}
+						</Carousel>
 					</Stack>
 				</Card>
 			</section>
