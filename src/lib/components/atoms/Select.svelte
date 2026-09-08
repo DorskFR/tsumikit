@@ -9,6 +9,10 @@
 		/** Muted, right-aligned secondary text (e.g. "62%"). */
 		hint?: string;
 		disabled?: boolean;
+		/** Section heading this option belongs under. Options sharing a group are
+		 *  emitted inside one `<optgroup label={group}>`, in first-seen group order.
+		 *  Ungrouped options render at the top level. */
+		group?: string;
 	};
 </script>
 
@@ -42,6 +46,7 @@
 	import type { HTMLSelectAttributes } from 'svelte/elements';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
+	import { sectionOptions } from '$lib/select-options';
 
 	// `size` shadows the native option-count attribute (unused in token layouts) to
 	// expose the sm|md height scale instead.
@@ -99,14 +104,26 @@
 	const selected = $derived(options?.find((o) => o.value === value));
 	const hasFace = $derived(!!options && variant !== 'ghost');
 
+	const sections = $derived(sectionOptions(options ?? []));
+
 	const optionText = (o: SelectOption) =>
 		[o.emoji, o.label, o.hint && `· ${o.hint}`].filter(Boolean).join(' ');
 </script>
 
 {#snippet optionList()}
 	{#if options}
-		{#each options as o (o.value)}
-			<option value={o.value} disabled={o.disabled}>{optionText(o)}</option>
+		{#each sections as section, i (section.group ?? `-${i}`)}
+			{#if section.group === undefined}
+				{#each section.options as o (o.value)}
+					<option value={o.value} disabled={o.disabled}>{optionText(o)}</option>
+				{/each}
+			{:else}
+				<optgroup label={section.group}>
+					{#each section.options as o (o.value)}
+						<option value={o.value} disabled={o.disabled}>{optionText(o)}</option>
+					{/each}
+				</optgroup>
+			{/if}
 		{/each}
 	{:else}
 		{@render children?.()}
@@ -251,7 +268,8 @@
 	.select.has-face {
 		color: transparent;
 	}
-	.select.has-face option {
+	.select.has-face option,
+	.select.has-face optgroup {
 		color: var(--text);
 		background: var(--bg);
 	}

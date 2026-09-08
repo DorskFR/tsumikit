@@ -181,6 +181,7 @@ export {
 	type ValueProvider,
 	walk,
 } from './query';
+export { type OptionSection, sectionOptions } from './select-options';
 export type { ControlSize } from './size';
 export { fontScale, SCALE_LEVELS, type ScaleLevel } from './stores/fontscale.svelte';
 // ---- stores / actions ----
