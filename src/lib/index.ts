@@ -72,6 +72,7 @@ export { default as ConfirmModal } from './components/molecules/ConfirmModal.sve
 export { default as CopyButton } from './components/molecules/CopyButton.svelte';
 export { default as Drawer } from './components/molecules/Drawer.svelte';
 export { default as Dropzone } from './components/molecules/Dropzone.svelte';
+export { default as EmojiPicker } from './components/molecules/EmojiPicker.svelte';
 export { default as EmptyState } from './components/molecules/EmptyState.svelte';
 // ---- molecules ----
 export { default as Field } from './components/molecules/Field.svelte';
@@ -133,6 +134,7 @@ export {
 	type RowTone,
 } from './components/organisms/DataTable.svelte';
 export { default as FilterSearchBar } from './components/organisms/FilterSearchBar.svelte';
+export { EMOJI_GROUPS, type EmojiEntry, type EmojiGroup, searchEmoji } from './emoji';
 export {
 	FIELD_KEY,
 	type FieldContext,
