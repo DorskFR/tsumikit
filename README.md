@@ -164,7 +164,8 @@ Tabs, RadioGroup (`variant="rows"`: bordered rows, per-option `note`/`descriptio
 `action(option)` trailing control that never toggles, `below(option)` inline panel),
 Tooltip, Accordion, CopyButton, FileButton,
 Dropzone, CodeBlock, Callout, EmptyState, ConfirmModal, Pagination, Toaster,
-ThemePicker (popover grid of 2×2 palette swatches: bg · surface · text · accent per theme), FontScalePicker (popover with a stepped slider across the five text sizes), SectionHeader, KeyValue, LoadMore,
+ThemePicker (popover grid of 2×2 palette swatches: bg · surface · text · accent per theme),
+EmojiPicker (popover with a searchable EN+FR glyph catalogue, grouped tabs, roving-tabindex grid; pass `groups` to swap the catalogue), FontScalePicker (popover with a stepped slider across the five text sizes), SectionHeader, KeyValue, LoadMore,
 GitRef (branch chip + PR link tinted by state + `+N −N` diff; `collapse`
 auto/never/glyph degrades to icons inside a narrow `.cq` container),
 CapBar (consumption track with a draggable, keyboard-steppable cap handle that

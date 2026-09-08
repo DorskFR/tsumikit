@@ -69,6 +69,7 @@
 		Drawer,
 		KeyValue,
 		LoadMore,
+		EmojiPicker,
 		ThemePicker,
 		FontScalePicker,
 		theme,
@@ -127,7 +128,8 @@
 				{ id: 'form-atoms', label: 'Form atoms · Field', keywords: 'input textarea select switch slider label kbd' },
 				{ id: 'checkbox-radio', label: 'Checkbox · RadioGroup', keywords: 'choice tick option' },
 				{ id: 'fieldset', label: 'Fieldset', keywords: 'group legend form' },
-				{ id: 'file-dropzone', label: 'FileButton · Dropzone', keywords: 'upload drag drop attachment' }
+				{ id: 'file-dropzone', label: 'FileButton · Dropzone', keywords: 'upload drag drop attachment' },
+				{ id: 'emoji-picker', label: 'EmojiPicker', keywords: 'emoji glyph avatar icon search' }
 			]
 		},
 		{
@@ -276,6 +278,7 @@
 	let selectValue = $state('two');
 	let selectOptionValue = $state('personal');
 	let selectGroupValue = $state('auto');
+	let emojiValue = $state('🐙');
 	let pickerValue = $state('a');
 	let modalOpen = $state(false);
 	let confirmOpen = $state(false);
@@ -1202,6 +1205,20 @@ function greet(name) {
 								</div>
 							</Card>
 						</Dropzone>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="emoji-picker">
+				<Heading level={3} size="lg">EmojiPicker</Heading>
+				<Card>
+					<div class="row row-wrap">
+						<EmojiPicker value={emojiValue} onselect={(e) => (emojiValue = e)} />
+						<Input bind:value={emojiValue} size="sm" aria-label="Chosen emoji" style="width: 6rem" />
+						<Text variant="caption" tone="muted">
+							Search the built-in EN+FR catalogue or browse it by group; pass your own
+							<code>groups</code> to replace it. Arrow keys walk the grid, Enter picks.
+						</Text>
 					</div>
 				</Card>
 			</section>
