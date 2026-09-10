@@ -43,6 +43,7 @@ export { default as AutoGrid } from './components/layouts/AutoGrid.svelte';
 export { default as Cluster } from './components/layouts/Cluster.svelte';
 export { default as Container } from './components/layouts/Container.svelte';
 export { default as MasterDetail } from './components/layouts/MasterDetail.svelte';
+export { default as NavBar, type NavBarItem } from './components/layouts/NavBar.svelte';
 export { default as NavItem } from './components/layouts/NavItem.svelte';
 export { default as NavSection } from './components/layouts/NavSection.svelte';
 export { default as ResizablePanel } from './components/layouts/ResizablePanel.svelte';
