@@ -19,7 +19,9 @@ test('props: legend (string | snippet), tone, dashed, padding, droppable, accept
 	assert.match(component, /dashed = true,/);
 	assert.match(component, /padding\?: 'sm' \| 'md' \| 'lg';/);
 	assert.match(component, /droppable = false,/);
-	assert.match(component, /accepts\?: \(data: string, e: DragEvent\) => boolean;/);
+	assert.match(component, /accepts\?: \(data: string, e: DragEvent, types: readonly string\[\]\) => boolean;/);
+	assert.match(component, /dragPayload = '',/);
+	assert.match(component, /dragPayload\?: string;/);
 	assert.match(component, /ondrop\?: \(data: string, e: DragEvent\) => void;/);
 	assert.match(component, /dropHint\?: string \| Snippet;/);
 	assert.match(component, /over = \$bindable\(false\),/);
@@ -49,7 +51,7 @@ test('dashed and tone variants map to border tokens', () => {
 test('drop target: dragenter sets highlight, drop calls ondrop with payload, accepts=false ignores', () => {
 	assert.match(component, /ondragenter={onDragEnter}\s+ondragleave={onDragLeave}\s+ondragover={onDragOver}\s+ondrop={onDrop}/);
 	assert.match(component, /function valid\(e: DragEvent\): boolean {\s*if \(!droppable \|\| disabled\) return false;/);
-	assert.match(component, /return accepts \? accepts\(payload\(e\), e\) : true;/);
+	assert.match(component, /return accepts \? accepts\(payload\(e\), e, types\) : true;/);
 	assert.match(component, /function onDragEnter\(e: DragEvent\) {\s*if \(!valid\(e\)\) return;[^}]*if \(depth === 1\) over = true;/);
 	assert.match(component, /function onDrop\(e: DragEvent\) {[^}]*over = false;\s*if \(!valid\(e\)\) return;\s*e\.preventDefault\(\);\s*ondrop\?\.\(payload\(e\), e\);/);
 	assert.match(component, /e\.dataTransfer\?\.getData\(mime\)/);
@@ -61,6 +63,12 @@ test('highlight style: accent dashed border with 6% fill and a drop hint row', (
 	assert.match(component, /{#if droppable && over && dropHint}\s*<div class="fieldset-hint" aria-live="polite">/);
 });
 
+test('accepts falls back to dragPayload while the dataTransfer is protected, and gets the types', () => {
+	assert.match(component, /function payload\(e: DragEvent\): string {\s*return e\.dataTransfer\?\.getData\(mime\) \|\| dragPayload;/);
+	assert.match(component, /const types = Array\.from\(e\.dataTransfer\?\.types \?\? \[\]\);\s*if \(!types\.includes\(mime\)\) return false;/);
+	assert.match(component, /during dragenter\/dragover the/);
+});
+
 test('reduced-motion disables the transition; no :global', () => {
 	assert.match(component, /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.fieldset\s*{\s*transition: none;/);
 	assert.doesNotMatch(component, /:global/);
@@ -69,6 +77,9 @@ test('reduced-motion disables the transition; no :global', () => {
 test('demo: two droppable pools with a draggable card and a keyboard path', () => {
 	assert.match(page, /<Fieldset\s+legend=/);
 	assert.match(page, /droppable\s+accepts=/);
+	assert.match(page, /dragPayload=\{poolDrag\}/);
+	assert.match(page, /poolDrag = item;/);
+	assert.match(page, /ondragend=\{\(\) => \(poolDrag = ''\)\}/);
 	assert.match(page, /draggable="true"/);
 	assert.match(page, /movePool\(item, id === 'a' \? 'b' : 'a'\)/);
 });
