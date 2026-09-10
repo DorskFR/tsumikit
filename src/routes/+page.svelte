@@ -1994,6 +1994,7 @@ function greet(name) {
 							<Gauge value={92} variant="segments" as="button" label="Hot pace, click for details">
 								{#snippet corner()}🔥{/snippet}
 							</Gauge>
+							<Gauge value={48} as="a" href="#gauge" label="Open usage details" />
 						</div>
 					</div>
 				</Card>

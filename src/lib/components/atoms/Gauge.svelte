@@ -34,6 +34,7 @@
 		dangerAt?: number;
 		label?: string;
 		as?: 'div' | 'a' | 'button';
+		href?: string;
 		width?: string;
 		height?: string;
 		corner?: Snippet;
@@ -61,6 +62,10 @@
 	const resolvedTone = $derived(tone ?? gaugeTone(pct, warnAt, dangerAt));
 	const lit = $derived(litSegments(pct, segments));
 	const segmentCount = $derived(Math.max(0, Math.floor(segments)));
+	const isMeter = $derived(as === 'div');
+	const ariaLabel = $derived(
+		isMeter ? label : label ? `${label} (${Math.round(pct)}%)` : `${Math.round(pct)}%`
+	);
 </script>
 
 <svelte:element
@@ -69,11 +74,11 @@
 	class="gauge tone-{resolvedTone} {klass}"
 	class:interactive={as !== 'div'}
 	type={as === 'button' ? 'button' : undefined}
-	role="meter"
-	aria-label={label}
-	aria-valuemin={0}
-	aria-valuemax={100}
-	aria-valuenow={pct}
+	role={isMeter ? 'meter' : undefined}
+	aria-label={ariaLabel}
+	aria-valuemin={isMeter ? 0 : undefined}
+	aria-valuemax={isMeter ? 100 : undefined}
+	aria-valuenow={isMeter ? pct : undefined}
 	style:--gauge-w={width}
 	style:--gauge-h={height}
 	{style}
