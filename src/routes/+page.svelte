@@ -294,6 +294,7 @@
 	let confirmFails = $state(false);
 	let poolA = $state(['Ledger', 'Wallet']);
 	let poolB = $state(['Exchange']);
+	let poolDrag = $state('');
 	function movePool(name: string, to: 'a' | 'b') {
 		poolA = poolA.filter((n) => n !== name);
 		poolB = poolB.filter((n) => n !== name);
@@ -1154,7 +1155,8 @@ function greet(name) {
 				<Heading level={3} size="lg">Fieldset</Heading>
 				<Card>
 					<div class="stack">
-						<Text variant="caption" tone="muted">Drag a card between pools (HTML5 DnD); buttons are the keyboard path.</Text>
+						<Text variant="caption" tone="muted">Drag a card between pools (HTML5 DnD); buttons are the keyboard path. <code>dragPayload</code> feeds
+							<code>accepts</code> while hovering, so the source pool stays unhighlighted.</Text>
 						<div class="row row-wrap" style="align-items: stretch">
 							{#each [['a', 'Pool A', poolA], ['b', 'Pool B', poolB]] as [id, name, items] (id)}
 								<Fieldset
@@ -1162,6 +1164,7 @@ function greet(name) {
 									tone={(items as string[]).length ? 'accent' : 'strong'}
 									droppable
 									accepts={(d) => !(items as string[]).includes(d)}
+									dragPayload={poolDrag}
 									ondrop={(d) => movePool(d, id as 'a' | 'b')}
 									dropHint="Drop to add to {name}"
 									style="flex: 1 1 14rem"
@@ -1171,7 +1174,11 @@ function greet(name) {
 											<Card
 												padding="sm"
 												draggable="true"
-												ondragstart={(e: DragEvent) => e.dataTransfer?.setData('text/plain', item)}
+												ondragstart={(e: DragEvent) => {
+													e.dataTransfer?.setData('text/plain', item);
+													poolDrag = item;
+												}}
+												ondragend={() => (poolDrag = '')}
 											>
 												<div class="row" style="justify-content: space-between">
 													<Text variant="body">{item}</Text>

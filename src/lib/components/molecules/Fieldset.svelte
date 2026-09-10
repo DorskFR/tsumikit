@@ -2,7 +2,9 @@
 	// Bordered zone whose legend rides the top border. Real <fieldset>/<legend>
 	// for semantics. `droppable` turns it into an HTML5 drop target: a hovering
 	// drag that passes `accepts` highlights the zone and shows `dropHint`;
-	// `ondrop` receives the payload read from `dataTransfer` under `mime`.
+	// `ondrop` receives the payload read from `dataTransfer` under `mime`. That payload
+	// is unreadable while hovering (HTML protected mode), so per-item acceptance rules
+	// need `dragPayload` or the `types` handed to `accepts`.
 	// Keyboard users cannot drag — the consumer must offer a non-drag path
 	// (a move menu, a select) to the same action. Pointer-based DnD can drive
 	// the highlight through the bindable `over` prop.
@@ -18,6 +20,7 @@
 		droppable = false,
 		mime = 'text/plain',
 		accepts,
+		dragPayload = '',
 		ondrop,
 		dropHint,
 		over = $bindable(false),
@@ -33,7 +36,13 @@
 		padding?: 'sm' | 'md' | 'lg';
 		droppable?: boolean;
 		mime?: string;
-		accepts?: (data: string, e: DragEvent) => boolean;
+		/** `data` is the dataTransfer payload on drop, but during dragenter/dragover the
+		 *  dataTransfer is in protected mode and `getData` returns `''` — there `data` is
+		 *  `dragPayload` when given, otherwise `''`, and `types` is the only other signal. */
+		accepts?: (data: string, e: DragEvent, types: readonly string[]) => boolean;
+		/** Payload of the drag in flight when the app already knows it (a dragstart handler
+		 *  or a pointer-DnD store); stands in for the unreadable dataTransfer during dragover. */
+		dragPayload?: string;
 		ondrop?: (data: string, e: DragEvent) => void;
 		dropHint?: string | Snippet;
 		over?: boolean;
@@ -47,12 +56,13 @@
 	let depth = 0;
 
 	function payload(e: DragEvent): string {
-		return e.dataTransfer?.getData(mime) ?? '';
+		return e.dataTransfer?.getData(mime) || dragPayload;
 	}
 	function valid(e: DragEvent): boolean {
 		if (!droppable || disabled) return false;
-		if (!Array.from(e.dataTransfer?.types ?? []).includes(mime)) return false;
-		return accepts ? accepts(payload(e), e) : true;
+		const types = Array.from(e.dataTransfer?.types ?? []);
+		if (!types.includes(mime)) return false;
+		return accepts ? accepts(payload(e), e, types) : true;
 	}
 
 	function onDragEnter(e: DragEvent) {
