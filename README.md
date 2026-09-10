@@ -190,7 +190,7 @@ sanctioned escape hatch for everything else.
 | component | published properties |
 | --- | --- |
 | `Button` | `--btn-bg`, `--btn-fg`, `--btn-border`, `--btn-size`, `--btn-radius`, `--btn-tone`, `--btn-on`, `--btn-box` |
-| `Badge` | `--badge-bg`, `--badge-fg`, `--badge-border`, `--badge-radius`, `--badge-tone`, `--badge-max-width` |
+| `Badge` | `--badge-bg`, `--badge-fg`, `--badge-border`, `--badge-radius`, `--badge-tone`, `--badge-max-width`, `--badge-fs`, `--badge-fw`, `--badge-min-size` |
 | `Text` | `--txt-fg`, `--txt-size` |
 | `Select` | `--select-bg`, `--select-fg`, `--select-border`, `--select-size`, `--select-radius` |
 | `Input` | `--input-bg`, `--input-fg`, `--input-border`, `--input-size`, `--input-radius` |
@@ -204,9 +204,23 @@ sanctioned escape hatch for everything else.
 | `Fieldset` | `--fieldset-pad`, `--fieldset-border` |
 | `GitRef` | `--git-ref-tone`, `--git-ref-max-width` |
 | `EmptyState` | `--empty-tone` |
+| `Popover` | `--pop-trigger-bg`, `--pop-trigger-fg`, `--pop-trigger-border`, `--pop-trigger-radius`, `--pop-trigger-size`, `--pop-trigger-pad`, `--pop-box` |
 
 `tests/css-custom-property-contract.test.js` reads this table and fails if a
 listed property is not actually read by its component, so the docs cannot drift.
+
+`Popover`'s hooks paint the **trigger**; hover states keep their own feedback
+colours. `--pop-box: auto` releases the square floor, so `pill` plus
+`--pop-trigger-pad` reshapes the default trigger into a chip of any height. `--pop-trigger-border` needs the chromed trigger — `bare` means no ring
+by definition. `Badge`'s `--badge-min-size` pairs with `numeric` (already centred
+and tabular) to turn a count badge into a square/circular counter.
+
+A `triggerClass` on `Popover` (or `class` on the pickers that wrap it) is a hook
+for a **globally loaded** stylesheet only. Your component's *scoped* CSS cannot
+reach it: Svelte's scoping attribute is added to elements your own template
+renders, and the trigger belongs to `Popover`, so `.toolbar .my-trigger` compiles
+to `.toolbar.svelte-x .my-trigger.svelte-x` and matches nothing. Use `style` and
+the properties above instead.
 
 ## Components
 

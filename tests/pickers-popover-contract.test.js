@@ -21,7 +21,7 @@ test('Slider ticks: one dot per step, positioned inside the thumb travel, reache
 });
 
 test('FontScalePicker: A trigger opens a popover with a tick-marked slider over SCALE_LEVELS and a/A end buttons', () => {
-	assert.match(fontScale, /<Popover label="Text size"/);
+	assert.match(fontScale, /<Popover\s+label="Text size"/);
 	assert.match(fontScale, /max=\{SCALE_LEVELS\.length - 1\}/);
 	assert.match(fontScale, /step=\{1\}\s*ticks/);
 	assert.match(fontScale, /aria-label="Smaller text"[\s\S]*?>a<\/button>/);

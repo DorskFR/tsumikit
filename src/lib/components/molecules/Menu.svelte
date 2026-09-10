@@ -34,6 +34,7 @@
 		| 'tone'
 		| 'size'
 		| 'box'
+		| 'pill'
 		| 'control'
 		| 'block'
 		| 'triggerClass'
@@ -55,6 +56,7 @@
 		tone,
 		size,
 		box,
+		pill,
 		control,
 		block,
 		triggerClass,
@@ -135,6 +137,7 @@
 	{tone}
 	{size}
 	{box}
+	{pill}
 	{control}
 	{block}
 	{triggerClass}

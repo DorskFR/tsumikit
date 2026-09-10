@@ -57,7 +57,7 @@ test('Button box/square/chip render square, padding-less, non-flexing boxes', ()
 
 test('Popover and FileButton own the same box geometry on their native element', () => {
 	assert.match(popover, /style:--pop-box={box \? `var\(--box-\${box}\)` : undefined}/);
-	assert.match(popover, /\.pop-trigger\.trigger-box\s*{[^}]*width: var\(--pop-box\);[^}]*padding: 0;/s);
+	assert.match(popover, /\.pop-trigger\.trigger-box\s*{[^}]*width: var\(--pop-box\);[^}]*padding: var\(--pop-trigger-pad, 0\);/s);
 	assert.match(popover, /:where\(\.pop-trigger:not\(\.bare\)\)\s*{[^}]*min-width: var\(--pop-box, var\(--box-sm\)\);/s);
 	assert.match(fileButton, /style:--file-box={box \? `var\(--box-\${box}\)` : undefined}/);
 	assert.match(fileButton, /\.file-btn\.box\s*{[^}]*width: var\(--file-box\);[^}]*padding: 0;/s);
@@ -112,10 +112,10 @@ test('Button chip sizes to its text and only squares up for a lone glyph', () =>
 test('the chrome-less Popover trigger floors at the sm box and yields its size to triggerClass (TSU-102)', () => {
 	const def = rule(popover, ':where(.pop-trigger:not(.bare))');
 	// The square is a variable, not a token floor a consumer's width/height
-	// cannot cancel: `--pop-box` is what `triggerClass` overrides.
+	// cannot cancel: `--pop-box` is what a consumer's `style` overrides.
 	assert.equal(def['min-height'], 'var(--pop-box, var(--box-sm))');
 	assert.equal(def['min-width'], 'var(--pop-box, var(--box-sm))');
-	assert.equal(def.padding, 'var(--sp-1)');
+	assert.equal(def.padding, 'var(--pop-trigger-pad, var(--sp-1))');
 	assert.equal(def['min-height'].includes('--box-md'), false);
 	// The 44px coarse-pointer target stays on the absolute slab, off the box.
 	assert.match(popover, /\.pop-trigger:not\(\.canonical, \.hit-compact\)::after\s*{[^}]*inset: min\(0px, calc\(\(100% - var\(--touch-target\)\) \/ 2\)\);/s);
