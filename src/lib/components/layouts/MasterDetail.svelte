@@ -15,6 +15,8 @@
 		empty,
 		listWidth = '17rem',
 		breakpoint = '48rem',
+		gap = '0',
+		divider = 'border',
 		selected = false,
 		onback,
 		backLabel = 'Back',
@@ -32,6 +34,10 @@
 		listWidth?: string;
 		/** Own-width threshold (px/em/rem) below which the panes become two pages. */
 		breakpoint?: string;
+		/** Space between the two columns (any CSS length). */
+		gap?: string;
+		/** Seam between the panes; `--md-divider` overrides it with any border shorthand. */
+		divider?: 'border' | 'none';
 		selected?: boolean;
 		onback?: () => void;
 		backLabel?: string;
@@ -72,7 +78,9 @@
 	class="md {klass}"
 	class:mobile
 	class:selected
-	style="--md-list-w: {listWidth};{style ? ` ${style}` : ''}"
+	style="--md-list-w: {listWidth}; --md-gap: {gap}; --md-divider: {divider === 'none'
+		? 'none'
+		: '1px solid var(--border)'};{style ? ` ${style}` : ''}"
 	data-tsu="MasterDetail"
 	{...rest}
 >
@@ -113,6 +121,7 @@
 	.md {
 		display: grid;
 		grid-template-columns: var(--md-list-w) minmax(0, 1fr);
+		gap: var(--md-gap, 0);
 		min-width: 0;
 		min-height: 0;
 		height: 100%;
@@ -127,7 +136,7 @@
 		-webkit-overflow-scrolling: touch;
 	}
 	.md-list {
-		border-right: 1px solid var(--border);
+		border-right: var(--md-divider, 1px solid var(--border));
 	}
 	.md-detail {
 		display: flex;
@@ -183,6 +192,7 @@
 
 	.md.mobile {
 		grid-template-columns: minmax(0, 1fr);
+		gap: 0;
 	}
 	.md.mobile .md-list {
 		border-right: 0;

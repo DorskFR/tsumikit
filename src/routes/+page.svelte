@@ -272,6 +272,7 @@
 	const mdItems = ['Alice', 'Bob', 'Chidi', 'Dana'];
 	let mdSelectedWide = $state<string | null>('Alice');
 	let mdSelectedNarrow = $state<string | null>(null);
+	let mdSelectedGap = $state<string | null>('Bob');
 	let toggleA = $state(true);
 	let toggleB = $state(false);
 	let toggleC = $state(false);
@@ -723,6 +724,34 @@ function greet(name) {
 
 			<section class="section" id="master-detail">
 				<Heading level={3} size="lg">MasterDetail</Heading>
+				{#snippet mdGapDemo(selected: string | null, select: (v: string | null) => void)}
+					<MasterDetail
+						gap="var(--sp-4)"
+						divider="none"
+						selected={selected !== null}
+						onback={() => select(null)}
+						style="height: 16rem"
+					>
+						{#snippet list()}
+							<Card>
+								<Stack gap="0">
+									{#each mdItems as name (name)}
+										<NavItem label={name} active={selected === name} onclick={() => select(name)} />
+									{/each}
+								</Stack>
+							</Card>
+						{/snippet}
+						{#snippet detail()}
+							<Card><Stack gap="var(--sp-2)">
+								<Heading level={3}>{selected}</Heading>
+								<Text>Detail pane for {selected}.</Text>
+							</Stack></Card>
+						{/snippet}
+						{#snippet empty()}
+							<Card><Text tone="muted">Pick someone on the left.</Text></Card>
+						{/snippet}
+					</MasterDetail>
+				{/snippet}
 				{#snippet mdDemo(selected: string | null, select: (v: string | null) => void)}
 					<MasterDetail
 						selected={selected !== null}
@@ -761,6 +790,11 @@ function greet(name) {
 						<div style="max-width: 22rem">
 							{@render mdDemo(mdSelectedNarrow, (v) => (mdSelectedNarrow = v))}
 						</div>
+						<Text variant="caption" tone="muted">
+							<code>gap</code> spaces the columns and <code>divider="none"</code> drops the seam — or
+							override <code>--md-gap</code> / <code>--md-divider</code> from the consumer:
+						</Text>
+						{@render mdGapDemo(mdSelectedGap, (v) => (mdSelectedGap = v))}
 					</Stack>
 				</Card>
 			</section>

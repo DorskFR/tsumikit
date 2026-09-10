@@ -224,7 +224,9 @@ mobile), NavItem
 registry, `iconPath` / `iconChildren` for custom glyphs, `activeStyle="bar"`
 for the inset-bar active look), MasterDetail (list + detail columns that
 become two pages — one pane at a time with a sticky 44px back header — below
-their own `breakpoint`, so `selected` can be driven from the URL), Container, Stack
+their own `breakpoint`, so `selected` can be driven from the URL; `gap` spaces
+the columns and `divider="none"` drops the seam, both also settable as the
+`--md-gap` / `--md-divider` custom properties), Container, Stack
 (vertical), Cluster (wrapping row; `stackAt="xs|sm|md|lg"` makes it its own
 query container and stacks children full-width below 18/30/40/48rem — phone
 action rows without a viewport query), AutoGrid (intrinsically responsive
