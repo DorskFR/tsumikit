@@ -165,11 +165,11 @@
 		justify-content: center;
 		gap: var(--sp-2);
 		padding: var(--sp-2) var(--sp-4);
-		min-height: var(--control-height-default);
-		border: 1px solid var(--border-strong);
-		border-radius: var(--r-md);
-		background: var(--surface);
-		color: var(--text);
+		min-height: var(--btn-size, var(--control-height-default));
+		border: 1px solid var(--btn-border, var(--border-strong));
+		border-radius: var(--btn-radius, var(--r-md));
+		background: var(--btn-bg, var(--surface));
+		color: var(--btn-fg, var(--text));
 		font-weight: var(--fw-medium);
 		font-size: var(--fs-sm);
 		line-height: 1;
@@ -188,9 +188,9 @@
 		cursor: not-allowed;
 	}
 	.btn-primary {
-		background: var(--accent);
-		border-color: var(--accent);
-		color: var(--text-on-accent);
+		background: var(--btn-bg, var(--accent));
+		border-color: var(--btn-border, var(--accent));
+		color: var(--btn-fg, var(--text-on-accent));
 		font-weight: var(--fw-semibold);
 	}
 	.btn-primary:hover:not(:disabled) {
@@ -205,21 +205,21 @@
 		border-color: var(--danger);
 	}
 	.btn-ghost {
-		background: transparent;
-		border-color: transparent;
+		background: var(--btn-bg, transparent);
+		border-color: var(--btn-border, transparent);
 	}
 	.btn-ghost:hover:not(:disabled) {
 		background: var(--bg-elevated-2);
 		border-color: transparent;
 	}
 	.btn-sm {
-		height: var(--control-height-compact);
-		min-height: var(--control-height-compact);
+		height: var(--btn-size, var(--control-height-compact));
+		min-height: var(--btn-size, var(--control-height-compact));
 		padding: var(--sp-1) var(--sp-3);
 		font-size: var(--fs-xs);
 	}
 	.btn-lg {
-		min-height: var(--control-height-large);
+		min-height: var(--btn-size, var(--control-height-large));
 		padding: var(--sp-3) var(--sp-5);
 		font-size: var(--fs-base);
 	}
@@ -298,13 +298,13 @@
 		align-items: center;
 		justify-content: center;
 		gap: var(--sp-2);
-		height: var(--control-height);
-		min-height: var(--control-height);
+		height: var(--btn-size, var(--control-height));
+		min-height: var(--btn-size, var(--control-height));
 		padding: 0 var(--sp-3);
-		border: 1px solid var(--border-strong);
-		border-radius: var(--r-md);
-		background: var(--surface);
-		color: var(--text);
+		border: 1px solid var(--btn-border, var(--border-strong));
+		border-radius: var(--btn-radius, var(--r-md));
+		background: var(--btn-bg, var(--surface));
+		color: var(--btn-fg, var(--text));
 		font-weight: var(--fw-medium);
 		font-size: var(--fs-sm);
 		line-height: 1;
@@ -326,9 +326,9 @@
 	   the primary action with the neutral --surface; restore the accent fill when
 	   both are present. */
 	.btn-control.btn-primary {
-		background: var(--accent);
-		border-color: var(--accent);
-		color: var(--text-on-accent);
+		background: var(--btn-bg, var(--accent));
+		border-color: var(--btn-border, var(--accent));
+		color: var(--btn-fg, var(--text-on-accent));
 	}
 	.btn-control.btn-primary:hover:not(:disabled) {
 		border-color: var(--accent);
@@ -389,7 +389,7 @@
 		align-self: flex-start;
 	}
 	.btn-pill {
-		border-radius: var(--r-pill);
+		border-radius: var(--btn-radius, var(--r-pill));
 	}
 	/* Link variant: no box, inherits the surrounding text size. Placed after the
 	   size rules so their min-height doesn't reapply; a tone wins over --link. */
@@ -419,23 +419,23 @@
 	}
 	/* `square`: side = the height contract in force (size tier or control). */
 	.btn-square {
-		width: var(--control-height-default);
-		min-width: var(--control-height-default);
+		width: var(--btn-size, var(--control-height-default));
+		min-width: var(--btn-size, var(--control-height-default));
 		padding: 0;
 		flex: none;
 	}
 	.btn-square.btn-sm {
-		width: var(--control-height-compact);
-		min-width: var(--control-height-compact);
+		width: var(--btn-size, var(--control-height-compact));
+		min-width: var(--btn-size, var(--control-height-compact));
 	}
 	.btn-square.btn-lg {
-		width: var(--control-height-large);
-		min-width: var(--control-height-large);
-		height: var(--control-height-large);
+		width: var(--btn-size, var(--control-height-large));
+		min-width: var(--btn-size, var(--control-height-large));
+		height: var(--btn-size, var(--control-height-large));
 	}
 	.btn-square.btn-control {
-		width: var(--control-height);
-		min-width: var(--control-height);
+		width: var(--btn-size, var(--control-height));
+		min-width: var(--btn-size, var(--control-height));
 	}
 	/* `box`: explicit square scale, wins over icon/chip/square/size sizing. */
 	.btn-box {

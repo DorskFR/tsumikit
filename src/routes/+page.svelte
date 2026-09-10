@@ -104,7 +104,8 @@
 			items: [
 				{ id: 'typography', label: 'Typography', keywords: 'text heading font tone weight' },
 				{ id: 'theme-tokens', label: 'Theme tokens', keywords: 'color palette css variables swatch' },
-				{ id: 'text-scaling', label: 'Text scaling', keywords: 'font size accessibility zoom' }
+				{ id: 'text-scaling', label: 'Text scaling', keywords: 'font size accessibility zoom' },
+				{ id: 'style-hooks', label: 'Style hooks', keywords: 'css custom properties override' }
 			]
 		},
 		{
@@ -635,6 +636,30 @@ function greet(name) {
 							body text while keeping chrome compact.
 						</Text>
 					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="style-hooks">
+				<Heading level={3} size="lg">Style hooks</Heading>
+				<Card>
+					<Stack gap="var(--sp-4)">
+						<Text variant="body" tone="muted">
+							Your scoped CSS cannot reach inside a kit component, and its internal class names
+							are private. Each component instead publishes CSS custom properties named
+							<code>--&lt;prefix&gt;-&lt;axis&gt;</code> (<code>bg</code>, <code>fg</code>,
+							<code>border</code>, <code>size</code>, <code>radius</code>) that you set from
+							<code>style</code> or any ancestor rule. Reaching in with <code>:global()</code> is
+							unsupported. The README lists every published property.
+						</Text>
+						<Cluster>
+							<Button style="--btn-bg: var(--c-violet); --btn-fg: var(--c-bg); --btn-border: var(--c-violet)">--btn-bg</Button>
+							<Button style="--btn-radius: 0">--btn-radius</Button>
+							<Button style="--btn-size: 3rem">--btn-size</Button>
+							<Badge style="--badge-bg: var(--info); --badge-fg: var(--text-on-accent); --badge-border: var(--info)">--badge-bg</Badge>
+							<Text style="--txt-fg: var(--c-gold); --txt-size: var(--fs-lg)">--txt-fg</Text>
+						</Cluster>
+						<Input placeholder="--input-border" style="--input-border: var(--c-violet); --input-radius: var(--r-pill)" />
+					</Stack>
 				</Card>
 			</section>
 

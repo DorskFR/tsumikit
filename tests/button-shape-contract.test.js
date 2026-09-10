@@ -16,7 +16,7 @@ test('Button pill rounds to --r-pill', () => {
 	assert.match(button, /pill\?: boolean/);
 	assert.match(button, /pill = false,/);
 	assert.match(button, /class:btn-pill={pill}/);
-	assert.ok(hasDecl(button, '.btn-pill', 'border-radius', 'var(--r-pill)'));
+	assert.ok(hasDecl(button, '.btn-pill', 'border-radius', 'var(--btn-radius, var(--r-pill))'));
 });
 
 test('Button link variant is boxless, inherits text size and underlines on hover/focus', () => {
@@ -85,5 +85,5 @@ test('FileButton control follows --control-height like Button', () => {
 		fileButton,
 		/\.file-btn\.control\s*{\s*height: var\(--control-height\);\s*min-height: var\(--control-height\);/
 	);
-	assert.match(button, /\.btn-control\s*{[^}]*height: var\(--control-height\);/s);
+	assert.match(button, /\.btn-control\s*{[^}]*height: var\(--btn-size, var\(--control-height\)\);/s);
 });

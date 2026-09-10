@@ -154,6 +154,60 @@ for a light theme (`:root` defaults to dark, so dark themes may omit it).
 - Adding a built-in theme to the kit = one entry in `THEMES`
   (`stores/theme.svelte.ts`) + one block in `styles/themes.css`.
 
+### Styling a component from outside
+
+A Svelte consumer's **scoped** CSS cannot reach a child component's markup — the
+scoping attribute is only added to elements the consumer itself renders. `class`
+passthrough therefore only helps for layout hooks (margin, flex, grid placement).
+CSS custom properties *do* cross the component boundary, so they are the
+sanctioned escape hatch for everything else.
+
+- **Naming:** `--<prefix>-<axis>`, where `<prefix>` is the component's short
+  prefix (`btn`, `badge`, `txt`, `select`, `input`, `textarea`, `card`, `md`, …)
+  and `<axis>` is one of `bg`, `fg`, `border`, `size`, `radius`, plus a few
+  component-specific ones (`--btn-tone`, `--badge-max-width`, `--gauge-w`).
+  `Text` uses `txt` because `--text*` is already the theme's foreground token.
+- **Setting them:** per instance via `style`, or on any ancestor for a subtree.
+
+```svelte
+<Button style="--btn-bg: var(--c-violet); --btn-fg: #fff; --btn-radius: 0">Ship</Button>
+
+<div class="danger-zone">
+  <Button>Delete</Button>   <!-- inherits the block below -->
+</div>
+
+<style>
+  .danger-zone { --btn-border: var(--danger); --btn-fg: var(--danger); }
+</style>
+```
+
+- Every property is read as `var(--x, <default>)`, so leaving it unset renders
+  exactly as before.
+- **`:global()` into kit internals is unsupported.** Class names like `.btn`,
+  `.badge`, `.select-wrap` or `.textarea` are private and change without a major
+  bump. If an axis you need is missing, open an issue — do not reach in.
+
+| component | published properties |
+| --- | --- |
+| `Button` | `--btn-bg`, `--btn-fg`, `--btn-border`, `--btn-size`, `--btn-radius`, `--btn-tone`, `--btn-on`, `--btn-box` |
+| `Badge` | `--badge-bg`, `--badge-fg`, `--badge-border`, `--badge-radius`, `--badge-tone`, `--badge-max-width` |
+| `Text` | `--txt-fg`, `--txt-size` |
+| `Select` | `--select-bg`, `--select-fg`, `--select-border`, `--select-size`, `--select-radius` |
+| `Input` | `--input-bg`, `--input-fg`, `--input-border`, `--input-size`, `--input-radius` |
+| `Textarea` | `--textarea-bg`, `--textarea-fg`, `--textarea-border`, `--textarea-size`, `--textarea-radius` |
+| `Card` | `--card-pad`, `--card-gap`, `--card-border-style` |
+| `Divider` | `--divider-color`, `--divider-spacing` |
+| `Gauge` | `--gauge-w`, `--gauge-h`, `--gauge-fill` |
+| `MasterDetail` | `--md-list-w`, `--md-gap`, `--md-divider` |
+| `NavBar` | `--navbar-max` |
+| `Callout` | `--callout-tone` |
+| `Fieldset` | `--fieldset-pad`, `--fieldset-border` |
+| `GitRef` | `--git-ref-tone`, `--git-ref-max-width` |
+| `EmptyState` | `--empty-tone` |
+
+`tests/css-custom-property-contract.test.js` reads this table and fails if a
+listed property is not actually read by its component, so the docs cannot drift.
+
 ## Components
 
 **Atoms:** Text, Heading, Button, Input (`icon` inset leading glyph,

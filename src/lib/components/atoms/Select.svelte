@@ -205,13 +205,13 @@
 	}
 	.select {
 		width: 100%;
-		min-height: var(--control-height-default);
+		min-height: var(--select-size, var(--control-height-default));
 		padding: var(--sp-2) var(--sp-3);
 		line-height: var(--lh-tight);
-		background: var(--bg);
-		border: 1px solid var(--border-strong);
-		border-radius: var(--r-md);
-		color: var(--text);
+		background: var(--select-bg, var(--bg));
+		border: 1px solid var(--select-border, var(--border-strong));
+		border-radius: var(--select-radius, var(--r-md));
+		color: var(--select-fg, var(--text));
 		transition: border-color 0.12s var(--ease);
 	}
 	/* Default variant: drop the OS chevron, reserve room for our own. */
@@ -226,7 +226,7 @@
 	}
 	/* Compact inline form for dense headers/toolbars. */
 	.select.select-lg {
-		min-height: var(--control-height-large);
+		min-height: var(--select-size, var(--control-height-large));
 		padding: var(--sp-3) var(--sp-4);
 		font-size: var(--fs-base);
 	}
@@ -240,15 +240,15 @@
 	/* Toolbar contract: size="sm" shares the compact control height so it lines up
 	   with Button size="sm", Popover size="sm" and SegmentedControl size="sm". */
 	.select.select-sm {
-		height: var(--control-height-compact);
+		height: var(--select-size, var(--control-height-compact));
 	}
 	.select.w-auto {
 		width: auto;
 	}
 	.select.embedded {
-		background: var(--bg-elevated-2);
+		background: var(--select-bg, var(--bg-elevated-2));
 		border: none;
-		border-radius: var(--r-sm);
+		border-radius: var(--select-radius, var(--r-sm));
 	}
 	.select:focus {
 		outline: none;
@@ -281,7 +281,7 @@
 		gap: var(--sp-2);
 		padding: 0 var(--sp-3);
 		padding-right: calc(var(--sp-3) + 1.25rem);
-		color: var(--text);
+		color: var(--select-fg, var(--text));
 		pointer-events: none;
 		overflow: hidden;
 	}

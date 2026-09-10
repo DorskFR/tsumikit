@@ -20,9 +20,9 @@ test('ControlSize is a single exported sm|md|lg union adopted by control-height 
 	assert.match(size, /export type ControlSize = 'sm' \| 'md' \| 'lg';/);
 	assert.match(index, /export type { ControlSize } from '\.\/size';/);
 	for (const src of [input, select, textarea, kbd, progress, pagination]) assert.match(src, /size\?: ControlSize;/);
-	assert.match(input, /\.input-lg\s*{\s*min-height: var\(--control-height-large\);/);
-	assert.match(select, /\.select\.select-lg\s*{\s*min-height: var\(--control-height-large\);/);
-	assert.match(textarea, /\.textarea-lg\s*{[^}]*min-height: var\(--control-height-large\);/s);
+	assert.match(input, /\.input-lg\s*{\s*min-height: var\(--input-size, var\(--control-height-large\)\);/);
+	assert.match(select, /\.select\.select-lg\s*{\s*min-height: var\(--select-size, var\(--control-height-large\)\);/);
+	assert.match(textarea, /\.textarea-lg\s*{[^}]*min-height: var\(--textarea-size, var\(--control-height-large\)\);/s);
 });
 
 test('deprecated compact booleans lose to an explicit size', () => {

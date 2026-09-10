@@ -30,7 +30,7 @@ test('Popover exposes Button-compatible trigger chrome on one semantic button', 
 test('small Button, Popover and SegmentedControl share the compact outer height', () => {
 	assert.match(variables, /--control-height-compact: 2rem;/);
 	for (const source of [button, popover, segmented]) {
-		assert.match(source, /height: var\(--control-height-compact\);/);
+		assert.match(source, /height: (?:var\(--btn-size, )?var\(--control-height-compact\)/);
 	}
 });
 

@@ -49,8 +49,8 @@ test('Button box/square/chip render square, padding-less, non-flexing boxes', ()
 		/\.btn-box\s*{[^}]*width: var\(--btn-box\);[^}]*height: var\(--btn-box\);[^}]*padding: 0;[^}]*flex: none;/s
 	);
 	assert.match(button, /square\?: boolean/);
-	assert.match(button, /\.btn-square\s*{[^}]*width: var\(--control-height-default\);[^}]*padding: 0;/s);
-	assert.match(button, /\.btn-square\.btn-control\s*{[^}]*width: var\(--control-height\);/s);
+	assert.match(button, /\.btn-square\s*{[^}]*width: var\(--btn-size, var\(--control-height-default\)\);[^}]*padding: 0;/s);
+	assert.match(button, /\.btn-square\.btn-control\s*{[^}]*width: var\(--btn-size, var\(--control-height\)\);/s);
 	assert.match(button, /\.btn-chip\s*{[^}]*height: var\(--box-lg\);/s);
 	assert.match(button, /\.btn-icon\s*{[^}]*min-width: var\(--box-md\);/s);
 });

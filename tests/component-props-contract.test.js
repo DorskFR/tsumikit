@@ -27,7 +27,7 @@ test('Cluster size cascades --control-height and grow shares row width', () => {
 test('Select gains an sm|md scale sharing the compact control height', () => {
 	assert.match(select, /size\?: ControlSize/);
 	assert.match(select, /const small = \$derived\(\(size \?\? \(compact \? 'sm' : 'md'\)\) === 'sm'\)/);
-	assert.match(select, /\.select\.select-sm\s*{[^}]*height: var\(--control-height-compact\);/s);
+	assert.match(select, /\.select\.select-sm\s*{[^}]*height: var\(--select-size, var\(--control-height-compact\)\);/s);
 });
 
 test('Input exposes a grow layout prop', () => {
@@ -69,5 +69,5 @@ test('AutoGrid fill keeps empty tracks so columns count by min', () => {
 });
 
 test('Select adopts the default control height like Input', () => {
-	assert.match(select, /\.select\s*{[^}]*min-height: var\(--control-height-default\);/s);
+	assert.match(select, /\.select\s*{[^}]*min-height: var\(--select-size, var\(--control-height-default\)\);/s);
 });
