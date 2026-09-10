@@ -82,6 +82,7 @@
 	} from '$lib';
 	import { base } from '$app/paths';
 	let capBarCap = $state(80);
+	let capBarUncapped = $state<number | null>(null);
 
 	theme.register({
 		id: 'showcase-plum',
@@ -2012,7 +2013,27 @@ function greet(name) {
 						>
 							{#snippet caption()}▲ using 62% · cap {capBarCap}%{/snippet}
 						</CapBar>
-						<CapBar label="OpenAI" value={81} cap={90} hint="resets 12h" size="lg" />
+						<CapBar
+							label="OpenAI"
+							value={81}
+							cap={90}
+							hint="resets 12h"
+							size="lg"
+							marker={65}
+							markerLabel="expected by now"
+							markerTone="warn"
+						/>
+						<CapBar
+							label="Gemini"
+							value={44}
+							bind:cap={capBarUncapped}
+							hint="uncapped"
+							clearAtMax
+							uncappedLabel="no cap"
+							capLabel="Gemini limit"
+							layout="stacked"
+						/>
+						<CapBar label="Narrow" value={58} cap={70} hint="auto-stacks" stackBelow="30rem" />
 						<CapBar label="Locked" value={95} cap={80} hint="over cap" readonly />
 					</div>
 				</Card>

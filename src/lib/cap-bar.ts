@@ -49,8 +49,32 @@ export function capKeyStep(
 	}
 }
 
-export function capTone(value: number, cap: number, warnAt = 75): 'ok' | 'warn' | 'danger' {
-	if (value >= cap) return 'danger';
+export function capTone(value: number, cap: number | null, warnAt = 75): 'ok' | 'warn' | 'danger' {
+	if (cap !== null && value >= cap) return 'danger';
 	if (value >= warnAt) return 'warn';
 	return 'ok';
+}
+
+export function capPercent(cap: number | null, min = 0, max = 100): number {
+	if (cap === null) return 100;
+	return clampCap(((cap - min) / (max - min || 1)) * 100, 0, 100);
+}
+
+export function markerPercent(
+	marker: number | null | undefined,
+	min = 0,
+	max = 100,
+): number | null {
+	if (marker == null || Number.isNaN(marker)) return null;
+	return clampCap(((marker - min) / (max - min || 1)) * 100, 0, 100);
+}
+
+/** With `clearAtMax`, a cap dragged to `max` means "no cap" rather than a cap of `max`. */
+export function resolveCap(next: number, clearAtMax = false, max = 100): number | null {
+	return clearAtMax && next >= max ? null : next;
+}
+
+export function isStacked(layout: 'row' | 'stacked', width = 0, limit = 0): boolean {
+	if (layout === 'stacked') return true;
+	return limit > 0 && width > 0 && width < limit;
 }
