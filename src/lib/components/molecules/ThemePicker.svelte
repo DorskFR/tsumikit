@@ -5,18 +5,36 @@
 	// (--c-bg, --c-surface, --c-text, --c-accent; the derived --bg etc. are
 	// resolved once at :root and would not re-scope). The root default theme
 	// has no [data-theme] block, so its swatch carries the :root values.
+	import type { ComponentProps } from 'svelte';
 	import Popover from '$lib/components/molecules/Popover.svelte';
 	import { type ThemeDef, theme } from '$lib/stores/theme.svelte';
 	import { AUTO_THEME } from '$lib/theme-mode';
 
+	type TriggerChrome = Pick<
+		ComponentProps<typeof Popover>,
+		'variant' | 'tone' | 'size' | 'box' | 'pill' | 'control' | 'block' | 'bare' | 'hitArea' | 'placement' | 'disabled'
+	>;
+
 	let {
+		box = 'md',
+		placement = 'bottom-end',
+		variant,
+		tone,
+		size,
+		pill,
+		control,
+		block,
+		bare,
+		hitArea,
+		disabled,
 		auto = false,
 		autoLabel = 'Auto',
 		autoHelp = 'Follow the system light/dark setting',
 		lightLabel = 'Light',
 		darkLabel = 'Dark',
 		class: klass = '',
-	}: {
+		style: styleProp = '',
+	}: TriggerChrome & {
 		/** Offer an "auto" row that follows `prefers-color-scheme`, remembering
 		 *  one light and one dark theme. */
 		auto?: boolean;
@@ -25,6 +43,7 @@
 		lightLabel?: string;
 		darkLabel?: string;
 		class?: string;
+		style?: string;
 	} = $props();
 
 	let hovered = $state<ThemeDef | null>(null);
@@ -54,7 +73,22 @@
 	</span>
 {/snippet}
 
-<Popover label={title} placement="bottom-end" triggerClass={klass} box="md">
+<Popover
+	label={title}
+	{placement}
+	{box}
+	{variant}
+	{tone}
+	{size}
+	{pill}
+	{control}
+	{block}
+	{bare}
+	{hitArea}
+	{disabled}
+	triggerClass={klass}
+	style={styleProp}
+>
 	{#snippet trigger()}<span class="trigger" data-tsu="ThemePicker" {title}>{@render swatch(theme.current)}{#if isAuto}<span class="auto-dot" aria-hidden="true">◐</span>{/if}</span>{/snippet}
 	<div class="panel">
 		{#each groups as g (g.mode)}

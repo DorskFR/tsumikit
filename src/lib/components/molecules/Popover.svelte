@@ -32,6 +32,7 @@
 		tone = 'none',
 		size,
 		box,
+		pill = false,
 		control = false,
 		block = false,
 		hitArea = 'auto',
@@ -58,8 +59,11 @@
 		/** Panel content. Receives `{ close }` to dismiss the panel from inside;
 		 *  zero-argument snippets keep working. */
 		children: Snippet<[{ close: () => void }]>;
-		/** Extra class on the trigger button — style it from your own scoped CSS,
-		 *  no :global needed (you supply the class). */
+		/** Extra class on the trigger button, for a stylesheet you already load
+		 *  globally. Your *scoped* CSS cannot reach it: the element is rendered by
+		 *  `Popover`, so it carries `Popover`'s scope hash, not yours, and a
+		 *  selector like `.toolbar .my-trigger` matches nothing. Use `style` and
+		 *  the published `--pop-trigger-*` / `--pop-box` properties instead. */
 		triggerClass?: string;
 		/** Drop the default ghost-icon chrome so the trigger is an unstyled button
 		 *  you fully own (pair with `triggerClass`). */
@@ -71,9 +75,11 @@
 		size?: TriggerSize;
 		/** Shared square box scale (`--box-xs/sm/md/lg`) for an icon-only trigger,
 		 *  pinning the square exactly. The default trigger floors at the `sm` box
-		 *  and grows with its content; override that floor from `triggerClass`
-		 *  with `--pop-box`. */
+		 *  and grows with its content; override that floor with
+		 *  `style="--pop-box: …"` for any square the four tiers do not cover. */
 		box?: 'xs' | 'sm' | 'md' | 'lg';
+		/** Fully rounded trigger (`--r-pill`), as on `Button`. */
+		pill?: boolean;
 		/** Use the shared `--control-height` toolbar/composer contract. */
 		control?: boolean;
 		block?: boolean;
@@ -226,6 +232,7 @@
 	class:trigger-control={control}
 	class:trigger-block={block}
 	class:trigger-box={box !== undefined}
+	class:trigger-pill={pill}
 	class:hit-compact={hitArea === 'compact'}
 	style:--pop-box={box ? `var(--box-${box})` : undefined}
 	class:trigger-tone-accent={tone === 'accent'}
@@ -271,19 +278,20 @@
 	   (triggerClass) overrides it; `:not(.bare)` keeps it off bare triggers such
 	   as the Timestamp <time>, which stay plain inline text. */
 	/* The square is one knob, `--pop-box`: the `box` prop sets it inline, and a
-	   consumer's `triggerClass` can set it too (`--pop-box: var(--box-xs)`) — a
-	   plain width/height there would not have beaten a `min-*` floor. */
+	   consumer reaches it with `style="--pop-box: var(--box-xs)"` — a plain
+	   width/height would not have beaten a `min-*` floor. */
 	:where(.pop-trigger:not(.bare)) {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		min-height: var(--pop-box, var(--box-sm));
 		min-width: var(--pop-box, var(--box-sm));
-		padding: var(--sp-1);
-		border: 1px solid transparent;
-		border-radius: var(--r-md);
-		background: transparent;
-		color: var(--text);
+		padding: var(--pop-trigger-pad, var(--sp-1));
+		border: 1px solid var(--pop-trigger-border, transparent);
+		border-radius: var(--pop-trigger-radius, var(--r-md));
+		background: var(--pop-trigger-bg, transparent);
+		color: var(--pop-trigger-fg, var(--text));
+		font-size: var(--pop-trigger-size, inherit);
 		transition:
 			background 0.12s var(--ease),
 			border-color 0.12s var(--ease);
@@ -296,11 +304,11 @@
 	.pop-trigger.canonical {
 		min-width: 0;
 		min-height: var(--control-height-default);
-		padding: var(--sp-2) var(--sp-4);
-		border-color: var(--border-strong);
-		background: var(--surface);
+		padding: var(--pop-trigger-pad, var(--sp-2) var(--sp-4));
+		border-color: var(--pop-trigger-border, var(--border-strong));
+		background: var(--pop-trigger-bg, var(--surface));
 		font-weight: var(--fw-medium);
-		font-size: var(--fs-sm);
+		font-size: var(--pop-trigger-size, var(--fs-sm));
 		line-height: 1;
 		user-select: none;
 		white-space: nowrap;
@@ -310,9 +318,9 @@
 		background: var(--surface);
 	}
 	.pop-trigger.trigger-primary {
-		background: var(--accent);
-		border-color: var(--accent);
-		color: var(--text-on-accent);
+		background: var(--pop-trigger-bg, var(--accent));
+		border-color: var(--pop-trigger-border, var(--accent));
+		color: var(--pop-trigger-fg, var(--text-on-accent));
 		font-weight: var(--fw-semibold);
 	}
 	.pop-trigger.trigger-primary:hover:not(:disabled) {
@@ -321,16 +329,16 @@
 		filter: brightness(1.08);
 	}
 	.pop-trigger.trigger-ghost {
-		background: transparent;
-		border-color: transparent;
+		background: var(--pop-trigger-bg, transparent);
+		border-color: var(--pop-trigger-border, transparent);
 	}
 	.pop-trigger.trigger-ghost:hover:not(:disabled) {
 		background: var(--bg-elevated-2);
 		border-color: transparent;
 	}
 	.pop-trigger.trigger-danger {
-		color: var(--danger);
-		border-color: color-mix(in srgb, var(--danger) 50%, var(--border));
+		color: var(--pop-trigger-fg, var(--danger));
+		border-color: var(--pop-trigger-border, color-mix(in srgb, var(--danger) 50%, var(--border)));
 	}
 	.pop-trigger.trigger-danger:hover:not(:disabled) {
 		background: color-mix(in srgb, var(--danger) 14%, transparent);
@@ -339,28 +347,31 @@
 	.pop-trigger.trigger-sm {
 		height: var(--control-height-compact);
 		min-height: var(--control-height-compact);
-		padding: var(--sp-1) var(--sp-3);
-		font-size: var(--fs-xs);
+		padding: var(--pop-trigger-pad, var(--sp-1) var(--sp-3));
+		font-size: var(--pop-trigger-size, var(--fs-xs));
 	}
 	.pop-trigger.trigger-lg {
 		min-height: var(--control-height-large);
-		padding: var(--sp-3) var(--sp-5);
-		font-size: var(--fs-base);
+		padding: var(--pop-trigger-pad, var(--sp-3) var(--sp-5));
+		font-size: var(--pop-trigger-size, var(--fs-base));
 	}
 	.pop-trigger.trigger-control {
 		height: var(--control-height);
 		min-height: var(--control-height);
-		padding: 0 var(--sp-3);
+		padding: var(--pop-trigger-pad, 0 var(--sp-3));
 	}
 	.pop-trigger.trigger-block {
 		width: 100%;
+	}
+	.pop-trigger.trigger-pill {
+		border-radius: var(--pop-trigger-radius, var(--r-pill));
 	}
 	.pop-trigger.trigger-box {
 		width: var(--pop-box);
 		min-width: var(--pop-box);
 		height: var(--pop-box);
 		min-height: var(--pop-box);
-		padding: 0;
+		padding: var(--pop-trigger-pad, 0);
 		flex: none;
 	}
 	/* Coarse pointers: icon-only triggers extend their hit area to --touch-target
@@ -395,8 +406,8 @@
 	.pop-trigger.trigger-tone-info,
 	.pop-trigger.trigger-tone-warn,
 	.pop-trigger.trigger-tone-danger {
-		color: var(--pop-trigger-tone);
-		border-color: color-mix(in srgb, var(--pop-trigger-tone) 50%, var(--border));
+		color: var(--pop-trigger-fg, var(--pop-trigger-tone));
+		border-color: var(--pop-trigger-border, color-mix(in srgb, var(--pop-trigger-tone) 50%, var(--border)));
 	}
 	.pop-trigger.trigger-tone-accent:hover:not(:disabled),
 	.pop-trigger.trigger-tone-success:hover:not(:disabled),
@@ -407,9 +418,9 @@
 		border-color: var(--pop-trigger-tone);
 	}
 	.pop-trigger.trigger-primary.trigger-tone-success {
-		background: var(--ok);
-		border-color: var(--ok);
-		color: var(--text-on-success);
+		background: var(--pop-trigger-bg, var(--ok));
+		border-color: var(--pop-trigger-border, var(--ok));
+		color: var(--pop-trigger-fg, var(--text-on-success));
 	}
 	.pop-trigger.trigger-primary.trigger-tone-success:hover:not(:disabled) {
 		background: var(--ok);
@@ -431,12 +442,13 @@
 	/* `bare`: strip the chrome down to a plain button the consumer styles. */
 	:where(.pop-trigger.bare) {
 		display: inline;
-		padding: 0;
+		padding: var(--pop-trigger-pad, 0);
 		border: 0;
-		border-radius: 0;
-		background: none;
-		color: inherit;
+		border-radius: var(--pop-trigger-radius, 0);
+		background: var(--pop-trigger-bg, none);
+		color: var(--pop-trigger-fg, inherit);
 		font: inherit;
+		font-size: var(--pop-trigger-size, inherit);
 		line-height: inherit;
 		vertical-align: baseline;
 		cursor: pointer;

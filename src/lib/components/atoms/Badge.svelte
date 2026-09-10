@@ -167,8 +167,8 @@
 		gap: var(--sp-1);
 		padding: 0.15rem var(--sp-2);
 		border-radius: var(--badge-radius, var(--r-pill));
-		font-size: var(--fs-xs);
-		font-weight: var(--fw-medium);
+		font-size: var(--badge-fs, var(--fs-xs));
+		font-weight: var(--badge-fw, var(--fw-medium));
 		line-height: 1.4;
 		background: var(--badge-bg, var(--bg-elevated-2));
 		color: var(--badge-fg, var(--text-muted));
@@ -178,7 +178,7 @@
 	}
 	.badge-sm,
 	.badge-xs {
-		font-size: calc(var(--fs-xs) * 0.92);
+		font-size: var(--badge-fs, calc(var(--fs-xs) * 0.92));
 		gap: 0.15rem;
 	}
 	.badge-sm {
@@ -205,16 +205,17 @@
 	}
 	.mono {
 		font-family: var(--font-mono);
-		font-weight: var(--fw-normal);
+		font-weight: var(--badge-fw, var(--fw-normal));
 	}
 	.uppercase {
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
-		font-weight: var(--fw-semibold);
+		font-weight: var(--badge-fw, var(--fw-semibold));
 	}
 	.numeric {
 		font-variant-numeric: tabular-nums;
-		min-width: 1.5em;
+		min-width: var(--badge-min-size, 1.5em);
+		min-height: var(--badge-min-size, auto);
 		justify-content: center;
 	}
 	.truncate {

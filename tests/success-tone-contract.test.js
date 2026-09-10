@@ -32,7 +32,7 @@ test('neutral success controls share tinted border and hover treatments', () => 
 	);
 	assert.match(
 		popover,
-		/\.pop-trigger\.trigger-tone-success,[\s\S]*color: var\(--pop-trigger-tone\);[\s\S]*border-color: color-mix\(in srgb, var\(--pop-trigger-tone\) 50%, var\(--border\)\);/
+		/\.pop-trigger\.trigger-tone-success,[\s\S]*color: var\(--pop-trigger-fg, var\(--pop-trigger-tone\)\);[\s\S]*border-color: var\(--pop-trigger-border, color-mix\(in srgb, var\(--pop-trigger-tone\) 50%, var\(--border\)\)\);/
 	);
 	assert.match(
 		popover,
@@ -45,15 +45,19 @@ test('neutral success controls share tinted border and hover treatments', () => 
 });
 
 test('primary success controls share filled success chrome and disabled-safe hover', () => {
-	for (const [source, selector] of [
-		[button, String.raw`\.btn-primary\.btn-tone-success`],
-		[popover, String.raw`\.pop-trigger\.trigger-primary\.trigger-tone-success`]
+	for (const [source, selector, bg, border, fg] of [
+		[button, String.raw`\.btn-primary\.btn-tone-success`, 'var\\(--ok\\)', 'var\\(--ok\\)', 'var\\(--text-on-success\\)'],
+		[
+			popover,
+			String.raw`\.pop-trigger\.trigger-primary\.trigger-tone-success`,
+			'var\\(--pop-trigger-bg, var\\(--ok\\)\\)',
+			'var\\(--pop-trigger-border, var\\(--ok\\)\\)',
+			'var\\(--pop-trigger-fg, var\\(--text-on-success\\)\\)'
+		]
 	]) {
 		assert.match(
 			source,
-			new RegExp(
-				`${selector}\\s*\\{\\s*background: var\\(--ok\\);\\s*border-color: var\\(--ok\\);\\s*color: var\\(--text-on-success\\);`
-			)
+			new RegExp(`${selector}\\s*\\{\\s*background: ${bg};\\s*border-color: ${border};\\s*color: ${fg};`)
 		);
 		assert.match(
 			source,

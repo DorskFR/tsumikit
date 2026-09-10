@@ -677,6 +677,25 @@ function greet(name) {
 							<Text style="--txt-fg: var(--c-gold); --txt-size: var(--fs-lg)">--txt-fg</Text>
 						</Cluster>
 						<Input placeholder="--input-border" style="--input-border: var(--c-violet); --input-radius: var(--r-pill)" />
+						<Text variant="caption" tone="muted">Badge size axis — <code>numeric</code> reserves and centres the box, <code>--badge-min-size</code> squares it, <code>--badge-fs</code> / <code>--badge-fw</code> set the typography:</Text>
+						<Cluster>
+							<Badge numeric size="sm">7</Badge>
+							<Badge numeric size="sm" tone="info" style="--badge-min-size: 1.5rem; --badge-fs: var(--fs-sm); --badge-fw: var(--fw-semibold)">7</Badge>
+							<Badge numeric size="sm" tone="accent" style="--badge-min-size: 2rem; --badge-fs: var(--fs-base); --badge-fw: var(--fw-bold)">42</Badge>
+						</Cluster>
+						<Text variant="caption" tone="muted">A pill Popover trigger sitting in a row of Toggles — <code>pill</code> + <code>size="sm"</code> + the <code>--pop-trigger-*</code> hooks, no <code>:global()</code>:</Text>
+						<Cluster>
+							<Toggle pill pressed={toggleA} onclick={() => (toggleA = !toggleA)}>Filter A</Toggle>
+							<Toggle pill pressed={toggleB} onclick={() => (toggleB = !toggleB)}>Filter B</Toggle>
+							<Popover
+								label="Filters"
+								pill
+								style="--pop-box: auto; --pop-trigger-pad: 0.15rem var(--sp-2); --pop-trigger-size: var(--fs-xs); --pop-trigger-bg: var(--bg-elevated-2); --pop-trigger-fg: var(--text-muted); --pop-trigger-border: var(--border)"
+							>
+								{#snippet trigger()}Filters{/snippet}
+								<Text size="sm">Panel content</Text>
+							</Popover>
+						</Cluster>
 					</Stack>
 				</Card>
 			</section>

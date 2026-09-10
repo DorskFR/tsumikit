@@ -40,14 +40,17 @@ test('Badge color overrides tone and every tint derives from --badge-tone', () =
 test('Badge size adds xs and derives sm/xs font from the --fs-xs token', () => {
 	assert.match(badge, /size\?: 'xs' \| 'sm' \| 'md';/);
 	assert.match(badge, /class:badge-xs=\{size === 'xs'\}/);
-	assert.match(css, /\.badge-sm,\s*\.badge-xs \{\s*font-size: calc\(var\(--fs-xs\) \* 0\.92\);/);
+	assert.match(css, /\.badge-sm,\s*\.badge-xs \{\s*font-size: var\(--badge-fs, calc\(var\(--fs-xs\) \* 0\.92\)\);/);
 	assert.match(css, /\.badge-xs \{\s*padding: 0\.05rem var\(--sp-2\);/);
 	assert.doesNotMatch(css, /0\.6875rem/);
 });
 
 test('Badge numeric uses tabular digits with a centred minimum width', () => {
 	assert.match(badge, /numeric = false/);
-	assert.match(css, /\.numeric \{\s*font-variant-numeric: tabular-nums;\s*min-width: 1\.5em;\s*justify-content: center;/);
+	assert.match(
+		css,
+		/\.numeric \{\s*font-variant-numeric: tabular-nums;\s*min-width: var\(--badge-min-size, 1\.5em\);\s*min-height: var\(--badge-min-size, auto\);\s*justify-content: center;/
+	);
 });
 
 test('Badge truncate clips children with an ellipsis and maxWidth sets the cap', () => {

@@ -4,18 +4,53 @@
 	// Everything inside the popover is sized in plain rem, never --fs-*: if the
 	// panel rescaled with the page the slider would move under the pointer
 	// mid-drag and oscillate between steps.
+	import type { ComponentProps } from 'svelte';
 	import Popover from '$lib/components/molecules/Popover.svelte';
 	import Slider from '$lib/components/atoms/Slider.svelte';
 	import { fontScale, SCALE_LEVELS } from '$lib/stores/fontscale.svelte';
 
-	let { class: klass = '' }: { class?: string } = $props();
+	type TriggerChrome = Pick<
+		ComponentProps<typeof Popover>,
+		'variant' | 'tone' | 'size' | 'box' | 'pill' | 'control' | 'block' | 'bare' | 'hitArea' | 'placement' | 'disabled'
+	>;
+
+	let {
+		box = 'md',
+		placement = 'bottom-end',
+		variant,
+		tone,
+		size,
+		pill,
+		control,
+		block,
+		bare,
+		hitArea,
+		disabled,
+		class: klass = '',
+		style: styleProp = '',
+	}: TriggerChrome & { class?: string; style?: string } = $props();
 
 	const index = $derived(Math.max(0, SCALE_LEVELS.findIndex((l) => l.id === fontScale.levelId)));
 	const level = $derived(SCALE_LEVELS[index]);
 	const set = (i: number) => fontScale.set(SCALE_LEVELS[Math.max(0, Math.min(SCALE_LEVELS.length - 1, i))].id);
 </script>
 
-<Popover label="Text size" placement="bottom-end" triggerClass={klass} box="md">
+<Popover
+	label="Text size"
+	{placement}
+	{box}
+	{variant}
+	{tone}
+	{size}
+	{pill}
+	{control}
+	{block}
+	{bare}
+	{hitArea}
+	{disabled}
+	triggerClass={klass}
+	style={styleProp}
+>
 	{#snippet trigger()}<span class="glyph" data-tsu="FontScalePicker" title="Text size: {level.label}">A</span>{/snippet}
 	<div class="panel">
 		<div class="row">
