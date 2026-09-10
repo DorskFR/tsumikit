@@ -181,7 +181,11 @@ EmojiPicker (popover with a searchable EN+FR glyph catalogue, grouped tabs, rovi
 GitRef (branch chip + PR link tinted by state + `+N −N` diff; `collapse`
 auto/never/glyph degrades to icons inside a narrow `.cq` container),
 CapBar (consumption track with a draggable, keyboard-steppable cap handle that
-shows a `N%` bubble while it is moved; `oninput` live, `onchange` on commit),
+shows a `N%` bubble while it is moved; `oninput` live, `onchange` on commit;
+`marker`/`markerLabel`/`markerTone` draw a pace rule, `cap: null` plus
+`clearAtMax`/`uncappedLabel` express "no cap", `layout`/`stackBelow` put the
+readout above a full-width track, `capLabel`/`capValueText` localise the ARIA
+strings),
 Drawer (side-panel `<dialog>`: `side`, `width` clamped to the viewport, full-screen
 under 48rem; `nav` page column that turns into a horizontal strip on narrow
 screens, or `navMobile`; sticky `footer`; Escape / scrim / close button all close),
