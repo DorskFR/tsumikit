@@ -42,5 +42,6 @@ export {
 	operatorsFor,
 	resolveValues,
 } from './schema';
+export { singleQuery, suggestSingle } from './single';
 export type { Suggestion, SuggestKind, SuggestState } from './suggest';
 export { activeToken, suggest } from './suggest';

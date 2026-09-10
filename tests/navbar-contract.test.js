@@ -73,3 +73,8 @@ test('NavBar is exported and documented', () => {
 	assert.match(docs, /<NavBar items=\{navBarItems\} label="Demo sections" maxWidth="32rem" \/>/);
 	assert.match(docs, /<NavBar items=\{navBarItems\} orientation="inline"/);
 });
+
+test('items keyed by position so two links to the same href cannot collide', () => {
+	assert.match(source, /\{#each items as item, i \(`\$\{i\}:\$\{item\.href\}`\)\}/);
+	assert.doesNotMatch(source, /\{#each items as item \(item\.href\)\}/);
+});
