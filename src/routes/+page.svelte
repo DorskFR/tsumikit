@@ -2098,6 +2098,22 @@ function greet(name) {
 							{/snippet}
 						</Popover>
 
+						<Popover label="Hover popover" openOn="hover">
+							{#snippet trigger()}<Icon name="info" size={18} />{/snippet}
+							<div style="padding: var(--sp-2)">
+								<Text variant="body"><code>openOn="hover"</code> opens on a fine pointer after a short delay;
+								click, Enter and touch still work.</Text>
+							</div>
+						</Popover>
+
+						<Popover label="Docs link with detail" openOn="hover" as="a" href="#popover-menu" bare triggerClass="pop-link">
+							{#snippet trigger()}Link trigger{/snippet}
+							<div style="padding: var(--sp-2)">
+								<Text variant="body">With <code>as="a"</code> the trigger navigates on click and reveals
+								this panel on hover.</Text>
+							</div>
+						</Popover>
+
 						<Menu label="Row actions" items={menuItems}>
 							{#snippet trigger()}<Icon name="more" size={18} />{/snippet}
 						</Menu>
@@ -2512,6 +2528,11 @@ function greet(name) {
 		:global(.hide-sm) {
 			display: none;
 		}
+	}
+	:global(.pop-link) {
+		color: var(--accent);
+		text-decoration: underline;
+		text-underline-offset: 2px;
 	}
 	:global(.pop-chip) {
 		--pop-box: var(--box-xs);

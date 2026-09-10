@@ -11,6 +11,7 @@
 	// are broadly supported today.)
 	import { tick, type Snippet } from 'svelte';
 	import { place } from '$lib/floating';
+	import { HOVER_CLOSE_GRACE, HOVER_OPEN_DELAY, createHoverIntent, opensOnHover } from './popover-hover.js';
 
 	type Placement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
 	type TriggerVariant = 'default' | 'primary' | 'ghost' | 'danger';
@@ -35,6 +36,10 @@
 		block = false,
 		hitArea = 'auto',
 		disabled = false,
+		openOn = 'click',
+		hoverDelay = HOVER_OPEN_DELAY,
+		as = 'button',
+		href,
 		role = 'dialog',
 		haspopup = 'dialog',
 		onopen,
@@ -75,6 +80,15 @@
 		/** Icon-only triggers grow a 44px hit slab on coarse pointers; `compact` opts out. */
 		hitArea?: 'auto' | 'compact';
 		disabled?: boolean;
+		/** `hover` adds pointer-driven opening on fine pointers; click, Enter and
+		 *  touch keep working so keyboard and touch users reach the same panel. */
+		openOn?: 'click' | 'hover';
+		/** Delay before a hover opens the panel. */
+		hoverDelay?: number;
+		/** Render the trigger as a link so it can navigate while still revealing
+		 *  the panel; an `a` without `href` toggles the panel like a button. */
+		as?: 'button' | 'a';
+		href?: string;
 		/** ARIA role of the panel. */
 		role?: PanelRole;
 		/** `aria-haspopup` announced on the trigger. */
@@ -93,7 +107,7 @@
 	);
 
 	const id = `pop-${Math.random().toString(36).slice(2, 8)}`;
-	let triggerEl = $state<HTMLButtonElement | null>(null);
+	let triggerEl = $state<HTMLElement | null>(null);
 	let panelEl = $state<HTMLDivElement | null>(null);
 	// Panel content is mounted only after the first open, then kept alive so
 	// reopening is instant. The panel element itself always renders — the native
@@ -106,6 +120,70 @@
 			panelEl?.hidePopover();
 		} catch {}
 	}
+
+	function show() {
+		try {
+			panelEl?.showPopover();
+		} catch {}
+	}
+
+	function toggle() {
+		if (open) close();
+		else show();
+	}
+
+	const hover = createHoverIntent({ open: show, close });
+	$effect(() => () => hover.cancel());
+
+	function onPointerEnter(e: PointerEvent) {
+		if (disabled || !opensOnHover(openOn, e.pointerType)) return;
+		if (open) hover.cancel();
+		else hover.enter(hoverDelay);
+	}
+
+	function onPointerLeave() {
+		if (openOn !== 'hover') return;
+		hover.leave(HOVER_CLOSE_GRACE);
+	}
+
+	function onPanelPointerEnter(e: PointerEvent) {
+		if (opensOnHover(openOn, e.pointerType)) hover.cancel();
+	}
+
+	// A link trigger cannot carry `popovertarget`, so it toggles by hand — unless
+	// it has an href, where the click belongs to the navigation.
+	function onTriggerClick(e: MouseEvent) {
+		if (as !== 'a') return;
+		if (disabled) {
+			e.preventDefault();
+			return;
+		}
+		hover.cancel();
+		if (href === undefined) {
+			e.preventDefault();
+			toggle();
+		}
+	}
+
+	function onTriggerKeydown(e: KeyboardEvent) {
+		if (as !== 'a' || href !== undefined || disabled) return;
+		if (e.key === 'Enter' || e.key === ' ') {
+			e.preventDefault();
+			hover.cancel();
+			toggle();
+		}
+	}
+
+	const triggerAttrs = $derived(
+		as === 'a'
+			? {
+					href: disabled ? undefined : href,
+					tabindex: 0,
+					role: href === undefined ? 'button' : undefined,
+					'aria-disabled': disabled ? ('true' as const) : undefined,
+				}
+			: { type: 'button' as const, popovertarget: id, disabled }
+	);
 
 	function reposition() {
 		if (triggerEl && panelEl) place(triggerEl, panelEl, placement, gap);
@@ -132,10 +210,10 @@
 	}
 </script>
 
-<button
+<svelte:element
+	this={as}
 	bind:this={triggerEl}
 	data-tsu="Popover"
-	type="button"
 	class="pop-trigger {triggerClass} {klass}"
 	style={styleProp}
 	class:bare
@@ -155,14 +233,18 @@
 	class:trigger-tone-info={tone === 'info'}
 	class:trigger-tone-warn={tone === 'warn'}
 	class:trigger-tone-danger={tone === 'danger'}
-	popovertarget={id}
+	class:is-disabled={disabled && as === 'a'}
 	aria-label={label}
 	aria-haspopup={haspopup}
 	aria-expanded={open}
-	{disabled}
+	{...triggerAttrs}
+	onpointerenter={onPointerEnter}
+	onpointerleave={onPointerLeave}
+	onclick={onTriggerClick}
+	onkeydown={onTriggerKeydown}
 >
 	{@render trigger()}
-</button>
+</svelte:element>
 
 <div
 	bind:this={panelEl}
@@ -173,6 +255,8 @@
 	{role}
 	aria-label={label}
 	ontoggle={onToggle}
+	onpointerenter={onPanelPointerEnter}
+	onpointerleave={onPointerLeave}
 >
 	{#if opened}
 		{@render children({ close })}
@@ -332,9 +416,17 @@
 		border-color: var(--ok);
 		filter: brightness(1.08);
 	}
-	.pop-trigger:disabled {
+	.pop-trigger:disabled,
+	.pop-trigger.is-disabled {
 		opacity: 0.45;
 		cursor: not-allowed;
+	}
+	.pop-trigger.is-disabled {
+		pointer-events: none;
+	}
+	:where(a.pop-trigger) {
+		cursor: pointer;
+		text-decoration: none;
 	}
 	/* `bare`: strip the chrome down to a plain button the consumer styles. */
 	:where(.pop-trigger.bare) {
