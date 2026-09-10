@@ -166,7 +166,9 @@ threshold tones via `warnAt`/`dangerAt`, `corner` snippet), Artwork (lazy cover 
 fallback, `aspect`, `status` overlay), Card (`tone` tints the surface for inline banners), Badge
 (`tone` semantic palette or `color` for any CSS colour, `size` xs/sm/md, `dot`,
 `icon`, `numeric`, `truncate`, `variant="text"`; all tints derive from
-`--badge-tone`), Dot (`ring` dark halo over artwork), Link (`tone`, `underline`
+`--badge-tone`), Dot (`ring` dark halo over artwork), Divider (standalone
+horizontal/vertical hairline, `tone`, `spacing`, optional centred label,
+`decorative` to drop the `separator` role), Link (`tone`, `underline`
 always/hover/none, `align`), Icon (open registry — pass a `children` snippet for
 any custom SVG).
 

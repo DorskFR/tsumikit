@@ -12,6 +12,7 @@
 		Slider,
 		Card,
 		Badge,
+		Divider,
 		Dot,
 		Link,
 		Icon,
@@ -110,6 +111,7 @@
 			items: [
 				{ id: 'layout-primitives', label: 'Stack · Cluster · AutoGrid', keywords: 'grid spacing gap flow' },
 				{ id: 'card', label: 'Card', keywords: 'surface panel tile stacked tone dashed border' },
+				{ id: 'divider', label: 'Divider', keywords: 'separator rule hairline horizontal vertical' },
 				{ id: 'master-detail', label: 'MasterDetail', keywords: 'list split responsive back' }
 			]
 		},
@@ -720,6 +722,31 @@ function greet(name) {
 						<Text variant="body" tone="muted">Fills its row up to the cap.</Text>
 					</Card>
 				</div>
+			</section>
+
+			<section class="section" id="divider">
+				<Heading level={3} size="lg">Divider</Heading>
+				<Card>
+					<Stack gap="var(--sp-2)">
+						<Text variant="caption" tone="muted">Horizontal tones — default, strong, faint:</Text>
+						<Text variant="body">Above the rule.</Text>
+						<Divider />
+						<Text variant="body">Between two rules.</Text>
+						<Divider tone="strong" />
+						<Text variant="body">Below the strong rule.</Text>
+						<Divider tone="faint" spacing="var(--sp-1)" />
+						<Text variant="body">Faint, tighter spacing.</Text>
+						<Divider>or</Divider>
+						<Text variant="caption" tone="muted">Vertical — stretches to the row's cross size:</Text>
+						<Cluster gap="0">
+							<Button size="sm" variant="ghost">Copy</Button>
+							<Divider orientation="vertical" spacing="var(--sp-2)" decorative />
+							<Button size="sm" variant="ghost">Rename</Button>
+							<Divider orientation="vertical" spacing="var(--sp-2)" decorative />
+							<Button size="sm" variant="ghost">Delete</Button>
+						</Cluster>
+					</Stack>
+				</Card>
 			</section>
 
 			<section class="section" id="master-detail">
