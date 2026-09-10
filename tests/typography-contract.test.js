@@ -53,8 +53,9 @@ for (const [name, src] of [
 	test(`${name} noscale pins each size to its px value after the scaled rules`, () => {
 		const px = { xs: 12, sm: 13, md: 16, lg: 18, xl: 22, '2xl': 28, ...(name === 'Text' ? { base: 15 } : {}) };
 		for (const [size, value] of Object.entries(px)) {
-			const scaled = src.search(new RegExp(`\\.fs-${size}\\s*{\\s*font-size: var\\(--fs-${size}\\);`));
-			const pinned = src.search(new RegExp(`\\.noscale\\.fs-${size}\\s*{\\s*font-size: ${value}px;`));
+			const hook = name === 'Text' ? 'var\\(--txt-size, ' : '';
+			const scaled = src.search(new RegExp(`\\.fs-${size}\\s*{\\s*font-size: ${hook}var\\(--fs-${size}\\)`));
+			const pinned = src.search(new RegExp(`\\.noscale\\.fs-${size}\\s*{\\s*font-size: ${hook}${value}px`));
 			assert.ok(scaled >= 0 && pinned > scaled, `${name} .noscale.fs-${size}`);
 		}
 	});
@@ -66,7 +67,7 @@ test('Text gets block and the eyebrow preset', () => {
 	assert.match(text, /variant\?: 'body' \| 'label' \| 'caption' \| 'code' \| 'eyebrow'/);
 	assert.match(
 		text,
-		/\.v-eyebrow\s*{\s*font-size: var\(--fs-xs\);\s*color: var\(--text-muted\);\s*font-weight: var\(--fw-medium\);\s*text-transform: uppercase;\s*letter-spacing: 0\.04em;/
+		/\.v-eyebrow\s*{\s*font-size: var\(--txt-size, var\(--fs-xs\)\);\s*color: var\(--txt-fg, var\(--text-muted\)\);\s*font-weight: var\(--fw-medium\);\s*text-transform: uppercase;\s*letter-spacing: 0\.04em;/
 	);
 });
 
@@ -91,7 +92,7 @@ test("'ok' is accepted as an alias of 'success' in Text, Progress and SegmentedP
 	assert.match(text, /tone\?: 'inherit' \| 'default' \| 'muted' \| 'faint' \| Tone;/);
 	assert.match(text, /canonicalTone\(tone\) === 'ok' \? 'success' : canonicalTone\(tone\)/);
 	assert.match(text, /tone-{toneClass}/);
-	assert.match(text, /\.tone-success\s*{\s*color: var\(--ok\);/);
+	assert.match(text, /\.tone-success\s*{\s*color: var\(--txt-fg, var\(--ok\)\);/);
 	assert.match(progress, /tone\?: Tone;/);
 	assert.match(progress, /canonicalTone\(autoTone\) === 'ok' \? 'success' : canonicalTone\(autoTone\)/);
 	assert.match(progress, /tone-{toneClass}/);

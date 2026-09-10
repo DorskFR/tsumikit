@@ -223,16 +223,16 @@
 		   --sp-3 top+bottom would overshoot it and a `rows={1}` textarea would
 		   render taller than the buttons it sits beside. */
 		padding: var(--sp-2) var(--sp-3);
-		background: var(--bg);
-		border: 1px solid var(--border-strong);
-		border-radius: var(--r-md);
-		color: var(--text);
+		background: var(--textarea-bg, var(--bg));
+		border: 1px solid var(--textarea-border, var(--border-strong));
+		border-radius: var(--textarea-radius, var(--r-md));
+		color: var(--textarea-fg, var(--text));
 		transition: border-color 0.12s var(--ease);
 		/* Custom handle replaces the native grip; never show the native one. */
 		resize: none;
 		/* Match the single-row height of Button/Input so a `rows={1}` textarea
 		   lines up with them; the native `rows` attribute grows it from here. */
-		min-height: 2.5rem;
+		min-height: var(--textarea-size, 2.5rem);
 		line-height: var(--lh-tight);
 		font-family: inherit;
 	}
@@ -250,12 +250,12 @@
 	.textarea-sm {
 		padding: var(--sp-1) var(--sp-2);
 		font-size: var(--fs-sm);
-		min-height: 2rem;
+		min-height: var(--textarea-size, 2rem);
 	}
 	.textarea-lg {
 		padding: var(--sp-3) var(--sp-4);
 		font-size: var(--fs-base);
-		min-height: var(--control-height-large);
+		min-height: var(--textarea-size, var(--control-height-large));
 	}
 	.textarea[aria-invalid='true'],
 	.textarea[aria-invalid='true']:focus {

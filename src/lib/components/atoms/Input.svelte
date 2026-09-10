@@ -130,13 +130,13 @@
 <style>
 	.input {
 		width: 100%;
-		min-height: var(--control-height-default);
+		min-height: var(--input-size, var(--control-height-default));
 		padding: var(--sp-2) var(--sp-3);
 		line-height: var(--lh-tight);
-		background: var(--bg);
-		border: 1px solid var(--border-strong);
-		border-radius: var(--r-md);
-		color: var(--text);
+		background: var(--input-bg, var(--bg));
+		border: 1px solid var(--input-border, var(--border-strong));
+		border-radius: var(--input-radius, var(--r-md));
+		color: var(--input-fg, var(--text));
 		transition: border-color 0.12s var(--ease);
 	}
 	.input:focus {
@@ -148,12 +148,12 @@
 		outline-offset: var(--focus-ring-offset);
 	}
 	.input-sm {
-		min-height: var(--control-height-compact);
+		min-height: var(--input-size, var(--control-height-compact));
 		padding: var(--sp-1) var(--sp-2);
 		font-size: var(--fs-sm);
 	}
 	.input-lg {
-		min-height: var(--control-height-large);
+		min-height: var(--input-size, var(--control-height-large));
 		padding: var(--sp-3) var(--sp-4);
 		font-size: var(--fs-base);
 	}
@@ -166,7 +166,7 @@
 		flex: none;
 	}
 	.input-pill {
-		border-radius: var(--r-pill);
+		border-radius: var(--input-radius, var(--r-pill));
 		padding-inline: var(--sp-4);
 	}
 	.input[aria-invalid='true'] {

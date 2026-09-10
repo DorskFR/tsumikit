@@ -38,7 +38,7 @@ test('width sets a fixed width with flex: none; pill uses the pill radius', () =
 	assert.match(source, /style:width={wrapped \? undefined : width}/);
 	assert.match(source, /class:input-fixed={!!width}/);
 	assert.match(source, /\.input-fixed\s*{\s*flex: none;/);
-	assert.match(source, /\.input-pill\s*{[^}]*border-radius: var\(--r-pill\);/s);
+	assert.match(source, /\.input-pill\s*{[^}]*border-radius: var\(--input-radius, var\(--r-pill\)\);/s);
 });
 
 test('onenter fires with the value on Enter and still calls a consumer onkeydown', () => {
@@ -47,6 +47,6 @@ test('onenter fires with the value on Enter and still calls a consumer onkeydown
 });
 
 test('Input adopts the default control height so it lines up with FilterInput and Button', () => {
-	assert.match(source, /\.input\s*{[^}]*min-height: var\(--control-height-default\);[^}]*padding: var\(--sp-2\) var\(--sp-3\);/s);
-	assert.match(source, /\.input-sm\s*{\s*min-height: var\(--control-height-compact\);/);
+	assert.match(source, /\.input\s*{[^}]*min-height: var\(--input-size, var\(--control-height-default\)\);[^}]*padding: var\(--sp-2\) var\(--sp-3\);/s);
+	assert.match(source, /\.input-sm\s*{\s*min-height: var\(--input-size, var\(--control-height-compact\)\);/);
 });

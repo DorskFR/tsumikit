@@ -27,7 +27,7 @@ test('Select gains width, grow and an embedded variant', () => {
 	assert.match(select, /\.select-wrap\.select-grow\s*{\s*flex: 1 1 0;\s*min-width: 0;/);
 	assert.match(
 		select,
-		/\.select\.embedded\s*{\s*background: var\(--bg-elevated-2\);\s*border: none;\s*border-radius: var\(--r-sm\);/
+		/\.select\.embedded\s*{\s*background: var\(--select-bg, var\(--bg-elevated-2\)\);\s*border: none;\s*border-radius: var\(--select-radius, var\(--r-sm\)\);/
 	);
 });
 

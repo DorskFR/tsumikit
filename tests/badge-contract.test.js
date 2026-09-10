@@ -30,7 +30,7 @@ test('Badge color overrides tone and every tint derives from --badge-tone', () =
 	assert.match(badge, /color\?: string;/);
 	assert.match(badge, /color \?\? \(tone === 'neutral' \? undefined : TONE_COLOR\[tone\]\)/);
 	assert.match(badge, /style:--badge-tone=\{toneColor\}/);
-	assert.match(css, /\.toned \{\s*color: var\(--badge-tone\);/);
+	assert.match(css, /\.toned \{\s*color: var\(--badge-fg, var\(--badge-tone\)\);/);
 	assert.match(css, /color-mix\(in srgb, var\(--badge-tone\) 40%, transparent\)/);
 	assert.match(css, /color-mix\(in srgb, var\(--badge-tone\) 12%, transparent\)/);
 	assert.match(css, /\.active \{[^}]*background: var\(--badge-tone, var\(--accent\)\)/);
