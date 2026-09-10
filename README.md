@@ -221,7 +221,10 @@ sidebar on desktop, overlay drawer on mobile, optionally resizable;
 the content column only, `stickySidebar` pins it to the viewport, and
 `sidebarPadding="none" | "sm" | "md"` sets the aside gutter — the header and its
 children are `min-width: 0` so a wide title/actions row can't widen the grid on
-mobile), NavItem
+mobile), NavBar (horizontal route bar — `<nav>` + `<a aria-current="page">`,
+icon/emoji + label + count badge; `placement="bar"` pins it to the bottom edge
+over `--z-nav` with `--safe-bottom` padding, `orientation` stacks or inlines the
+glyph, `maxWidth` centres the row), NavItem
 (collapses to an icon rail when the sidebar is narrow; `icon` from the
 registry, `iconPath` / `iconChildren` for custom glyphs, `activeStyle="bar"`
 for the inset-bar active look), MasterDetail (list + detail columns that

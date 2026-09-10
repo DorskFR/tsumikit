@@ -67,6 +67,8 @@
 		CapBar,
 		SectionHeader,
 		Artwork,
+		NavBar,
+		type NavBarItem,
 		NavItem,
 		Drawer,
 		KeyValue,
@@ -144,6 +146,7 @@
 				{ id: 'breadcrumb', label: 'Breadcrumb', keywords: 'path trail crumbs' },
 				{ id: 'pagination', label: 'Pagination', keywords: 'pages offset paging' },
 				{ id: 'carousel', label: 'Carousel', keywords: 'slides deck tour gallery swipe dots' },
+				{ id: 'navbar', label: 'NavBar', keywords: 'bottom bar tab bar routes links safe area' },
 				{ id: 'accordion', label: 'Accordion', keywords: 'details disclosure collapse' },
 				{ id: 'nav-item', label: 'Artwork · NavItem', keywords: 'sidebar avatar menu entry' }
 			]
@@ -311,6 +314,12 @@
 		{ title: 'Ordered panels', body: 'Each slide is a full-bleed group named “N of M”. Prev/next, dots, ← → and Home/End move through them.' },
 		{ title: 'Swipe friendly', body: 'Horizontal swipe steps a slide; vertical drags still scroll the page.' },
 		{ title: 'Reduced motion', body: 'The slide transition is dropped when the OS asks for reduced motion.' }
+	];
+	const navBarItems: NavBarItem[] = [
+		{ href: '#navbar', label: 'Home', icon: 'home', current: true },
+		{ href: '#navbar', label: 'Sessions', icon: 'list', badge: 3 },
+		{ href: '#navbar', label: 'Notes', emoji: '📝' },
+		{ href: '#navbar', label: 'Settings', icon: 'settings' }
 	];
 	let demoOffset = $state(40);
 	async function demoConfirm() {
@@ -1409,6 +1418,22 @@ function greet(name) {
 								<Card><Text variant="body">{item.title} — {item.body}</Text></Card>
 							{/snippet}
 						</Carousel>
+					</Stack>
+				</Card>
+			</section>
+
+			<section class="section" id="navbar">
+				<Heading level={3} size="lg">NavBar</Heading>
+				<Card>
+					<Stack gap="var(--sp-4)">
+						<Text variant="caption" tone="muted">Inline, stacked — icon over label, count badge:</Text>
+						<NavBar items={navBarItems} label="Demo sections" maxWidth="32rem" />
+						<Text variant="caption" tone="muted">Inline orientation — icon beside label, for a header row:</Text>
+						<NavBar items={navBarItems} orientation="inline" label="Demo sections, inline" />
+						<Text variant="body">
+							<code>placement="bar"</code> pins the same row to the bottom edge over <code>--z-nav</code>,
+							padded by <code>--safe-bottom</code> for the home indicator.
+						</Text>
 					</Stack>
 				</Card>
 			</section>
