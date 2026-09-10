@@ -13,6 +13,8 @@ test('props default to a 17rem list, 48rem own-width breakpoint, nothing selecte
 	assert.match(source, /listWidth = '17rem'/);
 	assert.match(source, /breakpoint = '48rem'/);
 	assert.match(source, /selected = false/);
+	assert.match(source, /gap = '0'/);
+	assert.match(source, /divider = 'border'/);
 	assert.match(source, /backLabel = 'Back'/);
 	assert.match(source, /onback\?: \(\) => void/);
 	assert.match(source, /new ResizeObserver/);
@@ -42,7 +44,7 @@ test('back button exists only on mobile, calls onback, and sits in a sticky touc
 test('columns scroll independently with a --border divider; mobile panes are full-width with safe-area padding', () => {
 	assert.match(css, /\.md\s*{[^}]*grid-template-columns: var\(--md-list-w\) minmax\(0, 1fr\);[^}]*overflow: hidden;/s);
 	assert.match(css, /\.md-list,\s*\.md-detail\s*{[^}]*overflow-y: auto;[^}]*overflow-x: hidden;/s);
-	assert.match(css, /\.md-list\s*{\s*border-right: 1px solid var\(--border\);/);
+	assert.match(css, /\.md-list\s*{\s*border-right: var\(--md-divider, 1px solid var\(--border\)\);/);
 	assert.match(css, /\.md\.mobile\s*{\s*grid-template-columns: minmax\(0, 1fr\);/);
 	assert.match(css, /\.md\.mobile \.md-list\s*{[^}]*width: 100%;[^}]*padding-inline: var\(--safe-left\) var\(--safe-right\);/s);
 	assert.match(css, /\.md\.mobile \.md-detail-header\s*{[^}]*max\(var\(--sp-3\), var\(--safe-left\)\) max\(var\(--sp-3\), var\(--safe-right\)\)/s);
@@ -53,4 +55,11 @@ test('slide-in is reduced-motion aware and no :global leaks', () => {
 	assert.match(css, /\.md\.mobile \.md-detail\s*{[^}]*animation: md-slide-in/s);
 	assert.match(css, /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.md\.mobile \.md-detail\s*{\s*animation: none;/);
 	assert.doesNotMatch(source, /:global/);
+});
+
+test('gap and divider ship as overridable custom properties on the root', () => {
+	assert.match(markup, /--md-gap: {gap};/);
+	assert.match(markup, /--md-divider: {divider === 'none'\s*\?\s*'none'\s*:\s*'1px solid var\(--border\)'};/);
+	assert.match(css, /\.md\s*{[^}]*gap: var\(--md-gap, 0\);/s);
+	assert.match(css, /\.md\.mobile\s*{[^}]*gap: 0;/s);
 });
