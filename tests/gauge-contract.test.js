@@ -21,6 +21,7 @@ test('props: value, variant, segments, tone thresholds, label, polymorphic as, c
 	assert.match(component, /warnAt = 70/);
 	assert.match(component, /dangerAt = 90/);
 	assert.match(component, /as\?: 'div' \| 'a' \| 'button'/);
+	assert.match(component, /href\?: string/);
 	assert.match(component, /corner\?: Snippet/);
 	assert.match(component, /class\?: string/);
 	assert.match(component, /style\?: string/);
@@ -30,12 +31,21 @@ test('props: value, variant, segments, tone thresholds, label, polymorphic as, c
 });
 
 test('meter semantics with 0..100 range and a label', () => {
-	assert.match(component, /role="meter"/);
-	assert.match(component, /aria-label={label}/);
-	assert.match(component, /aria-valuemin={0}/);
-	assert.match(component, /aria-valuemax=\{100\}/);
-	assert.match(component, /aria-valuenow={pct}/);
+	assert.match(component, /const isMeter = \$derived\(as === 'div'\)/);
+	assert.match(component, /role={isMeter \? 'meter' : undefined}/);
+	assert.match(component, /aria-label={ariaLabel}/);
+	assert.match(component, /aria-valuemin={isMeter \? 0 : undefined}/);
+	assert.match(component, /aria-valuemax={isMeter \? 100 : undefined}/);
+	assert.match(component, /aria-valuenow={isMeter \? pct : undefined}/);
 	assert.match(component, /type={as === 'button' \? 'button' : undefined}/);
+});
+
+test('interactive gauges keep their native role and fold the value into the name', () => {
+	assert.doesNotMatch(component, /role="meter"/);
+	assert.match(
+		component,
+		/isMeter \? label : label \? `\$\{label\} \(\$\{Math\.round\(pct\)\}%\)` : `\$\{Math\.round\(pct\)\}%`/
+	);
 });
 
 test('continuous variant fills upward by height', () => {
