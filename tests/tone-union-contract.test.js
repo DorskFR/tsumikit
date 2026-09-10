@@ -12,6 +12,7 @@ const EXEMPT = new Set([
 	'atoms/Heading.svelte',
 	'atoms/Link.svelte',
 	'atoms/Gauge.svelte',
+	'atoms/Divider.svelte',
 	'atoms/Badge.svelte',
 	'molecules/Timestamp.svelte',
 	'molecules/Fieldset.svelte',

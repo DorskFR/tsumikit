@@ -13,6 +13,7 @@ export { default as Badge } from './components/atoms/Badge.svelte';
 export { default as Button } from './components/atoms/Button.svelte';
 export { default as Card } from './components/atoms/Card.svelte';
 export { default as Checkbox } from './components/atoms/Checkbox.svelte';
+export { default as Divider } from './components/atoms/Divider.svelte';
 export { default as Dot } from './components/atoms/Dot.svelte';
 export { default as Gauge, type GaugeTone } from './components/atoms/Gauge.svelte';
 export { default as Heading } from './components/atoms/Heading.svelte';
