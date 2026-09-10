@@ -108,7 +108,7 @@
 			label: 'Layout',
 			items: [
 				{ id: 'layout-primitives', label: 'Stack · Cluster · AutoGrid', keywords: 'grid spacing gap flow' },
-				{ id: 'card', label: 'Card', keywords: 'surface panel tile stacked tone' },
+				{ id: 'card', label: 'Card', keywords: 'surface panel tile stacked tone dashed border' },
 				{ id: 'master-detail', label: 'MasterDetail', keywords: 'list split responsive back' }
 			]
 		},
@@ -688,6 +688,24 @@ function greet(name) {
 					<Card tone="warn" padding="sm"><Text variant="caption">tone warn</Text></Card>
 					<Card tone="danger" padding="sm"><Text variant="caption">tone danger</Text></Card>
 					<Card tone="attention" padding="sm"><Text variant="caption">tone attention</Text></Card>
+				</div>
+				<div class="card-row" style="margin-top: var(--sp-4)">
+					<Card border="dashed">
+						<Heading level={3} size="md">Dashed card</Heading>
+						<Text variant="body" tone="muted">An empty-slot / drop-target frame.</Text>
+					</Card>
+					<Card border="dashed" tone="danger">
+						<Heading level={3} size="md">Dashed (danger)</Heading>
+						<Text variant="body" tone="muted">Border style and tone compose.</Text>
+					</Card>
+					<Card border="none" surface="sunken">
+						<Heading level={3} size="md">Borderless card</Heading>
+						<Text variant="body" tone="muted">Frame dropped; the surface fill carries the shape.</Text>
+					</Card>
+					<Card border="dashed" stacked>
+						<Heading level={3} size="md">Dashed stack</Heading>
+						<Text variant="body" tone="muted">The back layers pick up the dashed frame too.</Text>
+					</Card>
 				</div>
 				<div class="card-row" style="margin-top: var(--sp-4)">
 					<Card interactive onclick={() => toasts.show('Card activated')}>

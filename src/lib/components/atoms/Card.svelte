@@ -40,6 +40,8 @@
 		as?: 'div' | 'button' | 'a' | 'li' | 'section' | 'form';
 		padding?: 'none' | 'sm' | 'md' | 'lg';
 		surface?: 'base' | 'raised' | 'sunken';
+		/** Frame border style; `none` drops the frame. Applies to the stacked layers too. */
+		border?: 'solid' | 'dashed' | 'none';
 		tone?: Tone;
 		stacked?: boolean;
 		stackTone?: Tone;
@@ -65,6 +67,7 @@
 		as = 'div',
 		padding = 'md',
 		surface = 'base',
+		border = 'solid',
 		tone = 'neutral',
 		stacked = false,
 		stackTone = 'neutral',
@@ -121,6 +124,8 @@
 	class:pad-lg={padding === 'lg'}
 	class:surface-raised={surface === 'raised'}
 	class:surface-sunken={surface === 'sunken'}
+	class:border-dashed={border === 'dashed'}
+	class:border-none={border === 'none'}
 	class:card-tap={tap || interactive}
 	class:card-max={maxWidth !== undefined}
 	class:card-ok={t === 'ok'}
@@ -168,7 +173,8 @@
 		--card-pad: var(--sp-4);
 		min-width: 0;
 		background: var(--bg-elevated);
-		border: 1px solid var(--border);
+		--card-border-style: solid;
+		border: 1px var(--card-border-style) var(--border);
 		border-radius: var(--r-lg);
 		padding: var(--card-pad);
 	}
@@ -199,6 +205,12 @@
 	}
 	.surface-sunken {
 		background: var(--bg-elevated-2);
+	}
+	.border-dashed {
+		--card-border-style: dashed;
+	}
+	.border-none {
+		--card-border-style: none;
 	}
 	.pad-none {
 		--card-pad: 0;
@@ -286,7 +298,7 @@
 		/* Opaque fill so each layer fully hides the one behind it — only the
 		   bottom-right peek (and its single border line) stays visible. */
 		background: var(--stack-bg);
-		border: 1px solid var(--stack-border);
+		border: 1px var(--card-border-style) var(--stack-border);
 	}
 	/* Nearest back layer — sits just under the front surface. */
 	.card-stacked::before {
