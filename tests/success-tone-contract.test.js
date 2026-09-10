@@ -65,6 +65,6 @@ test('primary success controls share filled success chrome and disabled-safe hov
 	assert.match(button, /\.btn:disabled\s*{[\s\S]*opacity: 0\.45;[\s\S]*cursor: not-allowed;/);
 	assert.match(
 		popover,
-		/\.pop-trigger:disabled\s*{[\s\S]*opacity: 0\.45;[\s\S]*cursor: not-allowed;/
+		/\.pop-trigger:disabled,\s*\.pop-trigger\.is-disabled\s*{[\s\S]*opacity: 0\.45;[\s\S]*cursor: not-allowed;/
 	);
 });

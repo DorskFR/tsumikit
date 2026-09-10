@@ -7,7 +7,7 @@ const component = (name) =>
 	readFile(new URL(`../src/lib/components/molecules/${name}`, import.meta.url), 'utf8');
 const [popover, menu] = await Promise.all([component('Popover.svelte'), component('Menu.svelte')]);
 
-const trigger = popover.slice(popover.indexOf('<button'), popover.indexOf('</button>'));
+const trigger = popover.slice(popover.indexOf('<svelte:element'), popover.indexOf('</svelte:element>'));
 const panel = popover.slice(popover.indexOf('<div'), popover.indexOf('</div>'));
 
 test('Popover exposes a role prop defaulting to dialog, rendered on the panel', () => {
