@@ -43,13 +43,15 @@
 	import { autoQuoteEdit, backspaceEmptyQuotes, closingQuoteExit } from '$lib/query/edit';
 	import { parse } from '$lib/query/parser';
 	import { type Schema } from '$lib/query/schema';
+	import { singleQuery, suggestSingle } from '$lib/query/single';
 	import { suggest, type SuggestState } from '$lib/query/suggest';
 	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
 
 	let {
 		schema,
+		key,
 		value = $bindable(''),
-		placeholder = 'artist:"Daft Punk" AND year>=2000',
+		placeholder,
 		autoQuote = true,
 		showClear = true,
 		icon = 'search',
@@ -70,13 +72,23 @@
 		style: styleProp = '',
 	}: {
 		schema: Schema;
-		/** The raw textual query (two-way bindable). */
+		/**
+		 * Single-key mode: the name (or alias) of the ONE schema field being
+		 * edited. `value` then holds the bare value instead of a `key:"value"`
+		 * query — no key prefix in the box, the placeholder shows while empty and
+		 * completion still runs through that field's provider. The equivalent query
+		 * is synthesised for `onchange` and the snippet context.
+		 */
+		key?: string;
+		/** The raw textual query, or the bare value in single-key mode (bindable). */
 		value?: string;
+		/** Defaults to a sample query, or to nothing in single-key mode. */
 		placeholder?: string;
 		/**
 		 * When a string field's value step opens (`title:`), auto-insert a `""`
 		 * pair with the caret inside so multi-word values stay together; Tab exits
 		 * the quotes. Set false for bare typing where spaces split the value.
+		 * Always off in single-key mode, which quotes nothing.
 		 */
 		autoQuote?: boolean;
 		/** Show the trailing clear (✕) button when the field is non-empty. */
@@ -147,8 +159,12 @@
 		return () => document.removeEventListener('keydown', onHotkey);
 	});
 
+	const single = $derived(!!key);
+	const quoting = $derived(autoQuote && !single);
+	const hint = $derived(placeholder ?? (single ? '' : 'artist:"Daft Punk" AND year>=2000'));
+
 	// Parsed view (drives the onchange AST + the snippet context).
-	const ast = $derived(parse(value, schema));
+	const ast = $derived(parse(key ? singleQuery(schema, key, value) : value, schema));
 	const chips = $derived(filters(ast));
 	const text = $derived(freeText(ast));
 
@@ -183,7 +199,7 @@
 	}
 
 	function oninput(e: Event) {
-		if (autoQuote && el && (e as InputEvent).inputType?.startsWith('insert')) {
+		if (quoting && el && (e as InputEvent).inputType?.startsWith('insert')) {
 			const pos = el.selectionStart ?? value.length;
 			const edit = autoQuoteEdit(schema, value, pos);
 			if (edit) {
@@ -200,7 +216,7 @@
 		if (!el) return;
 		const pos = el.selectionStart ?? value.length;
 		const id = ++reqId;
-		const next = await suggest(schema, value, pos);
+		const next = key ? await suggestSingle(schema, key, value) : await suggest(schema, value, pos);
 		if (id !== reqId) return; // a newer keystroke won
 		menu = next;
 		active = 0;
@@ -217,7 +233,7 @@
 		let caret = s.caret;
 		// A field/operator pick that opens a string field's value step gets the
 		// same auto-quotes as manual typing.
-		if (autoQuote && s.advance) {
+		if (quoting && s.advance) {
 			const edit = autoQuoteEdit(schema, value, caret);
 			if (edit) {
 				value = edit.value;
@@ -236,7 +252,7 @@
 	}
 
 	function onkeydown(e: KeyboardEvent) {
-		if (autoQuote && el) {
+		if (quoting && el) {
 			const pos = el.selectionStart ?? value.length;
 			if (e.key === 'Tab') {
 				// Inside auto-quotes Tab exits them (takes priority over accepting a
@@ -292,6 +308,14 @@
 	}
 
 	function removeChip(span: [number, number]) {
+		// Single-key spans index the synthesised query, not the box: the only
+		// clause there is the value itself, so removing it empties the field.
+		if (single) {
+			value = '';
+			onsubmit?.('');
+			queueMicrotask(() => el?.focus());
+			return;
+		}
 		// Splice the clause out, plus trailing spaces to avoid doubles.
 		const [a, b] = span;
 		let end = b;
@@ -332,7 +356,7 @@
 			aria-invalid={ariaInvalid ?? (field?.invalid ? 'true' : undefined)}
 			spellcheck="false"
 			autocomplete="off"
-			{placeholder}
+			placeholder={hint}
 			{oninput}
 			onclick={refresh}
 			onkeyup={(e) => {

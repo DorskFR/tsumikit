@@ -56,7 +56,7 @@
 	{...rest}
 >
 	<div class="navbar-inner">
-		{#each items as item (item.href)}
+		{#each items as item, i (`${i}:${item.href}`)}
 			<a
 				href={item.href}
 				class="navbar-link"

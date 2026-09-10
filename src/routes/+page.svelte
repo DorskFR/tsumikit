@@ -446,6 +446,24 @@ function greet(name) {
 	// FilterInput single-field demo: no below-bar chips, an inline badge instead.
 	let singleValue = $state('');
 	let hotkeyValue = $state('');
+	const cwdSchema: Schema = {
+		fields: [
+			{
+				name: 'cwd',
+				label: 'Working directory',
+				type: 'string',
+				provider: (q) =>
+					[
+						'/home/dorsk/Documents/tsumikit',
+						'/home/dorsk/Documents/cctui',
+						'/srv/media library'
+					]
+						.filter((p) => p.includes(q))
+						.map((p) => ({ value: p, label: p.split('/').at(-1) ?? p, hint: p }))
+			}
+		]
+	};
+	let cwdValue = $state('');
 	let iconValue = $state('');
 	const stackCols: Column<Row>[] = [
 		{ key: 'name', label: 'Name', role: 'title' },
@@ -1806,6 +1824,26 @@ function greet(name) {
 						showHotkey
 						placeholder="Search"
 					/>
+				</Card>
+
+				<Text tone="muted">
+					<code>key="cwd"</code> is single-key mode: the box holds the bare value, so there is no
+					<code>cwd:</code> prefix to mirror back and forth, the <code>placeholder</code> shows while
+					empty, and completion still comes from that field's provider. The <code>inline</code> snippet
+					keeps working — here a machine picker sitting inside the field's own box:
+				</Text>
+				<Card>
+					<FilterInput
+						schema={cwdSchema}
+						key="cwd"
+						bind:value={cwdValue}
+						icon="folder"
+						placeholder="Working directory"
+					>
+						{#snippet inline()}
+							<Badge tone="info">nanachi</Badge>
+						{/snippet}
+					</FilterInput>
 				</Card>
 			</section>
 

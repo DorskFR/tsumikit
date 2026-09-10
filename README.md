@@ -267,7 +267,10 @@ hooks on head/row/cell; `responsive="stack"` turns rows into cards below
 prefix, the `<table>` stays a table for assistive tech), FilterSearchBar /
 FilterInput (`size="sm"` compact bar on `--control-height-compact`,
 `shape="pill"`, `surface`, `hotkey="/"` focuses the input from anywhere
-outside an editable element, `showHotkey` renders the `<kbd>` hint, `grow`).
+outside an editable element, `showHotkey` renders the `<kbd>` hint, `grow`;
+`key="cwd"` puts FilterInput in single-key mode — `value` is the bare value
+instead of a `key:"value"` query, no key prefix in the box, the `placeholder`
+shows while empty, and completion still runs through that field's provider).
 
 **Layouts:** AppShell (responsive header/sidebar/main/footer — persistent
 sidebar on desktop, overlay drawer on mobile, optionally resizable;
