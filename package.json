@@ -1,6 +1,6 @@
 {
   "name": "@dorsk/tsumikit",
-  "version": "0.53.0",
+  "version": "0.54.0",
   "description": "Minimal, dependency-free Svelte 5 + pure-CSS UI kit. Token-driven atoms, molecules & layouts with theming out of the box.",
   "type": "module",
   "license": "MIT",
@@ -73,6 +73,7 @@
     "@sveltejs/kit": "^2.22.0",
     "@sveltejs/package": "^2.3.0",
     "@sveltejs/vite-plugin-svelte": "^6.0.0",
+    "@types/jsdom": "^30.0.0",
     "@types/node": "^25.9.3",
     "esbuild": "^0.28.2",
     "esbuild-svelte": "^0.9.5",
