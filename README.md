@@ -523,6 +523,14 @@ triggers, and `SegmentedControl`. Each renders an exact
 original ghost icon-button default. Use `control` on `Button` or `Popover` when
 the roomier shared `--control-height` composer contract is required.
 
+`Toolbar` implements the keyboard contract its `role="toolbar"` announces: the
+bar is a **single tab stop**, and `←`/`→` (plus `Home`/`End`) move between the
+controls that are actually visible — collapsed `data-overflow` children drop out
+of the ring and the `…` trigger is its last stop. Controls that own the arrow
+keys themselves (text inputs, `select`, sliders) keep them. Pass
+`roving={false}` to opt out; that drops the role along with the promise, leaving
+every child an ordinary tab stop.
+
 Button and Popover share the same semantic tones. For a confirmed positive
 action, `tone="success"` gives neutral controls a success tint; combine it with
 `variant="primary"` for a filled success action without consumer CSS.
@@ -610,7 +618,8 @@ label, copy, line numbers, wrap, scroll) and takes code three ways: plain
   `disabled` and native events pass through.
 - Visible `:focus-visible` rings; ARIA patterns implemented for switch, menu
   (`role=menu` + roving focus), tabs (`tablist` + arrow keys), radiogroup,
-  dialog; polite live region for toasts; `.sr-only`.
+  toolbar (`role=toolbar` + roving tabindex), dialog; polite live region for
+  toasts; `.sr-only`.
 - Mobile-first: one `min-width: 640px` breakpoint, bottom-sheet→centered-modal,
   safe-area insets, 16px-min inputs (no iOS zoom).
 - A verified color-blind-safe theme (Okabe-Ito); meaning never relies on hue
