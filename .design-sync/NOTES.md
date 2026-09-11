@@ -272,3 +272,24 @@ Uploaded 297 files to `a4c6ceb9`, writes-only (`deletes: []`). Build clean:
   half; harmless, and deleting app-side files is the documented top risk.
 - Still no `_ds_sync.json` anchor (off-script build), so every sync re-verifies
   from scratch. Correct, not a bug.
+
+## Build record — 2026-09-12 (v0.54.0), upload still owed
+
+`npm run design` run green and `ds-bundle/` is ready to upload, but the upload
+itself did not happen: it needs the bundled design-sync skill's `DesignSync`
+tool, and `finalize_plan` is an interactive approval prompt. Re-run steps 2-4 of
+the runbook from a normal interactive session — the bundle is regenerable, so
+rebuild rather than trusting a stale `ds-bundle/`.
+
+Build: 80 exports, 80/80 `@dsCard`, bundle 756kB / CSS 157kB.
+
+- **+9 components** since the 2026-09-05 sync, **no removals** — so `deletes: []`
+  still holds: `Carousel`, `ChatBubble`, `Composer`, `Divider`, `EmojiPicker`,
+  `Meter`, `NavBar`, `Prose`, `Toolbar`. The project has been un-synced across
+  v0.38.1 → v0.54.0.
+- `99/101` preview cells, not `N/N`: `AttachmentList` and `Carousel` render
+  empty. **Pre-existing** — both render empty at v0.53.0 too, so the gate was
+  already amber before the Toolbar work and this is not a reason to hold the
+  upload. Worth its own ticket.
+- `Toolbar` reaches the project for the first time, with the `roving` prop
+  already in its generated table.
