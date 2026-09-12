@@ -273,23 +273,53 @@ Uploaded 297 files to `a4c6ceb9`, writes-only (`deletes: []`). Build clean:
 - Still no `_ds_sync.json` anchor (off-script build), so every sync re-verifies
   from scratch. Correct, not a bug.
 
-## Build record — 2026-09-12 (v0.54.0), upload still owed
+## Sync record — 2026-09-12 (v0.54.0) — the owed upload is DONE
 
-`npm run design` run green and `ds-bundle/` is ready to upload, but the upload
-itself did not happen: it needs the bundled design-sync skill's `DesignSync`
-tool, and `finalize_plan` is an interactive approval prompt. Re-run steps 2-4 of
-the runbook from a normal interactive session — the bundle is regenerable, so
-rebuild rather than trusting a stale `ds-bundle/`.
+Uploaded all 337 files of a fresh rebuild to `a4c6ceb9`, writes-only
+(`deletes: []`). Build: 80 exports, 80/80 `@dsCard`, bundle 756kB / CSS 157kB,
+`99/101` cells. The project had been un-synced across v0.38.1 → v0.54.0.
 
-Build: 80 exports, 80/80 `@dsCard`, bundle 756kB / CSS 157kB.
+`DesignSync` needs `/design-login` specifically — a plain `/login` does not
+grant design-system scope, and the tool's error says so. That is the only
+blocker; the rest of the runbook ran unattended.
 
-- **+9 components** since the 2026-09-05 sync, **no removals** — so `deletes: []`
-  still holds: `Carousel`, `ChatBubble`, `Composer`, `Divider`, `EmojiPicker`,
-  `Meter`, `NavBar`, `Prose`, `Toolbar`. The project has been un-synced across
-  v0.38.1 → v0.54.0.
-- `99/101` preview cells, not `N/N`: `AttachmentList` and `Carousel` rendered
-  empty. **Fixed** — neither had a `card-props.json` entry, and both return
+Remote diff before upload, computed from `list_files` (70 remote component dirs
+vs 80 local): **no removals and no regroupings**, so `deletes: []` was provably
+safe and the top documented risk never came into play. **10** new components,
+not the 9 previously recorded — `AttachmentList` was also absent from the
+remote, alongside `Divider`, `NavBar`, `Toolbar`, `Carousel`, `ChatBubble`,
+`Composer`, `EmojiPicker`, `Meter`, `Prose`.
+
+Verified post-upload via `list_files`: 80 component dirs (23 Atoms / 11 Layouts
+/ 44 Molecules / 2 Organisms) × 4 files + 17 base files, and every app-side
+survivor intact — `fonts/JetBrainsMono-Regular.ttf`, `tokens/Typography.html`,
+`_ds_manifest.json`, `.thumbnail`, `_adherence.oxlintrc.json`.
+
+Upload order used (worth repeating): `_ds_needs_recompile` sentinel first, then
+content in 5 chunks of <=256, then the sentinel re-written so the app rebuilds
+its card index. `write_files` requires an explicit `localPath` per file — `path`
+alone is rejected, so the whole file list has to be enumerated.
+
+- `99/101` preview cells at upload time: `AttachmentList` and `Carousel` rendered
+  empty. **Fixed since** — neither had a `card-props.json` entry, and both return
   nothing for an empty `files`/`slides`, so the card mounted a component with no
   data. Both now carry props and the gate reads `101/101`.
 - `Toolbar` reaches the project for the first time, with the `roving` prop
   already in its generated table.
+
+## Re-validation — 2026-09-12 (v0.54.0 rebuild, pre-upload)
+
+Rebuild reproduces the recorded build exactly: 80 exports, 80/80 `@dsCard`,
+bundle 756kB / CSS 157kB, `99/101` cells with the same two pre-existing empties
+(`AttachmentList`, `Carousel`). 337 files in `ds-bundle/`.
+
+`conventions.md` re-validated against the fresh build — **no edits needed**:
+92 tokens, 17 utility classes and all 25 documented themes resolve in the
+`styles.css` closure (`styles.css` → `_ds_fonts.css`, `app.css` → `variables.css`
+→ `tokens.css` + `themes.css`, `reset.css`, `utilities.css`, `syntax.css`,
+`_ds_bundle.css`).
+
+- The `dark` "theme" false positive is now sourced precisely: it is
+  `.swatch[data-theme=dark]` in `_ds_bundle.css` — a theme-picker component's own
+  scoped swatch preview, not a global `[data-theme]` block. Still a false
+  positive; keep it allowlisted.
