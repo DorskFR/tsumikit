@@ -241,7 +241,8 @@ always/hover/none, `align`), Icon (open registry — pass a `children` snippet f
 any custom SVG).
 
 **Molecules:** Field (`grow`), IconButton, SelectButton, Toggle, OptionButton, Modal,
-Popover, Menu (items take a free-form trailing `tag` + `tagTone`, or a `tag` snippet),
+Popover, Menu (items take a free-form trailing `tag` + `tagTone`, or a `tag` snippet,
+and an `attrs` object for `data-*`/test ids on the row),
 Tabs, RadioGroup (`variant="rows"`: bordered rows, per-option `note`/`description`,
 `action(option)` trailing control that never toggles, `below(option)` inline panel),
 Tooltip, Accordion, CopyButton, FileButton,

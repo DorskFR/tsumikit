@@ -12,6 +12,12 @@
 		pressed?: boolean;
 		/** Custom row content (a rename Input, a slider…) replacing icon/label/tag. */
 		content?: import('svelte').Snippet<[MenuItem]>;
+		/**
+		 * Extra attributes for the rendered row — `data-*`, `title`, `aria-describedby`…
+		 * The row's own semantics (`role`, `aria-checked`, `disabled`, `class`, `onclick`)
+		 * are applied after and win.
+		 */
+		attrs?: import('svelte/elements').HTMLButtonAttributes;
 	}
 </script>
 
@@ -165,6 +171,7 @@
 		{#each items as item (item.label)}
 			<button
 				type="button"
+				{...item.attrs}
 				role={item.pressed === undefined ? 'menuitem' : 'menuitemcheckbox'}
 				aria-checked={item.pressed === undefined ? undefined : item.pressed}
 				class="menu-item"
