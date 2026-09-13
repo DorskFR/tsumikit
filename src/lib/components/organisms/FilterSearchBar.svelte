@@ -14,6 +14,7 @@
 	// and forwards onchange/onsubmit. Everything project-specific is INJECTED via
 	// `schema` (with per-field async `ValueProvider`s).
 	// ───────────────────────────────────────────────────────────────────────
+	import type { AnchorAttributes } from '$lib/anchor';
 	import Badge from '$lib/components/atoms/Badge.svelte';
 	import FilterInput from '$lib/components/molecules/FilterInput.svelte';
 	import type { Query } from '$lib/query/ast';
@@ -35,7 +36,10 @@
 		onsubmit,
 		class: klass = '',
 		style: styleProp = '',
-	}: {
+		...rest
+	}: AnchorAttributes & Own = $props();
+
+	type Own = {
 		schema: Schema;
 		/** The raw textual query (two-way bindable). */
 		value?: string;
@@ -61,7 +65,7 @@
 		onsubmit?: (value: string) => void;
 		class?: string;
 		style?: string;
-	} = $props();
+	};
 
 	function labelFor(fieldName: string): string {
 		return findField(schema, fieldName)?.label ?? fieldName;
@@ -69,6 +73,7 @@
 </script>
 
 <FilterInput
+	{...rest}
 	{schema}
 	bind:value
 	{placeholder}

@@ -5,6 +5,7 @@
 //   import '@dorsk/tsumikit/styles/app.css';
 // then use the components below.
 
+export type { AnchorAttributes } from './anchor';
 export { artworkGradient, artworkHue, initials } from './artwork';
 export { autoresize } from './autoresize';
 export { copyToClipboard } from './clipboard';

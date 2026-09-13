@@ -7,6 +7,12 @@
 		disabled?: boolean;
 		/** Trailing count badge. */
 		count?: number | string;
+		/**
+		 * Extra attributes for this tab's button — `data-*`, `title`…
+		 * The tab's own semantics (`role`, `aria-*`, `id`, `class`, `disabled`,
+		 * `tabindex`, `onclick`) are applied after and win.
+		 */
+		attrs?: import('svelte/elements').HTMLButtonAttributes;
 	}
 </script>
 
@@ -18,6 +24,7 @@
 	// the Tab order. `value` is bindable; `panel` is a snippet that receives the
 	// active id so the caller renders the matching content.
 	import type { Snippet } from 'svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 
 	let {
@@ -29,7 +36,10 @@
 		style: styleProp = '',
 		panelClass = '',
 		panelPadding = 'md',
-	}: {
+		...rest
+	}: Omit<HTMLAttributes<HTMLDivElement>, keyof Own> & Own = $props();
+
+	type Own = {
 		tabs: TabItem[];
 		value?: string;
 		label?: string;
@@ -38,7 +48,7 @@
 		style?: string;
 		panelClass?: string;
 		panelPadding?: 'none' | 'sm' | 'md';
-	} = $props();
+	};
 
 	// Default to the first selectable tab when no value is supplied.
 	$effect(() => {
@@ -84,11 +94,12 @@
 	}
 </script>
 
-<div class="tabs {klass}" style={styleProp} data-tsu="Tabs">
+<div {...rest} class="tabs {klass}" style={styleProp} data-tsu="Tabs">
 	<div bind:this={listEl} role="tablist" aria-label={label} tabindex="-1" class="tablist" {onkeydown}>
 		{#each tabs as t (t.id)}
 			<button
 				type="button"
+				{...t.attrs}
 				role="tab"
 				id="{baseId}-tab-{t.id}"
 				aria-selected={value === t.id}

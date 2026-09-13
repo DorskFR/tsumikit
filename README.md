@@ -226,7 +226,12 @@ the properties above instead.
 
 Components that render a single addressable element forward rest props onto it,
 so `data-journey`, `data-testid` and analytics attributes land where you expect.
-`Popover` puts them on its **trigger**; `Menu` items take an `attrs` bag. The
+`Popover` puts them on its **trigger** (so `Menu`, `ThemePicker` and
+`FontScalePicker` forward through to it), `Tabs` on its root — with a per-tab
+`attrs` bag on each `TabItem` — `FilterInput` on its root, and `FilterSearchBar`
+forwards onto that. `Menu` items take an `attrs` bag. Components that forward
+into another component take `AnchorAttributes` (`data-*` only), which cannot
+collide with the child's own props; the rest take full `HTMLAttributes`. The
 component's own `role`, `aria-*`, `class` and keyboard wiring are applied after
 the spread and always win, so an anchor can never break behaviour; `class` in a
 rest/`attrs` bag is therefore dropped — use `class` / `triggerClass`.
