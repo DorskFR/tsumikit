@@ -6,6 +6,7 @@
 	// resolved once at :root and would not re-scope). The root default theme
 	// has no [data-theme] block, so its swatch carries the :root values.
 	import type { ComponentProps } from 'svelte';
+	import type { AnchorAttributes } from '$lib/anchor';
 	import Popover from '$lib/components/molecules/Popover.svelte';
 	import { type ThemeDef, theme } from '$lib/stores/theme.svelte';
 	import { AUTO_THEME } from '$lib/theme-mode';
@@ -34,7 +35,10 @@
 		darkLabel = 'Dark',
 		class: klass = '',
 		style: styleProp = '',
-	}: TriggerChrome & {
+		...rest
+	}: AnchorAttributes & TriggerChrome & Own = $props();
+
+	type Own = {
 		/** Offer an "auto" row that follows `prefers-color-scheme`, remembering
 		 *  one light and one dark theme. */
 		auto?: boolean;
@@ -44,7 +48,7 @@
 		darkLabel?: string;
 		class?: string;
 		style?: string;
-	} = $props();
+	};
 
 	let hovered = $state<ThemeDef | null>(null);
 	let hoveredAuto = $state(false);
@@ -74,6 +78,7 @@
 {/snippet}
 
 <Popover
+	{...rest}
 	label={title}
 	{placement}
 	{box}

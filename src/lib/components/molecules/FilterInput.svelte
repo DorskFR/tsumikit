@@ -38,6 +38,7 @@
 	// `ValueProvider`s). No `fetch` lives in here; the bar owns the QUERY string.
 	// ───────────────────────────────────────────────────────────────────────
 	import type { Snippet } from 'svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
 	import Icon, { type IconName } from '$lib/components/atoms/Icon.svelte';
 	import { filters, freeText } from '$lib/query/ast';
 	import { autoQuoteEdit, backspaceEmptyQuotes, closingQuoteExit } from '$lib/query/edit';
@@ -70,7 +71,10 @@
 		below,
 		class: klass = '',
 		style: styleProp = '',
-	}: {
+		...rest
+	}: Omit<HTMLAttributes<HTMLDivElement>, keyof Own> & Own = $props();
+
+	type Own = {
 		schema: Schema;
 		/**
 		 * Single-key mode: the name (or alias) of the ONE schema field being
@@ -127,7 +131,7 @@
 		below?: Snippet<[FilterInputContext]>;
 		class?: string;
 		style?: string;
-	} = $props();
+	};
 
 	const field = getFieldContext();
 	let el = $state<HTMLInputElement | null>(null);
@@ -335,6 +339,7 @@
 </script>
 
 <div
+	{...rest}
 	class="fi {klass}"
 	style={styleProp}
 	class:fi--sm={size === 'sm'}

@@ -691,5 +691,15 @@
       "path": "/home/dorsk/Documents/tsumikit/src/lib/components",
       "full": true
     }
+  },
+  "AttachmentList": {
+    "children": null,
+    "subtitle": "Removable file chips",
+    "propsExpr": "{ files: [{ name: 'design-notes.md', size: 2048 }, { name: 'screenshot.png', size: 184320 }], onremove: () => {} }"
+  },
+  "Carousel": {
+    "children": null,
+    "subtitle": "Stepped full-bleed panels",
+    "propsExpr": "{ slides: ['One', 'Two', 'Three'], counter: true, slide: Tsumikit_a4c6ce.snippet(function (text) { return React.createElement('p', null, text); }) }"
   }
 }

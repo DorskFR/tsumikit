@@ -222,6 +222,23 @@ renders, and the trigger belongs to `Popover`, so `.toolbar .my-trigger` compile
 to `.toolbar.svelte-x .my-trigger.svelte-x` and matches nothing. Use `style` and
 the properties above instead.
 
+### Anchoring to a component
+
+Components that render a single addressable element forward rest props onto it,
+so `data-journey`, `data-testid` and analytics attributes land where you expect.
+`Popover` puts them on its **trigger** (so `Menu`, `ThemePicker` and
+`FontScalePicker` forward through to it), `Tabs` on its root — with a per-tab
+`attrs` bag on each `TabItem` — `FilterInput` on its root, and `FilterSearchBar`
+forwards onto that. `Menu` items take an `attrs` bag. Components that forward
+into another component take `AnchorAttributes` (`data-*` only), which cannot
+collide with the child's own props; the rest take full `HTMLAttributes`. The
+component's own `role`, `aria-*`, `class` and keyboard wiring are applied after
+the spread and always win, so an anchor can never break behaviour; `class` in a
+rest/`attrs` bag is therefore dropped — use `class` / `triggerClass`.
+
+Never target the private `data-tsu="…"` markers: they are internal, unguarded by
+any test, and change without a major.
+
 ## Components
 
 **Atoms:** Text, Heading, Button, Input (`icon` inset leading glyph,
@@ -241,7 +258,8 @@ always/hover/none, `align`), Icon (open registry — pass a `children` snippet f
 any custom SVG).
 
 **Molecules:** Field (`grow`), IconButton, SelectButton, Toggle, OptionButton, Modal,
-Popover, Menu (items take a free-form trailing `tag` + `tagTone`, or a `tag` snippet),
+Popover, Menu (items take a free-form trailing `tag` + `tagTone`, or a `tag` snippet,
+and an `attrs` object for `data-*`/test ids on the row),
 Tabs, RadioGroup (`variant="rows"`: bordered rows, per-option `note`/`description`,
 `action(option)` trailing control that never toggles, `below(option)` inline panel),
 Tooltip, Accordion, CopyButton, FileButton,
