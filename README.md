@@ -222,6 +222,18 @@ renders, and the trigger belongs to `Popover`, so `.toolbar .my-trigger` compile
 to `.toolbar.svelte-x .my-trigger.svelte-x` and matches nothing. Use `style` and
 the properties above instead.
 
+### Anchoring to a component
+
+Components that render a single addressable element forward rest props onto it,
+so `data-journey`, `data-testid` and analytics attributes land where you expect.
+`Popover` puts them on its **trigger**; `Menu` items take an `attrs` bag. The
+component's own `role`, `aria-*`, `class` and keyboard wiring are applied after
+the spread and always win, so an anchor can never break behaviour; `class` in a
+rest/`attrs` bag is therefore dropped — use `class` / `triggerClass`.
+
+Never target the private `data-tsu="…"` markers: they are internal, unguarded by
+any test, and change without a major.
+
 ## Components
 
 **Atoms:** Text, Heading, Button, Input (`icon` inset leading glyph,

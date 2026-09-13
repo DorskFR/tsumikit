@@ -10,6 +10,7 @@
 	// ships beyond Chromium; the popover semantics above are the hard part and
 	// are broadly supported today.)
 	import { tick, type Snippet } from 'svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
 	import { place } from '$lib/floating';
 	import { HOVER_CLOSE_GRACE, HOVER_OPEN_DELAY, createHoverIntent, opensOnHover } from './popover-hover.js';
 
@@ -20,36 +21,7 @@
 	type PanelRole = 'dialog' | 'menu' | 'listbox' | 'group';
 	type HasPopup = 'menu' | 'dialog' | 'listbox' | true;
 
-	let {
-		placement = 'bottom-start',
-		gap = 6,
-		label,
-		trigger,
-		children,
-		triggerClass = '',
-		bare = false,
-		variant,
-		tone = 'none',
-		size,
-		box,
-		pill = false,
-		control = false,
-		block = false,
-		hitArea = 'auto',
-		disabled = false,
-		openOn = 'click',
-		hoverDelay = HOVER_OPEN_DELAY,
-		as = 'button',
-		href,
-		role = 'dialog',
-		haspopup = 'dialog',
-		onopen,
-		onclose,
-		class: klass = '',
-		style: styleProp = '',
-		panelClass = '',
-		panelStyle = '',
-	}: {
+	type Own = {
 		placement?: Placement;
 		gap?: number;
 		/** Accessible name for the trigger. */
@@ -106,7 +78,39 @@
 		/** Class / inline style on the floating panel. */
 		panelClass?: string;
 		panelStyle?: string;
-	} = $props();
+	};
+
+	let {
+		placement = 'bottom-start',
+		gap = 6,
+		label,
+		trigger,
+		children,
+		triggerClass = '',
+		bare = false,
+		variant,
+		tone = 'none',
+		size,
+		box,
+		pill = false,
+		control = false,
+		block = false,
+		hitArea = 'auto',
+		disabled = false,
+		openOn = 'click',
+		hoverDelay = HOVER_OPEN_DELAY,
+		as = 'button',
+		href,
+		role = 'dialog',
+		haspopup = 'dialog',
+		onopen,
+		onclose,
+		class: klass = '',
+		style: styleProp = '',
+		panelClass = '',
+		panelStyle = '',
+		...rest
+	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
 
 	const canonicalChrome = $derived(
 		variant !== undefined || tone !== 'none' || size !== undefined || control || block
@@ -219,6 +223,7 @@
 <svelte:element
 	this={as}
 	bind:this={triggerEl}
+	{...rest}
 	data-tsu="Popover"
 	class="pop-trigger {triggerClass} {klass}"
 	style={styleProp}
