@@ -287,9 +287,9 @@ Build: 80 exports, 80/80 `@dsCard`, bundle 756kB / CSS 157kB.
   still holds: `Carousel`, `ChatBubble`, `Composer`, `Divider`, `EmojiPicker`,
   `Meter`, `NavBar`, `Prose`, `Toolbar`. The project has been un-synced across
   v0.38.1 → v0.54.0.
-- `99/101` preview cells, not `N/N`: `AttachmentList` and `Carousel` render
-  empty. **Pre-existing** — both render empty at v0.53.0 too, so the gate was
-  already amber before the Toolbar work and this is not a reason to hold the
-  upload. Worth its own ticket.
+- `99/101` preview cells, not `N/N`: `AttachmentList` and `Carousel` rendered
+  empty. **Fixed** — neither had a `card-props.json` entry, and both return
+  nothing for an empty `files`/`slides`, so the card mounted a component with no
+  data. Both now carry props and the gate reads `101/101`.
 - `Toolbar` reaches the project for the first time, with the `roving` prop
   already in its generated table.
