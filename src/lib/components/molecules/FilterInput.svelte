@@ -2,9 +2,10 @@
 	import type { FilterNode, Query } from '$lib/query/ast';
 
 	/**
-	 * The reactive parse context handed to the `inline` and `below` snippets so a
-	 * host can render arbitrary Svelte nodes (badges, custom components, chips)
-	 * either inline inside the bar or below it — all derived from the same value.
+	 * The reactive parse context handed to the `inline`, `display` and `below`
+	 * snippets so a host can render arbitrary Svelte nodes (badges, custom
+	 * components, chips) inside the bar, over the input or below it — all
+	 * derived from the same value.
 	 */
 	export interface FilterInputContext {
 		/** The parsed AST for the current value. */
@@ -68,6 +69,7 @@
 		onchange,
 		onsubmit,
 		inline,
+		display,
 		below,
 		class: klass = '',
 		style: styleProp = '',
@@ -125,6 +127,15 @@
 		 */
 		inline?: Snippet<[FilterInputContext]>;
 		/**
+		 * Rendering of the value shown over the input while the field is blurred
+		 * and non-empty — a compact path, a formatted timestamp, a resolved id.
+		 * Focusing the input (click, Tab, `hotkey`, `context.focus()`) reveals the
+		 * raw text again. It is decoration, never a control: the overlay is
+		 * `aria-hidden`, takes no pointer events and adds no tab stop, so the
+		 * input stays the single focus target.
+		 */
+		display?: Snippet<[FilterInputContext]>;
+		/**
 		 * Content rendered below the bar (e.g. removable chips). FilterSearchBar
 		 * passes its chip row here; single-field hosts simply omit it.
 		 */
@@ -180,6 +191,8 @@
 		remove: removeChip,
 		focus: () => el?.focus()
 	});
+
+	const showDisplay = $derived(!!display && !focused && !!value);
 
 	// Emit the AST whenever the parse result changes.
 	$effect(() => {
@@ -352,31 +365,37 @@
 	<div class="fi__bar">
 		{#if icon}<span class="fi__icon"><Icon name={icon} label="Search" /></span>{/if}
 		{#if inline}{@render inline(ctx)}{/if}
-		<input
-			bind:this={el}
-			bind:value
-			class="fi__input"
-			id={id ?? field?.id}
-			aria-describedby={ariaDescribedby ?? field?.describedBy}
-			aria-invalid={ariaInvalid ?? (field?.invalid ? 'true' : undefined)}
-			spellcheck="false"
-			autocomplete="off"
-			placeholder={hint}
-			{oninput}
-			onclick={refresh}
-			onkeyup={(e) => {
-				if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') refresh();
-			}}
-			onfocus={() => {
-				focused = true;
-				refresh();
-			}}
-			onblur={() => {
-				focused = false;
-				setTimeout(() => (open = false), 120);
-			}}
-			{onkeydown}
-		/>
+		<span class="fi__field">
+			<input
+				bind:this={el}
+				bind:value
+				class="fi__input"
+				class:fi__input--masked={showDisplay}
+				id={id ?? field?.id}
+				aria-describedby={ariaDescribedby ?? field?.describedBy}
+				aria-invalid={ariaInvalid ?? (field?.invalid ? 'true' : undefined)}
+				spellcheck="false"
+				autocomplete="off"
+				placeholder={hint}
+				{oninput}
+				onclick={refresh}
+				onkeyup={(e) => {
+					if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') refresh();
+				}}
+				onfocus={() => {
+					focused = true;
+					refresh();
+				}}
+				onblur={() => {
+					focused = false;
+					setTimeout(() => (open = false), 120);
+				}}
+				{onkeydown}
+			/>
+			{#if display && showDisplay}
+				<span class="fi__display" aria-hidden="true">{@render display(ctx)}</span>
+			{/if}
+		</span>
 		{#if showHotkey && hotkey && !focused && !value}
 			<kbd class="fi__kbd" aria-hidden="true">{hotkey}</kbd>
 		{/if}
@@ -479,6 +498,22 @@
 		display: flex;
 		color: var(--text-faint);
 	}
+	.fi__field {
+		position: relative;
+		display: flex;
+		flex: 1;
+		min-width: 0;
+	}
+	.fi__display {
+		position: absolute;
+		inset: 0;
+		display: flex;
+		align-items: center;
+		gap: var(--sp-2);
+		min-width: 0;
+		overflow: hidden;
+		pointer-events: none;
+	}
 	.fi__input {
 		flex: 1;
 		border: 0;
@@ -491,6 +526,9 @@
 	}
 	.fi__input::placeholder {
 		color: var(--text-faint);
+	}
+	.fi__input--masked {
+		color: transparent;
 	}
 	.fi__clear {
 		display: flex;
