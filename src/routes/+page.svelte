@@ -464,6 +464,7 @@ function greet(name) {
 		]
 	};
 	let cwdValue = $state('');
+	let cwdDisplayValue = $state('/home/dorsk/Documents/tsumikit');
 	let iconValue = $state('');
 	const stackCols: Column<Row>[] = [
 		{ key: 'name', label: 'Name', role: 'title' },
@@ -1861,6 +1862,29 @@ function greet(name) {
 					>
 						{#snippet inline()}
 							<Badge tone="info">nanachi</Badge>
+						{/snippet}
+					</FilterInput>
+				</Card>
+
+				<Text tone="muted">
+					The <code>display</code> snippet renders the value over the input while the field is blurred
+					and non-empty — here a <code>WorkingDir</code>, so a long path abbreviates fish-style instead
+					of clipping. Focus it (click, <kbd>Tab</kbd>) and the raw editable string comes back. It
+					composes with <code>inline</code>, adds no tab stop and does not change the bar's height:
+				</Text>
+				<Card>
+					<FilterInput
+						schema={cwdSchema}
+						key="cwd"
+						bind:value={cwdDisplayValue}
+						icon="folder"
+						placeholder="Working directory"
+					>
+						{#snippet inline()}
+							<Badge tone="info">nanachi</Badge>
+						{/snippet}
+						{#snippet display({ value })}
+							<WorkingDir path={value} />
 						{/snippet}
 					</FilterInput>
 				</Card>
