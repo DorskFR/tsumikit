@@ -228,7 +228,7 @@
 	.select.select-lg {
 		min-height: var(--select-size, var(--control-height-large));
 		padding: var(--sp-3) var(--sp-4);
-		font-size: var(--fs-base);
+		font-size: max(16px, var(--fs-md));
 	}
 	.select.compact {
 		padding: var(--sp-1) var(--sp-2);
@@ -295,6 +295,16 @@
 	}
 	.select-wrap.no-chevron .select-face.compact {
 		padding-right: var(--sp-2);
+	}
+	/* iOS auto-zooms any field under 16px on focus; on touch the size modifiers
+	   carry their difference through padding and height alone. */
+	@media (pointer: coarse) {
+		.select.compact {
+			font-size: max(16px, var(--fs-xs));
+		}
+		.select-face.compact {
+			font-size: max(16px, var(--fs-xs));
+		}
 	}
 	.select:disabled ~ .select-face {
 		color: var(--text-muted);

@@ -155,7 +155,14 @@
 	.input-lg {
 		min-height: var(--input-size, var(--control-height-large));
 		padding: var(--sp-3) var(--sp-4);
-		font-size: var(--fs-base);
+		font-size: max(16px, var(--fs-md));
+	}
+	/* iOS auto-zooms any field under 16px on focus; on touch the size modifiers
+	   carry their difference through padding and height alone. */
+	@media (pointer: coarse) {
+		.input-sm {
+			font-size: max(16px, var(--fs-sm));
+		}
 	}
 	.input-grow {
 		flex: 1 1 0;

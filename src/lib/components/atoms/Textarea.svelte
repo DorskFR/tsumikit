@@ -254,8 +254,15 @@
 	}
 	.textarea-lg {
 		padding: var(--sp-3) var(--sp-4);
-		font-size: var(--fs-base);
+		font-size: max(16px, var(--fs-md));
 		min-height: var(--textarea-size, var(--control-height-large));
+	}
+	/* iOS auto-zooms any field under 16px on focus; on touch the size modifiers
+	   carry their difference through padding and height alone. */
+	@media (pointer: coarse) {
+		.textarea-sm {
+			font-size: max(16px, var(--fs-sm));
+		}
 	}
 	.textarea[aria-invalid='true'],
 	.textarea[aria-invalid='true']:focus {
