@@ -41,6 +41,7 @@
 		Progress,
 		Gauge,
 		Accordion,
+		Disclosure,
 		Breadcrumb,
 		Popover,
 		Menu,
@@ -195,6 +196,7 @@
 
 	let filter = $state('');
 	let navOpen = $state(false);
+	let disclosureOpen = $state(false);
 	let active = $state(navGroups[0].items[0].id);
 
 	const query = $derived(filter.trim().toLowerCase());
@@ -1513,17 +1515,32 @@ function greet(name) {
 				<Heading level={3} size="lg">Accordion</Heading>
 				<Card>
 					<div class="stack">
-						{#snippet c1()}<Text variant="body">Built on native &lt;details&gt; — zero JS, full keyboard support.</Text>{/snippet}
-						{#snippet c2()}<Text variant="body">With <code>multiple=false</code> it uses the platform's exclusive-accordion (one open at a time).</Text>{/snippet}
-						{#snippet c3()}<Text variant="body">The chevron rotates via a CSS transition on <code>[open]</code>.</Text>{/snippet}
+						{#snippet c1()}<Text variant="body">A stack of Disclosures: a native button with <code>aria-expanded</code> over a <code>region</code> panel.</Text>{/snippet}
+						{#snippet c2()}<Text variant="body">With <code>multiple=false</code> opening one item closes the others.</Text>{/snippet}
+						{#snippet c3()}<Text variant="body">The chevron rotates via a CSS transition; reduced motion turns it off.</Text>{/snippet}
+						{#snippet richSummary({ open }: { open: boolean })}
+							<Dot status={open ? 'active' : 'hibernated'} />
+							<span>Deploy pipeline</span>
+							<Badge tone={open ? 'ok' : 'neutral'} size="xs">{open ? 'running' : '3 steps'}</Badge>
+						{/snippet}
 						<Accordion
 							multiple={false}
 							items={[
 								{ id: 'a', title: 'What is it?', content: c1, open: true },
 								{ id: 'b', title: 'Single-open mode', content: c2 },
-								{ id: 'c', title: 'Styling', content: c3 }
+								{ id: 'c', summary: richSummary, content: c3, onchange: (o) => (disclosureOpen = o) }
 							]}
 						/>
+						<Text variant="body">
+							Standalone <code>Disclosure</code> with a <code>header</code> snippet, bindable <code>open</code> and a leading chevron:
+						</Text>
+						<Disclosure bind:open={disclosureOpen} chevron="start" class="demo-disclosure">
+							{#snippet header({ open })}
+								<span>Execution log</span>
+								<Badge tone={open ? 'info' : 'neutral'} size="xs">{open ? 'expanded' : '12 lines'}</Badge>
+							{/snippet}
+							<Text variant="body">The panel is a <code>region</code> labelled by its button; <code>hidden</code> when closed.</Text>
+						</Disclosure>
 					</div>
 				</Card>
 			</section>
@@ -2494,6 +2511,11 @@ function greet(name) {
 {/if}
 
 <style>
+	:global(.demo-disclosure) {
+		border: 1px solid var(--border);
+		border-radius: var(--r-lg);
+		overflow: hidden;
+	}
 	:global([data-theme='showcase-plum']) {
 		color-scheme: dark;
 		--c-bg: #1c1224;

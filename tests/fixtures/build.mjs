@@ -5,10 +5,10 @@ import sveltePlugin from 'esbuild-svelte';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
-/** Bundle the FilterInput fixture into one browser script, for jsdom to evaluate. */
-export async function buildFixture() {
+/** Bundle a fixture entry into one browser script, for jsdom to evaluate. */
+export async function buildFixture(entry = 'mount-fixture.js') {
 	const out = await esbuild.build({
-		entryPoints: [join(HERE, 'mount-fixture.js')],
+		entryPoints: [join(HERE, entry)],
 		bundle: true,
 		write: false,
 		format: 'iife',
