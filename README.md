@@ -253,7 +253,10 @@ fallback, `aspect`, `status` overlay), Card (`tone` tints the surface for inline
 `icon`, `numeric`, `truncate`, `variant="text"`, `removable`/`onremove` or any
 trailing action via `actionIcon`/`actionLabel`/`onaction`, `removed` mutes and
 strikes the pill for a restorable entry; all tints derive from
-`--badge-tone`), Dot (`ring` dark halo over artwork), Divider (standalone
+`--badge-tone`), Dot (`ring` dark halo over artwork), Swatch (colour chip:
+`color` any CSS colour, `size` sm/md/lg, `shape` circle/square, `label` → role=img
+else aria-hidden, `interactive` renders a button with `onclick` + `aria-pressed`
+from `selected`), Divider (standalone
 horizontal/vertical hairline, `tone`, `spacing`, optional centred label,
 `decorative` to drop the `separator` role), Link (`tone`, `underline`
 always/hover/none, `align`), Icon (open registry — pass a `children` snippet for
