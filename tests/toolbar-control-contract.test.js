@@ -21,7 +21,7 @@ test('Popover exposes Button-compatible trigger chrome on one semantic button', 
 	assert.match(popover, /popovertarget: id, disabled }/);
 	assert.match(
 		popover,
-		/<svelte:element[\s\S]*this={as}[\s\S]*{\.\.\.triggerAttrs}[\s\S]*>\s*{@render trigger\(\)}\s*<\/svelte:element>/
+		/<svelte:element[\s\S]*this={as}[\s\S]*{\.\.\.triggerAttrs}[\s\S]*>\s*{@render trigger\(\)}\s*(?:{#if counted}<span class="pop-count" aria-hidden="true">[^<]*<\/span>{\/if}\s*)?<\/svelte:element>/
 	);
 	assert.match(popover, /popover="auto"/);
 	assert.match(popover, /ontoggle={onToggle}/);

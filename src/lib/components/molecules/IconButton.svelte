@@ -56,6 +56,10 @@
 		spin?: boolean;
 		/** Forwarded to Button: spinner, blocks clicks, aria-busy. */
 		loading?: boolean;
+		/** Corner count indicator, forwarded to Button; the count joins `label`
+		 *  in the accessible name. */
+		count?: number;
+		countMax?: number;
 		class?: string;
 	};
 
@@ -80,6 +84,8 @@
 		showLabel = false,
 		spin = false,
 		loading = false,
+		count,
+		countMax,
 		disabled = false,
 		onclick,
 		class: klass = '',
@@ -106,6 +112,8 @@
 	{hitArea}
 	{disabled}
 	{loading}
+	{count}
+	{countMax}
 	{title}
 	{onclick}
 	icon={!inline && !chip && !showLabel}

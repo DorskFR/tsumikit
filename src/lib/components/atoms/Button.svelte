@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { formatCount, hasCount } from '$lib/count';
 	import type { ControlSize } from '$lib/size';
 	import { canonicalTone, type Tone } from '$lib/tone';
 	import type { Snippet } from 'svelte';
@@ -56,6 +57,11 @@
 		// Async/busy state: shows a spinner, blocks clicks, sets aria-busy. Stays
 		// disabled-equivalent while true (so a double-submit can't fire).
 		loading?: boolean;
+		// Corner count indicator (unread, selected, pending). Hidden at 0/undefined;
+		// shows `${countMax}+` past the cap while the accessible name carries the
+		// exact number. Tint via `--btn-count-bg` / `--btn-count-fg`.
+		count?: number;
+		countMax?: number;
 		class?: string;
 		children?: Snippet;
 	};
@@ -80,6 +86,8 @@
 		collapseLabel = 'never',
 		hitArea = 'auto',
 		loading = false,
+		count,
+		countMax = 99,
 		type = 'button',
 		disabled = false,
 		title,
@@ -100,13 +108,21 @@
 			: { type, disabled: inactive }
 	);
 
+	const counted = $derived(hasCount(count));
+	const countText = $derived(hasCount(count) ? formatCount(count, countMax) : '');
+	// aria-label replaces the content as the accessible name, so the count is
+	// folded into it; without one the sr-only span below is read after the label.
+	const withCount = (name: string) => (counted ? `${name}, ${count}` : name);
+
 	let el = $state<HTMLElement | null>(null);
 	const explicitName = $derived(rest['aria-label'] ?? rest['aria-labelledby']);
+	const ariaLabel = $derived(rest['aria-label'] ? withCount(rest['aria-label']) : undefined);
 	$effect(() => {
 		if (!el || collapseLabel === 'never' || explicitName) return;
-		const text = Array.from(el.querySelectorAll('[data-label]'), (n) => n.textContent?.trim())
+		const labels = Array.from(el.querySelectorAll('[data-label]'), (n) => n.textContent?.trim())
 			.filter(Boolean)
 			.join(' ');
+		const text = labels && withCount(labels);
 		if (text) el.setAttribute('aria-label', text);
 		else el.removeAttribute('aria-label');
 	});
@@ -118,6 +134,7 @@
 	data-tsu="Button"
 	{...rest}
 	{...elementAttrs}
+	aria-label={ariaLabel}
 	aria-busy={loading || undefined}
 	{title}
 	class="btn {klass}"
@@ -148,10 +165,15 @@
 	class:btn-icon-inline={iconInline}
 	class:hover-danger={hoverDanger}
 	class:loading
+	class:btn-counted={counted}
 	onclick={onclick}
 >
 	{#if loading}<span class="btn-spinner" aria-hidden="true"></span>{/if}
 	{@render children?.()}
+	{#if counted}
+		<span class="btn-count" aria-hidden="true">{countText}</span>
+		<span class="btn-count-sr">, {count}</span>
+	{/if}
 </svelte:element>
 
 <style>
@@ -534,5 +556,54 @@
 		to {
 			transform: rotate(360deg);
 		}
+	}
+
+	/* Corner count: anchored to the top-right corner and pulled half outside it,
+	   so the button keeps its own box and any size/variant/box carries one. */
+	.btn-counted {
+		position: relative;
+	}
+	.btn-count {
+		position: absolute;
+		top: 0;
+		right: 0;
+		transform: translate(45%, -45%);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box;
+		min-width: var(--btn-count-size, 1.125rem);
+		height: var(--btn-count-size, 1.125rem);
+		padding: 0 var(--sp-1);
+		border-radius: var(--r-pill);
+		background: var(--btn-count-bg, var(--accent));
+		color: var(--btn-count-fg, var(--text-on-accent));
+		font-size: var(--fs-xs);
+		font-weight: var(--fw-semibold);
+		font-variant-numeric: tabular-nums;
+		line-height: 1;
+		white-space: nowrap;
+		pointer-events: none;
+	}
+	.btn-sm .btn-count,
+	.btn-link .btn-count,
+	.btn-icon-inline .btn-count {
+		--btn-count-size: 1rem;
+		font-size: calc(var(--fs-xs) * 0.85);
+	}
+	/* The accent fill would swallow an accent pill: invert on primary. */
+	.btn-primary .btn-count {
+		background: var(--btn-count-bg, var(--text-on-accent));
+		color: var(--btn-count-fg, var(--accent));
+	}
+	.btn-count-sr {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		margin: -1px;
+		padding: 0;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
 	}
 </style>

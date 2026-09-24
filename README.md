@@ -189,7 +189,7 @@ sanctioned escape hatch for everything else.
 
 | component | published properties |
 | --- | --- |
-| `Button` | `--btn-bg`, `--btn-fg`, `--btn-border`, `--btn-size`, `--btn-radius`, `--btn-tone`, `--btn-on`, `--btn-box` |
+| `Button` | `--btn-bg`, `--btn-fg`, `--btn-border`, `--btn-size`, `--btn-radius`, `--btn-tone`, `--btn-on`, `--btn-box`, `--btn-count-bg`, `--btn-count-fg`, `--btn-count-size` |
 | `Badge` | `--badge-bg`, `--badge-fg`, `--badge-border`, `--badge-radius`, `--badge-tone`, `--badge-max-width`, `--badge-fs`, `--badge-fw`, `--badge-min-size` |
 | `Text` | `--txt-fg`, `--txt-size` |
 | `Select` | `--select-bg`, `--select-fg`, `--select-border`, `--select-size`, `--select-radius` |
@@ -204,7 +204,7 @@ sanctioned escape hatch for everything else.
 | `Fieldset` | `--fieldset-pad`, `--fieldset-border` |
 | `GitRef` | `--git-ref-tone`, `--git-ref-max-width` |
 | `EmptyState` | `--empty-tone` |
-| `Popover` | `--pop-trigger-bg`, `--pop-trigger-fg`, `--pop-trigger-border`, `--pop-trigger-radius`, `--pop-trigger-size`, `--pop-trigger-pad`, `--pop-box` |
+| `Popover` | `--pop-trigger-bg`, `--pop-trigger-fg`, `--pop-trigger-border`, `--pop-trigger-radius`, `--pop-trigger-size`, `--pop-trigger-pad`, `--pop-box`, `--pop-count-bg`, `--pop-count-fg`, `--pop-count-size` |
 
 `tests/css-custom-property-contract.test.js` reads this table and fails if a
 listed property is not actually read by its component, so the docs cannot drift.
@@ -559,6 +559,21 @@ every child an ordinary tab stop.
 Button and Popover share the same semantic tones. For a confirmed positive
 action, `tone="success"` gives neutral controls a success tint; combine it with
 `variant="primary"` for a filled success action without consumer CSS.
+
+`count` on `Button`, `IconButton` and `Popover` (its trigger) paints a corner
+count pill (unread, selected, queued) on any size, variant or `box`. It hides at
+`0`/`undefined`, displays `99+` past `countMax`, and the exact number joins the
+accessible name (`"Inbox, 120"`) whether that comes from `aria-label`, `label`
+or the button's text. The pill is accent on accent-ink, inverted on `primary`;
+retint one with `--btn-count-bg` / `--btn-count-fg` (`--pop-count-*` on a
+Popover). `formatCount(n, max)` / `hasCount(n)` are exported for a matching
+counter elsewhere.
+
+```svelte
+<IconButton icon="bell" label="Notifications" count={unread} />
+<Button variant="primary" count={selected.length} countMax={999}>Apply</Button>
+<Popover label="Filters" count={active}>{#snippet trigger()}<Icon name="filter" />{/snippet}…</Popover>
+```
 
 ### Square boxes & touch targets
 
