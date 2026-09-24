@@ -285,6 +285,14 @@
 	let toggleB = $state(false);
 	let toggleC = $state(false);
 	let selectedOpt = $state('balanced');
+	let cardValue = $state('plan');
+	let cardPreview = $state('plan');
+	const cardOptions = [
+		{ value: 'plan', label: 'Plan first', description: 'Draft an approach before touching files.', preview: 'The agent writes a step-by-step plan and waits for approval.' },
+		{ value: 'edit', label: 'Edit directly', description: 'Skip planning, start editing.', preview: 'The agent edits files immediately and reports back.' },
+		{ value: 'ask', label: 'Ask me', description: 'Clarify the ask before acting.', preview: 'The agent asks one question, then proceeds with the answer.' }
+	];
+	const cardPreviewText = $derived(cardOptions.find((o) => o.value === cardPreview)?.preview ?? '');
 	let textValue = $state('Editable text');
 	let areaValue = $state('Multi-line input.\nGrows if autoresize is on.');
 	let selectValue = $state('two');
@@ -1069,6 +1077,22 @@ function greet(name) {
 							{/each}
 						</div>
 						<hr class="divider" />
+						<Text variant="caption" tone="muted">Choice cards with <code>description</code> and <code>onfocuschange</code> driving a preview pane (hover or arrow through them):</Text>
+						<div class="opt-grid">
+							{#each cardOptions as o (o.value)}
+								<OptionButton
+									value={o.value}
+									description={o.description}
+									selected={cardValue === o.value}
+									onfocuschange={(v) => (cardPreview = v)}
+									onclick={() => (cardValue = o.value)}
+								>
+									<Text weight="semibold">{o.label}</Text>
+								</OptionButton>
+							{/each}
+						</div>
+						<Callout tone="info">{cardPreviewText}</Callout>
+						<hr class="divider" />
 						<div class="row">
 							<Text variant="caption">SelectButton (native select over a glyph button):</Text>
 							<SelectButton
@@ -1304,6 +1328,15 @@ function greet(name) {
 						</Field>
 						<Field label="Radio group">
 							<RadioGroup label="Notifications" options={radioOptions} bind:value={radioValue} />
+						</Field>
+						<Field label="Radio group · descriptions + preview">
+							<RadioGroup
+								label="Strategy"
+								options={cardOptions}
+								bind:value={cardValue}
+								onfocuschange={(v) => (cardPreview = v)}
+							/>
+							<Text variant="caption" tone="muted">Preview: {cardPreviewText}</Text>
 						</Field>
 						<Field label="Radio group · rows">
 							<RadioGroup label="Spawn profile" variant="rows" options={profileOptions} bind:value={profileValue}>
