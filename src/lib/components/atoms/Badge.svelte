@@ -4,7 +4,9 @@
 	// props rather than separate components:
 	//   • state  → `tone` semantic palette, or `color` for any CSS colour
 	//   • info   → `mono` for paths/ids/code-ish metadata
-	//   • tag    → `removable` renders a dismiss button + fires `onremove`
+	//   • tag    → `removable` renders a dismiss button + fires `onremove`;
+	//              `actionIcon`/`onaction` swap in any other trailing action and
+	//              `removed` mutes + strikes the pill for a "restorable" state
 	// Polymorphic via `as` so it can be a static <span> or an interactive
 	// <button>. Every tinted style derives from the `--badge-tone` custom
 	// property, which is the public hook for consumers who theme by CSS.
@@ -63,6 +65,13 @@
 		icon?: IconName;
 		removable?: boolean;
 		onremove?: (e: MouseEvent) => void;
+		/** Trailing action glyph; renders the action button even without `removable`. */
+		actionIcon?: IconName;
+		/** Accessible name for the action button (defaults to "Remove"). */
+		actionLabel?: string;
+		onaction?: (e: MouseEvent) => void;
+		/** Muted, struck-through look for an entry pending removal. */
+		removed?: boolean;
 		class?: string;
 		children?: Snippet;
 	};
@@ -85,6 +94,10 @@
 		icon,
 		removable = false,
 		onremove,
+		actionIcon,
+		actionLabel,
+		onaction,
+		removed = false,
 		class: klass = '',
 		grow = false,
 		shrink = true,
@@ -94,6 +107,7 @@
 	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
 
 	const toneColor = $derived(color ?? (tone === 'neutral' ? undefined : TONE_COLOR[tone]));
+	const hasAction = $derived(removable || actionIcon !== undefined);
 </script>
 
 <svelte:element
@@ -120,6 +134,7 @@
 	class:truncate
 	class:borderless={!border}
 	class:active
+	class:removed
 	class:interactive={as === 'button' || !!href}
 	style:--badge-tone={toneColor}
 	style:--badge-max-width={maxWidth}
@@ -137,14 +152,14 @@
 		{@render children?.()}
 	{/if}
 	{#if href && external}<Icon name="external" />{/if}
-	{#if removable}
+	{#if hasAction}
 		<button
 			type="button"
-			class="remove"
-			aria-label="Remove"
-			onclick={(e) => onremove?.(e)}
+			class="action"
+			aria-label={actionLabel ?? 'Remove'}
+			onclick={(e) => (onaction ?? onremove)?.(e)}
 		>
-			×
+			{#if actionIcon}<Icon name={actionIcon} />{:else}×{/if}
 		</button>
 	{/if}
 </svelte:element>
@@ -253,7 +268,14 @@
 		outline: 2px solid var(--badge-tone, var(--accent));
 		outline-offset: 2px;
 	}
-	.remove {
+	.removed {
+		opacity: 0.55;
+		text-decoration: line-through;
+	}
+	.removed .action {
+		text-decoration: none;
+	}
+	.action {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
@@ -268,7 +290,7 @@
 		opacity: 0.6;
 		transition: opacity 0.12s var(--ease);
 	}
-	.remove:hover {
+	.action:hover {
 		opacity: 1;
 	}
 </style>
