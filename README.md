@@ -192,6 +192,7 @@ sanctioned escape hatch for everything else.
 | `Button` | `--btn-bg`, `--btn-fg`, `--btn-border`, `--btn-size`, `--btn-radius`, `--btn-tone`, `--btn-on`, `--btn-box`, `--btn-count-bg`, `--btn-count-fg`, `--btn-count-size` |
 | `Badge` | `--badge-bg`, `--badge-fg`, `--badge-border`, `--badge-radius`, `--badge-tone`, `--badge-max-width`, `--badge-fs`, `--badge-fw`, `--badge-min-size` |
 | `Text` | `--txt-fg`, `--txt-size` |
+| `Tabs` | `--tab-max-width` |
 | `Select` | `--select-bg`, `--select-fg`, `--select-border`, `--select-size`, `--select-radius` |
 | `Input` | `--input-bg`, `--input-fg`, `--input-border`, `--input-size`, `--input-radius` |
 | `Textarea` | `--textarea-bg`, `--textarea-fg`, `--textarea-border`, `--textarea-size`, `--textarea-radius` |
@@ -270,7 +271,10 @@ Popover, Menu (items take a free-form trailing `tag` + `tagTone`, or a `tag` sni
 and an `attrs` object for `data-*`/test ids on the row; a checkable `pressed` item keeps
 its icon leading and shows its check trailing, or uses the leading check slot when it has
 no icon; selecting closes the menu unless `closeOnSelect={false}` or the item sets `keepOpen`),
-Tabs, RadioGroup (per-option `description` in every variant, announced via
+Tabs (omit `panel` for a strip-only tablist of document tabs: `closable` + `onclose(id)`
+close through the ✕, Delete and middle-click, per-tab `leading` snippet, `title`,
+trailing `actions` snippet; `--tab-max-width` truncates long labels),
+RadioGroup (per-option `description` in every variant, announced via
 `aria-describedby`; `onfocuschange(value)` fires once per newly focused/hovered option;
 `variant="rows"`: bordered rows, per-option `note`,
 `action(option)` trailing control that never toggles, `below(option)` inline panel),
