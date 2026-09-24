@@ -8,8 +8,14 @@
 		/** Free-form trailing pill ("admin", "pro", "beta"…), rendered as a Badge after the label. */
 		tag?: string;
 		tagTone?: import('svelte').ComponentProps<typeof import('$lib/components/atoms/Badge.svelte').default>['tone'];
-		/** Two-state item: rendered as `menuitemcheckbox` with a check glyph when on. */
+		/**
+		 * Two-state item: rendered as `menuitemcheckbox` with `aria-checked`. Its icon stays in
+		 * the leading column and the check glyph moves to the trailing edge; without an icon
+		 * the check glyph takes the leading column.
+		 */
 		pressed?: boolean;
+		/** Selecting this item leaves the menu open (overrides the menu's `closeOnSelect`). */
+		keepOpen?: boolean;
 		/** Custom row content (a rename Input, a slider…) replacing icon/label/tag. */
 		content?: import('svelte').Snippet<[MenuItem]>;
 		/**
@@ -24,7 +30,8 @@
 <script lang="ts">
 	// Dropdown menu: a Popover whose panel carries the WAI-ARIA `menu` role. Items are
 	// `menuitem`s navigable with ↑/↓/Home/End, activated with Enter/Space (and
-	// click). Selecting an item runs its action and closes the menu. Focus moves
+	// click). Selecting an item runs its action and closes the menu unless the menu
+	// sets `closeOnSelect={false}` or the item sets `keepOpen`. Focus moves
 	// to the first item when the menu opens. Escape / click-outside close it
 	// (inherited from the native popover). An item's `tag` renders as a soft
 	// Badge pill after the label; the `tag` snippet replaces that pill.
@@ -32,6 +39,7 @@
 	import Popover from '$lib/components/molecules/Popover.svelte';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import Badge from '$lib/components/atoms/Badge.svelte';
+	import { menuItemCloses, menuItemGlyphs } from '$lib/components/molecules/menu-item';
 
 	type PopoverProps = ComponentProps<typeof Popover>;
 	type TriggerChrome = Pick<
@@ -73,6 +81,7 @@
 		onopen,
 		onclose,
 		open = $bindable(false),
+		closeOnSelect = true,
 		class: klass = '',
 		style: styleProp = '',
 		panelClass = '',
@@ -85,6 +94,8 @@
 		placement?: 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
 		/** Bindable open state; set it to open/close programmatically. */
 		open?: boolean;
+		/** Close the menu after an item is selected; a per-item `keepOpen` wins over it. */
+		closeOnSelect?: boolean;
 		class?: string;
 		style?: string;
 		panelClass?: string;
@@ -130,7 +141,7 @@
 	}
 	function select(item: MenuItem, close: () => void) {
 		if (item.disabled) return;
-		close();
+		if (menuItemCloses(item, closeOnSelect)) close();
 		item.onselect();
 	}
 </script>
@@ -184,7 +195,8 @@
 				{#if item.content}
 					{@render item.content(item)}
 				{:else}
-				{#if item.pressed !== undefined}<span class="menu-check"><Icon name="check" /></span>{:else if item.icon}<Icon name={item.icon} />{/if}
+				{@const glyphs = menuItemGlyphs(item)}
+				{#if glyphs.leading === 'check'}<span class="menu-check"><Icon name="check" /></span>{:else if glyphs.leading === 'icon' && item.icon}<Icon name={item.icon} />{/if}
 				<span>{item.label}</span>
 				{#if item.tag !== undefined}
 					{#if tag}
@@ -195,6 +207,7 @@
 						</span>
 					{/if}
 				{/if}
+				{#if glyphs.trailingCheck}<span class="menu-check menu-check-trailing"><Icon name="check" /></span>{/if}
 				{/if}
 			</button>
 		{/each}
@@ -239,11 +252,20 @@
 		visibility: visible;
 		color: var(--accent);
 	}
+	.menu-check-trailing {
+		flex: none;
+		margin-inline-start: auto;
+		padding-inline-start: var(--sp-3);
+	}
 	.menu-tag {
 		display: inline-flex;
 		flex: none;
 		margin-inline-start: auto;
 		padding-inline-start: var(--sp-3);
+	}
+	.menu-tag + .menu-check-trailing {
+		margin-inline-start: 0;
+		padding-inline-start: 0;
 	}
 	.menu-item:disabled {
 		opacity: 0.45;
