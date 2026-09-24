@@ -78,16 +78,10 @@
 	const height = $derived(control ? 'var(--control-height)' : HEIGHT[size]);
 	const caretDisabled = $derived(disabled || menuDisabled);
 
-	let caretEl = $state<HTMLSpanElement | null>(null);
-
-	function openMenu() {
-		caretEl?.querySelector<HTMLButtonElement>('[popovertarget]')?.click();
-	}
-
 	function onPrimaryKeydown(e: KeyboardEvent) {
 		if (e.key !== 'ArrowDown' || caretDisabled) return;
 		e.preventDefault();
-		openMenu();
+		open = true;
 	}
 </script>
 
@@ -114,7 +108,7 @@
 			{@render children()}
 		</Button>
 	</span>
-	<span class="split-caret" bind:this={caretEl}>
+	<span class="split-caret">
 		<Menu
 			{label}
 			{items}

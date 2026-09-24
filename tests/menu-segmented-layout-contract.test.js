@@ -37,8 +37,9 @@ test('Menu destructures and forwards every chrome prop to Popover', () => {
 		assert.match(menu, new RegExp(`^\\t\\t${p}[,\\n]`, 'm'), `${p} destructured`);
 		assert.match(popoverTag, new RegExp(`\\{${p}\\}`), `${p} forwarded`);
 	}
-	assert.match(popoverTag, /onclose=\{\(\) => \{\s*open = false;\s*onclose\?\.\(\);\s*\}\}/);
-	assert.match(popoverTag, /onopen=\{\(\) => \{\s*open = true;\s*queueMicrotask\(\(\) => focusAt\(0\)\);\s*onopen\?\.\(\);\s*\}\}/);
+	assert.match(popoverTag, /bind:open\n/);
+	assert.match(popoverTag, /\{onclose\}/);
+	assert.match(popoverTag, /onopen=\{\(\) => \{\s*queueMicrotask\(\(\) => focusAt\(0\)\);\s*onopen\?\.\(\);\s*\}\}/);
 });
 
 test('Menu keeps its original props', () => {
