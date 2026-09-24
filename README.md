@@ -259,12 +259,16 @@ horizontal/vertical hairline, `tone`, `spacing`, optional centred label,
 always/hover/none, `align`), Icon (open registry — pass a `children` snippet for
 any custom SVG).
 
-**Molecules:** Field (`grow`), IconButton, SelectButton, Toggle, OptionButton, Modal,
+**Molecules:** Field (`grow`), IconButton, SelectButton, Toggle, OptionButton (`value` +
+`description` secondary text wired via `aria-describedby`, `onfocuschange(value)` on
+focus/hover to drive a preview pane), Modal,
 Popover, Menu (items take a free-form trailing `tag` + `tagTone`, or a `tag` snippet,
 and an `attrs` object for `data-*`/test ids on the row; a checkable `pressed` item keeps
 its icon leading and shows its check trailing, or uses the leading check slot when it has
 no icon; selecting closes the menu unless `closeOnSelect={false}` or the item sets `keepOpen`),
-Tabs, RadioGroup (`variant="rows"`: bordered rows, per-option `note`/`description`,
+Tabs, RadioGroup (per-option `description` in every variant, announced via
+`aria-describedby`; `onfocuschange(value)` fires once per newly focused/hovered option;
+`variant="rows"`: bordered rows, per-option `note`,
 `action(option)` trailing control that never toggles, `below(option)` inline panel),
 Tooltip, Disclosure (single collapsible: `header` snippet, bindable `open` or `open` + `onchange` for
 controlled mode, `chevron` start/end/false, native button with `aria-expanded`/`aria-controls` over a

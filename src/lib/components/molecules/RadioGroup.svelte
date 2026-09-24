@@ -3,6 +3,7 @@
 		value: string;
 		label: string;
 		hint?: string;
+		/** Secondary text under the label, announced via `aria-describedby`. */
 		description?: string;
 		note?: string;
 		disabled?: boolean;
@@ -26,6 +27,7 @@
 		variant = 'list',
 		action,
 		below,
+		onfocuschange,
 		class: klass = ''
 	}: {
 		options: RadioOption[];
@@ -36,8 +38,21 @@
 		variant?: 'list' | 'rows' | 'swatch';
 		action?: Snippet<[RadioOption]>;
 		below?: Snippet<[RadioOption]>;
+		/** Fires once each time a different option becomes active — by keyboard
+		 *  focus or by pointer hover — so a consumer can drive a preview pane. */
+		onfocuschange?: (value: string) => void;
 		class?: string;
 	} = $props();
+
+	const uid = $props.id();
+	const descId = (o: RadioOption) => (o.description ? `${uid}-${o.value}-desc` : undefined);
+
+	let active: string | undefined;
+	function activate(v: string) {
+		if (v === active) return;
+		active = v;
+		onfocuschange?.(v);
+	}
 </script>
 
 <div
@@ -51,22 +66,40 @@
 >
 	{#each options as o (o.value)}
 		{#if variant === 'swatch'}
-			<label class="swatch" class:disabled={o.disabled} title={o.label}>
-				<input type="radio" {name} value={o.value} bind:group={value} disabled={o.disabled} aria-label={o.label} />
+			<label class="swatch" class:disabled={o.disabled} title={o.label} onpointerenter={() => activate(o.value)}>
+				<input
+					type="radio"
+					{name}
+					value={o.value}
+					bind:group={value}
+					disabled={o.disabled}
+					aria-label={o.label}
+					aria-describedby={descId(o)}
+					onfocus={() => activate(o.value)}
+				/>
+				{#if o.description}<span class="sr-only" id={descId(o)}>{o.description}</span>{/if}
 				<span class="swatch-chip" aria-hidden="true" style="--swatch: {o.color ?? 'var(--accent)'}"></span>
 			</label>
 		{:else if variant === 'rows'}
 			<div class="row-wrap">
 				<div class="row" class:selected={o.value === value} class:disabled={o.disabled}>
-					<label class="radio">
-						<input type="radio" {name} value={o.value} bind:group={value} disabled={o.disabled} />
+					<label class="radio" onpointerenter={() => activate(o.value)}>
+						<input
+							type="radio"
+							{name}
+							value={o.value}
+							bind:group={value}
+							disabled={o.disabled}
+							aria-describedby={descId(o)}
+							onfocus={() => activate(o.value)}
+						/>
 						<span class="dot-ctl" aria-hidden="true"></span>
 						<span class="texts">
 							<span class="label-line">
 								<span class="label-text">{o.label}</span>
 								{#if o.note}<span class="note">{o.note}</span>{/if}
 							</span>
-							{#if o.description}<span class="description">{o.description}</span>{/if}
+							{#if o.description}<span class="description" id={descId(o)}>{o.description}</span>{/if}
 							{#if o.hint}<span class="hint">{o.hint}</span>{/if}
 						</span>
 					</label>
@@ -75,11 +108,20 @@
 				{#if below}<div class="below">{@render below(o)}</div>{/if}
 			</div>
 		{:else}
-			<label class="radio" class:disabled={o.disabled}>
-				<input type="radio" {name} value={o.value} bind:group={value} disabled={o.disabled} />
+			<label class="radio" class:disabled={o.disabled} onpointerenter={() => activate(o.value)}>
+				<input
+					type="radio"
+					{name}
+					value={o.value}
+					bind:group={value}
+					disabled={o.disabled}
+					aria-describedby={descId(o)}
+					onfocus={() => activate(o.value)}
+				/>
 				<span class="dot-ctl" aria-hidden="true"></span>
 				<span class="texts">
 					<span class="label-text">{o.label}</span>
+					{#if o.description}<span class="description" id={descId(o)}>{o.description}</span>{/if}
 					{#if o.hint}<span class="hint">{o.hint}</span>{/if}
 				</span>
 			</label>
@@ -208,8 +250,18 @@
 	.description {
 		font-size: var(--fs-xs);
 		color: var(--text-muted);
+	}
+	.row .description {
 		overflow: hidden;
 		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.sr-only {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip: rect(0 0 0 0);
 		white-space: nowrap;
 	}
 	.action {

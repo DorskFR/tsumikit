@@ -18,7 +18,7 @@ test('option shape gains description and note', () => {
 	assert.match(src, /description\?: string/);
 	assert.match(src, /note\?: string/);
 	assert.match(src, /{#if o\.note}<span class="note">{o\.note}<\/span>{\/if}/);
-	assert.match(src, /{#if o\.description}<span class="description">{o\.description}<\/span>{\/if}/);
+	assert.match(src, /{#if o\.description}<span class="description" id={descId\(o\)}>{o\.description}<\/span>{\/if}/);
 	assert.match(src, /\.note\s*{[^}]*color: var\(--text-faint\);/s);
 });
 
@@ -34,7 +34,7 @@ test('rows: action renders outside the label so clicking it never toggles the ra
 	const labelEnd = row.indexOf('</label>');
 	const actionAt = row.indexOf('{@render action(o)}');
 	assert.ok(labelEnd > 0 && actionAt > labelEnd);
-	assert.match(row, /<label class="radio">[\s\S]*<input type="radio"/);
+	assert.match(row, /<label class="radio"[^>]*>[\s\S]*<input\s+type="radio"/);
 	assert.match(src, /\.action\s*{[^}]*margin-left: auto;/s);
 });
 

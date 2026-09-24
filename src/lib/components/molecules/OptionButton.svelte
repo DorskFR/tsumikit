@@ -17,12 +17,25 @@
 		block = false,
 		type = 'button',
 		disabled = false,
+		value,
+		description,
+		onfocuschange,
+		onfocus,
+		onpointerenter,
+		'aria-describedby': describedBy,
 		class: klass = '',
 		children,
 		...rest
-	}: HTMLButtonAttributes & {
+	}: Omit<HTMLButtonAttributes, 'value'> & {
 		selected?: boolean;
 		row?: boolean;
+		/** Identifies this option in `onfocuschange`. */
+		value?: string;
+		/** Secondary text under the content, announced via `aria-describedby`. */
+		description?: string;
+		/** Fires with `value` when the button gains keyboard focus or pointer
+		 *  hover, so a consumer can drive a preview pane across a set of cards. */
+		onfocuschange?: (value: string) => void;
 		/** Horizontal content alignment. `start` gives a left-aligned list-row
 		 *  variant (pair with `block` for a full-width menu item). */
 		align?: 'center' | 'start';
@@ -30,6 +43,14 @@
 		block?: boolean;
 		children?: Snippet;
 	} = $props();
+
+	const uid = $props.id();
+	const descId = $derived(description ? `${uid}-desc` : undefined);
+	const ariaDescribedBy = $derived([describedBy, descId].filter(Boolean).join(' ') || undefined);
+
+	function activate() {
+		if (value !== undefined) onfocuschange?.(value);
+	}
 </script>
 
 <button
@@ -37,6 +58,16 @@
 	{...rest}
 	{type}
 	{disabled}
+	{value}
+	aria-describedby={ariaDescribedBy}
+	onfocus={(e) => {
+		onfocus?.(e);
+		activate();
+	}}
+	onpointerenter={(e) => {
+		onpointerenter?.(e);
+		activate();
+	}}
 	class="opt {klass}"
 	class:row
 	class:align-start={align === 'start'}
@@ -45,6 +76,7 @@
 	aria-pressed={selected}
 >
 	{@render children?.()}
+	{#if description}<span class="description" id={descId}>{description}</span>{/if}
 </button>
 
 <style>
@@ -82,6 +114,15 @@
 	}
 	.opt.block {
 		width: 100%;
+	}
+	.description {
+		font-size: var(--fs-xs);
+		color: var(--faint-color, var(--text-muted));
+		font-weight: var(--fw-normal);
+	}
+	.opt.row .description {
+		flex: 1 1 auto;
+		min-width: 0;
 	}
 	/* Left-aligned list-row variant: content packs to the start on both axes. */
 	.opt.align-start {
