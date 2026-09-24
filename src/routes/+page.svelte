@@ -1596,6 +1596,9 @@ function greet(name) {
 							<Badge as="button">interactive</Badge>
 							<Badge removable onremove={() => {}}>removable</Badge>
 							<Badge tone="info" removable onremove={() => {}}>typescript</Badge>
+							<Badge removable actionIcon="trash" actionLabel="Delete" onremove={() => {}}>trash glyph</Badge>
+							<Badge removed actionIcon="retry" actionLabel="Restore" onaction={() => {}}>removed</Badge>
+							<Badge tone="danger" removed actionIcon="retry" actionLabel="Restore" onaction={() => {}}>API_KEY</Badge>
 						</div>
 						<div class="row row-wrap">
 							<Badge uppercase>uppercase</Badge>

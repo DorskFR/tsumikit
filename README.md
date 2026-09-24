@@ -250,7 +250,9 @@ Slider (`ticks` draws a dot per step for a segmented slider), Progress, Gauge (v
 threshold tones via `warnAt`/`dangerAt`, `corner` snippet), Artwork (lazy cover image with seeded gradient + initials
 fallback, `aspect`, `status` overlay), Card (`tone` tints the surface for inline banners), Badge
 (`tone` semantic palette or `color` for any CSS colour, `size` xs/sm/md, `dot`,
-`icon`, `numeric`, `truncate`, `variant="text"`; all tints derive from
+`icon`, `numeric`, `truncate`, `variant="text"`, `removable`/`onremove` or any
+trailing action via `actionIcon`/`actionLabel`/`onaction`, `removed` mutes and
+strikes the pill for a restorable entry; all tints derive from
 `--badge-tone`), Dot (`ring` dark halo over artwork), Divider (standalone
 horizontal/vertical hairline, `tone`, `spacing`, optional centred label,
 `decorative` to drop the `separator` role), Link (`tone`, `underline`
