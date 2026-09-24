@@ -1,12 +1,14 @@
 <script lang="ts">
-	// Chat composer: autoresizing Textarea with attach + send controls, submit
-	// shortcuts, prompt history on ↑/↓ at the text edges, paste-to-attach and
-	// drag-over state. Attachments render as removable chips above the field.
+	// Chat composer: autoresizing Textarea with attach + send controls fused into
+	// one InputGroup, submit shortcuts, prompt history on ↑/↓ at the text edges,
+	// paste-to-attach and drag-over state. Attachments render as removable chips
+	// above the field.
 	import type { Snippet } from 'svelte';
 	import Button from '$lib/components/atoms/Button.svelte';
 	import Textarea from '$lib/components/atoms/Textarea.svelte';
 	import AttachmentList from '$lib/components/molecules/AttachmentList.svelte';
 	import FileButton from '$lib/components/molecules/FileButton.svelte';
+	import InputGroup from '$lib/components/molecules/InputGroup.svelte';
 
 	let {
 		value = $bindable(''),
@@ -22,6 +24,7 @@
 		disabled = false,
 		maxHeight = '40vh',
 		rows = 1,
+		resize = 'none',
 		sendLabel = 'Send',
 		attachLabel = 'Attach',
 		leading,
@@ -44,6 +47,8 @@
 		disabled?: boolean;
 		maxHeight?: string;
 		rows?: number;
+		/** Manual drag handle on the top edge; `none` hides it. */
+		resize?: 'none' | 'top';
 		sendLabel?: string;
 		attachLabel?: string;
 		leading?: Snippet;
@@ -60,6 +65,7 @@
 	const fine = () => typeof matchMedia === 'function' && matchMedia('(pointer: fine)').matches;
 	const mode = $derived(submitOn === 'auto' ? (fine() ? 'enter' : 'mod-enter') : submitOn);
 	const canSend = $derived(!busy && !disabled && (value.trim().length > 0 || attachments.length > 0));
+	const hasAttach = $derived(!!onfiles || accept !== undefined);
 
 	function submit() {
 		if (!canSend) return;
@@ -123,6 +129,19 @@
 	}
 </script>
 
+{#snippet groupLeading()}
+	{#if leading}{@render leading()}{/if}
+	{#if hasAttach}
+		<FileButton onfiles={addFiles} {accept} multiple iconOnly label={attachLabel} variant="ghost" box="sm" {disabled} />
+	{/if}
+{/snippet}
+{#snippet groupTrailing()}
+	{#if trailing}{@render trailing()}{/if}
+	<Button variant="primary" box="sm" loading={busy} disabled={!canSend} aria-label={sendLabel} title={sendLabel} onclick={submit}>
+		<span aria-hidden="true">➤</span>
+	</Button>
+{/snippet}
+
 <div
 	data-tsu="Composer"
 	class="composer {klass}"
@@ -138,11 +157,12 @@
 	{ondrop}
 >
 	<AttachmentList files={attachments} onremove={removeAt} />
-	<div class="row">
-		{#if leading}{@render leading()}{/if}
-		{#if onfiles || accept !== undefined}
-			<FileButton onfiles={addFiles} {accept} multiple iconOnly label={attachLabel} variant="ghost" box="md" {disabled} />
-		{/if}
+	<InputGroup
+		align="end"
+		{disabled}
+		leading={leading || hasAttach ? groupLeading : undefined}
+		trailing={groupTrailing}
+	>
 		<Textarea
 			bind:value
 			bind:el
@@ -150,18 +170,13 @@
 			{rows}
 			{maxHeight}
 			{placeholder}
-			resize="none"
-			grow
+			{resize}
 			aria-label={placeholder}
 			disabled={disabled || busy}
 			{onkeydown}
 			{onpaste}
 		/>
-		{#if trailing}{@render trailing()}{/if}
-		<Button variant="primary" square loading={busy} disabled={!canSend} aria-label={sendLabel} title={sendLabel} onclick={submit}>
-			<span aria-hidden="true">➤</span>
-		</Button>
-	</div>
+	</InputGroup>
 	<span class="hint">{mode === 'enter' ? 'Enter to send · Shift+Enter for a new line' : 'Ctrl/⌘+Enter to send'}</span>
 </div>
 
@@ -170,23 +185,11 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp-2);
-		padding: var(--sp-2);
-		border: 1px solid var(--border-strong);
 		border-radius: var(--r-lg);
-		background: var(--surface);
-		transition: border-color 0.12s var(--ease);
-	}
-	.composer:focus-within {
-		border-color: var(--accent);
 	}
 	.composer.dragging {
-		border-style: dashed;
-		border-color: var(--accent);
-	}
-	.row {
-		display: flex;
-		align-items: flex-end;
-		gap: var(--sp-2);
+		outline: 2px dashed var(--accent);
+		outline-offset: var(--sp-1);
 	}
 	.hint {
 		font-size: var(--fs-xs);

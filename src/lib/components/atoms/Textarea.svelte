@@ -21,6 +21,7 @@
 	import type { HTMLTextareaAttributes } from 'svelte/elements';
 	import { autoresize as autoresizeAction } from '$lib/autoresize';
 	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
+	import { getInputGroupContext } from '$lib/input-group-context';
 
 	type Props = HTMLTextareaAttributes & {
 		mono?: boolean;
@@ -55,12 +56,13 @@
 	let {
 		mono = false,
 		autoresize = false,
-		size = 'md',
+		size,
 		grow = false,
 		shrink = true,
 		block = false,
 		resize = 'bottom',
 		invalid = false,
+		disabled = false,
 		maxHeight,
 		onsubmit,
 		submitOn = 'none',
@@ -75,7 +77,10 @@
 	}: Props = $props();
 
 	const field = getFieldContext();
-	const isInvalid = $derived(invalid || !!field?.invalid);
+	const group = getInputGroupContext();
+	const sizeEff = $derived(size ?? group?.size ?? 'md');
+	const isInvalid = $derived(invalid || !!field?.invalid || !!group?.invalid);
+	const isDisabled = $derived(disabled || !!group?.disabled);
 
 	$effect(() => warnUnlabelled(el, 'Textarea'));
 
@@ -150,6 +155,7 @@
 	class:grow={grow}
 	class:no-shrink={!shrink}
 	class:block={block}
+	class:grouped={!!group}
 	data-tsu="Textarea"
 >
 	{#if autoresize}
@@ -157,9 +163,11 @@
 			bind:this={el}
 			class="textarea {klass}"
 			class:mono
-			class:textarea-sm={size === 'sm'}
-			class:textarea-lg={size === 'lg'}
+			class:textarea-sm={sizeEff === 'sm'}
+			class:textarea-lg={sizeEff === 'lg'}
+			class:grouped={!!group}
 			class:capped={!!maxHeight}
+			disabled={isDisabled}
 			style:max-height={maxHeight}
 			bind:value
 			use:autoresizeAction={typeof value === 'string' ? value : ''}
@@ -174,9 +182,11 @@
 			bind:this={el}
 			class="textarea {klass}"
 			class:mono
-			class:textarea-sm={size === 'sm'}
-			class:textarea-lg={size === 'lg'}
+			class:textarea-sm={sizeEff === 'sm'}
+			class:textarea-lg={sizeEff === 'lg'}
+			class:grouped={!!group}
 			class:capped={!!maxHeight}
+			disabled={isDisabled}
 			style:max-height={maxHeight}
 			bind:value
 			{...rest}
@@ -267,6 +277,23 @@
 	.textarea[aria-invalid='true'],
 	.textarea[aria-invalid='true']:focus {
 		border-color: var(--danger);
+	}
+	/* Inside an InputGroup the group draws the focus ring and the overlaid
+	   adornments report their widths; the text stays clear of them. */
+	.textarea.grouped {
+		border-radius: var(--ig-radius);
+		padding-inline: max(var(--ig-pad-x), var(--ig-leading-w, 0px) + var(--ig-gap))
+			max(var(--ig-pad-x), var(--ig-trailing-w, 0px) + var(--ig-gap));
+	}
+	.textarea.grouped:focus-visible {
+		outline: none;
+	}
+	.textarea-wrap.grouped {
+		width: 100%;
+	}
+	.textarea-wrap.grouped .resize-handle {
+		left: var(--ig-leading-w, 0px);
+		right: var(--ig-trailing-w, 0px);
 	}
 	.mono {
 		font-family: var(--font-mono);
