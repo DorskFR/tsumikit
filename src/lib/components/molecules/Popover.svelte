@@ -11,6 +11,7 @@
 	// are broadly supported today.)
 	import { tick, type Snippet } from 'svelte';
 	import type { HTMLAttributes } from 'svelte/elements';
+	import { formatCount, hasCount } from '$lib/count';
 	import { place } from '$lib/floating';
 	import { HOVER_CLOSE_GRACE, HOVER_OPEN_DELAY, createHoverIntent, opensOnHover } from './popover-hover.js';
 
@@ -57,6 +58,10 @@
 		block?: boolean;
 		/** Icon-only triggers grow a 44px hit slab on coarse pointers; `compact` opts out. */
 		hitArea?: 'auto' | 'compact';
+		/** Corner count indicator on the trigger, as on `Button`: hidden at
+		 *  0/undefined, capped at `countMax+`, the exact number joins `label`. */
+		count?: number;
+		countMax?: number;
 		disabled?: boolean;
 		/** `hover` adds pointer-driven opening on fine pointers; click, Enter and
 		 *  touch keep working so keyboard and touch users reach the same panel. */
@@ -96,6 +101,8 @@
 		control = false,
 		block = false,
 		hitArea = 'auto',
+		count,
+		countMax = 99,
 		disabled = false,
 		openOn = 'click',
 		hoverDelay = HOVER_OPEN_DELAY,
@@ -115,6 +122,9 @@
 	const canonicalChrome = $derived(
 		variant !== undefined || tone !== 'none' || size !== undefined || control || block
 	);
+	const counted = $derived(hasCount(count));
+	const countText = $derived(hasCount(count) ? formatCount(count, countMax) : '');
+	const triggerName = $derived(counted ? `${label}, ${count}` : label);
 
 	const id = `pop-${Math.random().toString(36).slice(2, 8)}`;
 	let triggerEl = $state<HTMLElement | null>(null);
@@ -246,7 +256,8 @@
 	class:trigger-tone-warn={tone === 'warn'}
 	class:trigger-tone-danger={tone === 'danger'}
 	class:is-disabled={disabled && as === 'a'}
-	aria-label={label}
+	class:counted
+	aria-label={triggerName}
 	aria-haspopup={haspopup}
 	aria-expanded={open}
 	{...triggerAttrs}
@@ -256,6 +267,7 @@
 	onkeydown={onTriggerKeydown}
 >
 	{@render trigger()}
+	{#if counted}<span class="pop-count" aria-hidden="true">{countText}</span>{/if}
 </svelte:element>
 
 <div
@@ -443,6 +455,42 @@
 	:where(a.pop-trigger) {
 		cursor: pointer;
 		text-decoration: none;
+	}
+	/* Corner count, the same pill Button paints: anchored to the top-right
+	   corner and pulled half outside it so the trigger keeps its own box. */
+	.pop-trigger.counted {
+		position: relative;
+	}
+	.pop-count {
+		position: absolute;
+		top: 0;
+		right: 0;
+		transform: translate(45%, -45%);
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		box-sizing: border-box;
+		min-width: var(--pop-count-size, 1.125rem);
+		height: var(--pop-count-size, 1.125rem);
+		padding: 0 var(--sp-1);
+		border-radius: var(--r-pill);
+		background: var(--pop-count-bg, var(--accent));
+		color: var(--pop-count-fg, var(--text-on-accent));
+		font-size: var(--fs-xs);
+		font-weight: var(--fw-semibold);
+		font-variant-numeric: tabular-nums;
+		line-height: 1;
+		white-space: nowrap;
+		pointer-events: none;
+	}
+	.trigger-sm .pop-count,
+	.bare .pop-count {
+		--pop-count-size: 1rem;
+		font-size: calc(var(--fs-xs) * 0.85);
+	}
+	.trigger-primary .pop-count {
+		background: var(--pop-count-bg, var(--text-on-accent));
+		color: var(--pop-count-fg, var(--accent));
 	}
 	/* `bare`: strip the chrome down to a plain button the consumer styles. */
 	:where(.pop-trigger.bare) {

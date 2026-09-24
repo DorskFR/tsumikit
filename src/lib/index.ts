@@ -143,6 +143,7 @@ export {
 	type RowTone,
 } from './components/organisms/DataTable.svelte';
 export { default as FilterSearchBar } from './components/organisms/FilterSearchBar.svelte';
+export { formatCount, hasCount } from './count';
 export { EMOJI_GROUPS, type EmojiEntry, type EmojiGroup, searchEmoji } from './emoji';
 export {
 	FIELD_KEY,

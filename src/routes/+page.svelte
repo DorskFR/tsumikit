@@ -960,6 +960,20 @@ function greet(name) {
 							<Popover label="Default hit" box="sm">{#snippet trigger()}<Icon name="info" />{/snippet}<Text size="sm">default</Text></Popover>
 							<Popover label="Compact hit" box="sm" hitArea="compact">{#snippet trigger()}<Icon name="info" />{/snippet}<Text size="sm">compact</Text></Popover>
 						</div>
+						<Text variant="caption" tone="muted">Corner count — <code>count</code> hides at 0, caps at <code>countMax</code> (99+), and the exact number joins the accessible name:</Text>
+						<div class="row row-wrap">
+							<Button count={3}>Inbox</Button>
+							<Button variant="primary" count={12}>Apply filters</Button>
+							<Button variant="ghost" size="sm" count={7}>Drafts</Button>
+							<Button variant="danger" size="lg" count={120}>Failed</Button>
+							<Button tone="warn" count={1500} countMax={999}>Queued</Button>
+							<Button count={0}>Zero hides</Button>
+							<IconButton icon="bell" label="Notifications" count={5} />
+							<IconButton icon="star" label="Starred" box="sm" variant="default" count={99} />
+							<IconButton icon="bell" label="Alerts" chip variant="default" tone="danger" count={240} style="--btn-count-bg: var(--danger); --btn-count-fg: var(--text-on-accent)" />
+							<Popover label="Filters" count={4}>{#snippet trigger()}<Icon name="filter" />{/snippet}<Text size="sm">4 active filters</Text></Popover>
+							<Popover label="Selection" variant="primary" size="sm" count={31}>{#snippet trigger()}Selected{/snippet}<Text size="sm">31 selected</Text></Popover>
+						</div>
 						<Text variant="caption">Variant × tone matrix (primary keeps a readable on-accent label):</Text>
 						{#each ['default', 'primary', 'ghost', 'danger'] as const as v}
 							<div class="row row-wrap">
