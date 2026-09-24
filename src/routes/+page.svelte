@@ -146,7 +146,7 @@
 			id: 'navigation',
 			label: 'Navigation',
 			items: [
-				{ id: 'tabs', label: 'Tabs', keywords: 'switcher panels overflow' },
+				{ id: 'tabs', label: 'Tabs', keywords: 'switcher panels overflow closable strip document' },
 				{ id: 'breadcrumb', label: 'Breadcrumb', keywords: 'path trail crumbs' },
 				{ id: 'pagination', label: 'Pagination', keywords: 'pages offset paging' },
 				{ id: 'carousel', label: 'Carousel', keywords: 'slides deck tour gallery swipe dots' },
@@ -348,6 +348,26 @@
 	let check2 = $state(false);
 	let radioValue = $state('email');
 	let tabValue = $state<string | undefined>('overview');
+	let docTabValue = $state<string | undefined>('doc-1');
+	let docTabs = $state<TabItem[]>([
+		{ id: 'doc-1', label: '#1 Roving tabindex', title: 'tsumikit #1 — Roving tabindex' },
+		{ id: 'doc-2', label: '#2 Closable strip', title: 'tsumikit #2 — Closable strip' },
+		{ id: 'doc-3', label: '#3 A very long document title that truncates', title: 'tsumikit #3 — A very long document title that truncates' },
+		{ id: 'pinned', label: 'Pinned', closable: false }
+	]);
+	const docStatus: Record<string, 'active' | 'stale' | 'dead'> = { 'doc-1': 'active', 'doc-2': 'stale', 'doc-3': 'dead' };
+	let docSeq = 4;
+	function openDoc() {
+		const id = `doc-${docSeq++}`;
+		docTabs.push({ id, label: `#${docSeq - 1} New document`, title: `tsumikit #${docSeq - 1}` });
+		docTabValue = id;
+	}
+	function closeDoc(id: string) {
+		docTabs = docTabs.filter((t) => t.id !== id);
+	}
+	function closeAllDocs() {
+		docTabs = docTabs.filter((t) => t.closable === false);
+	}
 	let filterValue = $state<string | undefined>('all');
 	let viewValue = $state<string | undefined>('grid');
 	let sliderValue = $state(40);
@@ -1479,6 +1499,20 @@ function greet(name) {
 							{/if}
 						{/snippet}
 					</Tabs>
+				</Card>
+				<Card>
+					<Stack gap="var(--sp-3)">
+						<Tabs tabs={docTabs} bind:value={docTabValue} label="Open documents" closable onclose={closeDoc} style="--tab-max-width: 14rem">
+							{#snippet leading(t)}
+								<Dot status={docStatus[t.id] ?? 'active'} />
+							{/snippet}
+							{#snippet actions()}
+								<IconButton icon="plus" label="Open document" onclick={openDoc} />
+								<IconButton icon="trash" label="Close all documents" hoverDanger onclick={closeAllDocs} />
+							{/snippet}
+						</Tabs>
+						<Text variant="caption">Strip-only mode (no panel): the ✕, Delete and middle-click close a tab; the pinned tab opts out with <code>closable: false</code>. Active: {docTabValue ?? 'none'}.</Text>
+					</Stack>
 				</Card>
 			</section>
 
