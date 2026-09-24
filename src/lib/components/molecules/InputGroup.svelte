@@ -1,0 +1,159 @@
+<script lang="ts">
+	import type { Snippet } from 'svelte';
+	import type { Attachment } from 'svelte/attachments';
+	import type { HTMLAttributes } from 'svelte/elements';
+	import { setInputGroupContext } from '$lib/input-group-context';
+	import type { ControlSize } from '$lib/size';
+
+	type Own = {
+		/** Overlaid at the inline start of the field, e.g. an icon-only FileButton. */
+		leading?: Snippet;
+		/** The field: an Input or Textarea, optionally wrapped by the consumer. */
+		children: Snippet;
+		/** Overlaid at the inline end of the field, e.g. a Button or SplitButton. */
+		trailing?: Snippet;
+		/** `end` pins the adornments to the bottom edge as a textarea grows;
+		 *  `center` is for a single-line Input. */
+		align?: 'end' | 'center';
+		size?: ControlSize;
+		disabled?: boolean;
+		error?: boolean;
+		class?: string;
+		style?: string;
+	};
+
+	let {
+		leading,
+		children,
+		trailing,
+		align = 'end',
+		size = 'md',
+		disabled = false,
+		error = false,
+		class: klass = '',
+		style: styleProp = '',
+		...rest
+	}: Omit<HTMLAttributes<HTMLDivElement>, keyof Own> & Own = $props();
+
+	setInputGroupContext({
+		get size() {
+			return size;
+		},
+		get disabled() {
+			return disabled;
+		},
+		get invalid() {
+			return error;
+		}
+	});
+
+	let leadingW = $state(0);
+	let trailingW = $state(0);
+
+	function measure(set: (width: number) => void): Attachment {
+		return (node) => {
+			if (typeof ResizeObserver === 'undefined') return;
+			const ro = new ResizeObserver((entries) => {
+				for (const entry of entries)
+					set(entry.borderBoxSize?.[0]?.inlineSize ?? entry.contentRect.width);
+			});
+			ro.observe(node);
+			return () => {
+				ro.disconnect();
+				set(0);
+			};
+		};
+	}
+	const measureLeading = measure((w) => (leadingW = w));
+	const measureTrailing = measure((w) => (trailingW = w));
+</script>
+
+<div
+	{...rest}
+	data-tsu="InputGroup"
+	class="ig {klass}"
+	class:ig-center={align === 'center'}
+	class:ig-sm={size === 'sm'}
+	class:ig-lg={size === 'lg'}
+	class:disabled
+	style:--ig-leading-w="{leadingW}px"
+	style:--ig-trailing-w="{trailingW}px"
+	style={styleProp}
+>
+	{#if leading}
+		<div class="ig-adorn ig-leading" {@attach measureLeading}>{@render leading()}</div>
+	{/if}
+	<div class="ig-field">{@render children()}</div>
+	{#if trailing}
+		<div class="ig-adorn ig-trailing" {@attach measureTrailing}>{@render trailing()}</div>
+	{/if}
+</div>
+
+<style>
+	/* The field's own border box spans the whole group: Gecko zooms to the
+	   focused element's rect on mobile, so the adornments must overlay it, never
+	   sit beside a narrower field. The field reads --ig-leading-w /
+	   --ig-trailing-w to keep its text clear of them. */
+	.ig {
+		--ig-h: var(--control-height-default);
+		--ig-pad-x: var(--sp-3);
+		--ig-gap: var(--sp-2);
+		--ig-inset: 2px;
+		--ig-radius: var(--r-md);
+		position: relative;
+		display: flex;
+		width: 100%;
+	}
+	.ig-sm {
+		--ig-h: var(--control-height-compact);
+		--ig-pad-x: var(--sp-2);
+		--ig-gap: var(--sp-1);
+	}
+	.ig-lg {
+		--ig-h: var(--control-height-large);
+		--ig-pad-x: var(--sp-4);
+	}
+	.ig-field {
+		width: 100%;
+		min-width: 0;
+	}
+	.ig-adorn {
+		position: absolute;
+		bottom: 0;
+		z-index: 1;
+		display: flex;
+		align-items: center;
+		gap: var(--ig-inset);
+		height: var(--ig-h);
+		padding-inline: var(--ig-inset);
+		pointer-events: none;
+	}
+	.ig-adorn > :global(*) {
+		pointer-events: auto;
+	}
+	.ig-leading {
+		inset-inline-start: 0;
+	}
+	.ig-trailing {
+		inset-inline-end: 0;
+	}
+	.ig-center .ig-adorn {
+		top: 0;
+		height: auto;
+	}
+	.ig:has(:focus-visible)::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		border-radius: var(--ig-radius);
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
+		pointer-events: none;
+	}
+	.ig.disabled {
+		opacity: 0.45;
+	}
+	.ig.disabled .ig-adorn > :global(:disabled) {
+		opacity: 1;
+	}
+</style>

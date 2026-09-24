@@ -282,7 +282,8 @@ RadioGroup (per-option `description` in every variant, announced via
 Tooltip, Disclosure (single collapsible: `header` snippet, bindable `open` or `open` + `onchange` for
 controlled mode, `chevron` start/end/false, native button with `aria-expanded`/`aria-controls` over a
 `region` panel), Accordion (a stack of Disclosures; items take a `title` string or a `summary` snippet,
-per-item `open`/`onchange`, `multiple=false` keeps one open), CopyButton, FileButton,
+per-item `open`/`onchange`, `multiple=false` keeps one open), CopyButton, FileButton, InputGroup (a field with inset
+leading/trailing controls fused into one bordered unit, see below),
 Dropzone, CodeBlock, Callout, EmptyState, ConfirmModal, Pagination, Toaster,
 ThemePicker (popover grid of 2×2 palette swatches: bg · surface · text · accent per theme),
 EmojiPicker (popover with a searchable EN+FR glyph catalogue, grouped tabs, roving-tabindex grid; pass `groups` to swap the catalogue), FontScalePicker (popover with a stepped slider across the five text sizes), SectionHeader, KeyValue, LoadMore,
@@ -499,6 +500,39 @@ error | done, `onload`, `label`, `loadingLabel`, `errorLabel`, `retryLabel`,
   …group rows…
 </SectionHeader>
 ```
+
+### InputGroup
+
+One visual unit: `[leading] field [trailing]` with a single border, radius,
+background and focus ring. The field (`Input` or `Textarea`, optionally wrapped
+by the consumer) keeps its own border and spans the whole group width; the
+`leading`/`trailing` snippets are overlaid inside it and the field pads its
+text past them. This is a hard constraint, not a look: Firefox Android zooms to
+the focused element's rect, so a field laid out beside its buttons zooms the
+page. Adornment widths are measured with a `ResizeObserver` into
+`--ig-leading-w`/`--ig-trailing-w`, so a trailing label that changes
+(`Send (42s)`) never runs under the text.
+
+The adornments sit flush inside the field's padding as ghost/primary controls,
+no dividers: pick a control one step below the group (`size="sm"`/`box="sm"` in
+an `md` group, `box="xs"` in `sm`, `box="lg"` in `lg`). `align="end"` (default)
+pins them to the bottom edge as a textarea grows; `align="center"` is for a
+single-line `Input`. `size` sm/md/lg, `disabled` and `error` flow to the field
+through context (a `size`/`invalid`/`disabled` set on the field still wins).
+`Textarea` keeps `autoresize`, `maxHeight` and `resize="top"` (the grip is
+clipped to the space between the adornments). Tab order is leading → field →
+trailing; the group shows the focus ring around the whole unit.
+
+```svelte
+<InputGroup>
+  {#snippet leading()}<FileButton iconOnly label="Attach" variant="ghost" box="sm" {onfiles} />{/snippet}
+  <Textarea bind:value autoresize rows={1} resize="top" maxHeight="40vh" aria-label="Message" />
+  {#snippet trailing()}<Button variant="primary" size="sm" onclick={send}>Send</Button>{/snippet}
+</InputGroup>
+```
+
+`Composer` is built on it: attachments above, `FileButton` leading, the send
+button trailing, `resize="top"` opt-in.
 
 ### Artwork
 

@@ -76,7 +76,7 @@ for (const [name, src] of Object.entries(controls)) {
 		if (name === 'FilterInput') {
 			assert.match(src, /aria-invalid={ariaInvalid \?\? \(field\?\.invalid \? 'true' : undefined\)}/);
 		} else {
-			assert.match(src, /const isInvalid = \$derived\(invalid \|\| !!field\?\.invalid\)/);
+			assert.match(src, /const isInvalid = \$derived\(invalid \|\| !!field\?\.invalid(?: \|\| !!group\?\.invalid)?\)/);
 			assert.match(src, /aria-invalid={ariaInvalid \?\? \(isInvalid \? 'true' : undefined\)}/);
 		}
 	});

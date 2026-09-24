@@ -8,6 +8,7 @@
 	import type { HTMLInputAttributes } from 'svelte/elements';
 	import Icon, { type IconName } from '$lib/components/atoms/Icon.svelte';
 	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
+	import { getInputGroupContext } from '$lib/input-group-context';
 
 	// `size` shadows the native char-width attribute (unused in token-sized
 	// layouts) to expose a height preset instead.
@@ -43,9 +44,10 @@
 
 	let {
 		mono = false,
-		size = 'md',
+		size,
 		grow = false,
 		invalid = false,
+		disabled = false,
 		icon,
 		clearable = false,
 		onclear,
@@ -65,7 +67,10 @@
 	}: Props = $props();
 
 	const field = getFieldContext();
-	const isInvalid = $derived(invalid || !!field?.invalid);
+	const group = getInputGroupContext();
+	const sizeEff = $derived(size ?? group?.size ?? 'md');
+	const isInvalid = $derived(invalid || !!field?.invalid || !!group?.invalid);
+	const isDisabled = $derived(disabled || !!group?.disabled);
 
 	$effect(() => warnUnlabelled(el, 'Input'));
 
@@ -90,8 +95,9 @@
 		data-tsu="Input"
 		class="input {klass}"
 		class:mono
-		class:input-sm={size === 'sm'}
-		class:input-lg={size === 'lg'}
+		class:input-sm={sizeEff === 'sm'}
+		class:input-lg={sizeEff === 'lg'}
+		class:grouped={!!group}
 		class:input-grow={grow}
 		class:input-fixed={!!width && !wrapped}
 		class:input-pill={shape === 'pill'}
@@ -100,6 +106,7 @@
 		style:width={wrapped ? undefined : width}
 		bind:value
 		{...rest}
+		disabled={isDisabled}
 		onkeydown={onenter || onsubmit || onkeydown ? handleKeydown : undefined}
 		id={id ?? field?.id}
 		aria-describedby={ariaDescribedby ?? field?.describedBy}
@@ -181,6 +188,17 @@
 	}
 	.input[aria-invalid='true']:focus {
 		border-color: var(--danger);
+	}
+	/* Inside an InputGroup the group draws the focus ring and the overlaid
+	   adornments report their widths; the text stays clear of them. */
+	.input.grouped {
+		width: 100%;
+		border-radius: var(--ig-radius);
+		padding-inline: max(var(--ig-pad-x), var(--ig-leading-w, 0px) + var(--ig-gap))
+			max(var(--ig-pad-x), var(--ig-trailing-w, 0px) + var(--ig-gap));
+	}
+	.input.grouped:focus-visible {
+		outline: none;
 	}
 	.mono {
 		font-family: var(--font-mono);

@@ -109,6 +109,7 @@ export {
 	type PullRequest,
 } from './components/molecules/GitRef.svelte';
 export { default as IconButton } from './components/molecules/IconButton.svelte';
+export { default as InputGroup } from './components/molecules/InputGroup.svelte';
 export {
 	default as KeyValue,
 	type KeyValueRow,

@@ -35,6 +35,7 @@
 		findTrigger,
 		applyTrigger,
 		FileButton,
+		InputGroup,
 		Dropzone,
 		Fieldset,
 		Tooltip,
@@ -146,7 +147,8 @@
 				{ id: 'fieldset', label: 'Fieldset', keywords: 'group legend form' },
 				{ id: 'file-dropzone', label: 'FileButton · Dropzone', keywords: 'upload drag drop attachment' },
 				{ id: 'emoji-picker', label: 'EmojiPicker', keywords: 'emoji glyph avatar icon search' },
-				{ id: 'combobox', label: 'Combobox', keywords: 'autocomplete suggestions listbox mention caret typeahead' }
+				{ id: 'combobox', label: 'Combobox', keywords: 'autocomplete suggestions listbox mention caret typeahead' },
+				{ id: 'input-group', label: 'InputGroup', keywords: 'composer inset attach send fused field adornment' }
 			]
 		},
 		{
@@ -307,6 +309,15 @@
 	];
 	const cardPreviewText = $derived(cardOptions.find((o) => o.value === cardPreview)?.preview ?? '');
 	let textValue = $state('Editable text');
+	let igInvite = $state('');
+	let igMessage = $state('');
+	const igLabels = ['Send', 'Send (42s)', 'Send ❄️ ~120k'];
+	let igLabelIdx = $state(0);
+	const igSchedule: MenuItem[] = [
+		{ label: 'Later today', onselect: () => toasts.show('Scheduled: later today') },
+		{ label: 'Tomorrow 9:00', onselect: () => toasts.show('Scheduled: tomorrow 9:00') },
+		{ label: 'Monday 9:00', onselect: () => toasts.show('Scheduled: Monday 9:00') }
+	];
 	let areaValue = $state('Multi-line input.\nGrows if autoresize is on.');
 	let selectValue = $state('two');
 	let selectOptionValue = $state('personal');
@@ -1608,6 +1619,67 @@ function greet(name) {
 								/>
 							</Combobox>
 						</Stack>
+					</Stack>
+				</Card>
+			</section>
+
+			<section class="section" id="input-group">
+				<Heading level={3} size="lg">InputGroup</Heading>
+				<Card>
+					<Stack gap="var(--sp-3)">
+						<Text variant="caption" tone="muted">
+							Input + trailing Button: the field spans the whole group and draws the one border and ring;
+							the controls are inset, so a phone never zooms to a narrow field.
+						</Text>
+						<InputGroup align="center">
+							<Input bind:value={igInvite} placeholder="Invite by email" aria-label="Invite by email" />
+							{#snippet trailing()}
+								<Button variant="primary" size="sm" onclick={() => toasts.show(`Invite: ${igInvite || '∅'}`)}>Invite</Button>
+							{/snippet}
+						</InputGroup>
+						<Text variant="caption" tone="muted">
+							Textarea (autoresize, top grip) + leading FileButton + trailing SplitButton (send + schedule menu);
+							the adornments stay pinned to the bottom edge as it grows:
+						</Text>
+						<InputGroup>
+							{#snippet leading()}
+								<FileButton onfiles={(f) => toasts.show(`${f.length} file(s)`)} iconOnly label="Attach" variant="ghost" box="sm" multiple />
+							{/snippet}
+							<Textarea bind:value={igMessage} autoresize rows={1} resize="top" maxHeight="10rem" placeholder="Message…" aria-label="Message" />
+							{#snippet trailing()}
+								<SplitButton variant="primary" size="sm" label="Schedule send" items={igSchedule} onclick={() => toasts.ok('Sent')}>Send</SplitButton>
+							{/snippet}
+						</InputGroup>
+						<Text variant="caption" tone="muted">A trailing label whose width changes re-pads the field (click it):</Text>
+						<InputGroup>
+							<Textarea autoresize rows={1} placeholder="Type past the button…" aria-label="Width probe" />
+							{#snippet trailing()}
+								<Button variant="primary" size="sm" onclick={() => (igLabelIdx = (igLabelIdx + 1) % igLabels.length)}>
+									{igLabels[igLabelIdx]}
+								</Button>
+							{/snippet}
+						</InputGroup>
+						<Text variant="caption" tone="muted">Sizes (sm · md · lg), disabled and error:</Text>
+						<InputGroup size="sm" align="center">
+							<Input placeholder="Small" aria-label="Small" />
+							{#snippet trailing()}<Button variant="primary" box="xs" icon aria-label="Go"><Icon name="arrow-right" size={12} /></Button>{/snippet}
+						</InputGroup>
+						<InputGroup size="md" align="center">
+							<Input placeholder="Medium" aria-label="Medium" />
+							{#snippet trailing()}<Button variant="primary" box="sm" icon aria-label="Go"><Icon name="arrow-right" size={14} /></Button>{/snippet}
+						</InputGroup>
+						<InputGroup size="lg" align="center">
+							<Input placeholder="Large" aria-label="Large" />
+							{#snippet trailing()}<Button variant="primary" box="lg" icon aria-label="Go"><Icon name="arrow-right" size={16} /></Button>{/snippet}
+						</InputGroup>
+						<InputGroup disabled align="center">
+							<Input placeholder="Disabled" aria-label="Disabled" />
+							{#snippet trailing()}<Button variant="primary" size="sm" disabled>Send</Button>{/snippet}
+						</InputGroup>
+						<InputGroup error align="center">
+							<Input value="not an email" aria-label="Error" />
+							{#snippet trailing()}<Button variant="primary" size="sm">Invite</Button>{/snippet}
+						</InputGroup>
 					</Stack>
 				</Card>
 			</section>

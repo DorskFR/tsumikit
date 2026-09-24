@@ -1,0 +1,246 @@
+import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
+import test from 'node:test';
+import { JSDOM } from 'jsdom';
+import { buildFixture } from './fixtures/build.mjs';
+import { hasDecl, rule } from './helpers.mjs';
+
+// jsdom has no layout engine: the geometry contract (the field's border box
+// spanning the group, text clear of the adornments, bottom alignment while
+// growing, the 390px zoom rect) is asserted structurally here — the field is
+// the full-width element, the adornments are overlays, the padding reads the
+// measured vars and the ResizeObserver writes them.
+
+const read = (/** @type {string} */ p) => readFile(new URL(`../src/lib/${p}`, import.meta.url), 'utf8');
+const [group, input, textarea, composer, index, readme] = await Promise.all([
+	read('components/molecules/InputGroup.svelte'),
+	read('components/atoms/Input.svelte'),
+	read('components/atoms/Textarea.svelte'),
+	read('components/molecules/Composer.svelte'),
+	read('index.ts'),
+	readFile(new URL('../README.md', import.meta.url), 'utf8')
+]);
+const bundle = await buildFixture('mount-input-group.js');
+
+const TABBABLE = 'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])';
+
+/**
+ * @typedef {{ target: Element, borderBoxSize?: { inlineSize: number }[], contentRect: { width: number } }} Entry
+ * @typedef {{ observed: Element[], fire: (entries: Entry[]) => void, disconnected: number }} RoSpy
+ */
+
+
+function render(/** @type {Record<string, unknown>} */ props = {}) {
+	const dom = new JSDOM('<!doctype html><html><body></body></html>', {
+		runScripts: 'outside-only',
+		pretendToBeVisual: true
+	});
+	const win = dom.window;
+	/** @type {RoSpy[]} */
+	const observers = [];
+	win.ResizeObserver = class {
+		/** @param {(entries: Entry[]) => void} cb */
+		constructor(cb) {
+			/** @type {RoSpy} */
+			const spy = { observed: [], fire: cb, disconnected: 0 };
+			observers.push(spy);
+			this.spy = spy;
+		}
+		/** @param {Element} el */
+		observe(el) {
+			this.spy.observed.push(el);
+		}
+		disconnect() {
+			this.spy.disconnected++;
+		}
+	};
+	win.HTMLElement.prototype.setPointerCapture = () => {};
+	win.HTMLElement.prototype.releasePointerCapture = () => {};
+	win.eval(bundle);
+	const { mount, flushSync, Fixture } = win.__fixture;
+	mount(Fixture, { target: win.document.body, props });
+	flushSync();
+	const doc = win.document;
+	const ig = /** @type {HTMLElement} */ (doc.querySelector('[data-tsu="InputGroup"]'));
+	return {
+		doc,
+		win,
+		ig,
+		observers,
+		flush: flushSync,
+		field: () => /** @type {HTMLElement} */ (doc.getElementById('msg')),
+		leading: () => /** @type {HTMLElement | null} */ (ig.querySelector('.ig-leading')),
+		trailing: () => /** @type {HTMLElement | null} */ (ig.querySelector('.ig-trailing')),
+		/** @param {Element} el @param {number} px */
+		resize(el, px) {
+			for (const o of observers)
+				if (o.observed.includes(el)) o.fire([{ target: el, borderBoxSize: [{ inlineSize: px }], contentRect: { width: px } }]);
+			flushSync();
+		}
+	};
+}
+
+test('the field wrapper is the full-width element and the adornments are overlays', () => {
+	assert.ok(hasDecl(group, '.ig', 'position', 'relative'));
+	assert.ok(hasDecl(group, '.ig', 'width', '100%'));
+	assert.ok(hasDecl(group, '.ig-field', 'width', '100%'));
+	assert.ok(hasDecl(group, '.ig-adorn', 'position', 'absolute'));
+	assert.ok(hasDecl(group, '.ig-adorn', 'bottom', '0'));
+	assert.ok(hasDecl(group, '.ig-adorn', 'height', 'var(--ig-h)'));
+	assert.ok(hasDecl(group, '.ig-leading', 'inset-inline-start', '0'));
+	assert.ok(hasDecl(group, '.ig-trailing', 'inset-inline-end', '0'));
+	assert.ok(hasDecl(group, '.ig-center .ig-adorn', 'top', '0'));
+	assert.doesNotMatch(rule(group, '.ig').display ?? '', /grid/);
+	assert.doesNotMatch(group, /\.ig-adorn\s*{[^}]*flex:/);
+
+	const ui = render();
+	assert.equal(ui.ig.children.length, 3);
+	assert.ok(ui.ig.children[1].classList.contains('ig-field'));
+	assert.ok(ui.ig.children[1].contains(ui.field()));
+});
+
+test('the grouped field pads its text from the measured adornment widths', () => {
+	for (const [src, sel] of [
+		[textarea, '.textarea.grouped'],
+		[input, '.input.grouped']
+	]) {
+		const pad = rule(src, sel)['padding-inline'];
+		assert.ok(pad, `${sel} declares padding-inline`);
+		assert.match(pad, /max\(var\(--ig-pad-x\), var\(--ig-leading-w, 0px\) \+ var\(--ig-gap\)\)/);
+		assert.match(pad, /max\(var\(--ig-pad-x\), var\(--ig-trailing-w, 0px\) \+ var\(--ig-gap\)\)/);
+		assert.ok(hasDecl(src, sel, 'border-radius', 'var(--ig-radius)'));
+	}
+	assert.ok(hasDecl(input, '.input.grouped', 'width', '100%'));
+	assert.ok(hasDecl(textarea, '.textarea-wrap.grouped', 'width', '100%'));
+	for (const size of ['sm', 'lg']) assert.ok(rule(group, `.ig-${size}`)['--ig-h'], `.ig-${size} sets --ig-h`);
+	assert.ok(hasDecl(group, '.ig', '--ig-h', 'var(--control-height-default)'));
+	assert.ok(hasDecl(group, '.ig-sm', '--ig-h', 'var(--control-height-compact)'));
+	assert.ok(hasDecl(group, '.ig-lg', '--ig-h', 'var(--control-height-large)'));
+});
+
+test('a ResizeObserver per adornment writes --ig-leading-w / --ig-trailing-w on the group', () => {
+	const ui = render();
+	const lead = /** @type {HTMLElement} */ (ui.leading());
+	const trail = /** @type {HTMLElement} */ (ui.trailing());
+	assert.ok(ui.observers.some((o) => o.observed.includes(lead)), 'leading cell observed');
+	assert.ok(ui.observers.some((o) => o.observed.includes(trail)), 'trailing cell observed');
+	assert.equal(ui.ig.style.getPropertyValue('--ig-leading-w'), '0px');
+	assert.equal(ui.ig.style.getPropertyValue('--ig-trailing-w'), '0px');
+
+	ui.resize(lead, 40);
+	ui.resize(trail, 96);
+	assert.equal(ui.ig.style.getPropertyValue('--ig-leading-w'), '40px');
+	assert.equal(ui.ig.style.getPropertyValue('--ig-trailing-w'), '96px');
+});
+
+test('a trailing label that changes width re-pads the field (the var follows the observer)', () => {
+	const ui = render({ sendLabel: 'Send' });
+	const trail = /** @type {HTMLElement} */ (ui.trailing());
+	ui.resize(trail, 64);
+	assert.equal(ui.ig.style.getPropertyValue('--ig-trailing-w'), '64px');
+	ui.resize(trail, 132);
+	assert.equal(ui.ig.style.getPropertyValue('--ig-trailing-w'), '132px');
+	assert.ok(ui.field().classList.contains('grouped'));
+});
+
+test('without an adornment its var is 0px and no empty cell renders', () => {
+	const ui = render({ withLeading: false });
+	assert.equal(ui.leading(), null);
+	assert.equal(ui.ig.children.length, 2);
+	assert.equal(ui.ig.style.getPropertyValue('--ig-leading-w'), '0px');
+});
+
+test('Tab order is leading → field → trailing', () => {
+	const ui = render();
+	const ids = [...ui.doc.querySelectorAll(TABBABLE)].map((el) => el.id);
+	assert.deepEqual(ids.slice(0, 5), ['before', 'attach', 'msg', 'send', 'after']);
+	assert.equal(ui.field().tagName, 'TEXTAREA');
+	const ui2 = render({ field: 'input' });
+	assert.equal(ui2.field().tagName, 'INPUT');
+	assert.ok(ui2.field().classList.contains('grouped'));
+});
+
+test('the group draws the focus ring around the whole unit; the grouped field yields its own', () => {
+	assert.match(group, /\.ig:has\(:focus-visible\)::after\s*{[^}]*outline: var\(--focus-ring\);/s);
+	assert.ok(hasDecl(group, '.ig:has(:focus-visible)::after', 'inset', '0'));
+	assert.ok(hasDecl(group, '.ig:has(:focus-visible)::after', 'border-radius', 'var(--ig-radius)'));
+	assert.ok(hasDecl(textarea, '.textarea.grouped:focus-visible', 'outline', 'none'));
+	assert.ok(hasDecl(input, '.input.grouped:focus-visible', 'outline', 'none'));
+	assert.ok(hasDecl(textarea, '.textarea:focus-visible', 'outline', 'var(--focus-ring)'));
+	assert.ok(hasDecl(input, '.input:focus-visible', 'outline', 'var(--focus-ring)'));
+});
+
+test('size, disabled and error flow to the field through context; loose fields are untouched', () => {
+	const ui = render({ size: 'sm', disabled: true, error: true });
+	const field = /** @type {HTMLTextAreaElement} */ (ui.field());
+	assert.ok(field.classList.contains('textarea-sm'));
+	assert.equal(field.disabled, true);
+	assert.equal(field.getAttribute('aria-invalid'), 'true');
+	assert.ok(ui.ig.classList.contains('ig-sm'));
+	assert.ok(ui.ig.classList.contains('disabled'));
+
+	const loose = /** @type {HTMLTextAreaElement} */ (ui.doc.getElementById('loose'));
+	assert.equal(loose.classList.contains('grouped'), false);
+	assert.equal(loose.classList.contains('textarea-sm'), false);
+	assert.equal(loose.disabled, false);
+	assert.equal(loose.getAttribute('aria-invalid'), null);
+	const looseInput = /** @type {HTMLInputElement} */ (ui.doc.getElementById('loose-input'));
+	assert.equal(looseInput.classList.contains('grouped'), false);
+
+	const lg = render({ size: 'lg', field: 'input' });
+	assert.ok(lg.field().classList.contains('input-lg'));
+	assert.ok(lg.ig.classList.contains('ig-lg'));
+});
+
+test('align, class, style and rest attributes land on the anchor element', () => {
+	const ui = render({ align: 'center' });
+	assert.ok(ui.ig.classList.contains('ig-center'));
+	assert.ok(ui.ig.classList.contains('probe'));
+	assert.equal(ui.ig.style.getPropertyValue('--probe'), '1');
+	assert.equal(render().ig.classList.contains('ig-center'), false);
+	assert.match(group, /\.\.\.rest\s*}: Omit<HTMLAttributes<HTMLDivElement>, keyof Own> & Own = \$props\(\);/);
+	assert.match(group, /<div\s+{\.\.\.rest}\s+data-tsu="InputGroup"/);
+});
+
+test('the top resize handle stays between the adornments and still drags', async () => {
+	assert.ok(hasDecl(textarea, '.textarea-wrap.grouped .resize-handle', 'left', 'var(--ig-leading-w, 0px)'));
+	assert.ok(hasDecl(textarea, '.textarea-wrap.grouped .resize-handle', 'right', 'var(--ig-trailing-w, 0px)'));
+
+	const ui = render({ resize: 'top' });
+	const handle = /** @type {HTMLElement} */ (ui.ig.querySelector('.resize-handle.resize-top'));
+	assert.ok(handle, 'top handle rendered inside the group');
+	const field = ui.field();
+	const wrap = /** @type {HTMLElement} */ (field.parentElement);
+	assert.ok(wrap.classList.contains('grouped'));
+	assert.equal(handle.parentElement, wrap);
+
+	const ev = (/** @type {string} */ type, /** @type {number} */ clientY) =>
+		new ui.win.PointerEvent(type, { clientY, pointerId: 1, bubbles: true });
+	handle.dispatchEvent(ev('pointerdown', 200));
+	ui.flush();
+	assert.ok(wrap.classList.contains('dragging'));
+	handle.dispatchEvent(ev('pointermove', 160));
+	await new Promise((r) => ui.win.requestAnimationFrame(() => r(undefined)));
+	assert.equal(field.style.minHeight, '40px');
+	handle.dispatchEvent(ev('pointerup', 160));
+	ui.flush();
+	assert.equal(wrap.classList.contains('dragging'), false);
+});
+
+test('Composer is rebuilt on InputGroup with the send button trailing and the attach button leading', () => {
+	assert.match(composer, /import InputGroup from '\$lib\/components\/molecules\/InputGroup\.svelte';/);
+	assert.match(composer, /<InputGroup\s+align="end"/);
+	assert.match(composer, /leading={leading \|\| hasAttach \? groupLeading : undefined}/);
+	assert.match(composer, /trailing={groupTrailing}/);
+	assert.match(composer, /{#snippet groupTrailing\(\)}[\s\S]*<Button variant="primary" box="sm" loading={busy}/);
+	assert.match(composer, /{#snippet groupLeading\(\)}[\s\S]*<FileButton onfiles={addFiles}/);
+	assert.match(composer, /resize\?: 'none' \| 'top';/);
+	assert.match(composer, /\{resize\}/);
+	assert.doesNotMatch(rule(composer, '.composer').border ?? '', /solid/);
+});
+
+test('exported and documented', () => {
+	assert.match(index, /export { default as InputGroup } from '\.\/components\/molecules\/InputGroup\.svelte';/);
+	assert.match(readme, /### InputGroup/);
+	assert.match(readme, /--ig-leading-w/);
+});
