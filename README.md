@@ -205,6 +205,7 @@ sanctioned escape hatch for everything else.
 | `Fieldset` | `--fieldset-pad`, `--fieldset-border` |
 | `GitRef` | `--git-ref-tone`, `--git-ref-max-width` |
 | `EmptyState` | `--empty-tone` |
+| `Combobox` | `--cb-bg`, `--cb-border`, `--cb-radius`, `--cb-active-bg`, `--cb-min-width`, `--cb-max-height` |
 | `Popover` | `--pop-trigger-bg`, `--pop-trigger-fg`, `--pop-trigger-border`, `--pop-trigger-radius`, `--pop-trigger-size`, `--pop-trigger-pad`, `--pop-box`, `--pop-count-bg`, `--pop-count-fg`, `--pop-count-size` |
 
 `tests/css-custom-property-contract.test.js` reads this table and fails if a
@@ -301,7 +302,14 @@ Timestamp (`mode` date/time/datetime/relative/iso/`short-iso` for a locale-indep
 then the leaf ellipsises down to `minLeaf`; `full` skips the fit, `copy` makes it
 a copy-on-click button; candidates via the `workingDirCandidates` helper).
 Fieldset (bordered zone, legend rides the border; `droppable` makes it an HTML5
-drop target with `accepts`/`ondrop`/`dropHint` — keyboard alternative is the consumer's job).
+drop target with `accepts`/`ondrop`/`dropHint` — keyboard alternative is the consumer's job),
+Combobox (suggestion listbox for a field you render as `children` — an Input for
+plain autocomplete or a Textarea for `@`/`#` mentions; the kit sets the field's
+combobox ARIA and `aria-activedescendant`, floats the `role="listbox"` in the top
+layer under the field or under the caret via `anchor="caret"`, and handles
+ArrowUp/Down, Enter/Tab (`selectOn`), Escape and blur; `open`/`index` are
+bindable, `onselect`/`onclose(reason)` report picks; `findTrigger`/`applyTrigger`
+are exported for trigger-char detection and token replacement).
 
 **Organisms:** DataTable (generic `<T>`, typed columns + cell snippets;
 `layout="fixed"` makes column widths authoritative, `Column.truncate` /

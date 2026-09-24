@@ -18,6 +18,9 @@ function alignPos(align: Align, start: number, size: number, fSize: number): num
 	return start + size / 2 - fSize / 2;
 }
 
+/** Viewport-relative box to float against: an element's rect or a virtual one (a text caret). */
+export type AnchorRect = Pick<DOMRect, 'top' | 'left' | 'bottom' | 'right' | 'width' | 'height'>;
+
 /**
  * Position `floating` next to `trigger` and write the result to its inline
  * `top`/`left` (expects `floating` to be `position: fixed`). Call on open and on
@@ -29,7 +32,16 @@ export function place(
 	placement: Placement = 'bottom-start',
 	gap = 6,
 ): void {
-	const t = trigger.getBoundingClientRect();
+	placeAt(trigger.getBoundingClientRect(), floating, placement, gap);
+}
+
+/** `place` against a viewport rect instead of an element. */
+export function placeAt(
+	t: AnchorRect,
+	floating: HTMLElement,
+	placement: Placement = 'bottom-start',
+	gap = 6,
+): void {
 	const f = floating.getBoundingClientRect();
 	const vw = document.documentElement.clientWidth;
 	const vh = document.documentElement.clientHeight;
