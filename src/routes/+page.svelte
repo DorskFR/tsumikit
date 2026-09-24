@@ -18,6 +18,7 @@
 		Icon,
 		Spinner,
 		Skeleton,
+		Swatch,
 		Field,
 		IconButton,
 		SelectButton,
@@ -158,6 +159,7 @@
 			label: 'Data display',
 			items: [
 				{ id: 'badge', label: 'Badge · Link · Dot', keywords: 'tag pill status chip' },
+				{ id: 'swatch', label: 'Swatch', keywords: 'colour color palette picker chip' },
 				{ id: 'metric', label: 'Metric · StatTile', keywords: 'kpi number stat' },
 				{ id: 'section-header', label: 'SectionHeader · KeyValue', keywords: 'header list loadmore' },
 				{ id: 'data-table', label: 'DataTable', keywords: 'table rows columns sort generic' },
@@ -277,6 +279,8 @@
 
 	// interactive demo state
 	let switchOn = $state(true);
+	const swatchPalette = ['var(--accent)', 'var(--ok)', 'var(--warn)', 'var(--danger)', 'var(--info)', 'var(--c-violet)'];
+	let swatchPicked = $state('var(--accent)');
 	const mdItems = ['Alice', 'Bob', 'Chidi', 'Dana'];
 	let mdSelectedWide = $state<string | null>('Alice');
 	let mdSelectedNarrow = $state<string | null>(null);
@@ -1691,6 +1695,41 @@ function greet(name) {
 							<Dot status="hibernated" label="hibernated" />
 							<Dot color="var(--accent)" label="custom" />
 							<Dot status="active" ring label="ring" />
+						</div>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="swatch">
+				<Heading level={3} size="lg">Swatch</Heading>
+				<Card>
+					<div class="stack">
+						<Text variant="caption">
+							Sizes and shapes; a label makes it an image, without one it is decorative.
+						</Text>
+						<div class="row row-wrap">
+							<Swatch color="var(--accent)" size="sm" label="Accent (sm)" />
+							<Swatch color="var(--accent)" label="Accent (md)" />
+							<Swatch color="var(--accent)" size="lg" label="Accent (lg)" />
+							<Swatch color="hsl(200 80% 92%)" label="Pale blue" />
+							<Swatch color="var(--ok)" shape="square" size="sm" />
+							<Swatch color="var(--ok)" shape="square" />
+							<Swatch color="var(--ok)" shape="square" size="lg" />
+							<Swatch color="var(--bg-elevated)" shape="square" label="Auto" size="lg">A</Swatch>
+						</div>
+						<Text variant="caption">Interactive palette: buttons with aria-pressed.</Text>
+						<div class="row row-wrap" role="group" aria-label="Pick a colour">
+							{#each swatchPalette as c (c)}
+								<Swatch
+									color={c}
+									size="lg"
+									interactive
+									label={c}
+									selected={swatchPicked === c}
+									onclick={() => (swatchPicked = c)}
+								/>
+							{/each}
+							<Badge color={swatchPicked} mono>{swatchPicked}</Badge>
 						</div>
 					</div>
 				</Card>
