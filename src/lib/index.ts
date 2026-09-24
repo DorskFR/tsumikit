@@ -74,6 +74,11 @@ export { default as CodeBlock } from './components/molecules/CodeBlock.svelte';
 export { default as Composer } from './components/molecules/Composer.svelte';
 export { default as ConfirmModal } from './components/molecules/ConfirmModal.svelte';
 export { default as CopyButton } from './components/molecules/CopyButton.svelte';
+export {
+	type DisclosureChevron,
+	type DisclosureHeaderContext,
+	default as Disclosure,
+} from './components/molecules/Disclosure.svelte';
 export { default as Drawer } from './components/molecules/Drawer.svelte';
 export { default as Dropzone } from './components/molecules/Dropzone.svelte';
 export { default as EmojiPicker } from './components/molecules/EmojiPicker.svelte';

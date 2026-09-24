@@ -264,7 +264,10 @@ its icon leading and shows its check trailing, or uses the leading check slot wh
 no icon; selecting closes the menu unless `closeOnSelect={false}` or the item sets `keepOpen`),
 Tabs, RadioGroup (`variant="rows"`: bordered rows, per-option `note`/`description`,
 `action(option)` trailing control that never toggles, `below(option)` inline panel),
-Tooltip, Accordion, CopyButton, FileButton,
+Tooltip, Disclosure (single collapsible: `header` snippet, bindable `open` or `open` + `onchange` for
+controlled mode, `chevron` start/end/false, native button with `aria-expanded`/`aria-controls` over a
+`region` panel), Accordion (a stack of Disclosures; items take a `title` string or a `summary` snippet,
+per-item `open`/`onchange`, `multiple=false` keeps one open), CopyButton, FileButton,
 Dropzone, CodeBlock, Callout, EmptyState, ConfirmModal, Pagination, Toaster,
 ThemePicker (popover grid of 2×2 palette swatches: bg · surface · text · accent per theme),
 EmojiPicker (popover with a searchable EN+FR glyph catalogue, grouped tabs, roving-tabindex grid; pass `groups` to swap the catalogue), FontScalePicker (popover with a stepped slider across the five text sizes), SectionHeader, KeyValue, LoadMore,
