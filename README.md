@@ -248,7 +248,8 @@ is used), Textarea, Select (`options` array with per-option `icon`/`emoji`/`hint
 the trigger overlays the selected option's glyph + muted hint on the native control), Switch, Checkbox,
 Slider (`ticks` draws a dot per step for a segmented slider), Progress, Gauge (vertical consumption cell, `variant` continuous/segments,
 threshold tones via `warnAt`/`dangerAt`, `corner` snippet), Artwork (lazy cover image with seeded gradient + initials
-fallback, `aspect`, `status` overlay), Card (`tone` tints the surface for inline banners), Badge
+fallback, `aspect`, `status` overlay), Avatar (grapheme-safe initial or `glyph`, hue hashed from
+`seed`/`name` or a fixed `tone`, `size` xs–lg or px, `shape` circle/square, `decorative`, corner `status`), Card (`tone` tints the surface for inline banners), Badge
 (`tone` semantic palette or `color` for any CSS colour, `size` xs/sm/md, `dot`,
 `icon`, `numeric`, `truncate`, `variant="text"`, `removable`/`onremove` or any
 trailing action via `actionIcon`/`actionLabel`/`onaction`, `removed` mutes and
@@ -501,6 +502,30 @@ sm | md | lg | pill, `fit` cover | contain, `hover` for tappable tiles,
 <Artwork src={album.cover} alt={album.title} aspect="1/1" size="9rem" hover>
   {#snippet status()}<Dot status="active" ring />{/snippet}
 </Artwork>
+```
+
+### Avatar
+
+`Avatar` is the initials/glyph identity mark for people and accounts. `name`
+gives the initial (first grapheme, so emoji and flags stay whole) and the
+`aria-label`; `glyph` shows an emoji or character instead. The fill hue is
+hashed from `seed` (default `name`) — the same hash as Artwork — or set with
+`hue`; `tone` accent | neutral | none swaps the hash for a fixed palette (`none`
+is for a bare emoji). Hashed fills mix the theme's `--mach-*-sl` pairs with the
+surface and ink tokens at ratios that clear 4.5:1 at every hue on every bundled
+theme. `size` xs | sm | md | lg (1.25–2.5rem) or a pixel number, `shape` circle |
+square, `decorative` drops it from the accessibility tree when the row already
+names the person (otherwise `role="img"`), `status` overlays a Dot on the
+top-right corner, ringed with `--avatar-status-ring` (default `--bg-elevated`).
+`--avatar-bg` / `--avatar-fg` override the colours from outside;
+`avatarInitial(name)` and `avatarHue(seed)` are exported.
+
+```svelte
+<Avatar name={user.name} size={26} decorative />
+<Avatar name="work" glyph="🐙" shape="square" size={16} tone="none" />
+<Avatar name={me} tone="accent" size="sm">
+  {#snippet status()}<Dot status="dead" />{/snippet}
+</Avatar>
 ```
 
 ## Container queries
