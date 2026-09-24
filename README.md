@@ -540,6 +540,21 @@ top-right corner, ringed with `--avatar-status-ring` (default `--bg-elevated`).
 </Avatar>
 ```
 
+### SplitButton
+
+`SplitButton` fuses a primary action with a narrow caret that opens a `Menu`:
+one outer radius, square inner corners, a 1px divider, two tab stops. The
+primary takes `onclick`, `type` (submit inside a form) and `loading`; the caret
+takes `label` (its accessible name), `items`, `placement` and the `Menu`
+panel props (`tag`, `panelClass`, `gap`, `open`, `onopen`, `onclose`).
+`variant` (default | primary | danger), `size` and `control` apply to both
+segments and match `Button` heights; `disabled` turns off the whole control,
+`menuDisabled` only the caret. ArrowDown on the primary opens the menu.
+
+```svelte
+<SplitButton variant="primary" label="Send options" {items} onclick={send}>Send</SplitButton>
+```
+
 ## Container queries
 
 AppShell's `main` and `sidebar` are query containers (`container-name: main` /

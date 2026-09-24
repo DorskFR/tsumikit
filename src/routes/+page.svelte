@@ -53,6 +53,7 @@
 		Tabs,
 		RadioGroup,
 		SegmentedControl,
+		SplitButton,
 		SegmentedProgress,
 		type SegmentOption,
 		DataTable,
@@ -132,7 +133,8 @@
 				{ id: 'button', label: 'Button', keywords: 'cta submit variant primary ghost danger' },
 				{ id: 'icon', label: 'Icon · IconButton', keywords: 'glyph svg spinner registry' },
 				{ id: 'toggle', label: 'Toggle · OptionButton', keywords: 'switch chip choice selectbutton' },
-				{ id: 'segmented-control', label: 'SegmentedControl', keywords: 'switcher choice group' }
+				{ id: 'segmented-control', label: 'SegmentedControl', keywords: 'switcher choice group' },
+				{ id: 'split-button', label: 'SplitButton', keywords: 'caret dropdown send schedule menu' }
 			]
 		},
 		{
@@ -442,6 +444,11 @@
 		{ label: 'Archived', pressed: false, keepOpen: true, onselect: () => toasts.show('Archived stays off') },
 		{ label: 'Delete', icon: 'trash', danger: true, onselect: () => toasts.error('Deleted') }
 	]);
+	const sendItems: MenuItem[] = [
+		{ label: 'Later today', icon: 'clock', onselect: () => toasts.show('Scheduled for later today') },
+		{ label: 'Tomorrow 9:00', icon: 'clock', onselect: () => toasts.show('Scheduled for tomorrow') },
+		{ label: 'Custom time…', icon: 'calendar', onselect: () => toasts.show('Pick a time') }
+	];
 	const tabs: TabItem[] = [
 		{ id: 'overview', label: 'Overview', icon: 'info' },
 		{ id: 'activity', label: 'Activity', icon: 'live' },
@@ -1241,6 +1248,27 @@ function greet(name) {
 								/>
 							</div>
 						</Field>
+					</Stack>
+				</Card>
+			</section>
+
+			<section class="section" id="split-button">
+				<Heading level={3} size="lg">SplitButton</Heading>
+				<Card>
+					<Stack>
+						<Text variant="caption" tone="muted">A primary action fused with a caret menu: one outer radius, a single divider, two tab stops. ArrowDown on the primary opens the menu.</Text>
+						<div class="row row-wrap">
+							{#each ['sm', 'md', 'lg'] as const as size (size)}
+								<SplitButton variant="primary" {size} label="Send options" items={sendItems} onclick={() => toasts.ok('Sent')}>Send</SplitButton>
+								<SplitButton {size} label="Export options" items={sendItems} onclick={() => toasts.show('Exported')}>Export</SplitButton>
+							{/each}
+						</div>
+						<div class="row row-wrap">
+							<SplitButton variant="danger" label="Delete options" items={sendItems} onclick={() => toasts.error('Deleted')}>Delete</SplitButton>
+							<SplitButton variant="primary" control label="Send options" items={sendItems} onclick={() => toasts.ok('Sent')}>Send (control)</SplitButton>
+							<SplitButton variant="primary" disabled label="Send options" items={sendItems}>Disabled</SplitButton>
+							<SplitButton variant="primary" menuDisabled label="Send options" items={sendItems} onclick={() => toasts.ok('Sent')}>Menu disabled</SplitButton>
+						</div>
 					</Stack>
 				</Card>
 			</section>
