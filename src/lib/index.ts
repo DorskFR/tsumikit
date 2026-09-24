@@ -138,6 +138,7 @@ export {
 	type SegmentOption,
 } from './components/molecules/SegmentedControl.svelte';
 export { default as SelectButton } from './components/molecules/SelectButton.svelte';
+export { default as SplitButton } from './components/molecules/SplitButton.svelte';
 export { default as Tabs, type TabItem } from './components/molecules/Tabs.svelte';
 export { default as ThemePicker } from './components/molecules/ThemePicker.svelte';
 export { default as Timestamp } from './components/molecules/Timestamp.svelte';
