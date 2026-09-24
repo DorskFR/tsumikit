@@ -259,7 +259,9 @@ any custom SVG).
 
 **Molecules:** Field (`grow`), IconButton, SelectButton, Toggle, OptionButton, Modal,
 Popover, Menu (items take a free-form trailing `tag` + `tagTone`, or a `tag` snippet,
-and an `attrs` object for `data-*`/test ids on the row),
+and an `attrs` object for `data-*`/test ids on the row; a checkable `pressed` item keeps
+its icon leading and shows its check trailing, or uses the leading check slot when it has
+no icon; selecting closes the menu unless `closeOnSelect={false}` or the item sets `keepOpen`),
 Tabs, RadioGroup (`variant="rows"`: bordered rows, per-option `note`/`description`,
 `action(option)` trailing control that never toggles, `below(option)` inline panel),
 Tooltip, Accordion, CopyButton, FileButton,

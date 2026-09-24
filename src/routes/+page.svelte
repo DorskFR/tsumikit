@@ -359,6 +359,14 @@
 		{ label: 'Manage access', icon: 'settings', tag: 'admin', tagTone: 'info', onselect: () => toasts.show('Access') },
 		{ label: 'Delete', icon: 'trash', danger: true, tag: 'danger', tagTone: 'danger', onselect: () => toasts.error('Deleted') }
 	];
+	let menuFilters = $state({ live: true, keepAlive: false });
+	const mixedMenuItems = $derived<MenuItem[]>([
+		{ label: 'Fork', icon: 'copy', onselect: () => toasts.show('Forked') },
+		{ label: 'Live', icon: 'live', pressed: menuFilters.live, keepOpen: true, onselect: () => (menuFilters.live = !menuFilters.live) },
+		{ label: 'Keep alive', icon: 'settings', pressed: menuFilters.keepAlive, keepOpen: true, onselect: () => (menuFilters.keepAlive = !menuFilters.keepAlive) },
+		{ label: 'Archived', pressed: false, keepOpen: true, onselect: () => toasts.show('Archived stays off') },
+		{ label: 'Delete', icon: 'trash', danger: true, onselect: () => toasts.error('Deleted') }
+	]);
 	const tabs: TabItem[] = [
 		{ id: 'overview', label: 'Overview', icon: 'info' },
 		{ id: 'activity', label: 'Activity', icon: 'live' },
@@ -2314,7 +2322,13 @@ function greet(name) {
 							{#snippet trigger()}Actions <Icon name="chevron-down" size={14} />{/snippet}
 						</Menu>
 
-						<Text variant="caption" tone="muted">Open a menu and navigate with ↑/↓, Enter to select.</Text>
+						<Menu label="Mixed menu" items={mixedMenuItems} variant="ghost" size="sm">
+							{#snippet trigger()}Mixed <Icon name="chevron-down" size={14} />{/snippet}
+						</Menu>
+
+						<Text variant="caption" tone="muted">Open a menu and navigate with ↑/↓, Enter to select. The mixed menu's
+						checkable rows keep their icon (check trails) or use the leading check slot, and <code>keepOpen</code> leaves
+						the menu open while toggling.</Text>
 					</div>
 				</Card>
 			</section>
