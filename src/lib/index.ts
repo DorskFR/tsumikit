@@ -74,9 +74,16 @@ export { default as CapBar } from './components/molecules/CapBar.svelte';
 export { default as Carousel } from './components/molecules/Carousel.svelte';
 export { default as ChatBubble } from './components/molecules/ChatBubble.svelte';
 export { default as CodeBlock } from './components/molecules/CodeBlock.svelte';
+export { default as Combobox } from './components/molecules/Combobox.svelte';
 export { default as Composer } from './components/molecules/Composer.svelte';
 export { default as ConfirmModal } from './components/molecules/ConfirmModal.svelte';
 export { default as CopyButton } from './components/molecules/CopyButton.svelte';
+export {
+	applyTrigger,
+	comboboxAction,
+	findTrigger,
+	nextComboboxIndex,
+} from './components/molecules/combobox-keyboard.js';
 export {
 	type DisclosureChevron,
 	type DisclosureHeaderContext,

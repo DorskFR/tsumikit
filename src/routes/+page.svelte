@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { tick } from 'svelte';
 	import {
 		Text,
 		Heading,
@@ -30,6 +31,9 @@
 		Pagination,
 		CopyButton,
 		CodeBlock,
+		Combobox,
+		findTrigger,
+		applyTrigger,
 		FileButton,
 		Dropzone,
 		Fieldset,
@@ -139,7 +143,8 @@
 				{ id: 'checkbox-radio', label: 'Checkbox · RadioGroup', keywords: 'choice tick option' },
 				{ id: 'fieldset', label: 'Fieldset', keywords: 'group legend form' },
 				{ id: 'file-dropzone', label: 'FileButton · Dropzone', keywords: 'upload drag drop attachment' },
-				{ id: 'emoji-picker', label: 'EmojiPicker', keywords: 'emoji glyph avatar icon search' }
+				{ id: 'emoji-picker', label: 'EmojiPicker', keywords: 'emoji glyph avatar icon search' },
+				{ id: 'combobox', label: 'Combobox', keywords: 'autocomplete suggestions listbox mention caret typeahead' }
 			]
 		},
 		{
@@ -305,6 +310,40 @@
 	let selectOptionValue = $state('personal');
 	let selectGroupValue = $state('auto');
 	let emojiValue = $state('🐙');
+	const fruits = ['Apple', 'Apricot', 'Banana', 'Blueberry', 'Cherry', 'Grape', 'Mango', 'Peach', 'Pear'];
+	let fruitQuery = $state('');
+	let fruitOpen = $state(false);
+	let fruitIndex = $state(0);
+	const fruitMatches = $derived(
+		fruits.filter((f) => f.toLowerCase().startsWith(fruitQuery.trim().toLowerCase()))
+	);
+	const people = [
+		{ handle: 'alice', name: 'Alice Ahmed' },
+		{ handle: 'bob', name: 'Bob Brennan' },
+		{ handle: 'carol', name: 'Carol Chen' },
+		{ handle: 'dave', name: 'Dave Diallo' }
+	];
+	let mentionText = $state('Ping @');
+	let mentionEl = $state<HTMLTextAreaElement | null>(null);
+	let mentionTrigger = $state<ReturnType<typeof findTrigger>>(null);
+	let mentionIndex = $state(0);
+	const mentionMatches = $derived.by(() => {
+		const t = mentionTrigger;
+		return t ? people.filter((p) => p.handle.startsWith(t.query.toLowerCase())) : [];
+	});
+	function readMentionCaret() {
+		const el = mentionEl;
+		mentionTrigger = el ? findTrigger(el.value, el.selectionStart ?? el.value.length, '@') : null;
+	}
+	async function pickMention(p: { handle: string }) {
+		const el = mentionEl;
+		if (!el || !mentionTrigger) return;
+		const out = applyTrigger(el.value, el.selectionStart ?? el.value.length, mentionTrigger, `@${p.handle}`);
+		mentionText = out.text;
+		mentionTrigger = null;
+		await tick();
+		el.setSelectionRange(out.caret, out.caret);
+	}
 	let pickerValue = $state('a');
 	let modalOpen = $state(false);
 	let confirmOpen = $state(false);
@@ -1478,6 +1517,70 @@ function greet(name) {
 							<code>groups</code> to replace it. Arrow keys walk the grid, Enter picks.
 						</Text>
 					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="combobox">
+				<Heading level={3} size="lg">Combobox</Heading>
+				<Card>
+					<Stack gap="md">
+						<Stack gap="xs">
+							<Text variant="caption" tone="muted">
+								Autocomplete: you render the field, the kit floats the listbox under it, keeps
+								<code>aria-activedescendant</code> on the input and consumes Arrow / Enter / Tab / Escape.
+							</Text>
+							<Combobox
+								options={fruitMatches}
+								bind:open={fruitOpen}
+								bind:index={fruitIndex}
+								label="Fruit suggestions"
+								empty="No fruit matches"
+								onselect={(f) => (fruitQuery = f)}
+								style="max-width: 20rem"
+							>
+								<Input
+									bind:value={fruitQuery}
+									placeholder="Type a fruit…"
+									aria-label="Fruit"
+									oninput={() => (fruitOpen = true)}
+									onfocus={() => (fruitOpen = true)}
+								/>
+							</Combobox>
+						</Stack>
+						<Stack gap="xs">
+							<Text variant="caption" tone="muted">
+								Mention: the consumer detects the trigger with <code>findTrigger</code> and replaces the
+								token with <code>applyTrigger</code>; <code>anchor="caret"</code> pins the listbox under
+								the text cursor. Type <code>@</code> to try it.
+							</Text>
+							<Combobox
+								options={mentionMatches}
+								open={mentionTrigger !== null}
+								bind:index={mentionIndex}
+								label="People"
+								anchor="caret"
+								onselect={pickMention}
+								onclose={() => (mentionTrigger = null)}
+								style="max-width: 32rem"
+							>
+								{#snippet option(p, { active })}
+									<span style="font-weight: {active ? 'var(--fw-semibold)' : 'inherit'}">@{p.handle}</span>
+									<Text as="span" tone="muted" size="sm"> · {p.name}</Text>
+								{/snippet}
+								<Textarea
+									rows={3}
+									bind:value={mentionText}
+									bind:el={mentionEl}
+									aria-label="Message"
+									oninput={readMentionCaret}
+									onclick={readMentionCaret}
+									onkeyup={(e) => {
+										if (e.key.startsWith('Arrow') || e.key === 'Home' || e.key === 'End') readMentionCaret();
+									}}
+								/>
+							</Combobox>
+						</Stack>
+					</Stack>
 				</Card>
 			</section>
 
