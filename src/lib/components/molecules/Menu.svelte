@@ -103,16 +103,6 @@
 
 	let listEl = $state<HTMLDivElement | null>(null);
 
-	$effect(() => {
-		const pop = listEl?.closest<HTMLElement>('[popover]');
-		if (!pop) return;
-		const isOpen = pop.matches(':popover-open');
-		try {
-			if (open && !isOpen) pop.showPopover();
-			else if (!open && isOpen) pop.hidePopover();
-		} catch {}
-	});
-
 	function buttons(): HTMLButtonElement[] {
 		return listEl
 			? Array.from(listEl.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not(:disabled), [role="menuitemcheckbox"]:not(:disabled)'))
@@ -167,12 +157,9 @@
 	{gap}
 	role="menu"
 	haspopup="menu"
-	onclose={() => {
-		open = false;
-		onclose?.();
-	}}
+	bind:open
+	{onclose}
 	onopen={() => {
-		open = true;
 		queueMicrotask(() => focusAt(0));
 		onopen?.();
 	}}

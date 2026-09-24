@@ -76,6 +76,8 @@
 		role?: PanelRole;
 		/** `aria-haspopup` announced on the trigger. */
 		haspopup?: HasPopup;
+		/** Bindable open state; setting it opens or closes the panel, even before its first open. */
+		open?: boolean;
 		onopen?: () => void;
 		onclose?: () => void;
 		class?: string;
@@ -110,6 +112,7 @@
 		href,
 		role = 'dialog',
 		haspopup = 'dialog',
+		open = $bindable(false),
 		onopen,
 		onclose,
 		class: klass = '',
@@ -133,7 +136,14 @@
 	// reopening is instant. The panel element itself always renders — the native
 	// `popovertarget` wiring needs its id present in the DOM at all times.
 	let opened = $state(false);
-	let open = $state(false);
+
+	let shown = false;
+
+	$effect(() => {
+		if (!panelEl) return;
+		if (open && !shown) show();
+		else if (!open && shown) close();
+	});
 
 	function close() {
 		try {
@@ -210,6 +220,7 @@
 	}
 
 	async function onToggle(e: ToggleEvent) {
+		shown = e.newState === 'open';
 		if (e.newState === 'open') {
 			const firstOpen = !opened;
 			opened = true;

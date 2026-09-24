@@ -40,5 +40,5 @@ test('Menu: pressed items are menuitemcheckbox with a check glyph, content snipp
 	assert.match(menu, /role={item\.pressed === undefined \? 'menuitem' : 'menuitemcheckbox'}/);
 	assert.match(menu, /aria-checked={item\.pressed === undefined \? undefined : item\.pressed}/);
 	assert.match(menu, /{#if item\.content}\s*{@render item\.content\(item\)}/);
-	assert.match(menu, /if \(open && !isOpen\) pop\.showPopover\(\);/);
+	assert.match(menu, /\tbind:open\n/);
 });
