@@ -69,6 +69,7 @@
 		CapBar,
 		SectionHeader,
 		Artwork,
+		Avatar,
 		NavBar,
 		type NavBarItem,
 		NavItem,
@@ -151,7 +152,8 @@
 				{ id: 'carousel', label: 'Carousel', keywords: 'slides deck tour gallery swipe dots' },
 				{ id: 'navbar', label: 'NavBar', keywords: 'bottom bar tab bar routes links safe area' },
 				{ id: 'accordion', label: 'Accordion', keywords: 'details disclosure collapse' },
-				{ id: 'nav-item', label: 'Artwork · NavItem', keywords: 'sidebar avatar menu entry' }
+				{ id: 'nav-item', label: 'Artwork · NavItem', keywords: 'sidebar avatar menu entry' },
+				{ id: 'avatar', label: 'Avatar', keywords: 'initials glyph emoji identity user account hue' }
 			]
 		},
 		{
@@ -1622,6 +1624,51 @@ function greet(name) {
 									{#snippet iconChildren()}<circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" />{/snippet}
 								</NavItem>
 							</div>
+						</div>
+					</div>
+				</Card>
+			</section>
+
+			<section class="section" id="avatar">
+				<Heading level={3} size="lg">Avatar</Heading>
+				<Card>
+					<div class="stack">
+						<div class="row row-wrap">
+							<Avatar name="nanachi" size="xs" />
+							<Avatar name="dorsk" size="sm" />
+							<Avatar name="Élodie" />
+							<Avatar name="🧑‍🚀 pilot" size="lg" />
+							<Avatar name="Kusaritoi" size={26} />
+							<Avatar name="Revoked user" size={40} />
+							<Avatar name="" size="lg" />
+						</div>
+						<div class="row row-wrap">
+							<Avatar name="work" glyph="🐙" shape="square" size={16} tone="none" />
+							<Avatar name="work" glyph="🐙" shape="square" size="sm" />
+							<Avatar name="work" shape="square" size="sm" />
+							<Avatar name="home" shape="square" seed="acct-7f3" />
+							<Avatar name="home" shape="square" size="lg" hue={210} />
+						</div>
+						<div class="row row-wrap">
+							<Avatar name="dorsk" tone="accent" size="sm" />
+							<Avatar name="dorsk" tone="accent" size="sm">
+								{#snippet status()}<Dot color="var(--danger)" />{/snippet}
+							</Avatar>
+							<Avatar name="dorsk" tone="neutral" />
+							<Avatar name="dorsk" size="lg">
+								{#snippet status()}<Dot status="active" />{/snippet}
+							</Avatar>
+							<Avatar name="dorsk" size="lg" style="--avatar-bg: var(--c-violet); --avatar-fg: var(--text-on-accent)" />
+						</div>
+						<div class="row row-wrap">
+							<span class="row" style="gap: var(--sp-2)">
+								<Avatar name="Listed user" size={26} decorative />
+								<Text>Listed user</Text>
+							</span>
+							<span class="row" style="gap: var(--sp-2)">
+								<Avatar name="Named for AT" size={26} />
+								<Text tone="muted">role="img"</Text>
+							</span>
 						</div>
 					</div>
 				</Card>
