@@ -158,6 +158,50 @@
 		top: 0;
 		height: auto;
 	}
+	/* Until the field grows into a bar, the adornments fill its height and their
+	   outer edge fuses with the field's, so the inner corners go square. */
+	.ig:not(.ig-bar) .ig-adorn {
+		top: 0;
+		height: auto;
+		padding-inline: 0;
+	}
+	.ig:not(.ig-bar) .ig-adorn > :global(*) {
+		align-self: stretch;
+		height: auto;
+		min-height: 0;
+		--btn-size: 100%;
+		--btn-radius: 0;
+		--pop-trigger-radius: 0;
+		border-radius: 0;
+	}
+	.ig:not(.ig-bar) .ig-adorn > :global(:is(.btn-box, .btn-square, .btn-icon, .icon-only)) {
+		width: auto;
+		min-width: 0;
+		aspect-ratio: 1;
+	}
+	.ig:not(.ig-bar) .ig-leading > :global(:first-child) {
+		--btn-radius: var(--ig-radius) 0 0 var(--ig-radius);
+		border-radius: var(--ig-radius) 0 0 var(--ig-radius);
+	}
+	.ig:not(.ig-bar) .ig-trailing > :global(:last-child) {
+		--btn-radius: 0 var(--ig-radius) var(--ig-radius) 0;
+		border-radius: 0 var(--ig-radius) var(--ig-radius) 0;
+	}
+	.ig:not(.ig-bar) .ig-adorn :global(.split-main) {
+		--btn-radius: 0;
+	}
+	.ig:not(.ig-bar) .ig-adorn :global(.split-caret) {
+		--pop-trigger-radius: 0;
+	}
+	.ig:not(.ig-bar) .ig-adorn :global(.split-caret .pop-trigger) {
+		height: 100%;
+	}
+	.ig:not(.ig-bar) .ig-leading > :global(:first-child .split-main) {
+		--btn-radius: var(--ig-radius) 0 0 var(--ig-radius);
+	}
+	.ig:not(.ig-bar) .ig-trailing > :global(:last-child .split-caret) {
+		--pop-trigger-radius: 0 var(--ig-radius) var(--ig-radius) 0;
+	}
 	.ig-bar .ig-field {
 		padding-bottom: var(--ig-h);
 	}

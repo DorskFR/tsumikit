@@ -99,20 +99,25 @@
 						{/snippet}
 						{#snippet children({ close })}
 							<div class="detail">
-								<Text variant="code" size="sm" class="detail-name">{f.name}</Text>
+								<div class="detail-head">
+									<Text variant="code" size="sm" class="detail-name">{f.name}</Text>
+									{#if onremove}
+										<Button
+											variant="ghost"
+											box="sm"
+											hoverDanger
+											aria-label={removeLabel}
+											title={removeLabel}
+											onclick={() => {
+												close();
+												onremove?.(i);
+											}}
+										>
+											<Icon name="trash" size={16} />
+										</Button>
+									{/if}
+								</div>
 								{#if f.size !== undefined}<Text size="xs" tone="faint">{fmt(f.size)}</Text>{/if}
-								{#if onremove}
-									<Button
-										size="sm"
-										variant="danger"
-										onclick={() => {
-											close();
-											onremove?.(i);
-										}}
-									>
-										{removeLabel}
-									</Button>
-								{/if}
 							</div>
 						{/snippet}
 					</Popover>
@@ -167,7 +172,20 @@
 		padding: var(--sp-1);
 		max-width: 16rem;
 	}
+	.detail-head {
+		display: flex;
+		align-items: flex-start;
+		gap: var(--sp-2);
+		width: 100%;
+	}
+	.detail-head > :global(button) {
+		flex: none;
+		margin-inline-start: auto;
+	}
 	.detail :global(.detail-name) {
 		overflow-wrap: anywhere;
+	}
+	.chip :global(.action) {
+		font-size: 1.4em;
 	}
 </style>
