@@ -1,8 +1,8 @@
 <script lang="ts">
 	// Chat composer: autoresizing Textarea with attach + send controls fused into
 	// one InputGroup, submit shortcuts, prompt history on ↑/↓ at the text edges,
-	// paste-to-attach and drag-over state. Attachments render as removable chips
-	// above the field.
+	// paste-to-attach and drag-over state. Attachments render above the field as
+	// removable chips, or as tiles once the composer is narrow.
 	import type { Snippet } from 'svelte';
 	import Button from '$lib/components/atoms/Button.svelte';
 	import Textarea from '$lib/components/atoms/Textarea.svelte';

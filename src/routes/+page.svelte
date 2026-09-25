@@ -55,6 +55,7 @@
 		RadioGroup,
 		SegmentedControl,
 		SplitButton,
+		AttachmentList,
 		SegmentedProgress,
 		type SegmentOption,
 		DataTable,
@@ -148,7 +149,8 @@
 				{ id: 'file-dropzone', label: 'FileButton · Dropzone', keywords: 'upload drag drop attachment' },
 				{ id: 'emoji-picker', label: 'EmojiPicker', keywords: 'emoji glyph avatar icon search' },
 				{ id: 'combobox', label: 'Combobox', keywords: 'autocomplete suggestions listbox mention caret typeahead' },
-				{ id: 'input-group', label: 'InputGroup', keywords: 'composer inset attach send fused field adornment' }
+				{ id: 'input-group', label: 'InputGroup', keywords: 'composer inset attach send fused field adornment' },
+				{ id: 'attachment-list', label: 'AttachmentList', keywords: 'files chips tiles thumbnail remove composer upload' }
 			]
 		},
 		{
@@ -313,6 +315,14 @@
 	let igMessage = $state('');
 	const igLabels = ['Send', 'Send (42s)', 'Send ❄️ ~120k'];
 	let igLabelIdx = $state(0);
+	const alSeed = [
+		{ name: 'screenshot-2026-09-25-at-14.02.11.png', size: 1_284_311, type: 'image/png', url: 'https://picsum.photos/seed/tsu-152/96' },
+		{ name: 'report.pdf', size: 88_120, type: 'application/pdf' },
+		{ name: 'notes.md', size: 2_048, type: 'text/markdown' },
+		{ name: 'export.csv', size: 402_133, type: 'text/csv' }
+	];
+	let alFiles = $state([...alSeed]);
+	let alTiles = $state([...alSeed]);
 	const igSchedule: MenuItem[] = [
 		{ label: 'Later today', onselect: () => toasts.show('Scheduled: later today') },
 		{ label: 'Tomorrow 9:00', onselect: () => toasts.show('Scheduled: tomorrow 9:00') },
@@ -1684,6 +1694,24 @@ function greet(name) {
 				</Card>
 			</section>
 
+			<section class="section" id="attachment-list">
+				<Heading level={3} size="lg">AttachmentList</Heading>
+				<Card>
+					<Stack gap="var(--sp-3)">
+						<Text variant="caption" tone="muted">
+							Chips when the list is wider than 30rem; square tiles below that (resize the window or the box).
+							A tile's Popover carries the full name, the size and Remove:
+						</Text>
+						<div class="al-resizable">
+							<AttachmentList files={alFiles} onremove={(i) => (alFiles = alFiles.filter((_, j) => j !== i))} />
+						</div>
+						<Text variant="caption" tone="muted">Forced tiles; image attachments show their thumbnail:</Text>
+						<AttachmentList tiles files={alTiles} onremove={(i) => (alTiles = alTiles.filter((_, j) => j !== i))} />
+						<Button size="sm" onclick={() => { alFiles = [...alSeed]; alTiles = [...alSeed]; }}>Reset</Button>
+					</Stack>
+				</Card>
+			</section>
+
 		</section>
 
 		<section class="group" id="g-navigation" aria-labelledby="gh-navigation">
@@ -3016,6 +3044,14 @@ function greet(name) {
 		flex-direction: column;
 		gap: var(--sp-3);
 		scroll-margin-top: calc(var(--header-h) + var(--sp-8));
+	}
+	.al-resizable {
+		resize: horizontal;
+		overflow: auto;
+		max-width: 100%;
+		padding: var(--sp-2);
+		border: 1px dashed var(--border-strong);
+		border-radius: var(--r-md);
 	}
 	/* `hidden` is set from JS, so the compiler cannot see it — global, or the
 	   selector is pruned and `display: flex` above wins over the UA rule. */

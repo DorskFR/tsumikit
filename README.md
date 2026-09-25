@@ -534,6 +534,24 @@ trailing; the group shows the focus ring around the whole unit.
 `Composer` is built on it: attachments above, `FileButton` leading, the send
 button trailing, `resize="top"` opt-in.
 
+### AttachmentList
+
+`AttachmentList` renders `files` (`File` or `{ name, size?, type?, url? }`)
+as removable mono chips with the formatted size. It sets `container-type:
+inline-size` on itself: at 30rem or narrower every file collapses to a square
+tile (a file glyph, or the image's thumbnail — an object URL for a `File`,
+`url` for a plain attachment). Tapping a tile opens a `Popover` with the full
+wrapping name, the size and a Remove button, so four screenshots take one row
+on a phone instead of four. `tiles` forces the tile mode (`false` forces
+chips); `removeLabel` names the popover button. Both variants are in the DOM
+and the container query displays one; the hidden one is `display: none`, so
+it is neither focusable nor announced. `Composer` inherits the behaviour.
+
+```svelte
+<AttachmentList files={attachments} onremove={(i) => (attachments = attachments.toSpliced(i, 1))} />
+<AttachmentList tiles files={[{ name: 'cover.png', size: 1024, type: 'image/png', url }]} />
+```
+
 ### Artwork
 
 `Artwork` is the one cover/thumbnail tile: `src` + `alt` (required) render a
