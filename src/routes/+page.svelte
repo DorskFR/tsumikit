@@ -1644,7 +1644,7 @@ function greet(name) {
 					<Stack gap="var(--sp-3)">
 						<Text variant="caption" tone="muted">
 							Input + trailing Button: the field spans the whole group and draws the one border and ring;
-							the controls are inset, so a phone never zooms to a narrow field.
+							the controls fuse with its edge, so a phone never zooms to a narrow field.
 						</Text>
 						<InputGroup align="center">
 							<Input bind:value={igInvite} placeholder="Invite by email" aria-label="Invite by email" />

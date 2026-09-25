@@ -288,3 +288,23 @@ test('exported and documented', () => {
 	assert.match(readme, /### InputGroup/);
 	assert.match(readme, /--ig-leading-w/);
 });
+
+test('single-row adornments fill the field height and fuse with its outer corners; the bar keeps them inset', () => {
+	const adorn = '.ig:not(.ig-bar) .ig-adorn';
+	assert.ok(hasDecl(group, adorn, 'top', '0'));
+	assert.ok(hasDecl(group, adorn, 'padding-inline', '0'));
+	const child = `${adorn} > :global(*)`;
+	assert.ok(hasDecl(group, child, 'align-self', 'stretch'));
+	assert.ok(hasDecl(group, child, '--btn-size', '100%'));
+	assert.ok(hasDecl(group, child, 'border-radius', '0'));
+	assert.ok(
+		hasDecl(group, '.ig:not(.ig-bar) .ig-leading > :global(:first-child)', 'border-radius', 'var(--ig-radius) 0 0 var(--ig-radius)')
+	);
+	assert.ok(
+		hasDecl(group, '.ig:not(.ig-bar) .ig-trailing > :global(:last-child)', 'border-radius', '0 var(--ig-radius) var(--ig-radius) 0')
+	);
+	assert.ok(
+		hasDecl(group, '.ig:not(.ig-bar) .ig-trailing > :global(:last-child .split-caret)', '--pop-trigger-radius', '0 var(--ig-radius) var(--ig-radius) 0')
+	);
+	assert.ok(hasDecl(group, '.ig-adorn', 'padding-inline', 'var(--ig-inset)'));
+});

@@ -97,9 +97,9 @@ test('tile popover shows the full name, the size and a working Remove', () => {
 	flushSync();
 	assert.match(panel.textContent ?? '', /report\.pdf/);
 	assert.match(panel.textContent ?? '', /86\.1 KB/);
-	const remove = [...panel.querySelectorAll('button')].find((b) => b.textContent?.trim() === 'Remove');
+	const remove = panel.querySelector('button[aria-label="Remove"]');
 	assert.ok(remove);
-	remove.click();
+	/** @type {HTMLButtonElement} */ (remove).click();
 	flushSync();
 	assert.deepEqual(removed, [1]);
 });
@@ -112,4 +112,17 @@ test('without onremove neither the chip nor the popover offers Remove', () => {
 	const panel = openPanel(dom, trigger);
 	flushSync();
 	assert.equal(panel.querySelectorAll('button').length, 0);
+});
+
+test('tile popover Remove is an icon-only trash button beside the name', () => {
+	const { dom, flushSync, list } = render({ tiles: true, onremove: () => {} });
+	const panel = openPanel(dom, list.querySelectorAll('li.tile [data-tsu="Popover"]')[0]);
+	flushSync();
+	const head = panel.querySelector('.detail-head');
+	assert.ok(head);
+	const remove = head.querySelector('button[aria-label="Remove"]');
+	assert.ok(remove);
+	assert.equal(remove.textContent?.trim(), '');
+	assert.ok(remove.querySelector('svg'));
+	assert.ok(hasDecl(css, '.detail-head > :global(button)', 'margin-inline-start', 'auto'));
 });
