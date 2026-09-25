@@ -81,7 +81,6 @@
 	};
 	const height = $derived(control ? 'var(--control-height)' : HEIGHT[size]);
 	const caretDisabled = $derived(disabled || menuDisabled);
-	const iconSize = $derived(caret === 'half' ? (size === 'sm' ? 12 : 14) : size === 'sm' ? 14 : 16);
 
 	function onPrimaryKeydown(e: KeyboardEvent) {
 		if (e.key !== 'ArrowDown' || caretDisabled) return;
@@ -131,7 +130,7 @@
 			{onopen}
 			{onclose}
 		>
-			{#snippet trigger()}<Icon name="chevron-down" size={iconSize} />{/snippet}
+			{#snippet trigger()}<Icon name="chevron-down" size={size === 'sm' ? 14 : 16} />{/snippet}
 		</Menu>
 	</span>
 </div>
