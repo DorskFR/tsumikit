@@ -157,14 +157,17 @@
 	.ig-adorn > :global(*) {
 		pointer-events: auto;
 		align-self: stretch;
-		height: auto;
-		min-height: 0;
 		--btn-size: 100%;
 		--btn-radius: 0;
 		--pop-trigger-radius: 0;
 		border-radius: 0;
 	}
-	.ig-adorn > :global(:is(.btn-box, .btn-square, .btn-icon, .icon-only)) {
+	/* `.ig` outranks an adornment's own fixed box (e.g. FileButton `box`). */
+	.ig .ig-adorn > :global(*) {
+		height: auto;
+		min-height: 0;
+	}
+	.ig .ig-adorn > :global(:is(.btn-box, .btn-square, .btn-icon, .icon-only)) {
 		width: auto;
 		min-width: 0;
 		aspect-ratio: 1;

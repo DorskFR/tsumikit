@@ -300,6 +300,19 @@ test('adornments fill the field inside its border and follow its outer corners',
 	assert.doesNotMatch(group, /\.ig:not\(\.ig-bar\)/, 'the bar keeps the adornments flush too');
 });
 
+test('a fixed-box adornment (FileButton box) still stretches square to the slot, so its glyph centres', async () => {
+	const fileButton = await read('components/molecules/FileButton.svelte');
+	assert.ok(hasDecl(fileButton, '.file-btn.box', 'height', 'var(--file-box)'));
+	const sizing = '.ig .ig-adorn > :global(*)';
+	assert.ok(hasDecl(group, sizing, 'height', 'auto'));
+	assert.ok(hasDecl(group, sizing, 'min-height', '0'));
+	const square = '.ig .ig-adorn > :global(:is(.btn-box, .btn-square, .btn-icon, .icon-only))';
+	assert.ok(hasDecl(group, square, 'width', 'auto'));
+	assert.ok(hasDecl(group, square, 'min-width', '0'));
+	assert.ok(hasDecl(group, square, 'aspect-ratio', '1'));
+	assert.equal(rule(group, '.ig-adorn > :global(*)').height, undefined, 'the corner-fusing radius rules must keep outranking border-radius: 0');
+});
+
 test('in the bar the adornments hug the bottom and side borders, rounding only the bottom-outer corner', () => {
 	assert.ok(hasDecl(group, '.ig-bar .ig-adorn', 'top', 'auto'));
 	assert.ok(hasDecl(group, '.ig-bar .ig-adorn', 'height', 'calc(var(--ig-h) - 1px)'));
