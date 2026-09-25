@@ -595,12 +595,12 @@ function greet(name) {
 		'back', 'arrow-right', 'arrow-up', 'arrow-down', 'chevron-up', 'chevron-down',
 		'chevron-left', 'chevron-right', 'menu', 'more', 'external', 'log-out',
 		'plus', 'minus', 'check', 'x', 'search', 'filter', 'copy', 'edit', 'trash',
-		'save', 'download', 'upload', 'send', 'share', 'retry', 'settings',
+		'save', 'download', 'upload', 'send', 'share', 'retry', 'recycle', 'settings',
 		'play', 'pause', 'stop', 'music', 'tv', 'film', 'disc',
 		'file', 'file-text', 'folder', 'archive', 'image', 'markdown', 'list', 'grid',
 		'link', 'unlink', 'text-cursor', 'tag', 'bookmark', 'star', 'heart', 'fork', 'live', 'eye', 'eye-off',
 		'lock', 'unlock', 'bell', 'mail', 'calendar', 'clock', 'home', 'user', 'users',
-		'sun', 'moon', 'loader',
+		'sun', 'moon', 'flame', 'loader',
 		'info', 'warning', 'help', 'check-circle', 'x-circle', 'alert-circle'
 	];
 

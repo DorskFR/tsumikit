@@ -25,3 +25,10 @@ test('VCS glyphs: pull-request, git-branch, git-commit, git-merge', () => {
 		assert.match(icon, new RegExp(`'${name}': '<`));
 	}
 });
+
+test('recycle and flame glyphs are registered', () => {
+	for (const name of ['recycle', 'flame']) {
+		assert.match(icon, new RegExp(`^\\t\\t${name}: '<path d="`, 'm'), `missing glyph ${name}`);
+	}
+	assert.equal((icon.match(/^\t\trecycle: '(.*)',$/m)?.[1].match(/<path /g) ?? []).length, 6);
+});
