@@ -121,6 +121,15 @@ test('the caret is the kit chevron, sized to the control height, with square inn
 	assert.ok(hasDecl(style, '.split-caret', 'margin-inline-start', '-1px'));
 });
 
+test('caret="half" halves the caret width and shrinks its chevron', () => {
+	assert.ok(hasDecl(style, '.split-half .split-caret', 'width', 'calc(var(--split-height) / 2)'));
+	assert.ok(!render().root.classList.contains('split-half'));
+	const half = render({ caret: 'half' });
+	assert.ok(half.root.classList.contains('split-half'));
+	assert.equal(half.caret.querySelector('svg')?.style.fontSize, '14px');
+	assert.equal(render({ caret: 'half', size: 'sm' }).caret.querySelector('svg')?.style.fontSize, '12px');
+});
+
 test('the segments are joined through published properties, not :global reach', () => {
 	assert.doesNotMatch(style, /:global\(/);
 });

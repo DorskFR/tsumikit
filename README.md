@@ -656,7 +656,8 @@ takes `label` (its accessible name), `items`, `placement` and the `Menu`
 panel props (`tag`, `panelClass`, `gap`, `open`, `onopen`, `onclose`).
 `variant` (default | primary | danger), `size` and `control` apply to both
 segments and match `Button` heights; `disabled` turns off the whole control,
-`menuDisabled` only the caret. ArrowDown on the primary opens the menu.
+`menuDisabled` only the caret. `caret="half"` narrows the caret to half the
+control height so it reads as secondary. ArrowDown on the primary opens the menu.
 
 ```svelte
 <SplitButton variant="primary" label="Send options" {items} onclick={send}>Send</SplitButton>

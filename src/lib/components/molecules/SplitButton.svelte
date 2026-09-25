@@ -18,6 +18,9 @@
 		size?: ControlSize;
 		/** Use the shared `--control-height` toolbar/composer contract. */
 		control?: boolean;
+		/** `half` narrows the caret to half the control height so it reads as
+		 *  secondary to the primary action. */
+		caret?: 'square' | 'half';
 		/** Disables both segments. */
 		disabled?: boolean;
 		/** Disables the caret only; the primary action keeps working. */
@@ -50,6 +53,7 @@
 		variant = 'default',
 		size = 'md',
 		control = false,
+		caret = 'square',
 		disabled = false,
 		menuDisabled = false,
 		label,
@@ -77,6 +81,7 @@
 	};
 	const height = $derived(control ? 'var(--control-height)' : HEIGHT[size]);
 	const caretDisabled = $derived(disabled || menuDisabled);
+	const iconSize = $derived(caret === 'half' ? (size === 'sm' ? 12 : 14) : size === 'sm' ? 14 : 16);
 
 	function onPrimaryKeydown(e: KeyboardEvent) {
 		if (e.key !== 'ArrowDown' || caretDisabled) return;
@@ -90,6 +95,7 @@
 	data-tsu="SplitButton"
 	class="split {klass}"
 	class:split-primary={variant === 'primary'}
+	class:split-half={caret === 'half'}
 	style={styleProp}
 	style:--split-height={height}
 >
@@ -125,7 +131,7 @@
 			{onopen}
 			{onclose}
 		>
-			{#snippet trigger()}<Icon name="chevron-down" size={size === 'sm' ? 14 : 16} />{/snippet}
+			{#snippet trigger()}<Icon name="chevron-down" size={iconSize} />{/snippet}
 		</Menu>
 	</span>
 </div>
@@ -151,6 +157,9 @@
 		margin-inline-start: -1px;
 		--pop-trigger-radius: 0 var(--r-md) var(--r-md) 0;
 		--pop-trigger-pad: 0;
+	}
+	.split-half .split-caret {
+		width: calc(var(--split-height) / 2);
 	}
 	/* The hovered or focused segment paints above its neighbour, so its
 	   accent border and focus ring are not cut by the overlap. */

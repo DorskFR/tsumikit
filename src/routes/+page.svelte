@@ -1293,6 +1293,8 @@ function greet(name) {
 							<SplitButton variant="danger" label="Delete options" items={sendItems} onclick={() => toasts.error('Deleted')}>Delete</SplitButton>
 							<SplitButton variant="primary" control label="Send options" items={sendItems} onclick={() => toasts.ok('Sent')}>Send (control)</SplitButton>
 							<SplitButton variant="primary" disabled label="Send options" items={sendItems}>Disabled</SplitButton>
+							<SplitButton variant="primary" caret="half" label="Send options" items={sendItems} onclick={() => toasts.ok('Sent')}>Half caret</SplitButton>
+							<SplitButton caret="half" label="Export options" items={sendItems} onclick={() => toasts.show('Exported')}>Half caret</SplitButton>
 							<SplitButton variant="primary" menuDisabled label="Send options" items={sendItems} onclick={() => toasts.ok('Sent')}>Menu disabled</SplitButton>
 						</div>
 					</Stack>
