@@ -227,6 +227,50 @@ test('the top resize handle stays between the adornments and still drags', async
 	assert.equal(wrap.classList.contains('dragging'), false);
 });
 
+test('a field taller than one row moves the adornments into a bar under the text', () => {
+	assert.ok(hasDecl(group, '.ig-bar .ig-field', 'padding-bottom', 'var(--ig-h)'));
+	assert.ok(hasDecl(group, '.ig-bar::before', 'height', 'var(--ig-h)'));
+	assert.ok(hasDecl(group, '.ig-bar::before', 'inset', 'auto 0 0 0'));
+	assert.ok(hasDecl(group, '.ig-bar::before', 'border-top', '0'));
+	assert.ok(hasDecl(group, '.ig-bar:has(.ig-field :global(:focus))::before', 'border-color', 'var(--accent)'));
+	assert.ok(hasDecl(group, ".ig-bar:has(.ig-field :global([aria-invalid='true']))::before", 'border-color', 'var(--danger)'));
+	assert.ok(hasDecl(textarea, '.textarea.grouped.bar', 'padding-inline', 'var(--ig-pad-x)'));
+	assert.ok(hasDecl(textarea, '.textarea.grouped.bar', 'border-bottom', '0'));
+	assert.ok(hasDecl(textarea, '.textarea.grouped.bar', 'border-end-start-radius', '0'));
+	assert.ok(hasDecl(textarea, '.textarea.grouped.bar', 'border-end-end-radius', '0'));
+	assert.ok(hasDecl(textarea, '.textarea-wrap.grouped.bar .resize-handle', 'left', '0'));
+	assert.ok(hasDecl(textarea, '.textarea-wrap.grouped.bar .resize-handle', 'right', '0'));
+	assert.doesNotMatch(rule(textarea, '.textarea.grouped.bar')['padding-inline'] ?? '', /--ig-leading-w|--ig-trailing-w/);
+
+	const ui = render();
+	const field = ui.field();
+	const wrap = /** @type {HTMLElement} */ (field.parentElement);
+	assert.ok(ui.observers.some((o) => o.observed.includes(field)), 'the textarea observes its own size');
+	assert.equal(ui.ig.classList.contains('ig-bar'), false);
+	assert.equal(field.classList.contains('bar'), false);
+
+	field.style.minHeight = '120px';
+	ui.resize(field, 300);
+	assert.ok(ui.ig.classList.contains('ig-bar'));
+	assert.ok(field.classList.contains('bar'));
+	assert.ok(wrap.classList.contains('bar'));
+	assert.equal(field.style.minHeight, '120px', 'the probe restores the drag floor');
+
+	field.style.minHeight = '';
+	ui.resize(field, 300);
+	assert.equal(ui.ig.classList.contains('ig-bar'), false);
+	assert.equal(field.classList.contains('bar'), false);
+	assert.equal(wrap.classList.contains('bar'), false);
+
+	const bare = render({ withLeading: false, withTrailing: false });
+	bare.field().style.minHeight = '120px';
+	bare.resize(bare.field(), 300);
+	assert.equal(bare.ig.classList.contains('ig-bar'), false, 'nothing to clear without adornments');
+
+	const single = render({ field: 'input' });
+	assert.equal(single.ig.classList.contains('ig-bar'), false);
+});
+
 test('Composer is rebuilt on InputGroup with the send button trailing and the attach button leading', () => {
 	assert.match(composer, /import InputGroup from '\$lib\/components\/molecules\/InputGroup\.svelte';/);
 	assert.match(composer, /<InputGroup\s+align="end"/);

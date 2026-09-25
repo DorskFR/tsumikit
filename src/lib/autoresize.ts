@@ -5,10 +5,8 @@
  *
  * Usage: <textarea use:autoresize={value} ...></textarea>
  */
-/** Height `rows` lines would occupy: line boxes plus vertical padding and borders. */
-export function rowsFloor(node: HTMLTextAreaElement): number {
-	const rows = node.rows || 0;
-	if (rows <= 1) return 0;
+/** Height `rows` lines occupy: line boxes plus vertical padding and borders. */
+export function rowsHeight(node: HTMLTextAreaElement, rows: number): number {
 	const cs = getComputedStyle(node);
 	const fontSize = parseFloat(cs.fontSize) || 16;
 	const lh = parseFloat(cs.lineHeight) || fontSize * 1.2;
@@ -18,6 +16,12 @@ export function rowsFloor(node: HTMLTextAreaElement): number {
 		(parseFloat(cs.borderTopWidth) || 0) +
 		(parseFloat(cs.borderBottomWidth) || 0);
 	return rows * lh + box;
+}
+
+/** The `rows` attribute as a height floor; a single row has none. */
+export function rowsFloor(node: HTMLTextAreaElement): number {
+	const rows = node.rows || 0;
+	return rows <= 1 ? 0 : rowsHeight(node, rows);
 }
 
 export function autoresize(node: HTMLTextAreaElement, _value?: string) {

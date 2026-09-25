@@ -1649,7 +1649,8 @@ function greet(name) {
 						</InputGroup>
 						<Text variant="caption" tone="muted">
 							Textarea (autoresize, top grip) + leading FileButton + trailing SplitButton (send + schedule menu);
-							the adornments stay pinned to the bottom edge as it grows:
+							past one row the adornments drop into a bar under the text, so every line runs full width
+							and the scrollbar stays clear of them:
 						</Text>
 						<InputGroup>
 							{#snippet leading()}

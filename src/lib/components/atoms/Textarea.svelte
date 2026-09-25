@@ -19,7 +19,7 @@
 	// still inserts a newline) or Ctrl/Meta+Enter (`submitOn="mod-enter"`, the
 	// default whenever `onsubmit` is given).
 	import type { HTMLTextareaAttributes } from 'svelte/elements';
-	import { autoresize as autoresizeAction } from '$lib/autoresize';
+	import { autoresize as autoresizeAction, rowsFloor, rowsHeight } from '$lib/autoresize';
 	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
 	import { getInputGroupContext } from '$lib/input-group-context';
 
@@ -83,6 +83,41 @@
 	const isDisabled = $derived(disabled || !!group?.disabled);
 
 	$effect(() => warnUnlabelled(el, 'Textarea'));
+
+	// Grouped: report whether the content needs more than one row when laid out
+	// with the single-line padding (measured in that layout so the bar cannot
+	// flip back and forth), which moves the adornments into a bar under the text.
+	function probeBar() {
+		if (!el || !group) return;
+		const node = el;
+		const wasBar = node.classList.contains('bar');
+		const prevHeight = node.style.height;
+		const floor = parseFloat(node.style.minHeight) || 0;
+		node.classList.remove('bar');
+		node.style.height = 'auto';
+		node.style.minHeight = '';
+		const cs = getComputedStyle(node);
+		const borders = (parseFloat(cs.borderTopWidth) || 0) + (parseFloat(cs.borderBottomWidth) || 0);
+		const height = Math.max(node.scrollHeight + borders, floor, rowsFloor(node));
+		const oneRow = Math.max(rowsHeight(node, 1), parseFloat(cs.minHeight) || 0);
+		node.style.height = prevHeight;
+		if (floor) node.style.minHeight = `${floor}px`;
+		if (wasBar) node.classList.add('bar');
+		group.setBar(height > oneRow + 1);
+	}
+	$effect(() => {
+		if (!group) return;
+		void value;
+		void group.leadingW;
+		void group.trailingW;
+		probeBar();
+	});
+	$effect(() => {
+		if (!el || !group || typeof ResizeObserver === 'undefined') return;
+		const ro = new ResizeObserver(probeBar);
+		ro.observe(el);
+		return () => ro.disconnect();
+	});
 
 	const handleEdge = $derived(resize);
 	const showHandle = $derived(handleEdge !== 'none');
@@ -156,6 +191,7 @@
 	class:no-shrink={!shrink}
 	class:block={block}
 	class:grouped={!!group}
+	class:bar={!!group?.bar}
 	data-tsu="Textarea"
 >
 	{#if autoresize}
@@ -166,6 +202,7 @@
 			class:textarea-sm={sizeEff === 'sm'}
 			class:textarea-lg={sizeEff === 'lg'}
 			class:grouped={!!group}
+			class:bar={!!group?.bar}
 			class:capped={!!maxHeight}
 			disabled={isDisabled}
 			style:max-height={maxHeight}
@@ -185,6 +222,7 @@
 			class:textarea-sm={sizeEff === 'sm'}
 			class:textarea-lg={sizeEff === 'lg'}
 			class:grouped={!!group}
+			class:bar={!!group?.bar}
 			class:capped={!!maxHeight}
 			disabled={isDisabled}
 			style:max-height={maxHeight}
@@ -288,12 +326,22 @@
 	.textarea.grouped:focus-visible {
 		outline: none;
 	}
+	.textarea.grouped.bar {
+		padding-inline: var(--ig-pad-x);
+		border-bottom: 0;
+		border-end-start-radius: 0;
+		border-end-end-radius: 0;
+	}
 	.textarea-wrap.grouped {
 		width: 100%;
 	}
 	.textarea-wrap.grouped .resize-handle {
 		left: var(--ig-leading-w, 0px);
 		right: var(--ig-trailing-w, 0px);
+	}
+	.textarea-wrap.grouped.bar .resize-handle {
+		left: 0;
+		right: 0;
 	}
 	.mono {
 		font-family: var(--font-mono);

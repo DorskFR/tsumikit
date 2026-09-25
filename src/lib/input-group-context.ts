@@ -8,6 +8,12 @@ export type InputGroupContext = {
 	readonly size: ControlSize;
 	readonly disabled: boolean;
 	readonly invalid: boolean;
+	readonly leadingW: number;
+	readonly trailingW: number;
+	/** True once the field is taller than one row: the adornments move to a
+	 *  bar under the text instead of overlaying its last line. */
+	readonly bar: boolean;
+	setBar(bar: boolean): void;
 };
 
 export function setInputGroupContext(ctx: InputGroupContext): InputGroupContext {
