@@ -5,6 +5,7 @@
 		variant = 'default',
 		size = 'md',
 		control = false,
+		caret = 'square',
 		disabled = false,
 		menuDisabled = false,
 		onclick,
@@ -13,6 +14,7 @@
 		variant?: 'default' | 'primary' | 'danger';
 		size?: 'sm' | 'md' | 'lg';
 		control?: boolean;
+		caret?: 'square' | 'half';
 		disabled?: boolean;
 		menuDisabled?: boolean;
 		onclick?: (e: MouseEvent) => void;
@@ -26,7 +28,7 @@
 </script>
 
 <button type="button" id="before">before</button>
-<SplitButton label="Send options" {items} {variant} {size} {control} {disabled} {menuDisabled} {onclick}>
+<SplitButton label="Send options" {items} {variant} {size} {control} {caret} {disabled} {menuDisabled} {onclick}>
 	Send
 </SplitButton>
 <button type="button" id="after">after</button>
