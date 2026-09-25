@@ -162,8 +162,8 @@
 		--pop-trigger-radius: 0;
 		border-radius: 0;
 	}
-	/* `.ig` outranks an adornment's own fixed box (e.g. FileButton `box`). */
-	.ig .ig-adorn > :global(*) {
+	/* The doubled class outranks an adornment's own fixed box (e.g. FileButton `box`). */
+	.ig.ig .ig-adorn > :global(*) {
 		height: auto;
 		min-height: 0;
 	}

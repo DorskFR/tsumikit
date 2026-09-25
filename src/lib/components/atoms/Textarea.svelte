@@ -87,6 +87,7 @@
 	// Grouped: report whether the content needs more than one row when laid out
 	// with the single-line padding (measured in that layout so the bar cannot
 	// flip back and forth), which moves the adornments into a bar under the text.
+	// An empty field has no content height: its scrollHeight counts the placeholder.
 	function probeBar() {
 		if (!el || !group) return;
 		const node = el;
@@ -98,7 +99,8 @@
 		node.style.minHeight = '';
 		const cs = getComputedStyle(node);
 		const borders = (parseFloat(cs.borderTopWidth) || 0) + (parseFloat(cs.borderBottomWidth) || 0);
-		const height = Math.max(node.scrollHeight + borders, floor, rowsFloor(node));
+		const content = node.value === '' ? 0 : node.scrollHeight + borders;
+		const height = Math.max(content, floor, rowsFloor(node));
 		const oneRow = Math.max(rowsHeight(node, 1), parseFloat(cs.minHeight) || 0);
 		node.style.height = prevHeight;
 		if (floor) node.style.minHeight = `${floor}px`;
@@ -322,6 +324,11 @@
 		border-radius: var(--ig-radius);
 		padding-inline: max(var(--ig-pad-x), var(--ig-leading-w, 0px) + var(--ig-gap))
 			max(var(--ig-pad-x), var(--ig-trailing-w, 0px) + var(--ig-gap));
+	}
+	.textarea.grouped:not(.bar)::placeholder {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 	.textarea.grouped:focus-visible {
 		outline: none;
