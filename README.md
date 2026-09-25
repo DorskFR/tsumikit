@@ -598,6 +598,30 @@ top-right corner, ringed with `--avatar-status-ring` (default `--bg-elevated`).
 </Avatar>
 ```
 
+### GlyphStack
+
+`GlyphStack` lays out up to four small glyphs (a pin, a status dot, an entity
+tag, an avatar) as an inline run, and folds them into one 2×2 grid of 1rem
+cells with a 1px gap when the row is tight — the four slots plus three gaps
+a phone-width title cannot spare. `stack` never | always | auto (default);
+`auto` measures the nearest query container (any `.cq`, an AppShell region,
+or the ancestor whose `container-name` is `container`) and folds below
+`stackBelow` (default `30rem`, like the `.cq-*` utilities). Pass `items` as
+`{ inline, stacked? }` pairs (snippets or strings) so a glyph can swap to a
+compact variant in the grid — a full `Badge` inline, a tinted initial tile
+stacked — or render free-form `children`, where each direct child is a cell.
+The grid is visual only: DOM order, tab order and reading order are those of
+the inline run. `--glyph-stack-gap` sets the inline gap (default `--sp-1`).
+
+```svelte
+<GlyphStack stackBelow="34rem" items={[
+  { inline: pin },
+  { inline: dot },
+  { inline: machine, stacked: machineTile },
+  { inline: avatar }
+]} />
+```
+
 ### SplitButton
 
 `SplitButton` fuses a primary action with a narrow caret that opens a `Menu`:
