@@ -6,21 +6,34 @@
 		stackBelow = '30rem',
 		container = undefined,
 		mode = 'items',
-		count = 4
+		count = 4,
+		expand = 'none',
+		withAction = false
 	}: {
 		stack?: 'never' | 'always' | 'auto';
 		stackBelow?: string;
 		container?: string;
 		mode?: 'items' | 'children';
 		count?: number;
+		expand?: 'none' | 'tap' | 'slide';
+		withAction?: boolean;
 	} = $props();
+
+	let pins = $state(0);
+	let accounts = $state(0);
+	let actions = $state(0);
 </script>
 
-{#snippet pin()}<button type="button" id="pin">☆</button>{/snippet}
+<output id="pins">{pins}</output>
+<output id="accounts">{accounts}</output>
+<output id="actions">{actions}</output>
+
+{#snippet pin()}<button type="button" id="pin" onclick={() => pins++}>☆</button>{/snippet}
 {#snippet dot()}<span id="dot">●</span>{/snippet}
 {#snippet machine()}<a href="#m" id="machine">devbox</a>{/snippet}
 {#snippet machineTile()}<a href="#m" id="machine-tile">d</a>{/snippet}
-{#snippet account()}<button type="button" id="account">A</button>{/snippet}
+{#snippet account()}<button type="button" id="account" onclick={() => accounts++}>A</button>{/snippet}
+{#snippet bigDot()}<span class="big-dot">●</span>{/snippet}
 {#snippet extra()}<span id="extra">x</span>{/snippet}
 
 <div id="outer" style="container-name: outer; container-type: inline-size">
@@ -30,18 +43,20 @@
 				{stack}
 				{stackBelow}
 				{container}
+				{expand}
+				expandLabel="Session glyphs"
 				class="from-consumer"
 				data-x="y"
 				items={[
-					{ inline: pin },
-					{ inline: dot },
+					{ inline: pin, action: withAction ? () => actions++ : undefined },
+					{ inline: dot, expanded: bigDot },
 					{ inline: machine, stacked: machineTile },
 					{ inline: account },
 					{ inline: extra }
 				].slice(0, count)}
 			/>
 		{:else}
-			<GlyphStack {stack} {stackBelow} {container} class="from-consumer">
+			<GlyphStack {stack} {stackBelow} {container} {expand} class="from-consumer">
 				{@render pin()}
 				{@render dot()}
 				{@render machine()}

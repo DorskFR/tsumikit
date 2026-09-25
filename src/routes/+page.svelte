@@ -1957,7 +1957,12 @@ function greet(name) {
 						onclick={() => (glyphPinned = !glyphPinned)}
 					/>
 				{/snippet}
-				{#snippet glyphDot()}<Dot status="active" />{/snippet}
+				{#snippet glyphDot()}
+					<Popover label="Status" openOn="hover" bare>
+						{#snippet trigger()}<Dot status="active" />{/snippet}
+						<Text variant="caption">Working · 2 min ago</Text>
+					</Popover>
+				{/snippet}
 				{#snippet glyphMachine()}<Badge size="xs" mono>devbox</Badge>{/snippet}
 				{#snippet glyphMachineTile()}<Avatar name="devbox" shape="square" size={16} decorative />{/snippet}
 				{#snippet glyphAccount()}<Avatar name="dorsk" size={16} tone="accent" />{/snippet}
@@ -1975,6 +1980,20 @@ function greet(name) {
 							<span class="row" style="gap: var(--sp-2)">
 								<GlyphStack stack="always" items={glyphs} />
 								<Text tone="muted">always</Text>
+							</span>
+						</div>
+						<Text variant="caption">
+							Folded cells are 1rem. <code>expand="tap"</code> opens them as big tiles on click;
+							<code>expand="slide"</code> opens on press — drag toward a corner and release to fire that tile.
+						</Text>
+						<div class="row row-wrap">
+							<span class="row" style="gap: var(--sp-2)">
+								<GlyphStack stack="always" expand="tap" items={glyphs} />
+								<Text tone="muted">tap</Text>
+							</span>
+							<span class="row" style="gap: var(--sp-2)">
+								<GlyphStack stack="always" expand="slide" items={glyphs} />
+								<Text tone="muted">slide</Text>
 							</span>
 						</div>
 						<Text variant="caption">

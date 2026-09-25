@@ -613,9 +613,30 @@ stacked — or render free-form `children`, where each direct child is a cell.
 The grid is visual only: DOM order, tab order and reading order are those of
 the inline run. `--glyph-stack-gap` sets the inline gap (default `--sp-1`).
 
+Folded cells are 1rem — hard to hit on touch. `expand` none | tap | slide
+(default `none`, `items` only, active while stacked) makes a press open the
+four glyphs as big tiles in a top-layer panel over the stack. `tap` opens it
+on click and keeps it open, so the star can be clicked, a status dot hovered
+and a badge read (dismiss by pressing outside or Escape); keyboard activation
+still goes straight to the cell. `slide` opens it on press: drag toward a
+corner to arm that tile and release to fire it — the item's `action`, else a
+click on the tile's first control. The panel closes after firing unless that
+opened a nested popover; a release in place, or on a tile with nothing to
+fire, leaves it open as in `tap`. An item's `expanded` snippet replaces
+`inline` in its tile; `--glyph-stack-tile` (default `3rem`) and
+`--glyph-stack-zoom` (default `1.75`) size the tiles; `expandLabel` names the
+panel.
+
 ```svelte
 <GlyphStack stackBelow="34rem" items={[
   { inline: pin },
+  { inline: dot },
+  { inline: machine, stacked: machineTile },
+  { inline: avatar }
+]} />
+
+<GlyphStack stack="always" expand="slide" items={[
+  { inline: pin, action: togglePin },
   { inline: dot },
   { inline: machine, stacked: machineTile },
   { inline: avatar }
