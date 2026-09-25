@@ -516,12 +516,15 @@ page. Adornment widths are measured with a `ResizeObserver` into
 The adornments sit flush inside the field's padding as ghost/primary controls,
 no dividers: pick a control one step below the group (`size="sm"`/`box="sm"` in
 an `md` group, `box="xs"` in `sm`, `box="lg"` in `lg`). `align="end"` (default)
-pins them to the bottom edge as a textarea grows; `align="center"` is for a
+pins them to the bottom edge as a textarea grows. A square control (`box`,
+`iconOnly`) drops its fixed box and stretches square to the slot height, so its
+glyph centres on the field; `align="center"` is for a
 single-line `Input`. `size` sm/md/lg, `disabled` and `error` flow to the field
 through context (a `size`/`invalid`/`disabled` set on the field still wins).
 `Textarea` keeps `autoresize`, `maxHeight` and `resize="top"` (the grip is
 clipped to the space between the adornments). Once a `Textarea` needs more
-than one row (content, `rows`, or a dragged floor) the adornments move into a
+than one row (content, `rows`, or a dragged floor; a wrapping placeholder does
+not count, it stays on one clipped line) the adornments move into a
 bar under the text: every line then runs the full width with the normal
 padding, the textarea's box (and its scrollbar) ends above the controls, and
 the bar continues the field's border, the controls still flush against its

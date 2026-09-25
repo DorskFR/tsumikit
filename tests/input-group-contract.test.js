@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { JSDOM } from 'jsdom';
+import { compile } from 'svelte/compiler';
 import { buildFixture } from './fixtures/build.mjs';
 import { hasDecl, rule } from './helpers.mjs';
 
@@ -303,7 +304,7 @@ test('adornments fill the field inside its border and follow its outer corners',
 test('a fixed-box adornment (FileButton box) still stretches square to the slot, so its glyph centres', async () => {
 	const fileButton = await read('components/molecules/FileButton.svelte');
 	assert.ok(hasDecl(fileButton, '.file-btn.box', 'height', 'var(--file-box)'));
-	const sizing = '.ig .ig-adorn > :global(*)';
+	const sizing = '.ig.ig .ig-adorn > :global(*)';
 	assert.ok(hasDecl(group, sizing, 'height', 'auto'));
 	assert.ok(hasDecl(group, sizing, 'min-height', '0'));
 	const square = '.ig .ig-adorn > :global(:is(.btn-box, .btn-square, .btn-icon, .icon-only))';
@@ -320,4 +321,59 @@ test('in the bar the adornments hug the bottom and side borders, rounding only t
 	assert.ok(hasDecl(group, '.ig-bar .ig-trailing > :global(:last-child)', 'border-radius', '0 0 var(--ig-fuse-r) 0'));
 	assert.ok(hasDecl(group, '.ig-bar .ig-leading > :global(:first-child .split-main)', '--btn-radius', '0 0 0 var(--ig-fuse-r)'));
 	assert.ok(hasDecl(group, '.ig-bar .ig-trailing > :global(:last-child .split-caret)', '--pop-trigger-radius', '0 0 var(--ig-fuse-r) 0'));
+});
+
+/** @param {string} sel */
+function specificity(sel) {
+	const bare = sel.replace(/:where\([^)]*\)/g, '').replace(/:is\(([^)]*)\)/g, (_, list) => list.split(',')[0]);
+	return [(bare.match(/#[\w-]+/g) ?? []).length, (bare.match(/\.[\w-]+|\[[^\]]+\]|:(?!:)[\w-]+/g) ?? []).length];
+}
+/** @param {string} src @param {string} filename @param {RegExp} decl */
+function selectorsDeclaring(src, filename, decl) {
+	const css = compile(src, { filename, css: 'external' }).css?.code ?? '';
+	return [...css.replace(/\/\*[\s\S]*?\*\//g, '').matchAll(/([^{}]+){([^}]*)}/g)]
+		.filter(([, , body]) => decl.test(body))
+		.flatMap(([, sel]) => sel.split(',').map((s) => s.trim()));
+}
+
+test('the adornment height reset outranks every FileButton box rule, whatever the stylesheet order', async () => {
+	const fileButton = await read('components/molecules/FileButton.svelte');
+	const [reset] = selectorsDeclaring(group, 'InputGroup.svelte', /min-height: 0/);
+	assert.ok(reset, 'InputGroup declares the reset');
+	const [rid, rcls] = specificity(reset);
+	for (const sel of selectorsDeclaring(fileButton, 'FileButton.svelte', /(^|[;\s])(min-)?height:/)) {
+		const [id, cls] = specificity(sel);
+		assert.ok(rid > id || (rid === id && rcls > cls), `${reset} must outrank ${sel}`);
+	}
+});
+
+test('a FileButton box="sm" in leading drops its fixed box and stretches to the slot', () => {
+	const ui = render({ attachBox: 'sm' });
+	const btn = /** @type {HTMLElement} */ (ui.ig.querySelector('.ig-leading [data-tsu="FileButton"]'));
+	assert.ok(btn.classList.contains('box'));
+	const cs = ui.win.getComputedStyle(btn);
+	assert.equal(cs.height, 'auto');
+	assert.match(cs.minHeight, /^0(px)?$/);
+	assert.equal(cs.alignSelf, 'stretch');
+});
+
+test('an empty field whose placeholder wraps stays single-row; typing past a row and clearing round-trips', () => {
+	assert.ok(hasDecl(textarea, '.textarea.grouped:not(.bar)::placeholder', 'white-space', 'nowrap'));
+	assert.ok(hasDecl(textarea, '.textarea.grouped:not(.bar)::placeholder', 'overflow', 'hidden'));
+
+	const ui = render({ placeholder: 'Message… (Enter to send, Shift+Enter for newline)' });
+	const field = /** @type {HTMLTextAreaElement} */ (ui.field());
+	Object.defineProperty(field, 'scrollHeight', { configurable: true, get: () => 200 });
+	ui.resize(field, 300);
+	assert.equal(ui.ig.classList.contains('ig-bar'), false, 'the placeholder height is not content');
+
+	field.value = 'x '.repeat(80);
+	field.dispatchEvent(new ui.win.Event('input', { bubbles: true }));
+	ui.flush();
+	assert.ok(ui.ig.classList.contains('ig-bar'), 'real content past one row moves to the bar');
+
+	field.value = '';
+	field.dispatchEvent(new ui.win.Event('input', { bubbles: true }));
+	ui.flush();
+	assert.equal(ui.ig.classList.contains('ig-bar'), false, 'clearing returns inline');
 });
