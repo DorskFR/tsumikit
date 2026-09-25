@@ -44,11 +44,24 @@
 		},
 		get invalid() {
 			return error;
+		},
+		get leadingW() {
+			return leadingW;
+		},
+		get trailingW() {
+			return trailingW;
+		},
+		get bar() {
+			return bar;
+		},
+		setBar(next) {
+			bar = next && !!(leading || trailing);
 		}
 	});
 
 	let leadingW = $state(0);
 	let trailingW = $state(0);
+	let bar = $state(false);
 
 	function measure(set: (width: number) => void): Attachment {
 		return (node) => {
@@ -73,6 +86,7 @@
 	data-tsu="InputGroup"
 	class="ig {klass}"
 	class:ig-center={align === 'center'}
+	class:ig-bar={bar}
 	class:ig-sm={size === 'sm'}
 	class:ig-lg={size === 'lg'}
 	class:disabled
@@ -93,7 +107,10 @@
 	/* The field's own border box spans the whole group: Gecko zooms to the
 	   focused element's rect on mobile, so the adornments must overlay it, never
 	   sit beside a narrower field. The field reads --ig-leading-w /
-	   --ig-trailing-w to keep its text clear of them. */
+	   --ig-trailing-w to keep its text clear of them. Once a textarea is taller
+	   than one row it reports `bar`: the adornments then sit in a band under
+	   the text (::before continues the field's border), so every line runs
+	   full width and the scrollbar ends above the controls. */
 	.ig {
 		--ig-h: var(--control-height-default);
 		--ig-pad-x: var(--sp-3);
@@ -140,6 +157,27 @@
 	.ig-center .ig-adorn {
 		top: 0;
 		height: auto;
+	}
+	.ig-bar .ig-field {
+		padding-bottom: var(--ig-h);
+	}
+	.ig-bar::before {
+		content: '';
+		position: absolute;
+		inset: auto 0 0 0;
+		height: var(--ig-h);
+		background: var(--textarea-bg, var(--bg));
+		border: 1px solid var(--textarea-border, var(--border-strong));
+		border-top: 0;
+		border-radius: 0 0 var(--ig-radius) var(--ig-radius);
+		transition: border-color 0.12s var(--ease);
+		pointer-events: none;
+	}
+	.ig-bar:has(.ig-field :global(:focus))::before {
+		border-color: var(--accent);
+	}
+	.ig-bar:has(.ig-field :global([aria-invalid='true']))::before {
+		border-color: var(--danger);
 	}
 	.ig:has(:focus-visible)::after {
 		content: '';
