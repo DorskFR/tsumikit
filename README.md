@@ -524,7 +524,8 @@ clipped to the space between the adornments). Once a `Textarea` needs more
 than one row (content, `rows`, or a dragged floor) the adornments move into a
 bar under the text: every line then runs the full width with the normal
 padding, the textarea's box (and its scrollbar) ends above the controls, and
-the bar continues the field's border. The textarea measures that in the
+the bar continues the field's border, the controls still flush against its
+bottom and side edges. The textarea measures that in the
 single-line layout, so the switch cannot flip back and forth; the single-line
 look is untouched. Tab order is leading → field → trailing; the group shows
 the focus ring around the whole unit.

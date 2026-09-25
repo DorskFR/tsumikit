@@ -134,46 +134,28 @@
 		width: 100%;
 		min-width: 0;
 	}
+	/* The adornments fill the field inside its 1px border, their outer corners
+	   following the field's; inner corners go square. In the bar they hug the
+	   bottom and side borders, so only the bottom-outer corner is rounded. */
 	.ig-adorn {
+		--ig-fuse-r: calc(var(--ig-radius) - 1px);
 		position: absolute;
-		bottom: 0;
+		top: 1px;
+		bottom: 1px;
 		z-index: 1;
 		display: flex;
 		align-items: center;
 		gap: var(--ig-inset);
-		height: var(--ig-h);
-		padding-inline: var(--ig-inset);
 		pointer-events: none;
+	}
+	.ig-leading {
+		inset-inline-start: 1px;
+	}
+	.ig-trailing {
+		inset-inline-end: 1px;
 	}
 	.ig-adorn > :global(*) {
 		pointer-events: auto;
-	}
-	.ig-leading {
-		inset-inline-start: 0;
-	}
-	.ig-trailing {
-		inset-inline-end: 0;
-	}
-	.ig-center .ig-adorn {
-		top: 0;
-		height: auto;
-	}
-	/* Until the field grows into a bar, the adornments fill it inside its 1px
-	   border, their outer corners following the field's; inner corners go square. */
-	.ig:not(.ig-bar) .ig-adorn {
-		--ig-fuse-r: calc(var(--ig-radius) - 1px);
-		top: 1px;
-		bottom: 1px;
-		height: auto;
-		padding-inline: 0;
-	}
-	.ig:not(.ig-bar) .ig-leading {
-		inset-inline-start: 1px;
-	}
-	.ig:not(.ig-bar) .ig-trailing {
-		inset-inline-end: 1px;
-	}
-	.ig:not(.ig-bar) .ig-adorn > :global(*) {
 		align-self: stretch;
 		height: auto;
 		min-height: 0;
@@ -182,33 +164,51 @@
 		--pop-trigger-radius: 0;
 		border-radius: 0;
 	}
-	.ig:not(.ig-bar) .ig-adorn > :global(:is(.btn-box, .btn-square, .btn-icon, .icon-only)) {
+	.ig-adorn > :global(:is(.btn-box, .btn-square, .btn-icon, .icon-only)) {
 		width: auto;
 		min-width: 0;
 		aspect-ratio: 1;
 	}
-	.ig:not(.ig-bar) .ig-leading > :global(:first-child) {
+	.ig-leading > :global(:first-child) {
 		--btn-radius: var(--ig-fuse-r) 0 0 var(--ig-fuse-r);
 		border-radius: var(--ig-fuse-r) 0 0 var(--ig-fuse-r);
 	}
-	.ig:not(.ig-bar) .ig-trailing > :global(:last-child) {
+	.ig-trailing > :global(:last-child) {
 		--btn-radius: 0 var(--ig-fuse-r) var(--ig-fuse-r) 0;
 		border-radius: 0 var(--ig-fuse-r) var(--ig-fuse-r) 0;
 	}
-	.ig:not(.ig-bar) .ig-adorn :global(.split-main) {
+	.ig-adorn :global(.split-main) {
 		--btn-radius: 0;
 	}
-	.ig:not(.ig-bar) .ig-adorn :global(.split-caret) {
+	.ig-adorn :global(.split-caret) {
 		--pop-trigger-radius: 0;
 	}
-	.ig:not(.ig-bar) .ig-adorn :global(.split-caret .pop-trigger) {
+	.ig-adorn :global(.split-caret .pop-trigger) {
 		height: 100%;
 	}
-	.ig:not(.ig-bar) .ig-leading > :global(:first-child .split-main) {
+	.ig-leading > :global(:first-child .split-main) {
 		--btn-radius: var(--ig-fuse-r) 0 0 var(--ig-fuse-r);
 	}
-	.ig:not(.ig-bar) .ig-trailing > :global(:last-child .split-caret) {
+	.ig-trailing > :global(:last-child .split-caret) {
 		--pop-trigger-radius: 0 var(--ig-fuse-r) var(--ig-fuse-r) 0;
+	}
+	.ig-bar .ig-adorn {
+		top: auto;
+		height: calc(var(--ig-h) - 1px);
+	}
+	.ig-bar .ig-leading > :global(:first-child) {
+		--btn-radius: 0 0 0 var(--ig-fuse-r);
+		border-radius: 0 0 0 var(--ig-fuse-r);
+	}
+	.ig-bar .ig-trailing > :global(:last-child) {
+		--btn-radius: 0 0 var(--ig-fuse-r) 0;
+		border-radius: 0 0 var(--ig-fuse-r) 0;
+	}
+	.ig-bar .ig-leading > :global(:first-child .split-main) {
+		--btn-radius: 0 0 0 var(--ig-fuse-r);
+	}
+	.ig-bar .ig-trailing > :global(:last-child .split-caret) {
+		--pop-trigger-radius: 0 0 var(--ig-fuse-r) 0;
 	}
 	.ig-bar .ig-field {
 		padding-bottom: var(--ig-h);
