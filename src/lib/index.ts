@@ -108,6 +108,10 @@ export {
 	type PrState,
 	type PullRequest,
 } from './components/molecules/GitRef.svelte';
+export {
+	default as GlyphStack,
+	type GlyphStackItem,
+} from './components/molecules/GlyphStack.svelte';
 export { default as IconButton } from './components/molecules/IconButton.svelte';
 export { default as InputGroup } from './components/molecules/InputGroup.svelte';
 export {

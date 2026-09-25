@@ -77,6 +77,8 @@
 		SectionHeader,
 		Artwork,
 		Avatar,
+		GlyphStack,
+		type GlyphStackItem,
 		NavBar,
 		type NavBarItem,
 		NavItem,
@@ -164,7 +166,8 @@
 				{ id: 'navbar', label: 'NavBar', keywords: 'bottom bar tab bar routes links safe area' },
 				{ id: 'accordion', label: 'Accordion', keywords: 'details disclosure collapse' },
 				{ id: 'nav-item', label: 'Artwork · NavItem', keywords: 'sidebar avatar menu entry' },
-				{ id: 'avatar', label: 'Avatar', keywords: 'initials glyph emoji identity user account hue' }
+				{ id: 'avatar', label: 'Avatar', keywords: 'initials glyph emoji identity user account hue' },
+				{ id: 'glyph-stack', label: 'GlyphStack', keywords: 'glyphs pin dot badge avatar 2x2 grid fold narrow container' }
 			]
 		},
 		{
@@ -292,6 +295,8 @@
 
 	// interactive demo state
 	let switchOn = $state(true);
+	let glyphPinned = $state(false);
+	let glyphStack = $state<'never' | 'always' | 'auto'>('auto');
 	const swatchPalette = ['var(--accent)', 'var(--ok)', 'var(--warn)', 'var(--danger)', 'var(--info)', 'var(--c-violet)'];
 	let swatchPicked = $state('var(--accent)');
 	const mdItems = ['Alice', 'Bob', 'Chidi', 'Dana'];
@@ -1940,6 +1945,72 @@ function greet(name) {
 				</Card>
 			</section>
 
+			<section class="section" id="glyph-stack">
+				<Heading level={3} size="lg">GlyphStack</Heading>
+				{#snippet glyphPin()}
+					<IconButton
+						icon="star"
+						size={16}
+						variant="ghost"
+						label={glyphPinned ? 'Unpin' : 'Pin'}
+						pressed={glyphPinned}
+						onclick={() => (glyphPinned = !glyphPinned)}
+					/>
+				{/snippet}
+				{#snippet glyphDot()}<Dot status="active" />{/snippet}
+				{#snippet glyphMachine()}<Badge size="xs" mono>devbox</Badge>{/snippet}
+				{#snippet glyphMachineTile()}<Avatar name="devbox" shape="square" size={16} decorative />{/snippet}
+				{#snippet glyphAccount()}<Avatar name="dorsk" size={16} tone="accent" />{/snippet}
+				{#snippet glyphDemo(glyphs: GlyphStackItem[])}
+					<div class="stack">
+						<Text variant="caption">
+							Pin · status · machine · account. Inline they cost four slots; stacked they share one 2×2 grid of
+							1rem cells. DOM order is unchanged, so Tab still reaches the pin first.
+						</Text>
+						<div class="row row-wrap">
+							<span class="row" style="gap: var(--sp-2)">
+								<GlyphStack stack="never" items={glyphs} />
+								<Text tone="muted">never</Text>
+							</span>
+							<span class="row" style="gap: var(--sp-2)">
+								<GlyphStack stack="always" items={glyphs} />
+								<Text tone="muted">always</Text>
+							</span>
+						</div>
+						<Text variant="caption">
+							<code>auto</code> measures the nearest <code>.cq</code> container and folds below
+							<code>stackBelow</code> (20rem here) — drag the handle.
+						</Text>
+						<div class="row row-wrap">
+							<SegmentedControl
+								options={[
+									{ value: 'auto', label: 'auto' },
+									{ value: 'never', label: 'never' },
+									{ value: 'always', label: 'always' }
+								]}
+								bind:value={glyphStack}
+								label="Stack mode"
+							/>
+						</div>
+						<div class="cq glyph-resize">
+							<div class="glyph-row">
+								<GlyphStack stack={glyphStack} stackBelow="20rem" items={glyphs} />
+								<Text class="truncate">Conversation title that needs the width on a phone</Text>
+								<Text variant="caption" tone="muted" nowrap>2 min ago</Text>
+							</div>
+						</div>
+					</div>
+				{/snippet}
+				<Card>
+					{@render glyphDemo([
+						{ inline: glyphPin },
+						{ inline: glyphDot },
+						{ inline: glyphMachine, stacked: glyphMachineTile },
+						{ inline: glyphAccount }
+					])}
+				</Card>
+			</section>
+
 		</section>
 
 		<section class="group" id="g-data" aria-labelledby="gh-data">
@@ -3137,6 +3208,21 @@ function greet(name) {
 		border: 1px solid var(--border);
 		border-radius: var(--r-md);
 		color: var(--text-muted);
+	}
+	.glyph-resize {
+		resize: horizontal;
+		overflow: hidden;
+		width: min(100%, 32rem);
+		min-width: 8rem;
+		padding: var(--sp-2);
+		border: 1px dashed var(--border);
+		border-radius: var(--r-md);
+	}
+	.glyph-row {
+		display: flex;
+		align-items: center;
+		gap: var(--sp-2);
+		min-width: 0;
 	}
 	.swatch-grid {
 		display: grid;
