@@ -144,6 +144,7 @@ export {
 } from './components/molecules/SegmentedControl.svelte';
 export { default as SelectButton } from './components/molecules/SelectButton.svelte';
 export { default as SplitButton } from './components/molecules/SplitButton.svelte';
+export { default as StatusBar } from './components/molecules/StatusBar.svelte';
 export { default as Tabs, type TabItem } from './components/molecules/Tabs.svelte';
 export { default as ThemePicker } from './components/molecules/ThemePicker.svelte';
 export { default as Timestamp } from './components/molecules/Timestamp.svelte';
@@ -153,6 +154,8 @@ export { default as Tooltip } from './components/molecules/Tooltip.svelte';
 export { default as Truncate } from './components/molecules/Truncate.svelte';
 export { default as WorkingDir } from './components/molecules/WorkingDir.svelte';
 // ---- organisms ----
+export { default as ConversationFeed } from './components/organisms/ConversationFeed.svelte';
+export { default as ConversationPanel } from './components/organisms/ConversationPanel.svelte';
 export {
 	type Column,
 	default as DataTable,
@@ -168,6 +171,13 @@ export {
 	setFieldContext,
 	warnUnlabelled,
 } from './field-context';
+export {
+	escapeHtml,
+	type Highlight,
+	type RenderMarkdownOptions,
+	renderMarkdown,
+	stripAnsi,
+} from './markdown';
 // ---- query core (headless: schema / parser / AST / suggest / compilers) ----
 export * as filterQuery from './query';
 export {

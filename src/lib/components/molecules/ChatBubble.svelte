@@ -5,12 +5,19 @@
 	import Badge from '$lib/components/atoms/Badge.svelte';
 	import Button from '$lib/components/atoms/Button.svelte';
 	import CopyButton from '$lib/components/molecules/CopyButton.svelte';
+	import Prose from '$lib/components/molecules/Prose.svelte';
+	import Timestamp from '$lib/components/molecules/Timestamp.svelte';
+	import { renderMarkdown } from '$lib/markdown';
+	import type { TimeInput } from '$lib/timestamp';
 
 	let {
 		role = 'assistant',
 		roleLabel,
 		align,
+		timestamp,
 		meta,
+		footer,
+		markdown,
 		actions,
 		state: delivery,
 		onretry,
@@ -29,7 +36,13 @@
 		roleLabel?: string;
 		/** Defaults to `end` for the user, `start` otherwise. */
 		align?: 'start' | 'end';
+		/** Rendered as a `Timestamp` after the role pill. */
+		timestamp?: TimeInput;
 		meta?: Snippet;
+		/** Muted row under the body: durations, token usage, file info. */
+		footer?: Snippet;
+		/** Rendered through `renderMarkdown` into `Prose` when `children` is absent. */
+		markdown?: string;
 		actions?: Snippet;
 		state?: 'sending' | 'failed';
 		onretry?: () => void;
@@ -41,13 +54,14 @@
 		selected?: boolean;
 		/** Renders a CopyButton in the actions row. */
 		copyText?: string;
-		children: Snippet;
+		children?: Snippet;
 		class?: string;
 		style?: string;
 	} = $props();
 
 	const side = $derived(align ?? (role === 'user' ? 'end' : 'start'));
 	let expanded = $state(false);
+	const html = $derived(children || markdown === undefined ? undefined : renderMarkdown(markdown));
 </script>
 
 <article
@@ -62,6 +76,7 @@
 >
 	<header class="meta">
 		<Badge size="xs" class="role-pill">{roleLabel ?? role}</Badge>
+		{#if timestamp !== undefined}<Timestamp value={timestamp} mode="time" size="xs" />{/if}
 		{#if meta}{@render meta()}{/if}
 		{#if delivery === 'sending'}<span class="state">sending…</span>{/if}
 		{#if delivery === 'failed'}
@@ -75,12 +90,15 @@
 			</span>
 		{/if}
 	</header>
-	<div class="body">{@render children()}</div>
+	<div class="body">
+		{#if children}{@render children()}{:else if html !== undefined}<Prose compact {html} />{/if}
+	</div>
 	{#if clamp}
 		<Button size="sm" variant="link" onclick={() => (expanded = !expanded)}>
 			{expanded ? collapseLabel : expandLabel}
 		</Button>
 	{/if}
+	{#if footer}<footer class="footer">{@render footer()}</footer>{/if}
 </article>
 
 <style>
@@ -147,6 +165,14 @@
 	.body {
 		min-width: 0;
 		overflow-wrap: anywhere;
+	}
+	.footer {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: var(--sp-2);
+		font-size: var(--fs-xs);
+		color: var(--text-muted);
 	}
 	.clamped .body {
 		display: -webkit-box;
