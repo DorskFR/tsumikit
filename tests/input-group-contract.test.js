@@ -270,10 +270,10 @@ test('a field taller than one row moves the adornments into a bar under the text
 test('Composer is rebuilt on InputGroup with the send button trailing and the attach button leading', () => {
 	assert.match(composer, /import InputGroup from '\$lib\/components\/molecules\/InputGroup\.svelte';/);
 	assert.match(composer, /<InputGroup\s+align="end"/);
-	assert.match(composer, /leading={leading \|\| hasAttach \? groupLeading : undefined}/);
-	assert.match(composer, /trailing={groupTrailing}/);
-	assert.match(composer, /{#snippet groupTrailing\(\)}[\s\S]*<Button variant="primary" box="sm" loading={busy}/);
-	assert.match(composer, /{#snippet groupLeading\(\)}[\s\S]*<FileButton onfiles={addFiles}/);
+	assert.match(composer, /leading={!toolbar && \(leading \|\| hasAttach\) \? startControls : undefined}/);
+	assert.match(composer, /trailing={toolbar \? undefined : endControls}/);
+	assert.match(composer, /{#snippet endControls\(\)}[\s\S]*<Button variant="primary" box="sm" loading={busy}/);
+	assert.match(composer, /{#snippet startControls\(\)}[\s\S]*<FileButton onfiles={addFiles}/);
 	assert.match(composer, /resize\?: 'none' \| 'top';/);
 	assert.match(composer, /\{resize\}/);
 	assert.doesNotMatch(rule(composer, '.composer').border ?? '', /solid/);

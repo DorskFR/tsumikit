@@ -2,7 +2,8 @@
 	// Chat composer: autoresizing Textarea with attach + send controls fused into
 	// one InputGroup, submit shortcuts, prompt history on ↑/↓ at the text edges,
 	// paste-to-attach and drag-over state. Attachments render above the field as
-	// removable chips, or as tiles once the composer is narrow.
+	// removable chips, or as tiles once the composer is narrow. `toolbarStart` /
+	// `toolbarEnd` move attach + send into a row under the field.
 	import type { Snippet } from 'svelte';
 	import Button from '$lib/components/atoms/Button.svelte';
 	import Textarea from '$lib/components/atoms/Textarea.svelte';
@@ -29,6 +30,8 @@
 		attachLabel = 'Attach',
 		leading,
 		trailing,
+		toolbarStart,
+		toolbarEnd,
 		class: klass = '',
 		style: styleProp = ''
 	}: {
@@ -53,6 +56,9 @@
 		attachLabel?: string;
 		leading?: Snippet;
 		trailing?: Snippet;
+		/** Either one renders a row under the field: start slot left, end slot then send right. */
+		toolbarStart?: Snippet;
+		toolbarEnd?: Snippet;
 		class?: string;
 		style?: string;
 	} = $props();
@@ -66,6 +72,7 @@
 	const mode = $derived(submitOn === 'auto' ? (fine() ? 'enter' : 'mod-enter') : submitOn);
 	const canSend = $derived(!busy && !disabled && (value.trim().length > 0 || attachments.length > 0));
 	const hasAttach = $derived(!!onfiles || accept !== undefined);
+	const toolbar = $derived(!!toolbarStart || !!toolbarEnd);
 
 	function submit() {
 		if (!canSend) return;
@@ -129,13 +136,13 @@
 	}
 </script>
 
-{#snippet groupLeading()}
+{#snippet startControls()}
 	{#if leading}{@render leading()}{/if}
 	{#if hasAttach}
 		<FileButton onfiles={addFiles} {accept} multiple iconOnly label={attachLabel} variant="ghost" box="sm" {disabled} />
 	{/if}
 {/snippet}
-{#snippet groupTrailing()}
+{#snippet endControls()}
 	{#if trailing}{@render trailing()}{/if}
 	<Button variant="primary" box="sm" loading={busy} disabled={!canSend} aria-label={sendLabel} title={sendLabel} onclick={submit}>
 		<span aria-hidden="true">➤</span>
@@ -160,8 +167,8 @@
 	<InputGroup
 		align="end"
 		{disabled}
-		leading={leading || hasAttach ? groupLeading : undefined}
-		trailing={groupTrailing}
+		leading={!toolbar && (leading || hasAttach) ? startControls : undefined}
+		trailing={toolbar ? undefined : endControls}
 	>
 		<Textarea
 			bind:value
@@ -177,6 +184,18 @@
 			{onpaste}
 		/>
 	</InputGroup>
+	{#if toolbar}
+		<div class="toolbar">
+			<div class="toolbar-start">
+				{@render startControls()}
+				{#if toolbarStart}{@render toolbarStart()}{/if}
+			</div>
+			<div class="toolbar-end">
+				{#if toolbarEnd}{@render toolbarEnd()}{/if}
+				{@render endControls()}
+			</div>
+		</div>
+	{/if}
 	<span class="hint">{mode === 'enter' ? 'Enter to send · Shift+Enter for a new line' : 'Ctrl/⌘+Enter to send'}</span>
 </div>
 
@@ -190,6 +209,25 @@
 	.composer.dragging {
 		outline: 2px dashed var(--accent);
 		outline-offset: var(--sp-1);
+	}
+	.toolbar {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--sp-2);
+		min-width: 0;
+	}
+	.toolbar-start,
+	.toolbar-end {
+		display: flex;
+		align-items: center;
+		flex-wrap: wrap;
+		gap: var(--sp-1);
+		min-width: 0;
+	}
+	.toolbar-end {
+		margin-inline-start: auto;
+		justify-content: flex-end;
 	}
 	.hint {
 		font-size: var(--fs-xs);

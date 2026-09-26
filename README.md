@@ -295,6 +295,10 @@ shows a `N%` bubble while it is moved; `oninput` live, `onchange` on commit;
 `clearAtMax`/`uncappedLabel` express "no cap", `layout`/`stackBelow` put the
 readout above a full-width track, `capLabel`/`capValueText` localise the ARIA
 strings),
+StatusBar (thin `role="status"` row: `tone` idle/busy/ok/warn/error dot or spinner, `label` or
+`children`, `trailing`), ChatBubble (`timestamp`, `footer` snippet, `markdown` body rendered
+through `renderMarkdown` into `Prose` when there are no `children`),
+Composer (`toolbarStart`/`toolbarEnd` snippets move attach + send into a row under the field),
 Drawer (side-panel `<dialog>`: `side`, `width` clamped to the viewport, full-screen
 under 48rem; `nav` page column that turns into a horizontal strip on narrow
 screens, or `navMobile`; sticky `footer`; Escape / scrim / close button all close),
@@ -312,7 +316,8 @@ ArrowUp/Down, Enter/Tab (`selectOn`), Escape and blur; `open`/`index` are
 bindable, `onselect`/`onclose(reason)` report picks; `findTrigger`/`applyTrigger`
 are exported for trigger-char detection and token replacement).
 
-**Organisms:** DataTable (generic `<T>`, typed columns + cell snippets;
+**Organisms:** ConversationPanel / ConversationFeed (chat column + sticky
+feed, see below), DataTable (generic `<T>`, typed columns + cell snippets;
 `layout="fixed"` makes column widths authoritative, `Column.truncate` /
 `nowrap` / `hideBelow="sm|md|lg"` (container-query on the table's own box),
 `hideHeader` clips the header but keeps it for assistive tech, `rowTone(row)`
@@ -560,6 +565,49 @@ it is neither focusable nor announced. `Composer` inherits the behaviour.
 ```svelte
 <AttachmentList files={attachments} onremove={(i) => (attachments = attachments.toSpliced(i, 1))} />
 <AttachmentList tiles files={[{ name: 'cover.png', size: 1024, type: 'image/png', url }]} />
+```
+
+### ConversationPanel, ConversationFeed, StatusBar
+
+`ConversationPanel` is the chat column: `header`, the feed as `children`
+(flexes), `status`, `composer`, filling its parent with token borders between
+the rows. `ConversationFeed` (generic `<T>`) takes `items`, `key(item)` and an
+`item(item, index)` snippet; `empty` renders when there is nothing. It sticks
+to the bottom while the user is within 80px of it (`follow`, default true),
+holds the viewport still when older items are prepended, and shows a
+`jumpLabel` pill ("Jump to latest") when new items land while scrolled up.
+`loadMore` idle | loading | error | done renders a `LoadMore` pill at the top
+that calls `onloadmore`; `scrollToBottom(behavior?)` is exported on the
+instance. `StatusBar` is the thin live row under the feed: `tone` idle |
+busy (Spinner) | ok | warn | error, `label` or `children`, `trailing`.
+
+`renderMarkdown(src, { tables?, autolink?, highlight? })` turns chat markdown
+into HTML for `Prose`: everything is escaped first, then headings, emphasis,
+inline/fenced code, lists, blockquotes, rules, GFM tables and links with safe
+schemes only (`javascript:`/`data:` stay text). `highlight(code, lang)` is an
+optional hook returning safe HTML for fenced blocks; `stripAnsi` and
+`escapeHtml` are exported too. `ChatBubble` takes `markdown` directly, plus
+`timestamp` (after the role pill) and a `footer` snippet. `Composer` gains
+`toolbarStart` / `toolbarEnd`: either one moves attach and send into a row
+under the field, start slot left, end slot then send right.
+
+```svelte
+<ConversationPanel>
+  {#snippet header()}<Text weight="medium">Session</Text>{/snippet}
+  <ConversationFeed bind:this={feed} items={msgs} key={(m) => m.id} loadMore={more} onloadmore={loadOlder}>
+    {#snippet item(m)}
+      <ChatBubble role={m.role} timestamp={m.at} markdown={m.text}>
+        {#snippet footer()}<span>{m.ms}ms</span>{/snippet}
+      </ChatBubble>
+    {/snippet}
+  </ConversationFeed>
+  {#snippet status()}<StatusBar tone={busy ? 'busy' : 'ok'} label={busy ? 'Working…' : 'Listening'} />{/snippet}
+  {#snippet composer()}
+    <Composer onsubmit={send}>
+      {#snippet toolbarStart()}<Toggle pressed={pick} onclick={togglePick}>⌖ Pick</Toggle>{/snippet}
+    </Composer>
+  {/snippet}
+</ConversationPanel>
 ```
 
 ### Artwork

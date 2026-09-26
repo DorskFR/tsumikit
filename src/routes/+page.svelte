@@ -93,9 +93,59 @@
 		type MenuItem,
 		type TabItem,
 		type RadioOption,
-		type Column
+		type Column,
+		ChatBubble,
+		Composer,
+		StatusBar,
+		ConversationFeed,
+		ConversationPanel,
+		Prose,
+		renderMarkdown
 	} from '$lib';
 	import { base } from '$app/paths';
+
+	type ConvMsg = { id: number; role: 'user' | 'assistant' | 'tool' | 'system'; text: string; at: number; ms?: number };
+	const convSamples: Array<[ConvMsg['role'], string]> = [
+		['user', 'Can you summarise the **release notes** for 0.62?'],
+		['assistant', 'Sure. Highlights:\n\n- `renderMarkdown` helper, zero deps\n- `ConversationFeed` + `ConversationPanel` organisms\n- `Composer` toolbar row\n\n| Area | Change |\n|---|---|\n| ChatBubble | `timestamp`, `footer`, `markdown` |\n| StatusBar | new |'],
+		['tool', 'Read src/lib/index.ts (220 lines)'],
+		['assistant', 'Links are scheme-checked: [docs](https://dorskfr.github.io/tsumikit) works, `[x](javascript:alert(1))` stays text.\n\n```ts\nconst html = renderMarkdown(text);\n```'],
+		['system', 'Context compacted']
+	];
+	let convSeq = 0;
+	function convMake(role: ConvMsg['role'], text: string, at = Date.now()): ConvMsg {
+		convSeq++;
+		return { id: convSeq, role, text, at, ms: role === 'assistant' ? 1200 + convSeq * 37 : undefined };
+	}
+	let convItems = $state<ConvMsg[]>(convSamples.map(([r, t], i) => convMake(r, t, Date.now() - (5 - i) * 60_000)));
+	let convMore = $state<'idle' | 'loading' | 'done'>('idle');
+	let convBusy = $state(false);
+	let convDraft = $state('');
+	let convPick = $state(false);
+	let convFeed = $state<ReturnType<typeof ConversationFeed<ConvMsg>> | null>(null);
+	function convLoadOlder() {
+		convMore = 'loading';
+		setTimeout(() => {
+			const oldest = convItems[0]?.at ?? Date.now();
+			const older = Array.from({ length: 4 }, (_, i) =>
+				convMake(i % 2 ? 'assistant' : 'user', `Older message #${convSeq + 1}`, oldest - (4 - i) * 60_000)
+			);
+			convItems = [...older, ...convItems];
+			convMore = convItems.length >= 17 ? 'done' : 'idle';
+		}, 600);
+	}
+	function convSend(text: string) {
+		convItems = [...convItems, convMake('user', text)];
+		convDraft = '';
+		convBusy = true;
+		setTimeout(() => {
+			convItems = [...convItems, convMake('assistant', `Echo: ${text}`)];
+			convBusy = false;
+		}, 900);
+	}
+	function convAppend() {
+		convItems = [...convItems, convMake('assistant', `Live update ${convSeq + 1}`)];
+	}
 	let capBarCap = $state(80);
 	let capBarUncapped = $state<number | null>(null);
 
@@ -184,7 +234,8 @@
 				{ id: 'git-ref', label: 'GitRef', keywords: 'branch pr commit diff' },
 				{ id: 'working-dir', label: 'WorkingDir', keywords: 'path directory shell fish' },
 				{ id: 'truncate', label: 'Truncate', keywords: 'ellipsis overflow text reveal' },
-				{ id: 'code-block', label: 'CodeBlock', keywords: 'pre syntax highlight copy' }
+				{ id: 'code-block', label: 'CodeBlock', keywords: 'pre syntax highlight copy' },
+				{ id: 'conversation', label: 'Conversation', keywords: 'chat bubble composer feed markdown status panel transcript' }
 			]
 		},
 		{
@@ -2547,6 +2598,80 @@ function greet(name) {
 				</div>
 			</section>
 
+			<section class="section" id="conversation">
+				<Heading level={3} size="lg">ConversationPanel · ConversationFeed · ChatBubble · StatusBar</Heading>
+				<Text variant="caption" tone="muted">
+					A full chat column: header, a feed that sticks to the bottom (scroll up, then append → "Jump to latest"),
+					a "Load older" pill that keeps the viewport still, a live status row and a Composer with a toolbar row.
+				</Text>
+				<div class="conv-frame">
+					<ConversationPanel>
+						{#snippet header()}
+							<Text weight="medium" truncate grow>Session · tsumikit</Text>
+							<Badge size="xs" tone="ok" dot>live</Badge>
+						{/snippet}
+						<ConversationFeed
+							bind:this={convFeed}
+							items={convItems}
+							key={(m) => m.id}
+							loadMore={convMore}
+							onloadmore={convLoadOlder}
+						>
+							{#snippet item(m)}
+								<ChatBubble role={m.role} timestamp={m.at} markdown={m.text} copyText={m.text}>
+									{#snippet footer()}
+										{#if m.ms}<span>{(m.ms / 1000).toFixed(1)}s</span><span>↓ {m.text.length} ↑ 42</span>{/if}
+									{/snippet}
+								</ChatBubble>
+							{/snippet}
+							{#snippet empty()}<EmptyState size="inline" title="No messages yet" />{/snippet}
+						</ConversationFeed>
+						{#snippet status()}
+							<StatusBar tone={convBusy ? 'busy' : 'ok'} label={convBusy ? 'Assistant is typing…' : 'Listening'}>
+								{#snippet trailing()}<span>{convItems.length} msgs</span>{/snippet}
+							</StatusBar>
+						{/snippet}
+						{#snippet composer()}
+							<Composer
+								bind:value={convDraft}
+								busy={convBusy}
+								onsubmit={convSend}
+								onfiles={(f) => toasts.show(`${f.length} file(s)`)}
+								placeholder="Reply…"
+							>
+								{#snippet toolbarStart()}
+									<Toggle pressed={convPick} size="sm" onclick={() => (convPick = !convPick)}>⌖ Pick</Toggle>
+									{#if convPick}<Badge size="xs" removable onremove={() => (convPick = false)}>replying to #3</Badge>{/if}
+								{/snippet}
+								{#snippet toolbarEnd()}
+									<Button size="sm" variant="ghost" onclick={convAppend}>Simulate event</Button>
+								{/snippet}
+							</Composer>
+						{/snippet}
+					</ConversationPanel>
+				</div>
+				<Cluster>
+					<Button size="sm" onclick={() => convFeed?.scrollToBottom('smooth')}>scrollToBottom()</Button>
+					<Button size="sm" onclick={convAppend}>Append message</Button>
+				</Cluster>
+				<Text variant="caption" tone="muted">
+					StatusBar tones and a standalone ChatBubble with a footer and a snippet body:
+				</Text>
+				<Card>
+					<Stack gap="var(--sp-2)">
+						<StatusBar tone="idle" label="Idle" />
+						<StatusBar tone="busy" label="Running tests…">{#snippet trailing()}<span>12s</span>{/snippet}</StatusBar>
+						<StatusBar tone="ok" label="Connected" />
+						<StatusBar tone="warn" label="Reconnecting" />
+						<StatusBar tone="error" label="Disconnected" />
+						<ChatBubble role="assistant" timestamp={Date.now() - 30_000} state="sending">
+							<Prose compact html={renderMarkdown('Snippet body via `Prose` + `renderMarkdown`: **bold**, _em_, ~~gone~~')} />
+							{#snippet footer()}<span>0.4s</span><span>gpt · 128 tokens</span>{/snippet}
+						</ChatBubble>
+					</Stack>
+				</Card>
+			</section>
+
 		</section>
 
 		<section class="group" id="g-feedback" aria-labelledby="gh-feedback">
@@ -3137,6 +3262,14 @@ function greet(name) {
 		flex-direction: column;
 		gap: var(--sp-3);
 		scroll-margin-top: calc(var(--header-h) + var(--sp-8));
+	}
+	.conv-frame {
+		height: 32rem;
+		max-height: 70dvh;
+		display: flex;
+		border: 1px solid var(--border);
+		border-radius: var(--r-lg);
+		overflow: hidden;
 	}
 	.al-resizable {
 		resize: horizontal;
