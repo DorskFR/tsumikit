@@ -651,7 +651,7 @@ function greet(name) {
 		'file', 'file-text', 'folder', 'archive', 'image', 'markdown', 'list', 'grid',
 		'link', 'unlink', 'text-cursor', 'tag', 'bookmark', 'star', 'heart', 'fork', 'live', 'eye', 'eye-off',
 		'lock', 'unlock', 'bell', 'mail', 'calendar', 'clock', 'home', 'user', 'users',
-		'sun', 'moon', 'flame', 'loader',
+		'sun', 'moon', 'flame', 'zap', 'loader',
 		'info', 'warning', 'help', 'check-circle', 'x-circle', 'alert-circle'
 	];
 

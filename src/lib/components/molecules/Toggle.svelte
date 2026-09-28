@@ -54,16 +54,20 @@
 </button>
 
 <style>
+	/* The height is pinned to the `--toggle-size` box, never to the line box:
+	   an emoji, a 12px Icon and plain text all leave the chip the same height. */
 	.toggle {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		gap: 4px;
-		padding: 0.15rem var(--sp-2);
+		box-sizing: border-box;
+		height: var(--toggle-size, var(--box-xs));
+		padding: 0 var(--sp-2);
 		border-radius: var(--r-sm);
 		font-size: var(--fs-xs);
 		font-weight: var(--fw-medium);
-		line-height: 1.4;
+		line-height: 1;
 		background: var(--bg-elevated-2);
 		color: var(--text-muted);
 		border: 1px solid var(--border);
@@ -82,7 +86,7 @@
 		border-radius: var(--r-pill);
 	}
 	.toggle.md {
-		padding: 0.3rem var(--sp-2);
+		height: var(--toggle-size, var(--control-height-compact));
 		font-size: var(--fs-sm);
 	}
 	.toggle.grow {

@@ -70,7 +70,10 @@ test('Toggle size defaults to sm; md, grow and shrink map to classes', () => {
 	assert.match(toggle, /class:md={size === 'md'}/);
 	assert.match(toggle, /class:grow\b/);
 	assert.match(toggle, /class:no-shrink={!shrink}/);
-	assert.match(toggle, /\.toggle\.md\s*{\s*padding: 0\.3rem var\(--sp-2\);\s*font-size: var\(--fs-sm\);\s*}/);
+	assert.match(
+		toggle,
+		/\.toggle\.md\s*{\s*height: var\(--toggle-size, var\(--control-height-compact\)\);\s*font-size: var\(--fs-sm\);\s*}/
+	);
 	assert.match(toggle, /\.toggle\.grow\s*{\s*flex: 1 1 0;\s*min-width: 0;\s*}/);
 	assert.match(toggle, /\.toggle\.no-shrink\s*{\s*flex: none;\s*}/);
 	assert.match(toggle, /\.toggle\.pill\s*{\s*border-radius: var\(--r-pill\);/);

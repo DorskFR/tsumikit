@@ -206,6 +206,7 @@ sanctioned escape hatch for everything else.
 | `GitRef` | `--git-ref-tone`, `--git-ref-max-width` |
 | `EmptyState` | `--empty-tone` |
 | `Combobox` | `--cb-bg`, `--cb-border`, `--cb-radius`, `--cb-active-bg`, `--cb-min-width`, `--cb-max-height` |
+| `Toggle` | `--toggle-accent`, `--toggle-size` |
 | `Popover` | `--pop-trigger-bg`, `--pop-trigger-fg`, `--pop-trigger-border`, `--pop-trigger-radius`, `--pop-trigger-size`, `--pop-trigger-pad`, `--pop-box`, `--pop-count-bg`, `--pop-count-fg`, `--pop-count-size` |
 
 `tests/css-custom-property-contract.test.js` reads this table and fails if a
@@ -762,6 +763,21 @@ triggers, and `SegmentedControl`. Each renders an exact
 `Button` inside its `trigger` snippet. Omitting these props preserves the
 original ghost icon-button default. Use `control` on `Button` or `Popover` when
 the roomier shared `--control-height` composer contract is required.
+
+`variant="toggle"` renders the trigger as a `Toggle` chip — the component
+itself, not a copy of its chrome — so a popover trigger sitting next to a
+`Toggle` in a toolbar shares one box. `size` (`sm` default, `md`), `pill`,
+`pressed` and `tone` behave as they do on `Toggle`; a `Toggle`'s height comes
+from `--toggle-size`, never from its content, so an emoji, an `Icon` and text
+all leave the chip the same height.
+
+```svelte
+<Toggle pressed={auto} onclick={toggleAuto}><Icon name="zap" size={12} /> Auto</Toggle>
+<Popover label="Pins" variant="toggle" pressed={pinned.length > 0} count={pinned.length}>
+  {#snippet trigger()}Pins{/snippet}
+  {#snippet children()}…{/snippet}
+</Popover>
+```
 
 `Toolbar` implements the keyboard contract its `role="toolbar"` announces: the
 bar is a **single tab stop**, and `←`/`→` (plus `Home`/`End`) move between the

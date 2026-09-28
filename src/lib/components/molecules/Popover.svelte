@@ -13,10 +13,11 @@
 	import type { HTMLAttributes } from 'svelte/elements';
 	import { formatCount, hasCount } from '$lib/count';
 	import { place } from '$lib/floating';
+	import Toggle from './Toggle.svelte';
 	import { HOVER_CLOSE_GRACE, HOVER_OPEN_DELAY, createHoverIntent, opensOnHover } from './popover-hover.js';
 
 	type Placement = 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
-	type TriggerVariant = 'default' | 'primary' | 'ghost' | 'danger';
+	type TriggerVariant = 'default' | 'primary' | 'ghost' | 'danger' | 'toggle';
 	type TriggerTone = 'none' | 'accent' | 'success' | 'info' | 'warn' | 'danger';
 	type TriggerSize = 'sm' | 'md' | 'lg';
 	type PanelRole = 'dialog' | 'menu' | 'listbox' | 'group';
@@ -42,8 +43,12 @@
 		 *  you fully own (pair with `triggerClass`). */
 		bare?: boolean;
 		/** Button-compatible trigger chrome. Omitting every chrome prop preserves
-		 *  the original ghost icon-button trigger. */
+		 *  the original ghost icon-button trigger. `toggle` renders the trigger as
+		 *  the `Toggle` chip itself, so a trigger and a Toggle side by side share
+		 *  one box — `size`, `pill` and `pressed` behave as they do on `Toggle`. */
 		variant?: TriggerVariant;
+		/** `variant="toggle"` only: paint the chip in its "on" tint. */
+		pressed?: boolean;
 		tone?: TriggerTone;
 		size?: TriggerSize;
 		/** Shared square box scale (`--box-xs/sm/md/lg`) for an icon-only trigger,
@@ -96,6 +101,7 @@
 		triggerClass = '',
 		bare = false,
 		variant,
+		pressed = false,
 		tone = 'none',
 		size,
 		box,
@@ -122,12 +128,29 @@
 		...rest
 	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
 
+	// The Toggle chip is not restyled here, it is rendered: the trigger *is* a
+	// `Toggle`, so the two cannot drift apart. A link trigger keeps the canonical
+	// chrome — `Toggle` is always a button.
+	const toggleChrome = $derived(variant === 'toggle' && as === 'button');
 	const canonicalChrome = $derived(
-		variant !== undefined || tone !== 'none' || size !== undefined || control || block
+		!toggleChrome && (variant !== undefined || tone !== 'none' || size !== undefined || control || block)
 	);
 	const counted = $derived(hasCount(count));
 	const countText = $derived(hasCount(count) ? formatCount(count, countMax) : '');
 	const triggerName = $derived(counted ? `${label}, ${count}` : label);
+	const toneVar = $derived(
+		{ none: undefined, accent: 'var(--accent)', success: 'var(--ok)', info: 'var(--info)', warn: 'var(--warn)', danger: 'var(--danger)' }[
+			tone
+		]
+	);
+	// The count pill is absolutely positioned against the chip, which therefore
+	// needs to be its containing block; Popover's scoped CSS cannot reach an
+	// element rendered by `Toggle`, so the two declarations ride inline.
+	const toggleStyle = $derived(
+		[counted ? 'position:relative' : '', toneVar ? `--toggle-accent:${toneVar}` : '', styleProp]
+			.filter(Boolean)
+			.join(';')
+	);
 
 	const id = `pop-${Math.random().toString(36).slice(2, 8)}`;
 	let triggerEl = $state<HTMLElement | null>(null);
@@ -241,7 +264,30 @@
 	}
 </script>
 
-<svelte:element
+{#if toggleChrome}
+	<Toggle
+		{...rest}
+		{...triggerAttrs}
+		{pressed}
+		{pill}
+		size={size === 'md' ? 'md' : 'sm'}
+		data-tsu="Popover"
+		class="pop-trigger trigger-toggle {triggerClass} {klass}"
+		style={toggleStyle}
+		aria-label={triggerName}
+		aria-haspopup={haspopup}
+		aria-expanded={open}
+		onpointerenter={onPointerEnter}
+		onpointerleave={onPointerLeave}
+		{@attach (node) => {
+			triggerEl = node;
+		}}
+	>
+		{@render trigger()}
+		{#if counted}<span class="pop-count count-sm" aria-hidden="true">{countText}</span>{/if}
+	</Toggle>
+{:else}
+	<svelte:element
 	this={as}
 	bind:this={triggerEl}
 	{...rest}
@@ -280,6 +326,7 @@
 	{@render trigger()}
 	{#if counted}<span class="pop-count" aria-hidden="true">{countText}</span>{/if}
 </svelte:element>
+{/if}
 
 <div
 	bind:this={panelEl}
@@ -495,7 +542,8 @@
 		pointer-events: none;
 	}
 	.trigger-sm .pop-count,
-	.bare .pop-count {
+	.bare .pop-count,
+	.pop-count.count-sm {
 		--pop-count-size: 1rem;
 		font-size: calc(var(--fs-xs) * 0.85);
 	}
