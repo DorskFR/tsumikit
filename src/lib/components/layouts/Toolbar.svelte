@@ -9,7 +9,7 @@
 	// controls actually visible, the `…` trigger included. Children are arbitrary
 	// snippet content, so the ring is read from the DOM rather than a list prop.
 	import type { Snippet } from 'svelte';
-	import IconButton from '$lib/components/molecules/IconButton.svelte';
+	import Icon from '$lib/components/atoms/Icon.svelte';
 	import Menu, { type MenuItem } from '$lib/components/molecules/Menu.svelte';
 	import Popover from '$lib/components/molecules/Popover.svelte';
 	import {
@@ -161,12 +161,12 @@
 	{@render children()}
 	{#if collapsed && hasOverflow}
 		{#if items?.length}
-			<Menu label={overflowLabel} {items} placement="bottom-end" box="sm">
-				{#snippet trigger()}<IconButton icon="more" label={overflowLabel} box="sm" />{/snippet}
+			<Menu label={overflowLabel} title={overflowLabel} {items} placement="bottom-end" box="sm">
+				{#snippet trigger()}<Icon name="more" size={18} />{/snippet}
 			</Menu>
 		{:else if overflow}
-			<Popover label={overflowLabel} placement="bottom-end" box="sm">
-				{#snippet trigger()}<IconButton icon="more" label={overflowLabel} box="sm" />{/snippet}
+			<Popover label={overflowLabel} title={overflowLabel} placement="bottom-end" box="sm">
+				{#snippet trigger()}<Icon name="more" size={18} />{/snippet}
 				<div class="overflow-panel">{@render overflow()}</div>
 			</Popover>
 		{/if}
