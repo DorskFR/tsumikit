@@ -36,6 +36,7 @@
 	// (inherited from the native popover). An item's `tag` renders as a soft
 	// Badge pill after the label; the `tag` snippet replaces that pill.
 	import type { ComponentProps, Snippet } from 'svelte';
+	import type { HTMLAttributes } from 'svelte/elements';
 	import Popover from '$lib/components/molecules/Popover.svelte';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import Badge from '$lib/components/atoms/Badge.svelte';
@@ -57,6 +58,8 @@
 		| 'hitArea'
 		| 'disabled'
 		| 'gap'
+		| 'count'
+		| 'countMax'
 		| 'onopen'
 		| 'onclose'
 	>;
@@ -80,6 +83,8 @@
 		hitArea,
 		disabled,
 		gap,
+		count,
+		countMax,
 		onopen,
 		onclose,
 		open = $bindable(false),
@@ -87,7 +92,11 @@
 		class: klass = '',
 		style: styleProp = '',
 		panelClass = '',
-	}: {
+		panelStyle = '',
+		...rest
+	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
+
+	type Own = {
 		label: string;
 		items: MenuItem[];
 		trigger: Snippet;
@@ -100,8 +109,11 @@
 		closeOnSelect?: boolean;
 		class?: string;
 		style?: string;
+		/** Class / inline style on the floating panel; `panelStyle` is how you
+		 *  size or cap it (`min-width`, `max-height`, `padding`). */
 		panelClass?: string;
-	} & TriggerChrome = $props();
+		panelStyle?: string;
+	} & TriggerChrome;
 
 	let listEl = $state<HTMLDivElement | null>(null);
 
@@ -139,6 +151,7 @@
 </script>
 
 <Popover
+	{...rest}
 	{label}
 	{placement}
 	{trigger}
@@ -154,10 +167,13 @@
 	class={klass}
 	style={styleProp}
 	{panelClass}
+	{panelStyle}
 	{bare}
 	{hitArea}
 	{disabled}
 	{gap}
+	{count}
+	{countMax}
 	role="menu"
 	haspopup="menu"
 	bind:open

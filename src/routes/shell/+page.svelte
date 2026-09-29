@@ -49,6 +49,8 @@
 	let active = $state('overview');
 	const allItems = navGroups.flatMap((g) => g.items);
 	let drawerOpen = $state(false);
+	let panelWidth = $state<number>();
+	let panelResizing = $state(false);
 	const files = ['src/lib/index.ts', 'src/routes/+page.svelte', 'README.md'];
 </script>
 
@@ -117,6 +119,9 @@
 			<Text variant="body" tone="muted">
 				This embedded example places the panel on the right. Drag its edge or focus the separator
 				and use the arrow keys, Home, or End. The bottom control collapses it to a usable rail.
+				<code>onresizestart</code> / <code>onresize</code> / <code>onresizeend</code> report the drag,
+				so an expensive panel body can idle while the width is in flux:
+				<strong>{panelWidth ?? 260}px{panelResizing ? ' (resizing)' : ''}</strong>.
 			</Text>
 			<div class="panel-demo">
 				<ResizablePanel
@@ -126,6 +131,12 @@
 					minWidth={180}
 					maxWidth={420}
 					widthKey="tsumikit-shell-files-panel"
+					onresizestart={() => (panelResizing = true)}
+					onresize={(w) => (panelWidth = w)}
+					onresizeend={(w) => {
+						panelResizing = false;
+						panelWidth = w;
+					}}
 				>
 					{#snippet panel()}
 						<div class="file-panel">

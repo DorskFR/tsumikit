@@ -10,7 +10,9 @@
 		multiple = true,
 		itemOpen = {},
 		onItemChange,
-		onItem
+		onItem,
+		size = 'default',
+		variant = 'default'
 	}: {
 		open?: boolean;
 		chevron?: 'start' | 'end' | false;
@@ -19,6 +21,8 @@
 		itemOpen?: Record<string, boolean>;
 		onItemChange?: (id: string, open: boolean) => void;
 		onItem?: (id: string, open: boolean) => void;
+		size?: 'default' | 'compact';
+		variant?: 'default' | 'plain';
 	} = $props();
 
 	const items = $derived<AccordionItem[]>([
@@ -32,15 +36,17 @@
 	<p class="probe-body">body</p>
 {/snippet}
 
-{#snippet rich({ open }: { open: boolean })}
-	<span class="probe-rich">Beta</span><span class="probe-state">{open ? 'on' : 'off'}</span>
+{#snippet rich({ open, item }: { open: boolean; item: AccordionItem })}
+	<span class="probe-rich">Beta</span><span class="probe-state">{open ? 'on' : 'off'}</span><span
+		class="probe-item">{item.id}</span
+	>
 {/snippet}
 
-<Disclosure id="probe" bind:open {chevron} {onchange}>
+<Disclosure id="probe" bind:open {chevron} {size} {onchange}>
 	{#snippet header({ open })}
 		<span class="probe-header">Details</span><span class="probe-header-state">{open ? 'on' : 'off'}</span>
 	{/snippet}
 	<p class="probe-panel">panel</p>
 </Disclosure>
 
-<Accordion {items} {multiple} onchange={onItemChange} />
+<Accordion {items} {multiple} {size} {variant} onchange={onItemChange} />

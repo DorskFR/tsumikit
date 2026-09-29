@@ -58,7 +58,9 @@ export {
 export { default as Stack } from './components/layouts/Stack.svelte';
 export { default as Toolbar } from './components/layouts/Toolbar.svelte';
 export {
+	type AccordionHeaderContext,
 	type AccordionItem,
+	type AccordionVariant,
 	default as Accordion,
 } from './components/molecules/Accordion.svelte';
 export {
@@ -87,6 +89,7 @@ export {
 export {
 	type DisclosureChevron,
 	type DisclosureHeaderContext,
+	type DisclosureSize,
 	default as Disclosure,
 } from './components/molecules/Disclosure.svelte';
 export { default as Drawer } from './components/molecules/Drawer.svelte';

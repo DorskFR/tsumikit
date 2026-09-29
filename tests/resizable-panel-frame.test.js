@@ -220,3 +220,25 @@ test('resolveLength passes numbers and px strings through and measures other len
 	assert.equal(resolveLength('20rem', () => undefined), undefined);
 	assert.equal(resolveLength(Number.NaN, () => 1), undefined);
 });
+
+test('release reports the drag as over before it commits the settled width', () => {
+	// ResizablePanel maps onactive -> `resizing` / onresizestart and oncommit ->
+	// onresizeend, so a consumer unfreezing in onresizeend must already see the
+	// drag finished. Pin that order here rather than in the component.
+	/** @type {string[]} */
+	const order = [];
+	const h = actionHarness({
+		onactive: (a) => order.push(a ? 'start' : 'end'),
+		oncommit: (w) => order.push(`commit:${w}`)
+	});
+	h.fire('pointerdown', { clientX: 300, pointerId: 1 });
+	h.fire('pointermove', { clientX: 340 });
+	h.runFrames();
+	h.fire('pointerup', { clientX: 340, pointerId: 1 });
+	assert.deepEqual(order, ['start', 'end', 'commit:340']);
+
+	// A keyboard step steps from the measured box (300), not from the dragged width.
+	order.length = 0;
+	h.fire('keydown', { key: 'ArrowRight' });
+	assert.deepEqual(order, ['commit:316']);
+});

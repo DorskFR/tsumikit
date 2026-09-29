@@ -54,6 +54,9 @@
 		showLabel?: boolean | 'row';
 		/** Rotate the glyph (refresh in flight). */
 		spin?: boolean;
+		/** Force the glyph filled (or outlined), overriding its registry default —
+		 *  a pin/star toggle painting its "on" state. Forwarded to Icon. */
+		filled?: boolean;
 		/** Forwarded to Button: spinner, blocks clicks, aria-busy. */
 		loading?: boolean;
 		/** Corner count indicator, forwarded to Button; the count joins `label`
@@ -83,6 +86,7 @@
 		pressed,
 		showLabel = false,
 		spin = false,
+		filled,
 		loading = false,
 		count,
 		countMax,
@@ -126,17 +130,17 @@
 >
 	{#if children}
 		{#if glyphCss}
-			<span class="glyph" style="font-size: {glyphCss}"><Icon {spin}>{@render children()}</Icon></span>
+			<span class="glyph" style="font-size: {glyphCss}"><Icon {spin} {filled}>{@render children()}</Icon></span>
 		{:else}
-			<Icon {size} {spin}>{@render children()}</Icon>
+			<Icon {size} {spin} {filled}>{@render children()}</Icon>
 		{/if}
 	{:else if emoji}
 		<span class="emoji" style="font-size: {emojiCss}" aria-hidden="true">{emoji}</span>
 	{:else if icon}
 		{#if glyphCss}
-			<span class="glyph" style="font-size: {glyphCss}"><Icon name={icon} {spin} /></span>
+			<span class="glyph" style="font-size: {glyphCss}"><Icon name={icon} {spin} {filled} /></span>
 		{:else}
-			<Icon name={icon} {size} {spin} />
+			<Icon name={icon} {size} {spin} {filled} />
 		{/if}
 	{/if}
 	{#if showLabel}<span class="ib-label">{label}</span>{/if}

@@ -9,7 +9,9 @@
 		disabled = false,
 		menuDisabled = false,
 		onclick,
-		onselect
+		onselect,
+		primaryProps,
+		rootProps
 	}: {
 		variant?: 'default' | 'primary' | 'danger';
 		size?: 'sm' | 'md' | 'lg';
@@ -19,6 +21,8 @@
 		menuDisabled?: boolean;
 		onclick?: (e: MouseEvent) => void;
 		onselect?: (label: string) => void;
+		primaryProps?: Record<string, unknown>;
+		rootProps?: Record<string, unknown>;
 	} = $props();
 
 	const items = [
@@ -28,7 +32,19 @@
 </script>
 
 <button type="button" id="before">before</button>
-<SplitButton label="Send options" {items} {variant} {size} {control} {caret} {disabled} {menuDisabled} {onclick}>
+<SplitButton
+	label="Send options"
+	{items}
+	{variant}
+	{size}
+	{control}
+	{caret}
+	{disabled}
+	{menuDisabled}
+	{onclick}
+	{primaryProps}
+	{...rootProps}
+>
 	Send
 </SplitButton>
 <button type="button" id="after">after</button>

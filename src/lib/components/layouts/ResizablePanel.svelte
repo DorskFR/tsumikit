@@ -19,6 +19,9 @@
 		collapsed = $bindable(false),
 		persistCollapsed = true,
 		resizeStep = 16,
+		onresizestart,
+		onresize,
+		onresizeend,
 		handlePlacement = 'bottom',
 		stickyHandle = true,
 		mode = 'inline',
@@ -53,6 +56,14 @@
 		persistCollapsed?: boolean;
 		/** Pixels added or removed by each resize-separator arrow key press. */
 		resizeStep?: number;
+		/** A pointer drag of the separator began. Pair with `onresizeend` to
+		 *  suspend expensive work in the panel body while the width is in flux. */
+		onresizestart?: () => void;
+		/** Live width, once per animation frame while dragging and on each
+		 *  keyboard step. */
+		onresize?: (width: number) => void;
+		/** Settled width: on pointer release, and after each keyboard step. */
+		onresizeend?: (width: number) => void;
 		/** Anchor the collapse handle at the top or bottom of the panel edge. */
 		handlePlacement?: 'top' | 'bottom';
 		/** Keep the collapse handle in view when the panel scrolls past the
@@ -206,6 +217,17 @@
 
 	function setWidth(nextWidth: number) {
 		panelWidth = Math.round(Math.max(boundedMin, Math.min(nextWidth, boundedMax)));
+		onresize?.(panelWidth);
+	}
+
+	function commitWidth(nextWidth: number) {
+		persistWidth(nextWidth);
+		onresizeend?.(nextWidth);
+	}
+
+	function setResizing(active: boolean) {
+		resizing = active;
+		if (active) onresizestart?.();
 	}
 
 	// Keep the collapse handle within the viewport (and its panel) while a long
@@ -322,8 +344,8 @@
 						step: resizeStep,
 						measure: () => currentWidth,
 						onwidth: setWidth,
-						oncommit: persistWidth,
-						onactive: (active) => (resizing = active)
+						oncommit: commitWidth,
+						onactive: setResizing
 					}}
 				></div>
 			{/if}

@@ -248,7 +248,8 @@ any test, and change without a major.
 `clearable` + `onclear`, `shape="pill"`, `width` fixed + `flex: none`,
 `onenter(value)`; the bare `<input>` DOM is unchanged unless `icon`/`clearable`
 is used), Textarea, Select (`options` array with per-option `icon`/`emoji`/`hint`/`disabled`;
-the trigger overlays the selected option's glyph + muted hint on the native control), Switch, Checkbox,
+the trigger overlays the selected option's glyph + muted hint on the native control), Switch, Checkbox (`size`
+sm/md/lg as on `Switch`, or `--cb-box` for the box alone),
 Slider (`ticks` draws a dot per step for a segmented slider), Progress, Gauge (vertical consumption cell, `variant` continuous/segments,
 threshold tones via `warnAt`/`dangerAt`, `corner` snippet), Artwork (lazy cover image with seeded gradient + initials
 fallback, `aspect`, `status` overlay), Avatar (grapheme-safe initial or `glyph`, hue hashed from
@@ -266,13 +267,16 @@ horizontal/vertical hairline, `tone`, `spacing`, optional centred label,
 always/hover/none, `align`), Icon (open registry — pass a `children` snippet for
 any custom SVG).
 
-**Molecules:** Field (`grow`), IconButton, SelectButton, Toggle, OptionButton (`value` +
+**Molecules:** Field (`grow`), IconButton (`filled` forwards to `Icon`, for a
+filled pin/star toggle), SelectButton, Toggle, OptionButton (`value` +
 `description` secondary text wired via `aria-describedby`, `onfocuschange(value)` on
 focus/hover to drive a preview pane), Modal,
 Popover, Menu (items take a free-form trailing `tag` + `tagTone`, or a `tag` snippet,
 and an `attrs` object for `data-*`/test ids on the row; a checkable `pressed` item keeps
 its icon leading and shows its check trailing, or uses the leading check slot when it has
-no icon; selecting closes the menu unless `closeOnSelect={false}` or the item sets `keepOpen`),
+no icon; selecting closes the menu unless `closeOnSelect={false}` or the item sets `keepOpen`;
+rest props land on the trigger, `count`/`countMax` paint its corner badge and `panelStyle`
+sizes the panel),
 Tabs (omit `panel` for a strip-only tablist of document tabs: `closable` + `onclose(id)`
 close through the ✕, Delete and middle-click, per-tab `leading` snippet, `title`,
 trailing `actions` snippet; `--tab-max-width` truncates long labels),
@@ -281,9 +285,10 @@ RadioGroup (per-option `description` in every variant, announced via
 `variant="rows"`: bordered rows, per-option `note`,
 `action(option)` trailing control that never toggles, `below(option)` inline panel),
 Tooltip, Disclosure (single collapsible: `header` snippet, bindable `open` or `open` + `onchange` for
-controlled mode, `chevron` start/end/false, native button with `aria-expanded`/`aria-controls` over a
-`region` panel), Accordion (a stack of Disclosures; items take a `title` string or a `summary` snippet,
-per-item `open`/`onchange`, `multiple=false` keeps one open), CopyButton, FileButton, InputGroup (a field with inset
+controlled mode, `chevron` start/end/false, `size="compact"` for strip rows, native button with
+`aria-expanded`/`aria-controls` over a `region` panel), Accordion (a stack of Disclosures; items take a
+`title` string or a `summary` snippet that receives the `item` it heads, per-item `open`/`onchange`,
+`multiple=false` keeps one open, `variant="plain"` drops the outer border, `size` forwards to every item), CopyButton, FileButton, InputGroup (a field with inset
 leading/trailing controls fused into one bordered unit, see below),
 Dropzone, CodeBlock, Callout, EmptyState, ConfirmModal, Pagination, Toaster,
 ThemePicker (popover grid of 2×2 palette swatches: bg · surface · text · accent per theme),
@@ -383,6 +388,11 @@ fixed non-modal drawer (`role="dialog"`) on the viewport edge: `bind:open`,
 the dim backdrop, `fullWidthBelow="960px"` makes the drawer span the viewport (no
 handle, no scrim) on small screens, and `clampToViewport` (default true) keeps a
 stored width inside a shrunken window. `children` is optional in overlay mode.
+`onresizestart` / `onresize(width)` / `onresizeend(width)` report the drag: start
+fires on pointer-down, `onresize` once per animation frame (and per keyboard
+step), `onresizeend` with the settled width on release — enough to suspend
+expensive panel work only while the width is in flux. A keyboard step commits
+without a start.
 
 ```svelte
 <ResizablePanel mode="overlay" side="right" label="Conversation" bind:open
@@ -702,7 +712,11 @@ panel.
 one outer radius, square inner corners, a 1px divider, two tab stops. The
 primary takes `onclick`, `type` (submit inside a form) and `loading`; the caret
 takes `label` (its accessible name), `items`, `placement` and the `Menu`
-panel props (`tag`, `panelClass`, `gap`, `open`, `onopen`, `onclose`).
+panel props (`tag`, `panelClass`, `panelStyle`, `gap`, `open`, `onopen`,
+`onclose`). `primaryProps` sets attributes on the primary segment itself
+(`title`, `aria-describedby`, `data-*` — a disabled-with-reason tooltip), while
+rest props stay on the root box; the props SplitButton owns are applied after it,
+so the fused chrome cannot be clobbered.
 `variant` (default | primary | danger), `size` and `control` apply to both
 segments and match `Button` heights; `disabled` turns off the whole control,
 `menuDisabled` only the caret. `caret="half"` narrows the caret to half the
@@ -791,7 +805,7 @@ Button and Popover share the same semantic tones. For a confirmed positive
 action, `tone="success"` gives neutral controls a success tint; combine it with
 `variant="primary"` for a filled success action without consumer CSS.
 
-`count` on `Button`, `IconButton` and `Popover` (its trigger) paints a corner
+`count` on `Button`, `IconButton`, `Popover` and `Menu` (their trigger) paints a corner
 count pill (unread, selected, queued) on any size, variant or `box`. It hides at
 `0`/`undefined`, displays `99+` past `countMax`, and the exact number joins the
 accessible name (`"Inbox, 120"`) whether that comes from `aria-label`, `label`

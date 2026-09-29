@@ -6,7 +6,7 @@
 	// properties so the fused look needs no reach into their scoped CSS.
 	import type { ControlSize } from '$lib/size';
 	import type { ComponentProps, Snippet } from 'svelte';
-	import type { HTMLAttributes } from 'svelte/elements';
+	import type { HTMLAttributes, HTMLButtonAttributes } from 'svelte/elements';
 	import Button from '$lib/components/atoms/Button.svelte';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import Menu, { type MenuItem } from '$lib/components/molecules/Menu.svelte';
@@ -32,6 +32,11 @@
 		/** Custom trailing content for items that carry a `tag`. */
 		tag?: MenuProps['tag'];
 		panelClass?: string;
+		panelStyle?: MenuProps['panelStyle'];
+		/** Attributes for the primary segment itself — `title`,
+		 *  `aria-describedby`, `data-*`. Rest props stay on the root box, which is
+		 *  where a layout class or `data-journey` for the pair belongs. */
+		primaryProps?: Omit<HTMLButtonAttributes, 'class'> & { class?: string };
 		gap?: number;
 		/** Bindable open state of the menu. */
 		open?: boolean;
@@ -61,6 +66,8 @@
 		placement = 'bottom-end',
 		tag,
 		panelClass,
+		panelStyle,
+		primaryProps,
 		gap,
 		open = $bindable(false),
 		onopen,
@@ -100,6 +107,7 @@
 >
 	<span class="split-main">
 		<Button
+			{...primaryProps}
 			{variant}
 			{size}
 			{control}
@@ -120,6 +128,7 @@
 			{placement}
 			{tag}
 			{panelClass}
+			{panelStyle}
 			{gap}
 			{variant}
 			{size}
