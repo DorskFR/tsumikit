@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { JSDOM } from 'jsdom';
 import { buildFixture } from './fixtures/build.mjs';
-import { hasDecl, normalize } from './helpers.mjs';
+import { hasDecl, normalize, rule } from './helpers.mjs';
 
 /** @param {string} name */
 const component = (name) =>
@@ -143,7 +143,7 @@ test('Accordion is built on Disclosure and accepts title or summary per item', (
 	assert.match(accordion, /import Disclosure from '\.\/Disclosure\.svelte'/);
 	assert.doesNotMatch(accordion, /<details|<summary/);
 	assert.match(accordion, /title\?: string;/);
-	assert.match(accordion, /summary\?: Snippet<\[DisclosureHeaderContext\]>;/);
+	assert.match(accordion, /summary\?: Snippet<\[AccordionHeaderContext\]>;/);
 	assert.match(accordion, /open\?: boolean;/);
 	assert.match(accordion, /onchange\?: \(open: boolean\) => void;/);
 	assert.match(accordion, /onchange\?: \(id: string, open: boolean\) => void;/);
@@ -208,4 +208,71 @@ test('Disclosure is exported and documented', () => {
 	assert.match(index, /type DisclosureHeaderContext,/);
 	assert.match(readme, /Disclosure \(single collapsible/);
 	assert.match(readme, /Accordion \(a stack of Disclosures/);
+});
+
+test('Disclosure size="compact" shrinks header and panel through custom properties (TSU-166)', () => {
+	// The density knobs are properties, so `compact` is one place to retune and a
+	// consumer can reach the same dials without a `:global(` override.
+	assert.match(disclosure, /type DisclosureSize = 'default' \| 'compact'/);
+	assert.match(disclosure, /size\?: DisclosureSize;/);
+	assert.match(disclosure, /size = 'default'/);
+	assert.match(disclosure, /class:disclosure--compact={size === 'compact'}/);
+	assert.ok(hasDecl(disclosure, '.disclosure__button', 'padding', 'var(--disclosure-pad, var(--sp-3) var(--sp-4))'));
+	assert.ok(hasDecl(disclosure, '.disclosure__button', 'font-size', 'var(--disclosure-fs, var(--fs-sm))'));
+	assert.ok(hasDecl(disclosure, '.disclosure__panel', 'padding', 'var(--disclosure-panel-pad, 0 var(--sp-4) var(--sp-4))'));
+	const compact = rule(disclosure, '.disclosure--compact');
+	assert.equal(compact['--disclosure-pad'], 'var(--sp-1) var(--sp-2)');
+	assert.equal(compact['--disclosure-fs'], 'var(--fs-xs)');
+	assert.equal(compact['--disclosure-panel-pad'], '0 var(--sp-2) var(--sp-2)');
+	// Default is untouched: no density class, so every fallback applies.
+	assert.equal(render().root.classList.contains('disclosure--compact'), false);
+	assert.equal(render({ size: 'compact' }).root.classList.contains('disclosure--compact'), true);
+});
+
+test('Accordion forwards size to every item (TSU-166)', () => {
+	const ui = render({ size: 'compact' });
+	for (const id of ['a', 'b', 'c']) {
+		assert.equal(ui.item(id).el.classList.contains('disclosure--compact'), true, `item ${id}`);
+	}
+	const plainSize = render();
+	assert.equal(plainSize.item('a').el.classList.contains('disclosure--compact'), false);
+});
+
+test('the summary snippet receives the item it heads, live (TSU-167)', () => {
+	assert.match(accordion, /export interface AccordionHeaderContext extends DisclosureHeaderContext \{/);
+	assert.match(accordion, /item: AccordionItem;/);
+	assert.match(accordion, /{@render item\.summary\(\{ \.\.\.ctx, item \}\)}/);
+	const ui = render();
+	// One shared snippet can head every item because it is handed the item.
+	assert.equal(ui.item('b').button.querySelector('.probe-item')?.textContent, 'b');
+	// The open state still arrives alongside it and stays reactive.
+	assert.equal(ui.item('b').button.querySelector('.probe-state')?.textContent, 'off');
+	ui.item('b').button.click();
+	ui.flush();
+	assert.equal(ui.item('b').button.querySelector('.probe-state')?.textContent, 'on');
+	assert.equal(ui.item('b').button.querySelector('.probe-item')?.textContent, 'b');
+});
+
+test('Accordion variant="plain" drops the outer border and radius, keeps the dividers (TSU-168)', () => {
+	assert.match(accordion, /type AccordionVariant = 'default' \| 'plain'/);
+	assert.match(accordion, /variant\?: AccordionVariant;/);
+	assert.match(accordion, /variant = 'default'/);
+	assert.match(accordion, /class:accordion--plain={variant === 'plain'}/);
+	const plain = rule(accordion, '.accordion--plain');
+	assert.equal(plain.border, '0');
+	assert.equal(plain['border-radius'], '0');
+	// The item dividers are a separate rule, so they survive `plain`.
+	assert.match(normalize(accordion), /\.accordion > :global\(\.acc-item \+ \.acc-item\) \{ border-top: 1px solid var\(--border\); \}/);
+	assert.ok(hasDecl(accordion, '.accordion', 'border', '1px solid var(--border)'));
+	const ui = render({ variant: 'plain' });
+	const root = ui.doc.querySelector('[data-tsu="Accordion"]');
+	assert.equal(root?.classList.contains('accordion--plain'), true);
+	assert.equal(
+		ui.doc.querySelector('[data-tsu="Accordion"]')?.querySelectorAll('[data-tsu="Disclosure"]').length,
+		3
+	);
+	assert.equal(
+		render().doc.querySelector('[data-tsu="Accordion"]')?.classList.contains('accordion--plain'),
+		false
+	);
 });

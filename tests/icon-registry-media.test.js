@@ -32,3 +32,14 @@ test('recycle and flame glyphs are registered', () => {
 	}
 	assert.equal((icon.match(/^\t\trecycle: '(.*)',$/m)?.[1].match(/<path /g) ?? []).length, 6);
 });
+
+test('quote and reply glyphs are registered (TSU-173)', () => {
+	for (const name of ['quote', 'reply']) {
+		assert.match(icon, new RegExp(`^\\t\\t${name}: '<path d="`, 'm'), `missing glyph ${name}`);
+	}
+	assert.equal((icon.match(/^\t\treply: '(.*)',$/m)?.[1].match(/<path /g) ?? []).length, 2);
+	assert.equal((icon.match(/^\t\tquote: '(.*)',$/m)?.[1].match(/<path /g) ?? []).length, 2);
+	// Stroked like the rest of the registry: no fill, so `filled` stays the opt-in.
+	assert.doesNotMatch(icon, /^\t\t(quote|reply): '<path[^']*fill="currentColor"/m);
+	assert.match(icon, /const FILLED = new Set<IconName>\(\['stop', 'star', 'live'\]\)/);
+});

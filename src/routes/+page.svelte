@@ -89,6 +89,7 @@
 		ThemePicker,
 		FontScalePicker,
 		theme,
+		type AccordionItem,
 		type IconName,
 		type MenuItem,
 		type TabItem,
@@ -354,6 +355,7 @@
 	let mdSelectedWide = $state<string | null>('Alice');
 	let mdSelectedNarrow = $state<string | null>(null);
 	let mdSelectedGap = $state<string | null>('Bob');
+	let pinned = $state(false);
 	let toggleA = $state(true);
 	let toggleB = $state(false);
 	let toggleC = $state(false);
@@ -521,6 +523,7 @@
 		{ label: 'Archived', pressed: false, keepOpen: true, onselect: () => toasts.show('Archived stays off') },
 		{ label: 'Delete', icon: 'trash', danger: true, onselect: () => toasts.error('Deleted') }
 	]);
+	const menuFilterCount = $derived(Object.values(menuFilters).filter(Boolean).length);
 	const sendItems: MenuItem[] = [
 		{ label: 'Later today', icon: 'clock', onselect: () => toasts.show('Scheduled for later today') },
 		{ label: 'Tomorrow 9:00', icon: 'clock', onselect: () => toasts.show('Scheduled for tomorrow') },
@@ -646,7 +649,7 @@ function greet(name) {
 		'back', 'arrow-right', 'arrow-up', 'arrow-down', 'chevron-up', 'chevron-down',
 		'chevron-left', 'chevron-right', 'menu', 'more', 'external', 'log-out',
 		'plus', 'minus', 'check', 'x', 'search', 'filter', 'copy', 'edit', 'trash',
-		'save', 'download', 'upload', 'send', 'share', 'retry', 'recycle', 'settings',
+		'save', 'download', 'upload', 'send', 'share', 'reply', 'quote', 'retry', 'recycle', 'settings',
 		'play', 'pause', 'stop', 'music', 'tv', 'film', 'disc',
 		'file', 'file-text', 'folder', 'archive', 'image', 'markdown', 'list', 'grid',
 		'link', 'unlink', 'text-cursor', 'tag', 'bookmark', 'star', 'heart', 'fork', 'live', 'eye', 'eye-off',
@@ -1161,6 +1164,24 @@ function greet(name) {
 							<IconButton icon="x" label="Remove" inline />
 							<IconButton icon="trash" label="Remove" inline hoverDanger />
 						</div>
+						<Text variant="caption" tone="muted">
+							<code>filled</code> forwards to <code>Icon</code>, so a two-state toggle can paint its
+							"on" state with the filled glyph — and <code>quote</code>/<code>reply</code> head a
+							quote-reply action:
+						</Text>
+						<div class="row row-wrap">
+							<IconButton
+								icon="pin"
+								label={pinned ? 'Unpin' : 'Pin'}
+								pressed={pinned}
+								filled={pinned}
+								onclick={() => (pinned = !pinned)}
+							/>
+							<IconButton icon="pin" label="Pin outline" variant="default" />
+							<IconButton icon="pin" label="Pin filled" variant="default" filled />
+							<IconButton icon="quote" label="Quote reply" variant="default" />
+							<IconButton icon="reply" label="Reply" variant="default" />
+						</div>
 						<div class="row row-wrap">
 							<IconButton icon="chevron-left" label="Back" chip variant="default" />
 							<IconButton icon="star" label="Pin" chip variant="default" tone="accent" />
@@ -1347,6 +1368,14 @@ function greet(name) {
 							<SplitButton variant="primary" caret="half" label="Send options" items={sendItems} onclick={() => toasts.ok('Sent')}>Half caret</SplitButton>
 							<SplitButton caret="half" label="Export options" items={sendItems} onclick={() => toasts.show('Exported')}>Half caret</SplitButton>
 							<SplitButton variant="primary" menuDisabled label="Send options" items={sendItems} onclick={() => toasts.ok('Sent')}>Menu disabled</SplitButton>
+							<SplitButton
+								variant="primary"
+								disabled
+								label="Send options"
+								items={sendItems}
+								primaryProps={{ title: 'Pick a recipient first', 'aria-describedby': 'split-why' }}
+							>Disabled with a reason</SplitButton>
+							<span id="split-why" class="sr-only">Pick a recipient first</span>
 						</div>
 					</Stack>
 				</Card>
@@ -1496,6 +1525,9 @@ function greet(name) {
 								<Checkbox bind:checked={check2} label="Beta features" />
 								<Checkbox indeterminate label="Partially selected" />
 								<Checkbox disabled label="Disabled" />
+								<Checkbox checked size="sm" label="Compact (sm)" />
+								<Checkbox checked size="lg" label="Large (lg)" />
+								<Checkbox checked label="Custom box" style="--cb-box: 0.8rem" />
 							</div>
 						</Field>
 						<Field label="Radio group">
@@ -1900,12 +1932,32 @@ function greet(name) {
 							<span>Deploy pipeline</span>
 							<Badge tone={open ? 'ok' : 'neutral'} size="xs">{open ? 'running' : '3 steps'}</Badge>
 						{/snippet}
+						{#snippet perItem({ open, item }: { open: boolean; item: AccordionItem })}
+							<Dot status={open ? 'active' : 'hibernated'} />
+							<span>{item.title}</span>
+							<Badge size="xs" tone="neutral">{item.id}</Badge>
+						{/snippet}
 						<Accordion
 							multiple={false}
 							items={[
 								{ id: 'a', title: 'What is it?', content: c1, open: true },
 								{ id: 'b', title: 'Single-open mode', content: c2 },
 								{ id: 'c', summary: richSummary, content: c3, onchange: (o) => (disclosureOpen = o) }
+							]}
+						/>
+						<Text variant="body">
+							<code>variant="plain"</code> drops the outer border and radius and keeps the dividers;
+							<code>size="compact"</code> tightens every header and panel to <code>--fs-xs</code>. One
+							<code>summary</code> snippet heads every item, because it receives the <code>item</code>
+							alongside the live <code>open</code>:
+						</Text>
+						<Accordion
+							variant="plain"
+							size="compact"
+							items={[
+								{ id: 'build', title: 'Build', summary: perItem, content: c1 },
+								{ id: 'test', title: 'Test', summary: perItem, content: c2, open: true },
+								{ id: 'ship', title: 'Ship', summary: perItem, content: c3 }
 							]}
 						/>
 						<Text variant="body">
@@ -2962,9 +3014,23 @@ function greet(name) {
 							{#snippet trigger()}Mixed <Icon name="chevron-down" size={14} />{/snippet}
 						</Menu>
 
+						<Menu
+							label="Sections"
+							items={mixedMenuItems}
+							variant="ghost"
+							size="sm"
+							count={menuFilterCount}
+							panelStyle="min-width: 16rem; max-height: 12rem; overflow-y: auto"
+							data-journey="menu-count"
+						>
+							{#snippet trigger()}<Icon name="filter" size={14} />{/snippet}
+						</Menu>
+
 						<Text variant="caption" tone="muted">Open a menu and navigate with ↑/↓, Enter to select. The mixed menu's
 						checkable rows keep their icon (check trails) or use the leading check slot, and <code>keepOpen</code> leaves
-						the menu open while toggling.</Text>
+						the menu open while toggling. The last trigger carries a <code>count</code> badge, a
+						<code>panelStyle</code> that caps and scrolls the panel, and a <code>data-journey</code> rest
+						prop forwarded to the trigger element.</Text>
 					</div>
 				</Card>
 			</section>

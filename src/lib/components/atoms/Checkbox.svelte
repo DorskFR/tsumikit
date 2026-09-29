@@ -5,6 +5,7 @@
 	// native attribute via `...rest`.
 	import type { HTMLInputAttributes } from 'svelte/elements';
 	import { getFieldContext } from '$lib/field-context';
+	import type { ControlSize } from '$lib/size';
 
 	let {
 		checked = $bindable(false),
@@ -12,13 +13,14 @@
 		invalid = false,
 		label,
 		labelHidden = false,
+		size = 'md',
 		id,
 		'aria-describedby': ariaDescribedby,
 		'aria-invalid': ariaInvalid,
 		class: klass = '',
 		el = $bindable(null),
 		...rest
-	}: HTMLInputAttributes & {
+	}: Omit<HTMLInputAttributes, 'size'> & {
 		checked?: boolean;
 		indeterminate?: boolean;
 		/** Error state: danger box border + aria-invalid. */
@@ -26,6 +28,9 @@
 		label: string;
 		/** Keep `label` for AT only (sr-only). */
 		labelHidden?: boolean;
+		/** Box + label scale, as on `Switch`. Override the box alone with
+		 *  `style="--cb-box: 1rem"`. */
+		size?: ControlSize;
 		id?: string;
 		'aria-describedby'?: string | null;
 		'aria-invalid'?: HTMLInputAttributes['aria-invalid'];
@@ -41,7 +46,12 @@
 	});
 </script>
 
-<label class="checkbox {klass}" data-tsu="Checkbox">
+<label
+	class="checkbox {klass}"
+	class:checkbox-sm={size === 'sm'}
+	class:checkbox-lg={size === 'lg'}
+	data-tsu="Checkbox"
+>
 	<input
 		bind:this={el}
 		type="checkbox"
@@ -72,11 +82,19 @@
 		opacity: 0;
 		margin: 0;
 	}
+	.checkbox-sm {
+		--cb-box: 0.95rem;
+		font-size: var(--fs-xs);
+	}
+	.checkbox-lg {
+		--cb-box: 1.35rem;
+		font-size: var(--fs-base);
+	}
 	.box {
 		position: relative;
 		flex: none;
-		width: 1.15rem;
-		height: 1.15rem;
+		width: var(--cb-box, 1.15rem);
+		height: var(--cb-box, 1.15rem);
 		border: 1px solid var(--border-strong);
 		border-radius: var(--r-sm);
 		background: var(--bg);

@@ -44,7 +44,7 @@ test('kusaritoi nits: Progress color/showValue, IconButton spin/loading, Icon fi
 	assert.match(progress, /style:--fill={color}/);
 	assert.match(iconButton, /spin\?: boolean;/);
 	assert.match(iconButton, /loading\?: boolean;/);
-	assert.match(iconButton, /<Icon name={icon} {size} {spin} \/>/);
+	assert.match(iconButton, /<Icon name={icon} {size} {spin} {filled} \/>/);
 	assert.match(icon, /filled\?: boolean;/);
 	assert.match(icon, /tone\?: Tone;/);
 	assert.match(icon, /const filled = \$derived\(filledProp \?\? \(name \? FILLED\.has\(name\) : false\)\)/);
@@ -121,4 +121,16 @@ test('cctui nits: AutoGrid template, Tabs panelPadding, Modal maxHeight, Badge h
 	assert.match(segProg, /\[key: string\]: unknown;/);
 	assert.match(segProg, /{\.\.\.rest}/);
 	assert.match(index, /export \* as filterQuery from '\.\/query';/);
+});
+
+test('IconButton forwards filled to Icon on every glyph branch (TSU-169)', () => {
+	assert.match(iconButton, /filled\?: boolean;/);
+	// Undefined by default, so Icon keeps deciding from its own FILLED registry.
+	assert.doesNotMatch(iconButton, /filled = (true|false)/);
+	assert.match(iconButton, /<Icon name={icon} {size} {spin} {filled} \/>/);
+	assert.match(iconButton, /<Icon {size} {spin} {filled}>{@render children\(\)}<\/Icon>/);
+	assert.match(iconButton, /<Icon {spin} {filled}>{@render children\(\)}<\/Icon>/);
+	assert.match(iconButton, /<Icon name={icon} {spin} {filled} \/>/);
+	// The emoji branch has no SVG to fill.
+	assert.equal((iconButton.match(/{filled}/g) ?? []).length, 4);
 });

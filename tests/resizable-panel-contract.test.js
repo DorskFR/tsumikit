@@ -46,7 +46,7 @@ test('resize handle spans the full panel edge and delegates drag + keys to the s
 	assert.match(source, /import { resizeHandle, resolveLength } from '\.\/resizable-panel-frame\.js'/);
 	assert.match(source, /use:resizeHandle={{[^}]*step: resizeStep,/s);
 	assert.match(source, /use:resizeHandle={{[^}]*onwidth: setWidth,/s);
-	assert.match(source, /use:resizeHandle={{[^}]*oncommit: persistWidth,/s);
+	assert.match(source, /use:resizeHandle={{[^}]*oncommit: commitWidth,/s);
 	assert.match(source, /localStorage\.setItem\(widthKey, String\(nextWidth\)\)/);
 	assert.doesNotMatch(source, /onpointerdown=/);
 });
@@ -99,4 +99,19 @@ test('overlay panels never measure against 100vw, so a reserved scrollbar gutter
 	assert.doesNotMatch(source, /width: [^;]*100vw/);
 	assert.match(source, /\.overlay \.panel\s*{[^}]*width: min\(var\(--panel-current-width\), 100%\);/s);
 	assert.match(source, /\.overlay\.full-bleed \.panel\s*{[^}]*left: 0;[^}]*right: 0;[^}]*width: auto;/s);
+});
+
+test('resize lifecycle hooks are exposed and wired to the shared action (TSU-174)', () => {
+	assert.match(source, /onresizestart\?: \(\) => void;/);
+	assert.match(source, /onresize\?: \(width: number\) => void;/);
+	assert.match(source, /onresizeend\?: \(width: number\) => void;/);
+	assert.match(source, /use:resizeHandle={{[^}]*onactive: setResizing/s);
+	// Live width rides the existing per-frame setter; the settled width rides the commit.
+	assert.match(source, /function setWidth\(nextWidth: number\) \{[^}]*onresize\?\.\(panelWidth\);/s);
+	assert.match(source, /function commitWidth\(nextWidth: number\) \{\s*persistWidth\(nextWidth\);\s*onresizeend\?\.\(nextWidth\);/s);
+	// The drag flag still flips, and start only fires on the leading edge.
+	assert.match(source, /function setResizing\(active: boolean\) \{\s*resizing = active;\s*if \(active\) onresizestart\?\.\(\);/s);
+	// Optional: an app that passes none of them behaves exactly as before.
+	assert.doesNotMatch(source, /onresizestart = /);
+	assert.doesNotMatch(source, /onresizeend = /);
 });

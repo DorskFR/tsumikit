@@ -246,3 +246,29 @@ test('the variant reaches both segments', () => {
 	assert.ok(sm.primary.classList.contains('btn-sm'));
 	assert.ok(sm.caret.classList.contains('trigger-sm'));
 });
+
+test('primaryProps attributes land on the primary segment, rest props stay on the root (TSU-172)', () => {
+	const ui = render({
+		primaryProps: {
+			title: 'Pick a schedule first',
+			'aria-describedby': 'why-disabled',
+			'data-testid': 'spawn-primary'
+		},
+		rootProps: { 'data-journey': 'spawn' }
+	});
+	assert.equal(ui.primary.getAttribute('title'), 'Pick a schedule first');
+	assert.equal(ui.primary.getAttribute('aria-describedby'), 'why-disabled');
+	assert.equal(ui.primary.getAttribute('data-testid'), 'spawn-primary');
+	// The root keeps rest props, and the caret is untouched by primaryProps.
+	assert.equal(ui.root.getAttribute('data-journey'), 'spawn');
+	assert.equal(ui.root.getAttribute('title'), null);
+	assert.equal(ui.caret.getAttribute('title'), null);
+	assert.equal(ui.caret.getAttribute('aria-describedby'), null);
+});
+
+test('primaryProps cannot clobber the segment semantics SplitButton owns (TSU-172)', () => {
+	const ui = render({ primaryProps: { type: 'submit' }, variant: 'primary' });
+	// Own props are applied after the spread, so the fused chrome always wins.
+	assert.ok(ui.primary.classList.contains('btn-primary'));
+	assert.equal(ui.primary.getAttribute('type'), 'button');
+});

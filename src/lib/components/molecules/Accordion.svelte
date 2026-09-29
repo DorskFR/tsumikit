@@ -1,12 +1,18 @@
 <script lang="ts" module>
 	import type { Snippet } from 'svelte';
 	import type { DisclosureHeaderContext } from './Disclosure.svelte';
+	export type AccordionVariant = 'default' | 'plain';
+	/** What a `summary` snippet receives: the live open state plus the item it is
+	 *  rendering, so one shared snippet can head every item. */
+	export interface AccordionHeaderContext extends DisclosureHeaderContext {
+		item: AccordionItem;
+	}
 	export interface AccordionItem {
 		id: string;
 		/** Plain-text header; `summary` wins when both are given. */
 		title?: string;
-		/** Rich header content; receives the live open state. */
-		summary?: Snippet<[DisclosureHeaderContext]>;
+		/** Rich header content; receives the live open state and this item. */
+		summary?: Snippet<[AccordionHeaderContext]>;
 		/** Panel content for this item. */
 		content: Snippet;
 		/** Open state. Re-passing a new value takes over from any local toggle. */
@@ -22,12 +28,14 @@
 	// closes the other items when one opens.
 	import type { HTMLAttributes } from 'svelte/elements';
 	import Disclosure from './Disclosure.svelte';
-	import type { DisclosureChevron } from './Disclosure.svelte';
+	import type { DisclosureChevron, DisclosureSize } from './Disclosure.svelte';
 
 	let {
 		items,
 		multiple = true,
 		chevron = 'end',
+		variant = 'default',
+		size = 'default',
 		onchange,
 		class: klass = '',
 		style: styleProp = '',
@@ -38,6 +46,11 @@
 		items: AccordionItem[];
 		multiple?: boolean;
 		chevron?: DisclosureChevron;
+		/** `plain` drops the outer border and radius and keeps the item dividers,
+		 *  for a stack that only separates rows. */
+		variant?: AccordionVariant;
+		/** Header/panel density of every item; forwarded to `Disclosure`. */
+		size?: DisclosureSize;
 		onchange?: (id: string, open: boolean) => void;
 		class?: string;
 		style?: string;
@@ -75,7 +88,13 @@
 	<span class="acc-title">{title}</span>
 {/snippet}
 
-<div {...rest} class="accordion {klass}" style={styleProp} data-tsu="Accordion">
+<div
+	{...rest}
+	class="accordion {klass}"
+	class:accordion--plain={variant === 'plain'}
+	style={styleProp}
+	data-tsu="Accordion"
+>
 	{#each items as item (item.id)}
 		<Disclosure
 			class="acc-item"
@@ -84,10 +103,11 @@
 			onchange={(o) => set(item, o)}
 			disabled={item.disabled}
 			{chevron}
+			{size}
 		>
 			{#snippet header(ctx)}
 				{#if item.summary}
-					{@render item.summary(ctx)}
+					{@render item.summary({ ...ctx, item })}
 				{:else}
 					{@render plain(item.title)}
 				{/if}
@@ -102,6 +122,10 @@
 		border: 1px solid var(--border);
 		border-radius: var(--r-lg);
 		overflow: hidden;
+	}
+	.accordion--plain {
+		border: 0;
+		border-radius: 0;
 	}
 	.accordion > :global(.acc-item + .acc-item) {
 		border-top: 1px solid var(--border);
