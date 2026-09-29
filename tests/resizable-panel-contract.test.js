@@ -82,7 +82,7 @@ test('overlay mode is a fixed non-modal dialog with scrim, Escape close and focu
 	assert.match(source, /panelEl\.focus\({ preventScroll: true }\)/);
 	assert.match(source, /function close\(\) {\s*if \(!open\) return;\s*open = false;\s*onclose\?\.\(\);/);
 	assert.match(source, /\.overlay \.panel\s*{[^}]*position: fixed;[^}]*z-index: var\(--z-drawer\);/s);
-	assert.match(source, /\.overlay\.full-bleed \.panel\s*{[^}]*width: 100vw;/s);
+	assert.match(source, /\.overlay\.full-bleed \.panel\s*{[^}]*width: auto;/s);
 	assert.match(source, /\.overlay\.full-bleed \.resize-handle\s*{[^}]*display: none;/s);
 	assert.match(source, /matchMedia\(`\(max-width: \$\{fullWidthBelow\}\)`\)/);
 	assert.match(source, /overlay && clampToViewport && viewportWidth \? viewportWidth : Number\.POSITIVE_INFINITY/);
@@ -93,4 +93,10 @@ test('collapseControl defaults on inline and off in overlay mode', () => {
 	assert.match(source, /collapseControl\?: boolean/);
 	assert.match(source, /const showCollapseControl = \$derived\(collapseControl \?\? !overlay\)/);
 	assert.match(source, /{#if showCollapseControl}\s*<button/);
+});
+
+test('overlay panels never measure against 100vw, so a reserved scrollbar gutter cannot clip them', () => {
+	assert.doesNotMatch(source, /width: [^;]*100vw/);
+	assert.match(source, /\.overlay \.panel\s*{[^}]*width: min\(var\(--panel-current-width\), 100%\);/s);
+	assert.match(source, /\.overlay\.full-bleed \.panel\s*{[^}]*left: 0;[^}]*right: 0;[^}]*width: auto;/s);
 });

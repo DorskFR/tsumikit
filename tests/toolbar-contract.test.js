@@ -21,7 +21,10 @@ test('Toolbar: role=toolbar, ResizeObserver collapse, data-overflow children hid
 	assert.match(toolbar, /density\?: 'compact' \| 'default';/);
 	assert.match(toolbar, /new ResizeObserver\(\(\[entry\]\) => {\s*collapsed = entry\.contentRect\.width < limit;/);
 	assert.match(toolbar, /\.collapsed :global\(\[data-overflow\]\)\s*{\s*display: none;/);
-	assert.match(toolbar, /<Menu label={overflowLabel} {items} placement="bottom-end" box="sm">/);
+	assert.match(
+		toolbar,
+		/<Menu label={overflowLabel} title={overflowLabel} {items} placement="bottom-end" box="sm">/
+	);
 	assert.match(toolbar, /\.sticky\s*{[^}]*position: sticky;[^}]*top: var\(--toolbar-top, 0\);/s);
 });
 
@@ -41,4 +44,15 @@ test('Menu: pressed items are menuitemcheckbox with a check glyph, content snipp
 	assert.match(menu, /aria-checked={item\.pressed === undefined \? undefined : item\.pressed}/);
 	assert.match(menu, /{#if item\.content}\s*{@render item\.content\(item\)}/);
 	assert.match(menu, /\tbind:open\n/);
+});
+
+test('Toolbar overflow trigger is one button carrying the glyph, title and aria-label — no nested button', () => {
+	assert.doesNotMatch(toolbar, /IconButton/);
+	assert.match(toolbar, /{#snippet trigger\(\)}<Icon name="more" size=\{18\} \/>{\/snippet}/);
+	assert.match(
+		toolbar,
+		/<Popover label={overflowLabel} title={overflowLabel} placement="bottom-end" box="sm">/
+	);
+	assert.match(menu, /\| 'title'/);
+	assert.match(menu, /\t{title}\n/);
 });

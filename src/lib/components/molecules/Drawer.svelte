@@ -266,7 +266,7 @@
 
 	@media (min-width: 48rem) {
 		.panel {
-			width: min(var(--drawer-w), 100vw);
+			width: min(var(--drawer-w), 100%);
 			padding-top: 0;
 			padding-bottom: 0;
 			border-left: 1px solid var(--border-strong);

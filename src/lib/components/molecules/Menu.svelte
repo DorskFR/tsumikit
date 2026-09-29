@@ -52,6 +52,7 @@
 		| 'control'
 		| 'block'
 		| 'triggerClass'
+		| 'title'
 		| 'bare'
 		| 'hitArea'
 		| 'disabled'
@@ -74,6 +75,7 @@
 		control,
 		block,
 		triggerClass,
+		title,
 		bare,
 		hitArea,
 		disabled,
@@ -148,6 +150,7 @@
 	{control}
 	{block}
 	{triggerClass}
+	{title}
 	class={klass}
 	style={styleProp}
 	{panelClass}

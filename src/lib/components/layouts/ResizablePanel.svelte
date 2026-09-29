@@ -525,7 +525,9 @@
 
 	/* Overlay mode: a fixed non-modal drawer on the viewport edge. The page
 	   (`.main`) flows as normal underneath; the handle overhang is a viewport
-	   edge, so the container clamp does not apply. */
+	   edge, so the container clamp does not apply. Widths clamp against the
+	   containing block, never `100vw`: the reset's `scrollbar-gutter: stable`
+	   makes `100vw` wider than the viewport and clips the panel's leading edge. */
 	.panel-layout.overlay {
 		display: block;
 		container: none;
@@ -535,7 +537,7 @@
 		inset-block: 0;
 		left: 0;
 		z-index: var(--z-drawer);
-		width: min(var(--panel-current-width), 100vw);
+		width: min(var(--panel-current-width), 100%);
 		box-shadow: var(--shadow-md);
 		outline: none;
 		animation: panel-slide-left 0.18s var(--ease);
@@ -549,7 +551,9 @@
 		--handle-shift: -6px;
 	}
 	.overlay.full-bleed .panel {
-		width: 100vw;
+		left: 0;
+		right: 0;
+		width: auto;
 		border: 0;
 		box-shadow: none;
 	}
