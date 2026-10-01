@@ -157,7 +157,9 @@
 		.file-btn.icon-only:not(.hit-compact)::after {
 			content: '';
 			position: absolute;
-			inset: min(0px, calc((100% - var(--touch-target)) / 2));
+			inset-block: min(0px, calc((100% - var(--touch-target)) / 2));
+			inset-inline-start: min(0px, calc(100% - var(--touch-target)));
+			inset-inline-end: 0;
 		}
 	}
 	/* Emoji glyph is bumped above the text size — at 1em a paperclip is hard to

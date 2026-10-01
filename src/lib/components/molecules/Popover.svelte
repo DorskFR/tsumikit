@@ -450,7 +450,9 @@
 		flex: none;
 	}
 	/* Coarse pointers: icon-only triggers extend their hit area to --touch-target
-	   via an invisible slab; layout does not move. */
+	   via an invisible slab; layout does not move. The slab grows towards the
+	   inline start only, so it never adds scrollable overflow to a scroll ancestor
+	   (see Button.svelte). */
 	@media (pointer: coarse) {
 		.pop-trigger:not(.canonical, .hit-compact) {
 			position: relative;
@@ -458,7 +460,9 @@
 		.pop-trigger:not(.canonical, .hit-compact)::after {
 			content: '';
 			position: absolute;
-			inset: min(0px, calc((100% - var(--touch-target)) / 2));
+			inset-block: min(0px, calc((100% - var(--touch-target)) / 2));
+			inset-inline-start: min(0px, calc(100% - var(--touch-target)));
+			inset-inline-end: 0;
 		}
 	}
 	.pop-trigger.trigger-tone-accent {

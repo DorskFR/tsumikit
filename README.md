@@ -837,7 +837,11 @@ glyphs (`size` stays the SVG px, emoji ×1.35).
 On `(pointer: coarse)` every icon-only/square control (and `Popover`'s default
 trigger) carries an invisible `::after` slab that extends its hit area to
 `--touch-target` (44px, WCAG 2.5.8) without moving layout; fine pointers are
-untouched. `hitArea="compact"` opts a dense-table row out. `Button
+untouched. The slab grows on both block sides but only towards the inline
+*start*: inline-end overflow would count towards the scrollable overflow of
+every scroll ancestor, so a button near the right edge of an `overflow-y: auto`
+container would make it scroll sideways by a pixel or two.
+`hitArea="compact"` opts a dense-table row out. `Button
 collapseLabel="mobile" | "container"` hides `<span data-label>` children below
 40rem viewport / 30rem container, drops to icon padding, and names the button
 from the hidden text unless `aria-label` is set:

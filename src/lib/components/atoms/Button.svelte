@@ -508,7 +508,11 @@
 
 	/* Coarse pointers: icon-only and square buttons carry an invisible slab that
 	   extends the hit area to --touch-target without changing layout. Buttons
-	   already at or above the target keep their own box (inset never positive). */
+	   already at or above the target keep their own box (inset never positive).
+	   The slab grows towards the inline start only: inline-end overflow counts
+	   towards the scrollable overflow of every scroll ancestor, so a button near
+	   the right edge of an `overflow-y: auto` container would make it scroll
+	   sideways. Start-side overflow is unscrollable, so the full target survives. */
 	@media (pointer: coarse) {
 		.btn-icon:not(.hit-compact),
 		.btn-icon-inline:not(.hit-compact),
@@ -524,7 +528,9 @@
 		.btn-chip:not(.hit-compact)::after {
 			content: '';
 			position: absolute;
-			inset: min(0px, calc((100% - var(--touch-target)) / 2));
+			inset-block: min(0px, calc((100% - var(--touch-target)) / 2));
+			inset-inline-start: min(0px, calc(100% - var(--touch-target)));
+			inset-inline-end: 0;
 		}
 	}
 

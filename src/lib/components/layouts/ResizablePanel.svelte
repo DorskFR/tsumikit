@@ -422,7 +422,8 @@
 	.panel-content {
 		flex: 1;
 		min-height: 0;
-		overflow: auto;
+		overflow-y: auto;
+		overflow-x: hidden;
 	}
 	/* Subtle chevron handle anchored to the panel's inner edge — never a filled
 	   button, never overlapping the neighbouring main content. It stays visible
