@@ -276,7 +276,8 @@ and an `attrs` object for `data-*`/test ids on the row; a checkable `pressed` it
 its icon leading and shows its check trailing, or uses the leading check slot when it has
 no icon; selecting closes the menu unless `closeOnSelect={false}` or the item sets `keepOpen`;
 rest props land on the trigger, `count`/`countMax` paint its corner badge and `panelStyle`
-sizes the panel),
+sizes the panel; an item with a `control` snippet renders as a non-button row hosting a native
+`<select>` or nested Popover trigger, keeping the icon column, row height and ↑/↓ navigation),
 Tabs (omit `panel` for a strip-only tablist of document tabs: `closable` + `onclose(id)`
 close through the ✕, Delete and middle-click, per-tab `leading` snippet, `title`,
 trailing `actions` snippet; `--tab-max-width` truncates long labels),
