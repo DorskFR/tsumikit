@@ -88,12 +88,16 @@ pre {
 	border-radius: var(--r-sm);
 }
 
-::-webkit-scrollbar {
-	width: 8px;
-	height: 8px;
-}
-::-webkit-scrollbar-thumb {
-	background: var(--border-strong);
-	border-radius: var(--r-pill);
+/* Slim scrollbars for mice only. On touch, a custom scrollbar replaces the
+   native overlay bars with classic space-taking ones. */
+@media (hover: hover) and (pointer: fine) {
+	::-webkit-scrollbar {
+		width: 8px;
+		height: 8px;
+	}
+	::-webkit-scrollbar-thumb {
+		background: var(--border-strong);
+		border-radius: var(--r-pill);
+	}
 }
 
