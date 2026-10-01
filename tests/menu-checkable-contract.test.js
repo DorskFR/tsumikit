@@ -80,5 +80,5 @@ test('Menu exposes closeOnSelect (default true) and MenuItem exposes keepOpen', 
 });
 
 test('select() consults the helper before closing and still runs the action', () => {
-	assert.match(flat, /if \(menuItemCloses\(item, closeOnSelect\)\) close\(\); item\.onselect\(\);/);
+	assert.match(flat, /if \(menuItemCloses\(item, closeOnSelect\)\) close\(\); item\.onselect\?\.\(\);/);
 });

@@ -1,7 +1,8 @@
 <script lang="ts" module>
 	export interface MenuItem {
 		label: string;
-		onselect: () => void;
+		/** Required for button rows; a `control` row's hosted control acts on its own. */
+		onselect?: () => void;
 		icon?: import('$lib/components/atoms/Icon.svelte').IconName;
 		danger?: boolean;
 		disabled?: boolean;
@@ -18,6 +19,13 @@
 		keepOpen?: boolean;
 		/** Custom row content (a rename Input, a slider…) replacing icon/label/tag. */
 		content?: import('svelte').Snippet<[MenuItem]>;
+		/**
+		 * A row that is itself a control (a native `<select>`, a nested Popover trigger):
+		 * rendered as a non-button row with the menu's icon column and row height, its
+		 * first focusable element joining ↑/↓ navigation. Replaces label/tag; `onselect`,
+		 * `pressed` and `keepOpen` do not apply.
+		 */
+		control?: import('svelte').Snippet<[MenuItem, { close: () => void }]>;
 		/**
 		 * Extra attributes for the rendered row — `data-*`, `title`, `aria-describedby`…
 		 * The row's own semantics (`role`, `aria-checked`, `disabled`, `class`, `onclick`)
@@ -117,18 +125,27 @@
 
 	let listEl = $state<HTMLDivElement | null>(null);
 
-	function buttons(): HTMLButtonElement[] {
-		return listEl
-			? Array.from(listEl.querySelectorAll<HTMLButtonElement>('[role="menuitem"]:not(:disabled), [role="menuitemcheckbox"]:not(:disabled)'))
-			: [];
+	const ROW_TARGET = ':is(select, input, textarea, button):not(:disabled), a[href], [tabindex]:not([tabindex="-1"])';
+
+	function targets(): HTMLElement[] {
+		if (!listEl) return [];
+		const rows = listEl.querySelectorAll<HTMLElement>(
+			':scope > [role="menuitem"]:not(:disabled), :scope > [role="menuitemcheckbox"]:not(:disabled), :scope > .menu-row:not([inert])'
+		);
+		return Array.from(rows).flatMap((row) => {
+			if (!row.classList.contains('menu-row')) return [row];
+			const control = row.querySelector<HTMLElement>(ROW_TARGET);
+			return control ? [control] : [];
+		});
 	}
 	function focusAt(i: number) {
-		const b = buttons();
+		const b = targets();
 		if (b.length) b[(i + b.length) % b.length].focus();
 	}
 	function onkeydown(e: KeyboardEvent) {
-		const b = buttons();
-		const i = b.indexOf(document.activeElement as HTMLButtonElement);
+		if ((e.target as Element).closest('[popover]') !== listEl?.closest('[popover]')) return;
+		const b = targets();
+		const i = b.indexOf(document.activeElement as HTMLElement);
 		if (e.key === 'ArrowDown') {
 			e.preventDefault();
 			focusAt(i + 1);
@@ -146,7 +163,7 @@
 	function select(item: MenuItem, close: () => void) {
 		if (item.disabled) return;
 		if (menuItemCloses(item, closeOnSelect)) close();
-		item.onselect();
+		item.onselect?.();
 	}
 </script>
 
@@ -186,6 +203,12 @@
 	{#snippet children({ close }: { close: () => void })}
 	<div bind:this={listEl} role="none" class="menu" data-tsu="Menu" tabindex="-1" {onkeydown}>
 		{#each items as item (item.label)}
+			{#if item.control}
+			<div {...item.attrs as HTMLAttributes<HTMLDivElement>} role="none" class="menu-item menu-row" class:danger={item.danger} inert={item.disabled}>
+				{#if item.icon}<Icon name={item.icon} />{/if}
+				{@render item.control(item, { close })}
+			</div>
+			{:else}
 			<button
 				type="button"
 				{...item.attrs}
@@ -216,6 +239,7 @@
 				{#if glyphs.trailingCheck}<span class="menu-check menu-check-trailing"><Icon name="check" /></span>{/if}
 				{/if}
 			</button>
+			{/if}
 		{/each}
 	</div>
 	{/snippet}
@@ -241,8 +265,12 @@
 		font-size: var(--fs-sm);
 		white-space: nowrap;
 	}
+	.menu-row {
+		position: relative;
+	}
 	.menu-item:hover:not(:disabled),
-	.menu-item:focus-visible {
+	.menu-item:focus-visible,
+	.menu-row:focus-within {
 		background: var(--bg-elevated-2);
 		outline: none;
 	}
@@ -273,7 +301,8 @@
 		margin-inline-start: 0;
 		padding-inline-start: 0;
 	}
-	.menu-item:disabled {
+	.menu-item:disabled,
+	.menu-row[inert] {
 		opacity: 0.45;
 		cursor: not-allowed;
 	}

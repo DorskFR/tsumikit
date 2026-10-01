@@ -523,6 +523,14 @@
 		{ label: 'Archived', pressed: false, keepOpen: true, onselect: () => toasts.show('Archived stays off') },
 		{ label: 'Delete', icon: 'trash', danger: true, onselect: () => toasts.error('Deleted') }
 	]);
+	let sessionGroupBy = $state('repo');
+	let sessionLabels = $state({ urgent: true, review: false });
+	const sessionMenuItems: MenuItem[] = [
+		{ label: 'View', icon: 'eye', onselect: () => toasts.show('View') },
+		{ label: 'Group by', icon: 'layout-grid', control: menuGroupBy },
+		{ label: 'Filter by label', icon: 'tag', control: menuLabelFilter },
+		{ label: 'Select multiple', icon: 'check-circle', onselect: () => toasts.show('Select multiple') }
+	];
 	const menuFilterCount = $derived(Object.values(menuFilters).filter(Boolean).length);
 	const sendItems: MenuItem[] = [
 		{ label: 'Later today', icon: 'clock', onselect: () => toasts.show('Scheduled for later today') },
@@ -670,6 +678,26 @@ function greet(name) {
 		{ id: 'thorough', label: 'Thorough', hint: 'Best quality' }
 	];
 </script>
+
+{#snippet menuGroupBy(item: MenuItem)}
+	<span>{item.label}</span>
+	<span class="menu-row-value">{sessionGroupBy}</span>
+	<select class="menu-ghost-select" aria-label={item.label} bind:value={sessionGroupBy}>
+		<option value="none">none</option>
+		<option value="repo">repo</option>
+		<option value="state">state</option>
+	</select>
+{/snippet}
+
+{#snippet menuLabelFilter(item: MenuItem)}
+	<Popover label={item.label} placement="bottom-start" bare triggerClass="menu-row-trigger">
+		{#snippet trigger()}{item.label}<Icon name="chevron-right" size={14} />{/snippet}
+		<div style="display: grid; gap: var(--sp-2); padding: var(--sp-2)">
+			<Checkbox label="urgent" bind:checked={sessionLabels.urgent} />
+			<Checkbox label="review" bind:checked={sessionLabels.review} />
+		</div>
+	</Popover>
+{/snippet}
 
 <svelte:window onkeydown={(e) => e.key === 'Escape' && (navOpen = false)} />
 
@@ -3026,11 +3054,16 @@ function greet(name) {
 							{#snippet trigger()}<Icon name="filter" size={14} />{/snippet}
 						</Menu>
 
+						<Menu label="Session list" items={sessionMenuItems} variant="ghost" size="sm" panelStyle="min-width: 14rem">
+							{#snippet trigger()}Sessions <Icon name="chevron-down" size={14} />{/snippet}
+						</Menu>
+
 						<Text variant="caption" tone="muted">Open a menu and navigate with ↑/↓, Enter to select. The mixed menu's
 						checkable rows keep their icon (check trails) or use the leading check slot, and <code>keepOpen</code> leaves
 						the menu open while toggling. The last trigger carries a <code>count</code> badge, a
 						<code>panelStyle</code> that caps and scrolls the panel, and a <code>data-journey</code> rest
-						prop forwarded to the trigger element.</Text>
+						prop forwarded to the trigger element. The Sessions menu mixes plain items with <code>control</code> rows: a
+						ghost native <code>&lt;select&gt;</code> and a nested Popover, laid out as rows and reached with ↑/↓.</Text>
 					</div>
 				</Card>
 			</section>
@@ -3196,6 +3229,32 @@ function greet(name) {
 {/if}
 
 <style>
+	.menu-row-value {
+		margin-inline-start: auto;
+		padding-inline-start: var(--sp-3);
+		color: var(--text-muted);
+	}
+	.menu-ghost-select {
+		position: absolute;
+		inset: 0;
+		opacity: 0;
+		cursor: pointer;
+	}
+	:global(.menu-row-trigger) {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		width: 100%;
+		padding: 0;
+		border: none;
+		background: none;
+		cursor: pointer;
+		font: inherit;
+		color: inherit;
+	}
+	:global(.menu-row-trigger:focus-visible) {
+		outline: none;
+	}
 	:global(.demo-disclosure) {
 		border: 1px solid var(--border);
 		border-radius: var(--r-lg);
