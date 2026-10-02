@@ -197,6 +197,11 @@
 		padding: var(--sp-2);
 		width: max-content;
 	}
+	/* The swatch grid alone sizes the panel; the auto row and caption wrap to it. */
+	.auto,
+	.caption {
+		contain: inline-size;
+	}
 	.group-label {
 		margin: var(--sp-1) var(--sp-1) var(--sp-1);
 		font-size: var(--fs-xs);

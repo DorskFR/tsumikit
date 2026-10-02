@@ -56,3 +56,8 @@ test('FontScalePicker chrome never uses scaled font tokens, so the panel cannot 
 	assert.doesNotMatch(fontScale, /var\(--fs-/);
 	assert.match(fontScale, /\.panel\s*{[^}]*font-size: 0\.875rem;/s);
 });
+
+test('ThemePicker: the auto row and caption never widen the panel past the swatch grid, so long help text wraps instead of scrolling sideways', () => {
+	assert.match(themePicker, /\.panel\s*{[^}]*width: max-content;/s);
+	assert.match(themePicker, /\.auto,\s*\.caption\s*{[^}]*contain: inline-size;/s);
+});
