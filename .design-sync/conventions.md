@@ -31,7 +31,7 @@ Load `styles.css` (it `@import`s the base reset, element defaults, utilities and
 <div data-theme="light"> … </div>
 ```
 
-Available themes: `light`, `amoled`, `colorblind`, `dracula`, `everforest`, `everforestlight`, `gruvbox`, `gruvboxlight`, `highcontrast`, `id`, `kanagawalotus`, `latte`, `mocha`, `monokai`, `nord`, `nordlight`, `onedark`, `rosepine`, `rosepinedawn`, `sepia`, `solarized`, `solarizedlight`, `tokyoday`, `tokyonight`, `x` (default = dark, no attribute). Each `[data-theme]` block flips palette tokens only; everything downstream is unchanged.
+Available themes: `light`, `amoled`, `colorblind`, `dracula`, `espresso`, `everforest`, `everforestlight`, `fog`, `gruvbox`, `gruvboxlight`, `highcontrast`, `kanagawalotus`, `latte`, `mocha`, `monokai`, `moss`, `nord`, `nordlight`, `onedark`, `rosepine`, `rosepinedawn`, `sage`, `sepia`, `slate`, `solarized`, `solarizedlight`, `stone`, `tokyoday`, `tokyonight`, `zenburn` (default = dark, no attribute). Each `[data-theme]` block flips palette tokens only; everything downstream is unchanged.
 
 ## The styling idiom — use these tokens, don't invent values
 
