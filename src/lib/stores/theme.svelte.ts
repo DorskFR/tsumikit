@@ -53,6 +53,10 @@ export const THEMES = [
 	{ id: 'tokyoday', label: 'Tokyo Night Day', icon: '✧', themeColor: '#e1e2e7', mode: 'light' },
 	{ id: 'kanagawalotus', label: 'Kanagawa Lotus', icon: '❁', themeColor: '#f2ecbc', mode: 'light' },
 	{ id: 'sepia', label: 'Sepia', icon: '✶', themeColor: '#f4ecd8', mode: 'light' },
+	// ── Dim light ── muted gray bases, well below paper-white
+	{ id: 'stone', label: 'Stone', icon: '◌', themeColor: '#d6d1c7', mode: 'light' },
+	{ id: 'fog', label: 'Fog', icon: '≋', themeColor: '#cdd4dc', mode: 'light' },
+	{ id: 'sage', label: 'Sage', icon: '❧', themeColor: '#cfd6c9', mode: 'light' },
 	// ── Dark ──
 	{ id: 'dark', label: 'Dark', icon: '☾', themeColor: '#0f1115', mode: 'dark' },
 	{ id: 'colorblind', label: 'Color-blind safe', icon: '◐', themeColor: '#16181d', mode: 'dark' },
@@ -67,6 +71,11 @@ export const THEMES = [
 	{ id: 'everforest', label: 'Everforest', icon: '☘', themeColor: '#2d353b', mode: 'dark' },
 	{ id: 'monokai', label: 'Monokai', icon: '✸', themeColor: '#272822', mode: 'dark' },
 	{ id: 'amoled', label: 'AMOLED (high contrast)', icon: '◼', themeColor: '#000000', mode: 'dark' },
+	// ── Dim dark ── lifted gray bases, well above near-black
+	{ id: 'slate', label: 'Slate', icon: '▤', themeColor: '#3a414b', mode: 'dark' },
+	{ id: 'moss', label: 'Moss', icon: '❦', themeColor: '#383f36', mode: 'dark' },
+	{ id: 'espresso', label: 'Espresso', icon: '◉', themeColor: '#463a31', mode: 'dark' },
+	{ id: 'zenburn', label: 'Zenburn', icon: 'Z', themeColor: '#3f3f3f', mode: 'dark' },
 ] as const;
 
 export type Mode = (typeof THEMES)[number]['id'];

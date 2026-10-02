@@ -107,7 +107,7 @@ test('tokens.css is theme-less and defines the semantic + font tokens the kit re
 });
 
 test('themes.css has one block per built-in THEMES entry except the :root default, each honouring the contract', () => {
-	assert.equal(builtins.length, 24);
+	assert.equal(builtins.length, 31);
 	assert.deepEqual(themeBlocks.map((m) => m[1]).sort(), [...blockIds].sort());
 	assert.doesNotMatch(themes, /^:root/m);
 	assert.match(tokens, /^  color-scheme: dark;/m);

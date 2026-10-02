@@ -57,10 +57,17 @@ import { Button, Field, Input, Modal, ThemePicker } from '@dorsk/tsumikit';
 
 ## Theming
 
-- 23 themes ship (light, highcontrast, gruvboxlight, solarizedlight,
+- 31 themes ship (light, highcontrast, gruvboxlight, solarizedlight,
   everforestlight, rosepinedawn, latte, nordlight, tokyoday, kanagawalotus,
   sepia, dark, **colorblind** — Okabe-Ito —, mocha, dracula, nord, tokyonight,
-  gruvbox, solarized, rosepine, onedark, everforest, monokai, amoled).
+  gruvbox, solarized, rosepine, onedark, everforest, monokai, amoled), plus a
+  **dim** tier between the bright and dark extremes: stone, fog, sage (light)
+  and slate, moss, espresso, zenburn (dark).
+- Every built-in clears WCAG AA on `bg`, `bg-elev` and `surface`: text 7:1,
+  muted 5.5:1, faint and every accent/status hue 4.5:1, `accent-ink` on
+  `accent` 4.5:1, and `--c-border-strong` (the outline of every control) 3:1.
+  `tests/theme-contrast.mjs` holds the floors; the test suite fails on any
+  breach.
 - `<ThemePicker />` and `<FontScalePicker />` wire the stores to the UI. Theme
   is persisted to `localStorage` and applied with no flash (head snippet in
   `app.html`) and updates the mobile `<meta name="theme-color">`.
