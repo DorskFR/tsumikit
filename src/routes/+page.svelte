@@ -719,7 +719,12 @@ function greet(name) {
 		<Text variant="caption" class="hide-sm">Svelte 5 · pure CSS · zero deps</Text>
 		<div class="spacer"></div>
 		<Link href="{base}/shell" class="hide-sm">AppShell demo →</Link>
-		<ThemePicker />
+		<ThemePicker
+			auto
+			autoLabel="Auto"
+			autoHelp="Follows the system, with your last light and dark themes"
+			placement="bottom-end"
+		/>
 	</div>
 </header>
 
