@@ -4,12 +4,16 @@
 	let {
 		files,
 		tiles,
-		onremove
+		numbered,
+		onremove,
+		onopen
 	}: {
 		files: { name: string; size?: number; type?: string; url?: string }[];
 		tiles?: boolean | 'auto';
+		numbered?: boolean;
 		onremove?: (index: number) => void;
+		onopen?: (index: number) => void;
 	} = $props();
 </script>
 
-<AttachmentList {files} {tiles} {onremove} />
+<AttachmentList {files} {tiles} {numbered} {onremove} {onopen} />

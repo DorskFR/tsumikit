@@ -580,10 +580,17 @@ on a phone instead of four. `tiles` forces the tile mode (`false` forces
 chips); `removeLabel` names the popover button. Both variants are in the DOM
 and the container query displays one; the hidden one is `display: none`, so
 it is neither focusable nor announced. `Composer` inherits the behaviour.
+Chips show a small thumbnail before an image's name and clip it in the middle
+(the last 12 characters stay, so look-alike screenshot names remain telling).
+`numbered` shows each file's 1-based position on the chip and the tile,
+matching `[#N]` markers written in a prompt. `onopen(index)` makes the chip name a button and adds a
+larger preview (images) plus an `openLabel` ("Open") action to the tile
+popover; Remove stays separate.
 
 ```svelte
 <AttachmentList files={attachments} onremove={(i) => (attachments = attachments.toSpliced(i, 1))} />
 <AttachmentList tiles files={[{ name: 'cover.png', size: 1024, type: 'image/png', url }]} />
+<AttachmentList numbered files={attachments} onopen={(i) => preview(attachments[i])} />
 ```
 
 ### ConversationPanel, ConversationFeed, StatusBar
