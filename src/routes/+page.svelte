@@ -1831,6 +1831,11 @@ function greet(name) {
 						</div>
 						<Text variant="caption" tone="muted">Forced tiles; image attachments show their thumbnail:</Text>
 						<AttachmentList tiles files={alTiles} onremove={(i) => (alTiles = alTiles.filter((_, j) => j !== i))} />
+						<Text variant="caption" tone="muted">
+							<code>numbered</code> badges each position; <code>onopen</code> makes the chip name a button and adds a preview + Open to the tile popover:
+						</Text>
+						<AttachmentList numbered files={alSeed} onopen={(i) => alert(`open ${i + 1}: ${alSeed[i].name}`)} />
+						<AttachmentList numbered tiles files={alSeed} onopen={(i) => alert(`open ${i + 1}: ${alSeed[i].name}`)} />
 						<Button size="sm" onclick={() => { alFiles = [...alSeed]; alTiles = [...alSeed]; }}>Reset</Button>
 					</Stack>
 				</Card>
