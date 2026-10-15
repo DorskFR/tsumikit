@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Icon, { isIconName } from '$lib/components/atoms/Icon.svelte';
 	import { formatCount, hasCount } from '$lib/count';
 	import type { ControlSize } from '$lib/size';
 	import { canonicalTone, type Tone } from '$lib/tone';
@@ -62,6 +63,16 @@
 		// exact number. Tint via `--btn-count-bg` / `--btn-count-fg`.
 		count?: number;
 		countMax?: number;
+		// `stacked`: a hotbar slot, `glyph` over the label, height following `size`.
+		layout?: 'inline' | 'stacked';
+		// Leading glyph (above the label when stacked): a registry icon name, any
+		// other text (emoji, ■), or a snippet.
+		glyph?: Snippet | string;
+		// Key hint in the top-left corner, also exposed as `aria-keyshortcuts`.
+		// Display only: the app binds the key.
+		shortcut?: string;
+		// Two-state toggle: sets `aria-pressed`.
+		pressed?: boolean;
 		class?: string;
 		children?: Snippet;
 	};
@@ -88,6 +99,10 @@
 		loading = false,
 		count,
 		countMax = 99,
+		layout = 'inline',
+		glyph,
+		shortcut,
+		pressed,
 		type = 'button',
 		disabled = false,
 		title,
@@ -114,6 +129,9 @@
 	// folded into it; without one the sr-only span below is read after the label.
 	const withCount = (name: string) => (counted ? `${name}, ${count}` : name);
 
+	const stacked = $derived(layout === 'stacked');
+	const keyHint = $derived(shortcut?.trim() || undefined);
+
 	let el = $state<HTMLElement | null>(null);
 	const explicitName = $derived(rest['aria-label'] ?? rest['aria-labelledby']);
 	const ariaLabel = $derived(rest['aria-label'] ? withCount(rest['aria-label']) : undefined);
@@ -136,6 +154,8 @@
 	{...elementAttrs}
 	aria-label={ariaLabel}
 	aria-busy={loading || undefined}
+	aria-pressed={pressed ?? rest['aria-pressed']}
+	aria-keyshortcuts={rest['aria-keyshortcuts'] ?? keyHint}
 	{title}
 	class="btn {klass}"
 	class:btn-grow={grow}
@@ -166,10 +186,22 @@
 	class:hover-danger={hoverDanger}
 	class:loading
 	class:btn-counted={counted}
+	class:btn-stacked={stacked}
+	class:btn-hinted={keyHint !== undefined}
 	onclick={onclick}
 >
 	{#if loading}<span class="btn-spinner" aria-hidden="true"></span>{/if}
-	{@render children?.()}
+	{#if glyph !== undefined}
+		<span class="btn-glyph" aria-hidden="true">
+			{#if typeof glyph !== 'string'}{@render glyph()}{:else if isIconName(glyph)}<Icon name={glyph} />{:else}{glyph}{/if}
+		</span>
+	{/if}
+	{#if stacked}
+		<span class="btn-stack-label">{@render children?.()}</span>
+	{:else}
+		{@render children?.()}
+	{/if}
+	{#if keyHint}<span class="btn-shortcut" aria-hidden="true">{keyHint}</span>{/if}
 	{#if counted}
 		<span class="btn-count" aria-hidden="true">{countText}</span>
 		<span class="btn-count-sr">, {count}</span>
@@ -518,14 +550,16 @@
 		.btn-icon-inline:not(.hit-compact),
 		.btn-box:not(.hit-compact),
 		.btn-square:not(.hit-compact),
-		.btn-chip:not(.hit-compact) {
+		.btn-chip:not(.hit-compact),
+		.btn-stacked:not(.hit-compact) {
 			position: relative;
 		}
 		.btn-icon:not(.hit-compact)::after,
 		.btn-icon-inline:not(.hit-compact)::after,
 		.btn-box:not(.hit-compact)::after,
 		.btn-square:not(.hit-compact)::after,
-		.btn-chip:not(.hit-compact)::after {
+		.btn-chip:not(.hit-compact)::after,
+		.btn-stacked:not(.hit-compact)::after {
 			content: '';
 			position: absolute;
 			inset-block: min(0px, calc((100% - var(--touch-target)) / 2));
@@ -539,6 +573,80 @@
 	   to the accent; override per-instance with `style="--btn-on: var(--warn)"`. */
 	.btn[aria-pressed='true'] {
 		color: var(--btn-on, var(--accent));
+	}
+
+	/* Stacked hotbar slot: glyph over a short label. Follows the size and
+	   control rules so its own heights win at equal specificity. */
+	.btn-stacked,
+	.btn-stacked.btn-sm,
+	.btn-stacked.btn-lg,
+	.btn-stacked.btn-control {
+		flex-direction: column;
+		gap: var(--sp-1);
+		height: auto;
+		min-height: var(--btn-size, var(--control-height-large));
+		min-width: var(--btn-size, var(--control-height-large));
+		padding: var(--sp-1) var(--sp-2);
+		font-size: var(--fs-xs);
+	}
+	.btn-stacked.btn-sm {
+		min-height: var(--btn-size, var(--control-height-default));
+		min-width: var(--btn-size, calc(var(--control-height-default) + var(--sp-1) + 0.125rem));
+		gap: 0.1875rem;
+		padding: var(--sp-1);
+		font-size: calc(var(--fs-xs) * 0.85);
+	}
+	.btn-stacked.btn-lg {
+		min-height: var(--btn-size, calc(var(--control-height-large) + var(--sp-2) + 0.125rem));
+		min-width: var(--btn-size, calc(var(--control-height-large) + var(--sp-2) + 0.125rem));
+		padding: var(--sp-2) var(--sp-3);
+		font-size: var(--fs-sm);
+	}
+	.btn-glyph {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		flex: none;
+		line-height: 1;
+	}
+	.btn-stacked .btn-glyph {
+		font-size: var(--fs-lg);
+	}
+	.btn-stacked.btn-sm .btn-glyph {
+		font-size: var(--fs-md);
+	}
+	.btn-stacked.btn-lg .btn-glyph {
+		font-size: var(--fs-xl);
+	}
+	.btn-stack-label {
+		max-width: 100%;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+	.btn-stacked.btn-danger,
+	.btn-stacked.btn-tone-danger {
+		color: var(--danger);
+		border-color: var(--danger);
+	}
+	.btn-stacked[aria-pressed='true'] {
+		border-color: var(--btn-on, var(--accent));
+		box-shadow: inset 0 0 0 1px var(--btn-on, var(--accent));
+	}
+
+	/* Corner key hint: mirrors the count pill in the opposite corner, inside the box. */
+	.btn-hinted {
+		position: relative;
+	}
+	.btn-shortcut {
+		position: absolute;
+		top: 0.125rem;
+		left: 0.25rem;
+		font-family: var(--font-mono);
+		font-size: calc(var(--fs-xs) * 0.75);
+		font-weight: var(--fw-medium);
+		color: var(--text-faint);
+		line-height: 1;
+		pointer-events: none;
 	}
 
 	/* Loading: keep full opacity (it's busy, not disabled-looking) + a wait cursor,

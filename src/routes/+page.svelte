@@ -51,9 +51,11 @@
 		Breadcrumb,
 		Popover,
 		Menu,
+		RadialMenu,
 		Tabs,
 		RadioGroup,
 		SegmentedControl,
+		SortableList,
 		SplitButton,
 		AttachmentList,
 		SegmentedProgress,
@@ -230,6 +232,7 @@
 				{ id: 'metric', label: 'Metric · StatTile', keywords: 'kpi number stat' },
 				{ id: 'section-header', label: 'SectionHeader · KeyValue', keywords: 'header list loadmore' },
 				{ id: 'data-table', label: 'DataTable', keywords: 'table rows columns sort generic' },
+				{ id: 'sortable-list', label: 'SortableList', keywords: 'reorder drag drop priority queue order grip' },
 				{ id: 'filter-search-bar', label: 'FilterSearchBar', keywords: 'query search filter sql predicate' },
 				{ id: 'timestamp', label: 'Timestamp', keywords: 'date time relative utc epoch' },
 				{ id: 'git-ref', label: 'GitRef', keywords: 'branch pr commit diff' },
@@ -256,6 +259,7 @@
 			label: 'Overlays',
 			items: [
 				{ id: 'popover-menu', label: 'Popover · Menu', keywords: 'dropdown floating context top layer' },
+				{ id: 'radial-menu', label: 'RadialMenu', keywords: 'fab fan arc petals radial pie slide touch' },
 				{ id: 'tooltip', label: 'Tooltip', keywords: 'hint hovercard' },
 				{ id: 'modal', label: 'Modal', keywords: 'dialog popup resize' },
 				{ id: 'confirm-modal', label: 'ConfirmModal', keywords: 'dialog destructive confirm' },
@@ -452,12 +456,38 @@
 		{ title: 'Swipe friendly', body: 'Horizontal swipe steps a slide; vertical drags still scroll the page.' },
 		{ title: 'Reduced motion', body: 'The slide transition is dropped when the OS asks for reduced motion.' }
 	];
+	type DemoRare = { id: string; name: string; dist: number; done?: boolean };
+	let demoRares = $state<DemoRare[]>(
+		[
+			['froglok crusader', 516],
+			['tsu ghoul wizard', 845],
+			['an evil eye', 469],
+			['a tsu ghoul wizard', 481],
+			['reanimated hand', 144],
+			['a reanimated hand', 79],
+			['the ghoul arch magus', 161],
+			['Hoptor Thaggelum', 395],
+			['a frenzied ghoul', 582],
+			['a ghoul sentinel', 214],
+			['a minotaur patriarch', 1207],
+			['a huge water elemental', 587]
+		].map(([name, dist], i) => ({ id: `r${i}`, name: name as string, dist: dist as number, done: i === 0 }))
+	);
+	let demoRare = $state<string | undefined>('r7');
+	let demoRareMove = $state('');
 	const navBarItems: NavBarItem[] = [
 		{ href: '#navbar', label: 'Home', icon: 'home', current: true },
 		{ href: '#navbar', label: 'Sessions', icon: 'list', badge: 3 },
 		{ href: '#navbar', label: 'Notes', emoji: '📝' },
 		{ href: '#navbar', label: 'Settings', icon: 'settings' }
 	];
+	const navBarViews: NavBarItem[] = [
+		{ value: 'hud', label: 'HUD', icon: 'layout-grid' },
+		{ value: 'map', label: 'Map', icon: 'pin' },
+		{ value: 'camera', label: 'Camera', icon: 'tv' },
+		{ value: 'logs', label: 'Logs', icon: 'list', badge: 2 }
+	];
+	let navBarView = $state('hud');
 	let demoOffset = $state(40);
 	async function demoConfirm() {
 		await new Promise((r) => setTimeout(r, 900));
@@ -508,6 +538,14 @@
 	];
 	let scopeValue = $state<string | undefined>('album');
 
+	const radialItems: MenuItem[] = [
+		{ label: 'Disarm', icon: 'stop', danger: true, onselect: () => toasts.error('Disarmed') },
+		{ label: 'Mode', icon: 'settings', onselect: () => toasts.show('Mode') },
+		{ label: 'Go zone', icon: 'arrow-right', onselect: () => toasts.show('Go zone') },
+		{ label: 'Sell all', icon: 'tag', disabled: true },
+		{ label: 'Recover', icon: 'plus', onselect: () => toasts.ok('Recovered') },
+		{ label: 'Menu', icon: 'menu', onselect: () => toasts.show('Menu') }
+	];
 	const menuItems: MenuItem[] = [
 		{ label: 'Edit', icon: 'edit', onselect: () => toasts.show('Edit') },
 		{ label: 'Duplicate', icon: 'copy', onselect: () => toasts.show('Duplicated') },
@@ -1166,6 +1204,16 @@ function greet(name) {
 							<IconButton icon="bell" label="Alerts" chip variant="default" tone="danger" count={240} style="--btn-count-bg: var(--danger); --btn-count-fg: var(--text-on-accent)" />
 							<Popover label="Filters" count={4}>{#snippet trigger()}<Icon name="filter" />{/snippet}<Text size="sm">4 active filters</Text></Popover>
 							<Popover label="Selection" variant="primary" size="sm" count={31}>{#snippet trigger()}Selected{/snippet}<Text size="sm">31 selected</Text></Popover>
+						</div>
+						<Text variant="caption" tone="muted">Hotbar slots — <code>layout="stacked"</code> puts <code>glyph</code> over the label; <code>shortcut</code> is a corner hint and <code>aria-keyshortcuts</code>:</Text>
+						<div class="row row-wrap">
+							<Button layout="stacked" size="sm" glyph="■" shortcut="1" tone="danger">Disarm</Button>
+							<Button layout="stacked" size="sm" glyph="⇢" shortcut="2">Go zone</Button>
+							<Button layout="stacked" size="sm" glyph="$" shortcut="3" disabled>Sell all</Button>
+							<Button layout="stacked" size="sm" glyph="+">Recover</Button>
+							<Button layout="stacked" size="sm" glyph="☰" shortcut="G" pressed count={2}>Group</Button>
+							<Button layout="stacked" glyph="search" shortcut="F">Find</Button>
+							<Button layout="stacked" size="lg" glyph="star" shortcut="S">Star</Button>
 						</div>
 						<Text variant="caption">Variant × tone matrix (primary keeps a readable on-accent label):</Text>
 						{#each ['default', 'primary', 'ghost', 'danger'] as const as v}
@@ -1954,6 +2002,24 @@ function greet(name) {
 							<code>placement="bar"</code> pins the same row to the bottom edge over <code>--z-nav</code>,
 							padded by <code>--safe-bottom</code> for the home indicator.
 						</Text>
+						<Text variant="caption" tone="muted">
+							Button items switch in-page views through <code>bind:value</code> (a tablist); <code>center</code> reserves a
+							notch for a raised FAB; <code>variant="floating"</code> insets the bar as a card:
+						</Text>
+						<div style="max-width: 24rem; padding-top: var(--sp-6);">
+							<NavBar
+								items={navBarViews}
+								bind:value={navBarView}
+								label="Demo views"
+								variant="floating"
+								style="--navbar-center-raise: 1.25rem;"
+							>
+								{#snippet center()}
+									<IconButton icon="menu" label="Bot actions" variant="primary" pill box="lg" />
+								{/snippet}
+							</NavBar>
+						</div>
+						<Text variant="caption" tone="muted">View: <code>{navBarView}</code></Text>
 					</Stack>
 				</Card>
 			</section>
@@ -2438,6 +2504,38 @@ function greet(name) {
 						{r.status}
 					</Badge>
 				{/snippet}
+			</section>
+
+			<section class="section" id="sortable-list">
+				<Heading level={3} size="lg">SortableList</Heading>
+				<Text tone="muted">
+					Drag the grip (long-press anywhere on a row with <code>handle="row"</code>), use the arrows,
+					or focus a grip and press Space, then ↑/↓/Home/End and Space again. Alt+↑/↓ moves a row in
+					one step. The first row is <code>locked</code> and <code>canMove</code> keeps it on top.
+				</Text>
+				<div class="sortable-demo">
+					<SortableList
+						items={demoRares}
+						key={(r) => r.id}
+						name={(r) => r.name}
+						label="Rare hunt order"
+						numbered
+						size="sm"
+						locked={(r) => !!r.done}
+						canMove={(_k, to) => to > 0}
+						bind:selected={demoRare}
+						onreorder={(keys, move) => {
+							demoRares = keys.map((k) => demoRares.find((r) => r.id === k) as DemoRare);
+							demoRareMove = `${move.key}: ${move.from + 1} → ${move.to + 1}`;
+						}}
+					>
+						{#snippet row(r)}
+							<span class="sortable-demo-name" class:done={r.done}>{r.name}</span>
+							<span class="sortable-demo-dist">{r.dist}</span>
+						{/snippet}
+					</SortableList>
+				</div>
+				<Text tone="muted" size="sm">Selected: {demoRare ?? 'none'} · last move: {demoRareMove || 'none'}</Text>
 			</section>
 
 			<section class="section" id="filter-search-bar">
@@ -3078,6 +3176,35 @@ function greet(name) {
 				</Card>
 			</section>
 
+			<section class="section" id="radial-menu">
+				<Heading level={3} size="lg">RadialMenu</Heading>
+				<Card>
+					<div class="stack">
+						<Text variant="caption" tone="muted">Tap the FAB, or press it and slide onto a petal and release. From the
+						keyboard, Enter opens it on the first petal, ←/→ walk the arc, Escape closes. The fan clamps into the
+						viewport, so the corner FAB keeps its petals on screen.</Text>
+						<div class="row row-wrap">
+							<div class="radial-phone">
+								<div class="radial-bar">
+									<span>HUD</span>
+									<span>Map</span>
+									<RadialMenu label="Bot" items={radialItems} caption="● bot" tone="ok" icon="zap">
+										{#snippet status()}<Text size="sm"><Dot status="active" /> Armed · explore · in world</Text>{/snippet}
+									</RadialMenu>
+									<span>Camera</span>
+									<span>Logs</span>
+								</div>
+							</div>
+							<div class="radial-corner">
+								<RadialMenu label="Corner actions" items={radialItems} arc={{ from: 80, to: 190 }} radius="10rem" scrim={false}>
+									{#snippet status()}<Text size="sm" tone="muted">Corner fan</Text>{/snippet}
+								</RadialMenu>
+							</div>
+						</div>
+					</div>
+				</Card>
+			</section>
+
 			<section class="section" id="tooltip">
 				<Heading level={3} size="lg">Tooltip</Heading>
 				<Card>
@@ -3498,6 +3625,38 @@ function greet(name) {
 		border-radius: var(--r-md);
 		color: var(--text-muted);
 	}
+	.radial-phone {
+		position: relative;
+		overflow: hidden;
+		width: min(100%, 22rem);
+		height: 14rem;
+		border: 1px dashed var(--border);
+		border-radius: var(--r-md);
+	}
+	.radial-bar {
+		position: absolute;
+		inset: auto var(--sp-2) var(--sp-2);
+		display: flex;
+		align-items: center;
+		justify-content: space-around;
+		padding: var(--sp-1);
+		background: var(--bg-elevated);
+		border: 1px solid var(--border-strong);
+		border-radius: var(--r-md);
+		color: var(--text-muted);
+		font-size: var(--fs-xs);
+	}
+	.radial-corner {
+		position: relative;
+		display: flex;
+		align-items: flex-end;
+		justify-content: flex-end;
+		width: min(100%, 14rem);
+		height: 14rem;
+		padding: var(--sp-2);
+		border: 1px dashed var(--border);
+		border-radius: var(--r-md);
+	}
 	.glyph-resize {
 		resize: horizontal;
 		overflow: hidden;
@@ -3557,5 +3716,28 @@ function greet(name) {
 		.demo-hit :global([data-tsu='Popover']) {
 			outline: 1px dashed var(--border-strong);
 		}
+	}
+	.sortable-demo {
+		max-width: 18rem;
+		max-height: 16rem;
+		overflow-y: auto;
+		border: 1px solid var(--border);
+		border-radius: var(--r-md);
+	}
+	.sortable-demo-name {
+		flex: 1 1 auto;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
+	.sortable-demo-name.done {
+		color: var(--text-faint);
+		text-decoration: line-through;
+	}
+	.sortable-demo-dist {
+		color: var(--text-muted);
+		font-family: var(--font-mono);
+		font-size: var(--fs-sm);
 	}
 </style>

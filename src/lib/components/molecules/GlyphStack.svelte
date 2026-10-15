@@ -20,6 +20,7 @@
 	import { tick } from 'svelte';
 	import type { HTMLAttributes } from 'svelte/elements';
 	import { browser } from '$lib/env';
+	import { slideSelect } from '$lib/slide-select';
 
 	type Own = {
 		/** Glyphs as `{ inline, stacked? }` pairs; alternative to `children`. */
@@ -78,7 +79,6 @@
 		return el.parentElement;
 	}
 
-	const SLIDE_THRESHOLD = 12;
 	const CONTROL = 'button, a[href], input, select, textarea, [role="button"], [tabindex]:not([tabindex="-1"])';
 
 	const tiles = $derived(items?.slice(0, 4) ?? []);
@@ -86,7 +86,6 @@
 	let panel = $state<HTMLDivElement>();
 	let open = $state(false);
 	let armed = $state(-1);
-	let origin: { x: number; y: number } | null = null;
 
 	function show() {
 		try {
@@ -129,11 +128,13 @@
 	}
 
 	/** Tile under a drag from the press point: 0 top-left, 1 top-right, 2 bottom-left, 3 bottom-right. */
-	function corner(dx: number, dy: number): number {
-		if (Math.hypot(dx, dy) < SLIDE_THRESHOLD) return -1;
-		const i = (dy < 0 ? 0 : 2) + (dx < 0 ? 0 : 1);
-		return i < tiles.length ? i : -1;
-	}
+	const slide = slideSelect({
+		pick: ({ dx, dy }) => {
+			const i = (dy < 0 ? 0 : 2) + (dx < 0 ? 0 : 1);
+			return i < tiles.length ? i : -1;
+		},
+		onarm: (i) => (armed = i),
+	});
 
 	async function activate(i: number) {
 		const { action } = tiles[i];
@@ -153,29 +154,21 @@
 		if (!expandable || expand !== 'slide' || e.button !== 0) return;
 		e.preventDefault();
 		e.stopPropagation();
-		origin = { x: e.clientX, y: e.clientY };
-		armed = -1;
-		try {
-			root?.setPointerCapture(e.pointerId);
-		} catch {}
+		slide.down(e, root);
 		show();
 	}
 
 	function onPointerMove(e: PointerEvent) {
-		if (origin) armed = corner(e.clientX - origin.x, e.clientY - origin.y);
+		slide.move(e);
 	}
 
 	function onPointerUp() {
-		if (!origin) return;
-		origin = null;
-		const i = armed;
-		armed = -1;
+		const i = slide.up();
 		if (i >= 0) activate(i);
 	}
 
 	function onPointerCancel() {
-		origin = null;
-		armed = -1;
+		slide.cancel();
 	}
 
 	// Pointer clicks on the folded cells open the panel instead of hitting the
