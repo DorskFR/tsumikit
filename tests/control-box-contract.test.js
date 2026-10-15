@@ -23,7 +23,7 @@ const BOX_PROP = /box\?: 'xs' \| 'sm' \| 'md' \| 'lg'/;
 const HIT_PROP = /hitArea\?: 'auto' \| 'compact'/;
 const HIT_SLAB_BLOCK = /inset-block: min\(0px, calc\(\(100% - var\(--touch-target\)\) \/ 2\)\);/;
 const HIT_SLAB_INLINE =
-	/inset-inline-start: min\(0px, calc\(100% - var\(--touch-target\)\)\);\s*inset-inline-end: 0;/;
+	/inset-inline-start: min\(0px, calc\(\(100% - var\(--touch-target\)\) \/ 2\)\);\s*inset-inline-end: 0;/;
 
 test('box scale tokens derive from the control-height scale', () => {
 	assert.match(variables, /--box-xs: [\d.]+rem;/);
@@ -124,7 +124,7 @@ test('the chrome-less Popover trigger floors at the sm box and yields its size t
 	// The 44px coarse-pointer target stays on the absolute slab, off the box.
 	const slab = rule(popover, '.pop-trigger:not(.canonical, .hit-compact)::after');
 	assert.equal(slab['inset-block'], 'min(0px, calc((100% - var(--touch-target)) / 2))');
-	assert.equal(slab['inset-inline-start'], 'min(0px, calc(100% - var(--touch-target)))');
+	assert.equal(slab['inset-inline-start'], 'min(0px, calc((100% - var(--touch-target)) / 2))');
 	assert.equal(slab['inset-inline-end'], '0');
 	assert.equal(slab.inset, undefined);
 	assert.equal(rule(popover, '.pop-trigger:not(.canonical, .hit-compact)::after').height, undefined);

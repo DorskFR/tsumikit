@@ -45,7 +45,7 @@
 		control?: boolean;
 		/** Shared square box scale (`--box-xs/sm/md/lg`); implies `iconOnly`. */
 		box?: 'xs' | 'sm' | 'md' | 'lg';
-		/** Icon-only buttons grow a 44px hit slab on coarse pointers; `compact` opts out. */
+		/** Icon-only buttons grow a touch hit slab on coarse pointers; `compact` opts out. */
 		hitArea?: 'auto' | 'compact';
 		class?: string;
 	} = $props();
@@ -158,7 +158,7 @@
 			content: '';
 			position: absolute;
 			inset-block: min(0px, calc((100% - var(--touch-target)) / 2));
-			inset-inline-start: min(0px, calc(100% - var(--touch-target)));
+			inset-inline-start: min(0px, calc((100% - var(--touch-target)) / 2));
 			inset-inline-end: 0;
 		}
 	}

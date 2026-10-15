@@ -61,7 +61,7 @@
 		/** Use the shared `--control-height` toolbar/composer contract. */
 		control?: boolean;
 		block?: boolean;
-		/** Icon-only triggers grow a 44px hit slab on coarse pointers; `compact` opts out. */
+		/** Icon-only triggers grow a touch hit slab on coarse pointers; `compact` opts out. */
 		hitArea?: 'auto' | 'compact';
 		/** Corner count indicator on the trigger, as on `Button`: hidden at
 		 *  0/undefined, capped at `countMax+`, the exact number joins `label`. */
@@ -449,10 +449,9 @@
 		padding: var(--pop-trigger-pad, 0);
 		flex: none;
 	}
-	/* Coarse pointers: icon-only triggers extend their hit area to --touch-target
-	   via an invisible slab; layout does not move. The slab grows towards the
-	   inline start only, so it never adds scrollable overflow to a scroll ancestor
-	   (see Button.svelte). */
+	/* Coarse pointers: icon-only triggers extend their hit area towards --touch-target
+	   via an invisible slab; layout does not move. Same geometry as Button.svelte:
+	   no inline-end growth, half the deficit towards the inline start. */
 	@media (pointer: coarse) {
 		.pop-trigger:not(.canonical, .hit-compact) {
 			position: relative;
@@ -461,7 +460,7 @@
 			content: '';
 			position: absolute;
 			inset-block: min(0px, calc((100% - var(--touch-target)) / 2));
-			inset-inline-start: min(0px, calc(100% - var(--touch-target)));
+			inset-inline-start: min(0px, calc((100% - var(--touch-target)) / 2));
 			inset-inline-end: 0;
 		}
 	}

@@ -62,17 +62,38 @@ for (const [name, src] of slabs) {
 		assert.ok(decls['inset-block'], 'the slab must size its block axis explicitly');
 	});
 
-	test(`${name}: the coarse hit slab still reaches --touch-target`, () => {
+	test(`${name}: the coarse hit slab is the centred target minus its inline-end half`, () => {
 		const decls = slab(src);
 		for (const box of [20, 24, 32, 44, 56]) {
 			const start = inset(decls['inset-inline-start'], box);
 			assert.ok(start <= 0, `inline-start inset must never be positive (box ${box}px)`);
-			assert.ok(box - start >= Math.min(touchTarget, box), `hit width too small (box ${box}px)`);
-			if (box <= touchTarget) assert.equal(box - start, touchTarget, `hit width at box ${box}px`);
+			assert.equal(start, Math.min(0, (box - touchTarget) / 2), `inline-start inset at box ${box}px`);
 
 			const blockStart = inset(decls['inset-block'], box);
 			assert.ok(blockStart <= 0, `block inset must never be positive (box ${box}px)`);
 			if (box <= touchTarget) assert.equal(box - 2 * blockStart, touchTarget, `hit height at box ${box}px`);
+		}
+	});
+
+	test(`${name}: in a row of slabbed buttons, each visual centre hits its own button`, () => {
+		const decls = slab(src);
+		for (const box of [24, 28, 32, 36, 44]) {
+			const reach = -inset(decls['inset-inline-start'], box);
+			for (const gap of [0, 2, 4, 8]) {
+				// Later siblings paint, and so hit-test, on top: own box, then its slab.
+				const layers = [0, 1, 2].flatMap((i) => {
+					const x = i * (box + gap);
+					return [
+						{ i, from: x, to: x + box },
+						{ i, from: x - reach, to: x + box }
+					];
+				});
+				for (const i of [0, 1, 2]) {
+					const centre = i * (box + gap) + box / 2;
+					const hit = layers.findLast((l) => l.from <= centre && centre <= l.to);
+					assert.equal(hit?.i, i, `centre of button ${i} (box ${box}px, gap ${gap}px)`);
+				}
+			}
 		}
 	});
 }
