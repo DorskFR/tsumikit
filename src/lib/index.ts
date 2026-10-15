@@ -137,6 +137,10 @@ export { default as Pagination } from './components/molecules/Pagination.svelte'
 export { default as Popover } from './components/molecules/Popover.svelte';
 export { default as Prose } from './components/molecules/Prose.svelte';
 export {
+	default as RadialMenu,
+	type RadialArc,
+} from './components/molecules/RadialMenu.svelte';
+export {
 	default as RadioGroup,
 	type RadioOption,
 } from './components/molecules/RadioGroup.svelte';
@@ -146,6 +150,13 @@ export {
 	type SegmentOption,
 } from './components/molecules/SegmentedControl.svelte';
 export { default as SelectButton } from './components/molecules/SelectButton.svelte';
+export {
+	default as SortableList,
+	SORTABLE_LIST_MESSAGES,
+	type SortableListMessages,
+	type SortableListMove,
+	type SortableListRowContext,
+} from './components/molecules/SortableList.svelte';
 export { default as SplitButton } from './components/molecules/SplitButton.svelte';
 export { default as StatusBar } from './components/molecules/StatusBar.svelte';
 export { default as Tabs, type TabItem } from './components/molecules/Tabs.svelte';

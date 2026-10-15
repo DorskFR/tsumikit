@@ -78,3 +78,93 @@ export function placeAt(
 	floating.style.top = `${Math.round(top)}px`;
 	floating.style.left = `${Math.round(left)}px`;
 }
+
+/** Viewport edges (px) that a floating layout must stay inside. */
+export interface Bounds {
+	left: number;
+	top: number;
+	right: number;
+	bottom: number;
+}
+
+export interface Point {
+	x: number;
+	y: number;
+}
+
+export interface FanInput {
+	/** Centre of the trigger, in viewport px. */
+	center: Point;
+	count: number;
+	/** Degrees, 0 = right, counter-clockwise. */
+	from: number;
+	to: number;
+	/** Preferred distance from `center` to each petal centre. */
+	radius: number;
+	/** Petal diameter. */
+	petal: number;
+	/** Smallest radius the fan may shrink to before it is shifted instead. */
+	minRadius?: number;
+	bounds: Bounds;
+}
+
+export interface FanLayout {
+	radius: number;
+	/** Petal centres, in `count` order. */
+	points: Point[];
+}
+
+/** Angles (degrees) of `count` petals spread evenly from `from` to `to`. */
+export function fanAngles(count: number, from: number, to: number): number[] {
+	if (count <= 1) return count === 1 ? [(from + to) / 2] : [];
+	return Array.from({ length: count }, (_, i) => from + ((to - from) * i) / (count - 1));
+}
+
+/**
+ * Lay `count` petals on an arc around `center`, shrinking the radius until every
+ * petal fits in `bounds`; if even `minRadius` overflows, the whole fan shifts in.
+ */
+export function fanLayout({
+	center,
+	count,
+	from,
+	to,
+	radius,
+	petal,
+	minRadius = 0,
+	bounds,
+}: FanInput): FanLayout {
+	const half = petal / 2;
+	const lo = { x: bounds.left + half, y: bounds.top + half };
+	const hi = { x: bounds.right - half, y: bounds.bottom - half };
+	const units = fanAngles(count, from, to).map((deg) => {
+		const rad = (deg * Math.PI) / 180;
+		return { x: Math.cos(rad), y: -Math.sin(rad) };
+	});
+	const reach = (c: number, u: number, min: number, max: number) =>
+		u > 1e-9 ? (max - c) / u : u < -1e-9 ? (min - c) / u : Number.POSITIVE_INFINITY;
+	let r = radius;
+	for (const u of units) {
+		r = Math.min(r, reach(center.x, u.x, lo.x, hi.x), reach(center.y, u.y, lo.y, hi.y));
+	}
+	r = Math.max(r, Math.min(minRadius, radius));
+	const raw = units.map((u) => ({ x: center.x + u.x * r, y: center.y + u.y * r }));
+	const shift = (vals: number[], min: number, max: number) => {
+		if (!vals.length) return 0;
+		const a = Math.min(...vals);
+		const b = Math.max(...vals);
+		if (b - a > max - min) return (min + max) / 2 - (a + b) / 2;
+		return a < min ? min - a : b > max ? max - b : 0;
+	};
+	const dx = shift(
+		raw.map((p) => p.x),
+		lo.x,
+		hi.x,
+	);
+	const dy = shift(
+		raw.map((p) => p.y),
+		lo.y,
+		hi.y,
+	);
+	return { radius: r, points: raw.map((p) => ({ x: p.x + dx, y: p.y + dy })) };
+}

@@ -207,7 +207,7 @@ sanctioned escape hatch for everything else.
 | `Divider` | `--divider-color`, `--divider-spacing` |
 | `Gauge` | `--gauge-w`, `--gauge-h`, `--gauge-fill` |
 | `MasterDetail` | `--md-list-w`, `--md-gap`, `--md-divider` |
-| `NavBar` | `--navbar-max` |
+| `NavBar` | `--navbar-max`, `--navbar-center-w`, `--navbar-center-raise` |
 | `Callout` | `--callout-tone` |
 | `Fieldset` | `--fieldset-pad`, `--fieldset-border` |
 | `GitRef` | `--git-ref-tone`, `--git-ref-max-width` |
@@ -215,6 +215,8 @@ sanctioned escape hatch for everything else.
 | `Combobox` | `--cb-bg`, `--cb-border`, `--cb-radius`, `--cb-active-bg`, `--cb-min-width`, `--cb-max-height` |
 | `Toggle` | `--toggle-accent`, `--toggle-size` |
 | `Popover` | `--pop-trigger-bg`, `--pop-trigger-fg`, `--pop-trigger-border`, `--pop-trigger-radius`, `--pop-trigger-size`, `--pop-trigger-pad`, `--pop-box`, `--pop-count-bg`, `--pop-count-fg`, `--pop-count-size` |
+| `SortableList` | `--sortable-row-h` |
+| `RadialMenu` | `--radial-radius`, `--radial-petal-size`, `--radial-fab-size` |
 
 `tests/css-custom-property-contract.test.js` reads this table and fails if a
 listed property is not actually read by its component, so the docs cannot drift.
@@ -278,7 +280,7 @@ any custom SVG).
 filled pin/star toggle), SelectButton, Toggle, OptionButton (`value` +
 `description` secondary text wired via `aria-describedby`, `onfocuschange(value)` on
 focus/hover to drive a preview pane), Modal,
-Popover, Menu (items take a free-form trailing `tag` + `tagTone`, or a `tag` snippet,
+Popover, RadialMenu (a FAB that fans `Menu` items out as petals on an arc, see below), Menu (items take a free-form trailing `tag` + `tagTone`, or a `tag` snippet,
 and an `attrs` object for `data-*`/test ids on the row; a checkable `pressed` item keeps
 its icon leading and shows its check trailing, or uses the leading check slot when it has
 no icon; selecting closes the menu unless `closeOnSelect={false}` or the item sets `keepOpen`;
@@ -322,6 +324,7 @@ then the leaf ellipsises down to `minLeaf`; `full` skips the fit, `copy` makes i
 a copy-on-click button; candidates via the `workingDirCandidates` helper).
 Fieldset (bordered zone, legend rides the border; `droppable` makes it an HTML5
 drop target with `accepts`/`ondrop`/`dropHint` — keyboard alternative is the consumer's job),
+SortableList (reorderable list: grip drag on Pointer Events, keyboard grab, ↑/↓ arrows, see below),
 Combobox (suggestion listbox for a field you render as `children` — an Input for
 plain autocomplete or a Textarea for `@`/`#` mentions; the kit sets the field's
 combobox ARIA and `aria-activedescendant`, floats the `role="listbox"` in the top
@@ -360,7 +363,10 @@ children are `min-width: 0` so a wide title/actions row can't widen the grid on
 mobile), NavBar (horizontal route bar — `<nav>` + `<a aria-current="page">`,
 icon/emoji + label + count badge; `placement="bar"` pins it to the bottom edge
 over `--z-nav` with `--safe-bottom` padding, `orientation` stacks or inlines the
-glyph, `maxWidth` centres the row), NavItem
+glyph, `maxWidth` centres the row; items without `href` are buttons that set a
+bindable `value` / `onchange`, in a `tablist` when none are links; `center`
+reserves a notch the items split around, for a raised FAB; `variant="floating"`
+insets it as an elevated rounded card), NavItem
 (collapses to an icon rail when the sidebar is narrow; `icon` from the
 registry, `iconPath` / `iconChildren` for custom glyphs, `activeStyle="bar"`
 for the inset-bar active look), MasterDetail (list + detail columns that
@@ -721,6 +727,41 @@ panel.
 ]} />
 ```
 
+### RadialMenu
+
+`RadialMenu` is a round FAB that opens its `items` (the same `MenuItem` type
+`Menu` takes: `label`, `icon`, `onselect`, `danger`, `disabled`, `pressed`,
+`keepOpen`, `attrs`) as round icon-over-label petals on an arc around it, over
+a `Scrim` (`scrim={false}` drops it; a click outside still closes). `arc`
+`{ from, to }` is in degrees, 0 = right, counter-clockwise; the default
+`{ from: 200, to: -20 }` is an upward fan. Petals sit at equal angles at
+`radius` (default `--radial-radius`, else `8.5rem`) and are `petalSize` wide
+(default `--radial-petal-size`, else `3.5rem`, never under `--touch-target`).
+The panel lives in the top layer, so it escapes `overflow: hidden` parents and
+a fixed bottom bar; the radius shrinks, and then the fan shifts, to keep every
+petal inside the viewport and its safe-area insets. `status` renders a line
+centred above the arc.
+
+The default trigger is a `--radial-fab-size` (3.75rem) circle with a 2px ring
+in `tone` (default `accent`) that swaps `icon` for `closeIcon` while open and
+shows an optional `caption` (string or snippet); `trigger` replaces its content
+and receives `{ open }`. `open` is bindable, with `onopen` / `onclose`; rest
+props land on the trigger. Tap toggles; press-and-slide (press the FAB, drag
+over a petal, release) fires the petal under the finger, sharing the gesture
+helper with `GlyphStack expand="slide"`. The trigger carries `aria-haspopup`,
+`aria-expanded` and `aria-controls`; petals are `menuitem`s with a roving
+tabindex. Opening from the keyboard focuses the first enabled petal; ←/→ walk
+the arc in screen order, ↓/↑ in item order, Home/End jump to the ends,
+Enter/Space fire and close, Escape or Tab close and return focus to the
+trigger. Under `prefers-reduced-motion` petals appear without the staggered
+scale-in.
+
+```svelte
+<RadialMenu label="Bot" {items} caption="● bot" tone="ok">
+  {#snippet status()}● Armed · explore · in world{/snippet}
+</RadialMenu>
+```
+
 ### SplitButton
 
 `SplitButton` fuses a primary action with a narrow caret that opens a `Menu`:
@@ -739,6 +780,45 @@ control height so it reads as secondary. ArrowDown on the primary opens the menu
 
 ```svelte
 <SplitButton variant="primary" label="Send options" {items} onclick={send}>Send</SplitButton>
+```
+
+### SortableList
+
+`SortableList` reorders a list the consumer owns. Pass `items` and a `key`, render
+each row's content with the `row` snippet; the kit draws the grip, the ordinal
+(`numbered`) and the ↑/↓ arrows (`arrows`, on by default) around it. `onreorder(keys,
+{ key, from, to })` fires on a drop or an arrow press with the full new key order.
+The list shows that order at once and keeps it until `items` changes; if the
+consumer never adopts it, it falls back to `items` after `revertAfter` ms
+(3000). `canMove(key, to)` vetoes a target; `locked(item)` removes the grip and
+disables the arrows. `selected` (bindable) + `onselect` turn the row body into a
+button with an accent tint and a 2px inset bar on the selected row; put row
+actions in the `trailing` snippet so they stay outside that button.
+
+Drag runs on Pointer Events, so it works on touch. The grip has `touch-action:
+none`; `handle="row"` drags from anywhere on the row, and touch then starts
+after a 250 ms long-press so the list still scrolls. The lifted row casts
+`--shadow-md` over a dashed slot, and the nearest scroll container scrolls at
+its edges. On the keyboard the grip is a "Reorder {name}" button: Space/Enter
+grabs, ↑/↓ moves, Home/End jumps, Space/Enter drops, Escape restores.
+Alt+↑/↓ moves the focused row in one step. A polite live region announces each
+step; override any string through `messages` (defaults in
+`SORTABLE_LIST_MESSAGES`). `size` is `sm` (1.875rem rows) or `md` (2.25rem);
+`--sortable-row-h` overrides both.
+
+```svelte
+<SortableList
+	items={rares}
+	key={(r) => r.id}
+	name={(r) => r.name}
+	label="Rare hunt order"
+	numbered
+	size="sm"
+	bind:selected
+	onreorder={(keys) => send({ rare_order: keys })}
+>
+	{#snippet row(r)}<span>{r.name}</span><span>{r.dist}</span>{/snippet}
+</SortableList>
 ```
 
 ## Container queries
@@ -833,6 +913,19 @@ counter elsewhere.
 <IconButton icon="bell" label="Notifications" count={unread} />
 <Button variant="primary" count={selected.length} countMax={999}>Apply</Button>
 <Popover label="Filters" count={active}>{#snippet trigger()}<Icon name="filter" />{/snippet}…</Popover>
+```
+
+`layout="stacked"` turns a `Button` into a hotbar slot: `glyph` (a registry
+icon name, any text such as `■`, or a snippet) over the label, with heights
+following `size` (sm 2.5rem, md 3rem, lg 3.625rem). `glyph` also leads an
+inline button. `shortcut` paints a faint mono key hint in the top-left corner,
+opposite `count`, and sets `aria-keyshortcuts`; the app still binds the key.
+`tone="danger"` gives a stacked slot a danger border and ink, `pressed` sets
+`aria-pressed` and an accent ring, and coarse pointers get the touch hit slab.
+
+```svelte
+<Button layout="stacked" size="sm" glyph="■" shortcut="1" tone="danger" onclick={disarm}>Disarm</Button>
+<Button layout="stacked" size="sm" glyph="search" shortcut="2">Go zone</Button>
 ```
 
 ### Square boxes & touch targets
