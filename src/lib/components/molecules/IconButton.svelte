@@ -34,7 +34,7 @@
 		// Exact glyph size for SVG *and* text glyphs (px number or any CSS length),
 		// no emoji multiplier. Wins over `size`.
 		glyphSize?: number | string;
-		// Opt out of the 44px coarse-pointer hit slab in dense rows.
+		// Opt out of the coarse-pointer hit slab in dense rows.
 		hitArea?: 'auto' | 'compact';
 		// Borderless, compact icon affordance (chip-remove ✕, inline edit ✎) —
 		// no square box; just a muted glyph that brightens on hover. Pair with

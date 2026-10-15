@@ -51,7 +51,7 @@
 		// container (`container`) so the button becomes icon-only; the hidden text
 		// becomes the aria-label unless one is set.
 		collapseLabel?: 'never' | 'mobile' | 'container';
-		// Icon-only/square buttons grow a 44px hit slab on coarse pointers without
+		// Icon-only/square buttons grow a touch hit slab on coarse pointers without
 		// moving layout; `compact` opts out in dense tables.
 		hitArea?: 'auto' | 'compact';
 		// Async/busy state: shows a spinner, blocks clicks, sets aria-busy. Stays
@@ -507,12 +507,12 @@
 	}
 
 	/* Coarse pointers: icon-only and square buttons carry an invisible slab that
-	   extends the hit area to --touch-target without changing layout. Buttons
+	   extends the hit area towards --touch-target without changing layout. Buttons
 	   already at or above the target keep their own box (inset never positive).
-	   The slab grows towards the inline start only: inline-end overflow counts
-	   towards the scrollable overflow of every scroll ancestor, so a button near
-	   the right edge of an `overflow-y: auto` container would make it scroll
-	   sideways. Start-side overflow is unscrollable, so the full target survives. */
+	   The slab is the centred target with its inline-end half cut off: inline-end
+	   overflow counts towards the scrollable overflow of every scroll ancestor, and
+	   in a row that half lies under the next sibling anyway. Growing further towards
+	   the start would let each slab cover the previous sibling's centre. */
 	@media (pointer: coarse) {
 		.btn-icon:not(.hit-compact),
 		.btn-icon-inline:not(.hit-compact),
@@ -529,7 +529,7 @@
 			content: '';
 			position: absolute;
 			inset-block: min(0px, calc((100% - var(--touch-target)) / 2));
-			inset-inline-start: min(0px, calc(100% - var(--touch-target)));
+			inset-inline-start: min(0px, calc((100% - var(--touch-target)) / 2));
 			inset-inline-end: 0;
 		}
 	}
