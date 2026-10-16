@@ -3,8 +3,10 @@
 		value: string;
 		/** Visible text. Optional in `icon` mode where the icon carries the meaning. */
 		label?: string;
-		/** Optional count badge rendered after the label (filter-pill use). */
-		count?: number;
+		/** Optional count badge rendered after the label (filter-pill use). Numbers
+		 *  get thousands separators (`11178` → `11,178`, fixed en-US so SSR and
+		 *  hydration agree); strings render verbatim (`'99+'`, another locale). */
+		count?: number | string;
 		/** Icon glyph — required for icon-toggle mode, optional alongside a label. */
 		icon?: import('$lib/components/atoms/Icon.svelte').IconName;
 		/** Greyed out, not selectable, skipped by keyboard navigation. */
@@ -23,6 +25,7 @@
 	// Space/Enter (or click) activate. `value` is bindable.
 	import type { Snippet } from 'svelte';
 	import Icon from '$lib/components/atoms/Icon.svelte';
+	import { formatSegmentCount } from './segmented-control-count.js';
 	import { nextEnabledSegment } from './segmented-control-keyboard.js';
 
 	let {
@@ -143,7 +146,7 @@
 			{:else}
 				{#if o.icon}<Icon name={o.icon} />{/if}
 				{#if o.label}<span class="seg-label">{o.label}</span>{/if}
-				{#if o.count !== undefined}<span class="seg-count">{o.count}</span>{/if}
+				{#if o.count !== undefined}<span class="seg-count">{formatSegmentCount(o.count)}</span>{/if}
 			{/if}
 		</button>
 	{/each}
