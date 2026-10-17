@@ -7,10 +7,11 @@
 	//     nav content collapse to icons.
 	//   • mobile: the sidebar becomes an off-canvas drawer that slides in over a
 	//     scrim; AppShell renders the hamburger toggle for you (shown only on
-	//     mobile), locks body scroll while open, closes on Escape / scrim click,
-	//     and marks the rest of the page `inert` so focus stays in the drawer.
+	//     mobile), locks body scroll while open, closes on Escape / scrim click /
+	//     a same-origin link click inside it, and marks the rest of the page
+	//     `inert` so focus stays in the drawer. `bind:open` to drive it yourself.
 	// Switching to desktop auto-closes the drawer. Safe-area insets are honored.
-	import type { Snippet } from 'svelte';
+	import { untrack, type Snippet } from 'svelte';
 	import { browser } from '$lib/env';
 	import IconButton from '$lib/components/molecules/IconButton.svelte';
 
@@ -28,6 +29,9 @@
 		layout = 'header-top',
 		stickySidebar = false,
 		sidebarPadding = 'md',
+		open = $bindable(false),
+		onOpenChange,
+		closeOnNavigate = true,
 		class: klass = '',
 		style: styleProp = '',
 	}: {
@@ -54,12 +58,42 @@
 		stickySidebar?: boolean;
 		/** Inner padding of the sidebar; `'none'` when the nav owns its gutters. */
 		sidebarPadding?: 'none' | 'sm' | 'md';
+		/** Mobile drawer state; reset to `false` when the viewport reaches 48rem. */
+		open?: boolean;
+		/** Fires when AppShell itself opens or closes the drawer. */
+		onOpenChange?: (open: boolean) => void;
+		/** Close the mobile drawer when a same-origin link inside it is clicked
+		 *  (plain left click, no modifier keys, no `target` / `download`). */
+		closeOnNavigate?: boolean;
 		class?: string;
 		style?: string;
 	} = $props();
 
-	let open = $state(false);
 	let isMobile = $state(false);
+	let aside = $state<HTMLElement>();
+
+	function setOpen(next: boolean) {
+		if (open === next) return;
+		open = next;
+		onOpenChange?.(next);
+	}
+
+	function onSidebarClick(e: MouseEvent) {
+		if (!closeOnNavigate || !open) return;
+		if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+		const link = (e.target as Element | null)?.closest?.('a[href]');
+		if (!link) return;
+		const target = link.getAttribute('target');
+		if ((target && target !== '_self') || link.hasAttribute('download')) return;
+		let url: URL;
+		try {
+			url = new URL(link.getAttribute('href') ?? '', document.baseURI);
+		} catch {
+			return;
+		}
+		if (url.origin !== location.origin) return;
+		setOpen(false);
+	}
 
 	// --- resizable sidebar (desktop) ---
 	function loadW(): number | null {
@@ -108,11 +142,18 @@
 		const mq = window.matchMedia('(max-width: 47.999rem)');
 		const sync = () => {
 			isMobile = mq.matches;
-			if (!isMobile) open = false; // desktop: drawer concept doesn't apply
+			if (!isMobile) setOpen(false);
 		};
-		sync();
+		untrack(sync);
 		mq.addEventListener('change', sync);
 		return () => mq.removeEventListener('change', sync);
+	});
+
+	$effect(() => {
+		const el = aside;
+		if (!el) return;
+		el.addEventListener('click', onSidebarClick);
+		return () => el.removeEventListener('click', onSidebarClick);
 	});
 
 	// Lock body scroll while the mobile drawer is open.
@@ -128,7 +169,7 @@
 	const bgInert = $derived(open && isMobile);
 </script>
 
-<svelte:window onkeydown={(e) => e.key === 'Escape' && (open = false)} />
+<svelte:window onkeydown={(e) => e.key === 'Escape' && setOpen(false)} />
 
 <div
 	class="shell {klass}"
@@ -147,7 +188,7 @@
 					icon="menu"
 					label="Toggle navigation"
 					aria-expanded={open}
-					onclick={() => (open = !open)}
+					onclick={() => setOpen(!open)}
 				/>
 			</div>
 		{/if}
@@ -160,7 +201,7 @@
 			class:show={open && isMobile}
 			tabindex="-1"
 			aria-hidden="true"
-			onclick={() => (open = false)}
+			onclick={() => setOpen(false)}
 		></button>
 		<aside
 			class="shell-sidebar"
@@ -168,6 +209,7 @@
 			data-padding={sidebarPadding}
 			aria-label={navLabel}
 			inert={isMobile && !open ? true : undefined}
+			bind:this={aside}
 		>
 			{@render sidebar()}
 			{#if resizableSidebar}

@@ -524,6 +524,14 @@
 		outline: none;
 		min-width: 0;
 	}
+	@media (pointer: coarse) {
+		.fi__input {
+			font-size: max(16px, var(--fs-md));
+		}
+		.fi--sm .fi__input {
+			font-size: max(16px, var(--fs-sm));
+		}
+	}
 	.fi__input::placeholder {
 		color: var(--text-faint);
 	}
