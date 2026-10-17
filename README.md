@@ -348,7 +348,8 @@ hooks on head/row/cell; `responsive="stack"` turns rows into cards below
 `stackBelow` (48rem, measured on the table's own box) using `Column.role`
 `title | detail | meta | actions | hidden` — detail cells get a `data-label`
 prefix, `Column.stackLabel: false` drops it so metas join on one `·` line
-and details share lines, `--dt-meta-font` restyles meta values, the `<table>`
+and details share lines, `--dt-meta-font` restyles meta values (e.g. `var(--font-sans)`; a
+literal `inherit` falls back to mono), the `<table>`
 stays a table for assistive tech), FilterSearchBar /
 FilterInput (`size="sm"` compact bar on `--control-height-compact`,
 `shape="pill"`, `surface`, `hotkey="/"` focuses the input from anywhere
