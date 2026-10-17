@@ -89,6 +89,7 @@
 	{/snippet}
 
 	<Container pad>
+		{#each allItems as item (item.id)}<span id={item.id}></span>{/each}
 		<Stack>
 			<Heading level={2}>{allItems.find((n) => n.id === active)?.label}</Heading>
 			<Text variant="body" tone="muted">
