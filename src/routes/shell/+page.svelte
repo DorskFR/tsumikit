@@ -49,12 +49,13 @@
 	let active = $state('overview');
 	const allItems = navGroups.flatMap((g) => g.items);
 	let drawerOpen = $state(false);
+	let navOpen = $state(false);
 	let panelWidth = $state<number>();
 	let panelResizing = $state(false);
 	const files = ['src/lib/index.ts', 'src/routes/+page.svelte', 'README.md'];
 </script>
 
-<AppShell resizableSidebar minSidebar={64} maxSidebar={320} sidebarWidthKey="tsumikit-shell-sidebar">
+<AppShell bind:open={navOpen} resizableSidebar minSidebar={64} maxSidebar={320} sidebarWidthKey="tsumikit-shell-sidebar">
 	{#snippet header()}
 		<Heading level={1} size="md">AppShell</Heading>
 		<Badge tone="info">demo</Badge>
@@ -73,6 +74,7 @@
 							label={item.label}
 							badge={item.badge}
 							badgeTone={item.badgeTone}
+							href="#{item.id}"
 							active={active === item.id}
 							onclick={() => (active = item.id)}
 						/>
@@ -87,12 +89,15 @@
 	{/snippet}
 
 	<Container pad>
+		{#each allItems as item (item.id)}<span id={item.id}></span>{/each}
 		<Stack>
 			<Heading level={2}>{allItems.find((n) => n.id === active)?.label}</Heading>
 			<Text variant="body" tone="muted">
 				Drag the sidebar's right edge: below ~8rem the nav collapses to an icon
 				rail (a <code>sidebar</code> container query — no JS state). On a narrow
-				screen the sidebar becomes an overlay drawer. The toolbar below reacts to
+				screen the sidebar becomes an overlay drawer that closes when you tap one of
+				its links (<code>closeOnNavigate</code>); its state is bindable
+				(<code>bind:open</code>, here <code>navOpen = {navOpen}</code>). The toolbar below reacts to
 				the <em>main</em> container width (which shrinks as you widen the sidebar),
 				not the viewport — widen the sidebar and the buttons drop their labels.
 			</Text>

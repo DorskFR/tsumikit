@@ -351,7 +351,8 @@ prefix, `Column.stackLabel: false` drops it so metas join on one `·` line
 and details share lines, `--dt-meta-font` restyles meta values (e.g. `var(--font-sans)`; a
 literal `inherit` falls back to mono), the `<table>`
 stays a table for assistive tech), FilterSearchBar /
-FilterInput (`size="sm"` compact bar on `--control-height-compact`,
+FilterInput (`size="sm"` compact bar on `--control-height-compact`, text
+floored at 16px under `pointer: coarse` so iOS does not zoom on focus,
 `shape="pill"`, `surface`, `hotkey="/"` focuses the input from anywhere
 outside an editable element, `showHotkey` renders the `<kbd>` hint, `grow`;
 `key="cwd"` puts FilterInput in single-key mode — `value` is the bare value
@@ -364,7 +365,11 @@ sidebar on desktop, overlay drawer on mobile, optionally resizable;
 the content column only, `stickySidebar` pins it to the viewport, and
 `sidebarPadding="none" | "sm" | "md"` sets the aside gutter — the header and its
 children are `min-width: 0` so a wide title/actions row can't widen the grid on
-mobile), NavBar (horizontal route bar — `<nav>` + `<a aria-current="page">`,
+mobile; the mobile drawer's state is `bind:open` with `onOpenChange(open)`, and
+`closeOnNavigate` (default `true`) closes it when a plain same-origin link inside
+it is clicked — a router can also close it, e.g. SvelteKit
+`afterNavigate(() => (navOpen = false))` with `<AppShell bind:open={navOpen}>`
+to cover `goto` and back/forward), NavBar (horizontal route bar — `<nav>` + `<a aria-current="page">`,
 icon/emoji + label + count badge; `placement="bar"` pins it to the bottom edge
 over `--z-nav` with `--safe-bottom` padding, `orientation` stacks or inlines the
 glyph, `maxWidth` centres the row; items without `href` are buttons that set a
