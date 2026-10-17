@@ -334,7 +334,8 @@ bindable, `onselect`/`onclose(reason)` report picks; `findTrigger`/`applyTrigger
 are exported for trigger-char detection and token replacement).
 
 **Organisms:** ConversationPanel / ConversationFeed (chat column + sticky
-feed, see below), DataTable (generic `<T>`, typed columns + cell snippets;
+feed, see below), DataTable (generic `<T>`, typed columns + cell snippets; `headerSnippets[key]`
+replaces a header cell (a select-all checkbox);
 `layout="fixed"` makes column widths authoritative, `Column.truncate` /
 `nowrap` / `hideBelow="sm|md|lg"` (container-query on the table's own box),
 `hideHeader` clips the header but keeps it for assistive tech, `rowTone(row)`
@@ -346,7 +347,9 @@ for a hover/focus-revealed trailing cell (always visible on touch; under
 hooks on head/row/cell; `responsive="stack"` turns rows into cards below
 `stackBelow` (48rem, measured on the table's own box) using `Column.role`
 `title | detail | meta | actions | hidden` — detail cells get a `data-label`
-prefix, the `<table>` stays a table for assistive tech), FilterSearchBar /
+prefix, `Column.stackLabel: false` drops it so metas join on one `·` line
+and details share lines, `--dt-meta-font` restyles meta values, the `<table>`
+stays a table for assistive tech), FilterSearchBar /
 FilterInput (`size="sm"` compact bar on `--control-height-compact`,
 `shape="pill"`, `surface`, `hotkey="/"` focuses the input from anywhere
 outside an editable element, `showHotkey` renders the `<kbd>` hint, `grow`;

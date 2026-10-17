@@ -688,6 +688,18 @@ function greet(name) {
 		{ key: 'status', label: 'Status', role: 'meta' },
 		{ key: 'id', label: 'Id', role: 'hidden' }
 	];
+	const bareStackCols: Column<Row>[] = [
+		{ key: 'name', label: 'Name', role: 'title' },
+		{ key: 'role', label: 'Role', role: 'meta', stackLabel: false },
+		{ key: 'status', label: 'Status', role: 'meta', stackLabel: false },
+		{ key: 'id', label: 'Id', role: 'meta', stackLabel: false, get: (r) => `#${r.id}` }
+	];
+	const pickCols: Column<Row>[] = [
+		{ key: 'pick', label: 'Select', width: '2.5rem' },
+		{ key: 'name', label: 'Name' },
+		{ key: 'role', label: 'Role' }
+	];
+	let picked = $state<number[]>([]);
 	const searchResults = $derived(tableRows.filter(compilePredicate(searchQuery)));
 	const searchSql = $derived(toSql(searchQuery, 'nodes'));
 
@@ -2485,6 +2497,45 @@ function greet(name) {
 						{/snippet}
 					</DataTable>
 				</div>
+				<Text tone="muted">
+					<code>stackLabel: false</code> on the meta columns: no labels, the metas join on one
+					<code>·</code> line under the title.
+				</Text>
+				<div style="max-width: 22rem">
+					<DataTable columns={bareStackCols} rows={tableRows} rowKey={(r) => r.id} responsive="stack" />
+				</div>
+				<Text tone="muted">
+					<code>headerSnippets</code> replaces a header cell — here a select-all checkbox over a
+					checkbox column.
+				</Text>
+				<DataTable
+					columns={pickCols}
+					rows={tableRows}
+					rowKey={(r) => r.id}
+					size="sm"
+					headerSnippets={{ pick: pickAll }}
+					cellSnippets={{ pick: pickOne }}
+				/>
+				{#snippet pickAll()}
+					<Checkbox
+						label="Select all"
+						labelHidden
+						size="sm"
+						checked={picked.length === tableRows.length}
+						indeterminate={picked.length > 0 && picked.length < tableRows.length}
+						onchange={(e) => (picked = e.currentTarget.checked ? tableRows.map((r) => r.id) : [])}
+					/>
+				{/snippet}
+				{#snippet pickOne(r: Row)}
+					<Checkbox
+						label="Select {r.name}"
+						labelHidden
+						size="sm"
+						checked={picked.includes(r.id)}
+						onchange={(e) =>
+							(picked = e.currentTarget.checked ? [...picked, r.id] : picked.filter((id) => id !== r.id))}
+					/>
+				{/snippet}
 				<Text tone="muted">
 					Same table with <code>stackBelow="30rem"</code>: it stays tabular in this 34rem box and stacks
 					once the box drops under 30rem.
