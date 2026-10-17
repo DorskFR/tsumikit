@@ -40,7 +40,7 @@ test('stacked rows keep table semantics and lay out as cards', () => {
 	assert.match(source, /\[data-stacked\] tbody tr,\s*\[data-stacked\] tfoot tr\s*{[^}]*display: flex;[^}]*flex-wrap: wrap;/s);
 	assert.match(source, /\[data-stacked\] td\[data-role='title'\]\s*{[^}]*font-weight: var\(--fw-semibold\);/s);
 	assert.match(source, /\[data-stacked\] td\[data-role='detail'\]::before\s*{\s*content: attr\(data-label\) ': ';/);
-	assert.match(source, /\[data-stacked\] td\[data-role='meta'\]\s*{[^}]*font-family: var\(--font-mono\);/s);
+	assert.match(source, /\[data-stacked\] td\[data-role='meta'\]\s*{[^}]*font-family: var\(--dt-meta-font, var\(--font-mono\)\);/s);
 	assert.match(source, /\[data-stacked\] td\[data-role='actions'\],\s*\[data-stacked\] td\.dt-actions\s*{[^}]*margin-inline-start: auto;[^}]*opacity: 1;/s);
 	assert.match(source, /\[data-stacked\] td\[data-role='hidden'\]\s*{\s*display: none;/);
 	assert.doesNotMatch(source, /display: contents/);

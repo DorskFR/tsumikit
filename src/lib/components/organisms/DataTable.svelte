@@ -21,6 +21,9 @@
 		/** Placement inside the stacked card (`responsive="stack"` only). Columns
 		 *  without a role render as `label: value` detail lines. */
 		role?: 'title' | 'detail' | 'meta' | 'actions' | 'hidden';
+		/** `false` drops the stacked label: meta cells join on one `·` line and
+		 *  detail cells share lines (`responsive="stack"` only, default true). */
+		stackLabel?: boolean;
 	}
 </script>
 
@@ -40,6 +43,7 @@
 		onrowclick,
 		onsort,
 		cellSnippets = {},
+		headerSnippets = {},
 		empty = 'No data.',
 		stickyHeader = false,
 		stickyOffset,
@@ -69,6 +73,8 @@
 		 *  table only reflects the indicator and emits; it does not reorder rows. */
 		onsort?: (key: string, dir: 'asc' | 'desc') => void;
 		cellSnippets?: Record<string, Snippet<[T]>>;
+		/** Replaces a column's header content (e.g. a select-all checkbox). */
+		headerSnippets?: Record<string, Snippet<[Column<T>]>>;
 		empty?: string | Snippet;
 		stickyHeader?: boolean;
 		/** Distance from the scroll container's top for the sticky header, e.g.
@@ -210,7 +216,9 @@
 								: 'none'
 							: undefined}
 					>
-						{#if col.sortable}
+						{#if headerSnippets[col.key]}
+							{@render headerSnippets[col.key](col)}
+						{:else if col.sortable}
 							<button type="button" class="dt-sort" onclick={() => toggleSort(col)}>
 								<span>{col.label}</span>
 								<span class="dt-arrow" class:active={sortKey === col.key}>
@@ -264,6 +272,7 @@
 								data-hide-below={col.hideBelow}
 								data-role={responsive === 'stack' ? (col.role ?? 'detail') : undefined}
 								data-label={responsive === 'stack' ? col.label : undefined}
+								data-stack-label={responsive === 'stack' && col.stackLabel === false ? 'false' : undefined}
 								class:truncate={col.truncate}
 								class:nowrap={col.nowrap}
 								style:text-align={stacked ? undefined : (col.align ?? 'left')}
@@ -528,12 +537,27 @@
 	[data-stacked] td[data-role='meta'] {
 		flex: none;
 		order: 1;
-		font-family: var(--font-mono);
+		font-family: var(--dt-meta-font, var(--font-mono));
 		font-size: var(--fs-xs);
 		color: var(--text-muted);
 	}
 	[data-stacked] td[data-role='meta']::before {
 		content: attr(data-label) ' ';
+		font-family: var(--font-sans);
+		color: var(--text-faint);
+	}
+	[data-stacked] td[data-role='detail'][data-stack-label='false'] {
+		flex: 0 1 auto;
+	}
+	[data-stacked] td[data-stack-label='false']::before {
+		content: none;
+	}
+	[data-stacked] td[data-role='meta'] ~ td[data-role='meta'][data-stack-label='false'] {
+		margin-inline-start: calc(var(--sp-1) - var(--sp-3));
+	}
+	[data-stacked] td[data-role='meta'] ~ td[data-role='meta'][data-stack-label='false']::before {
+		content: '·';
+		margin-inline-end: var(--sp-1);
 		color: var(--text-faint);
 	}
 	[data-stacked] td[data-role='actions'],
