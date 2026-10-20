@@ -1,4 +1,5 @@
 import { browser } from '$lib/env';
+import { readStorage, writeStorage } from './storage';
 
 // OPT-IN. Most apps don't need this: the kit is rem-based and never resets the
 // root font-size, so the user's browser/OS font-size preference and browser
@@ -38,7 +39,7 @@ class FontScale {
 
 	constructor() {
 		if (browser) {
-			const raw = localStorage.getItem(KEY);
+			const raw = readStorage(KEY);
 			if (raw && SCALE_LEVELS.some((l) => l.id === raw)) this.levelId = raw;
 			this.apply();
 		}
@@ -49,7 +50,7 @@ class FontScale {
 	}
 	set(id: string) {
 		this.levelId = SCALE_LEVELS.some((l) => l.id === id) ? id : DEFAULT_LEVEL;
-		if (browser) localStorage.setItem(KEY, this.levelId);
+		if (browser) writeStorage(KEY, this.levelId);
 		this.apply();
 	}
 }

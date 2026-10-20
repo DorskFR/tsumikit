@@ -9,6 +9,7 @@ import {
 	type ThemeChoice,
 	type ThemePreference,
 } from '$lib/theme-mode';
+import { readStorage, writeStorage } from './storage';
 
 // Theme registry. Built-ins live in THEMES (+ one [data-theme="id"] block in
 // styles/themes.css); consumers append their own with theme.register() and ship
@@ -112,7 +113,7 @@ class Theme {
 				this.systemDark = e.matches;
 				this.paint();
 			});
-			this.saved = localStorage.getItem(KEY);
+			this.saved = readStorage(KEY);
 			this.resolve();
 		}
 	}
@@ -175,11 +176,7 @@ class Theme {
 	}
 	private persist() {
 		this.saved = JSON.stringify(this.pref);
-		if (browser) {
-			try {
-				localStorage.setItem(KEY, this.saved);
-			} catch {}
-		}
+		if (browser) writeStorage(KEY, this.saved);
 		this.onchange?.(this.pref);
 	}
 	private apply() {
