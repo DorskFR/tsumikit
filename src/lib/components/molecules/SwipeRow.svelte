@@ -18,6 +18,10 @@
 	 * a drag that is more vertical than horizontal is left to the scroller.
 	 * The same actions are reachable as visually hidden buttons for keyboard
 	 * and screen-reader users.
+	 *
+	 * On touch the browser implicitly captures the pointer on the element under
+	 * the finger; taking capture on the row makes that child fire a bubbling
+	 * `lostpointercapture`, which must not be read as a cancel.
 	 */
 	import type { Snippet } from 'svelte';
 	import type { HTMLAttributes } from 'svelte/elements';
@@ -162,8 +166,8 @@
 		e.preventDefault();
 	}
 
-	function onlostpointercapture() {
-		if (pointerId === null) return;
+	function onlostpointercapture(e: PointerEvent) {
+		if (pointerId === null || e.pointerId !== pointerId || e.target !== e.currentTarget) return;
 		pointerId = null;
 		locked = null;
 		dragging = false;
