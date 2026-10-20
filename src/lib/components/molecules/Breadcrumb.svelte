@@ -19,6 +19,9 @@
 		char,
 		separator,
 		maxItems = 0,
+		size = 'sm',
+		wrap = true,
+		collapseCurrent = false,
 		class: klass = '',
 		style: styleProp = '',
 	}: {
@@ -29,6 +32,12 @@
 		/** Collapse the middle to an ellipsis when the trail is longer than this
 		 *  (0 = never collapse). Keeps the first item and the last `maxItems - 1`. */
 		maxItems?: number;
+		size?: 'sm' | 'md';
+		/** `false` keeps the trail on one line: ancestors keep their width and the
+		 *  current crumb shrinks with an ellipsis. */
+		wrap?: boolean;
+		/** Hide the current crumb and its separator, keeping only the ancestors. */
+		collapseCurrent?: boolean;
 		class?: string;
 		style?: string;
 	} = $props();
@@ -43,7 +52,14 @@
 </script>
 
 <nav aria-label="breadcrumb" data-tsu="Breadcrumb" class={klass} style={styleProp}>
-	<ol class="crumbs">
+	<ol
+		class={[
+			'crumbs',
+			size === 'md' && 'crumbs--md',
+			!wrap && 'crumbs--nowrap',
+			collapseCurrent && 'crumbs--collapse',
+		]}
+	>
 		{#each shown as item, i (i)}
 			<li class="crumb">
 				{#if 'ellipsis' in item}
@@ -57,7 +73,7 @@
 					<span class="sep" aria-hidden="true">
 						{#if separator}{@render separator()}{:else if char}{char}{:else}<Icon
 								name="chevron-right"
-								size={14}
+								size={size === 'md' ? 16 : 14}
 							/>{/if}
 					</span>
 				{/if}
@@ -76,6 +92,26 @@
 		padding: 0;
 		list-style: none;
 		font-size: var(--fs-sm);
+	}
+	.crumbs--md {
+		font-size: var(--fs-md);
+	}
+	.crumbs--nowrap {
+		flex-wrap: nowrap;
+		min-width: 0;
+	}
+	.crumbs--nowrap .crumb {
+		flex-shrink: 0;
+	}
+	.crumbs--nowrap .crumb:last-child {
+		flex-shrink: 1;
+	}
+	.crumbs--nowrap .current {
+		max-width: none;
+	}
+	.crumbs--collapse .crumb:last-child:not(:first-child),
+	.crumbs--collapse .crumb:nth-last-child(2) .sep {
+		display: none;
 	}
 	.crumb {
 		display: inline-flex;
@@ -103,6 +139,12 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		max-width: 24ch;
+	}
+	@media (hover: none) and (pointer: coarse) {
+		.link {
+			min-height: 40px;
+			align-content: center;
+		}
 	}
 	.ellipsis {
 		color: var(--text-muted);
