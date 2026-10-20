@@ -207,7 +207,9 @@
 	.tabbar :global(.tabbar-badge) {
 		position: absolute;
 		top: -0.4rem;
-		left: calc(100% - 0.5rem);
+		left: calc(100% - 2px);
+		max-width: none;
+		padding-inline: 0.3rem;
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.tabbar-item {

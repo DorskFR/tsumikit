@@ -160,6 +160,49 @@ test('pointercancel resets without firing', () => {
 	r.destroy();
 });
 
+/**
+ * @param {ReturnType<typeof render>} r
+ * @param {Element} target
+ * @param {number} pointerId
+ */
+function loseCapture(r, target, pointerId) {
+	target.dispatchEvent(new r.w.PointerEvent('lostpointercapture', { bubbles: true, pointerId }));
+	r.flush();
+}
+
+test('a bubbling lostpointercapture from the child under the finger does not cancel the drag', () => {
+	const r = render();
+	const inner = /** @type {HTMLElement} */ (r.root.querySelector('.probe-inner'));
+	r.pointer('pointerdown', 100, 50);
+	r.pointer('pointermove', 88, 50);
+	assert.deepEqual(r.captured, [7]);
+	loseCapture(r, inner, 7);
+	assert.ok(r.root.classList.contains('swiperow--dragging'));
+	r.pointer('pointermove', 100 - WIDTH * 0.5, 50);
+	assert.equal(r.x(), -WIDTH * 0.5);
+	r.pointer('pointerup', 100 - WIDTH * 0.5, 50);
+	assert.deepEqual([...r.props.fired], ['trailing']);
+	assert.equal(r.x(), 0);
+	r.destroy();
+});
+
+test('lostpointercapture for another pointer is ignored; for the active one on the row it resets', () => {
+	const r = render();
+	r.pointer('pointerdown', 100, 50);
+	r.pointer('pointermove', 88, 50);
+	loseCapture(r, r.root, 99);
+	r.pointer('pointermove', 100 - WIDTH * 0.5, 50);
+	assert.equal(r.x(), -WIDTH * 0.5);
+	loseCapture(r, r.root, 7);
+	assert.equal(r.x(), 0);
+	assert.ok(!r.root.classList.contains('swiperow--dragging'));
+	r.pointer('pointermove', 100 - WIDTH * 0.8, 50);
+	assert.equal(r.x(), 0);
+	r.pointer('pointerup', 100 - WIDTH * 0.8, 50);
+	assert.deepEqual([...r.props.fired], []);
+	r.destroy();
+});
+
 test('the click that ends a swipe is swallowed; a plain tap still reaches the row', () => {
 	const r = render();
 	const inner = /** @type {HTMLElement} */ (r.root.querySelector('.probe-inner'));

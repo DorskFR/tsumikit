@@ -503,6 +503,18 @@
 		.dt-actions {
 			opacity: 1;
 		}
+		/* Sort slab: inline-end stays at 0 so it never reaches the next header
+		   cell, and the inline-start reach stays inside the cell's own padding. */
+		.dt-sort {
+			position: relative;
+		}
+		.dt-sort::before {
+			content: '';
+			position: absolute;
+			inset-block: var(--touch-slab);
+			inset-inline-start: var(--touch-slab);
+			inset-inline-end: 0;
+		}
 	}
 	@container (max-width: 30rem) {
 		[data-hide-below='sm'] {

@@ -141,6 +141,18 @@
 	.checkbox:has(input:disabled) {
 		cursor: not-allowed;
 	}
+	@media (pointer: coarse) {
+		.checkbox {
+			position: relative;
+		}
+		.checkbox::before {
+			content: '';
+			position: absolute;
+			inset-block: var(--touch-slab);
+			inset-inline-start: var(--touch-slab);
+			inset-inline-end: 0;
+		}
+	}
 	.sr-only {
 		position: absolute;
 		width: 1px;

@@ -148,6 +148,12 @@ test('badges render through Badge: counts cap at 99+, strings verbatim, 0 render
 	assert.equal(badge('home'), null);
 });
 
+test('text badges are not clipped by the glyph box and only overlap its 2px outer margin', () => {
+	assert.ok(hasDecl(css, '.tabbar :global(.tabbar-badge)', 'max-width', 'none'));
+	assert.ok(hasDecl(css, '.tabbar :global(.tabbar-badge)', 'left', 'calc(100% - 2px)'));
+	assert.ok(hasDecl(css, '.tabbar :global(.tabbar-badge)', 'padding-inline', '0.3rem'));
+});
+
 test('as a bar it publishes --tabbar-h on <html> and removes it on unmount', () => {
 	const r = render();
 	assert.ok(r.nav.classList.contains('bar'));

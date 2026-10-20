@@ -561,7 +561,8 @@
 	   overflow counts towards the scrollable overflow of every scroll ancestor, and
 	   in a row that half lies under the next sibling anyway. Growing further towards
 	   the start would let each slab cover the previous sibling's centre. Text
-	   buttons at size sm take the same shape sized by --touch-slab. */
+	   buttons at size sm and link buttons take the same shape sized by
+	   --touch-slab. */
 	@media (pointer: coarse) {
 		.btn-icon:not(.hit-compact),
 		.btn-icon-inline:not(.hit-compact),
@@ -587,6 +588,16 @@
 			position: relative;
 		}
 		.btn-sm:not(.btn-icon, .btn-icon-inline, .btn-box, .btn-square, .btn-chip, .btn-stacked, .hit-compact)::before {
+			content: '';
+			position: absolute;
+			inset-block: var(--touch-slab);
+			inset-inline-start: var(--touch-slab);
+			inset-inline-end: 0;
+		}
+		.btn-link:not(.hit-compact) {
+			position: relative;
+		}
+		.btn-link:not(.hit-compact)::before {
 			content: '';
 			position: absolute;
 			inset-block: var(--touch-slab);
