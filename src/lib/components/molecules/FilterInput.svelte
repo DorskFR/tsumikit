@@ -60,6 +60,7 @@
 		size = 'md',
 		shape = 'square',
 		surface = 'base',
+		font = 'mono',
 		hotkey,
 		showHotkey = false,
 		grow = false,
@@ -106,6 +107,8 @@
 		shape?: 'square' | 'pill';
 		/** Theme-aware surface shade of the bar (mirrors Card). */
 		surface?: 'base' | 'raised' | 'sunken';
+		/** Typeface of the typed text and placeholder; `sans` for plain search boxes. */
+		font?: 'mono' | 'sans';
 		/** Key (e.g. `'/'`) that focuses the input when pressed outside an editable
 		 *  element and without modifiers. */
 		hotkey?: string;
@@ -360,6 +363,7 @@
 	class:surface-raised={surface === 'raised'}
 	class:surface-sunken={surface === 'sunken'}
 	class:fi--grow={grow}
+	class:fi--sans={font === 'sans'}
 	data-tsu="FilterInput"
 >
 	<div class="fi__bar">
@@ -531,6 +535,9 @@
 		.fi--sm .fi__input {
 			font-size: max(16px, var(--fs-sm));
 		}
+	}
+	.fi--sans .fi__input {
+		font-family: var(--font-sans);
 	}
 	.fi__input::placeholder {
 		color: var(--text-faint);

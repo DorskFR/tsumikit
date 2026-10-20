@@ -29,6 +29,7 @@
 		size = 'md',
 		shape = 'square',
 		surface = 'base',
+		font = 'mono',
 		hotkey,
 		showHotkey = false,
 		grow = false,
@@ -56,6 +57,8 @@
 		size?: ControlSize;
 		shape?: 'square' | 'pill';
 		surface?: 'base' | 'raised' | 'sunken';
+		/** `sans` renders the typed text and placeholder in `--font-sans`; chips stay mono. */
+		font?: 'mono' | 'sans';
 		hotkey?: string;
 		showHotkey?: boolean;
 		grow?: boolean;
@@ -81,6 +84,7 @@
 	{size}
 	{shape}
 	{surface}
+	{font}
 	{hotkey}
 	{showHotkey}
 	{grow}
