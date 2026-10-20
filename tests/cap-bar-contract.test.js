@@ -79,7 +79,7 @@ test('cap bubble reads the live cap while dragging or keyboard-focused', () => {
 	assert.match(component, /\.dragging \.bubble,\s*\.keying \.bubble\s*{\s*opacity: 1;\s*visibility: visible;/);
 	assert.match(component, /class:keying/);
 	assert.match(component, /onblur={\(\) => \(keying = false\)}/);
-	assert.match(component, /e\.preventDefault\(\);\s*keying = true;\s*setCap\(next\);/);
+	assert.match(component, /e\.preventDefault\(\);\s*if \(!keying\) committed = cap;\s*keying = true;\s*setCap\(next\);/);
 });
 
 test('readout and tooltip defaults', () => {

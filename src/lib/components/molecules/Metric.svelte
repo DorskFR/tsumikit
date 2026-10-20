@@ -98,20 +98,27 @@
 {/snippet}
 
 {#if layout === 'inline'}
-	<div
+	<svelte:element
+		this={href ? 'a' : onclick ? 'button' : 'div'}
 		data-tsu="Metric"
 		class="metric metric-inline metric-{canonicalTone(tone)} {tintValue ? 'metric-tint' : ''} {klass}"
 		class:metric-sm={size === 'sm'}
+		class:metric-tap={!!(href || onclick)}
+		href={href || undefined}
+		target={href && external ? '_blank' : undefined}
+		rel={href && external ? 'noopener noreferrer' : undefined}
+		type={!href && onclick ? 'button' : undefined}
+		{onclick}
 		{...rest}
 	>
-		<span class="metric-label">{label}</span>
+		<span class="metric-label">{label}{#if href && external}<Icon name="external" />{/if}</span>
 		<span class="metric-value">
 			<span class="metric-num">{value}</span>
 			{#if unit}<span class="metric-unit">{unit}</span>{/if}
 		</span>
 		{@render segmentRow()}
 		{#if sub}<span class="metric-sub">{sub}</span>{/if}
-	</div>
+	</svelte:element>
 {:else}
 <Card
 	data-tsu="Metric"
@@ -241,6 +248,24 @@
 	}
 	.metric-inline .metric-num {
 		font-size: var(--fs-md);
+	}
+	.metric-inline.metric-tap {
+		padding: 0;
+		border: 0;
+		background: none;
+		font: inherit;
+		color: inherit;
+		text-align: start;
+		text-decoration: none;
+		cursor: pointer;
+		border-radius: var(--r-sm);
+	}
+	.metric-inline.metric-tap:hover .metric-label {
+		color: var(--text);
+	}
+	.metric-inline.metric-tap:focus-visible {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
 	}
 	.metric-segments {
 		display: flex;

@@ -9,7 +9,7 @@ const [timestamp, popover] = await Promise.all([read('Timestamp.svelte'), read('
 // Regression guard for TSU-101 (0.40.0): the Timestamp details trigger is a
 // dotted-underlined <time>, never a padded button.
 test('Timestamp details trigger is a bare Popover with an underlined inline <time>', () => {
-	assert.match(timestamp, /<Popover label="Timestamp details" placement="bottom-start" bare>/);
+	assert.match(timestamp, /<Popover label="{label}, details" placement="bottom-start" bare>/);
 	const t = rule(timestamp, '.ts-trigger');
 	assert.equal(t['text-decoration-line'], 'underline');
 	assert.equal(t['text-decoration-style'], 'dotted');

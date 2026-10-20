@@ -130,7 +130,7 @@
 	<!-- Unparseable input: degrade to an inert dash rather than empty text. -->
 	<time class="{cls} ts-invalid" data-tsu="Timestamp" style={styleProp} style:font-size={sizeVar}>—</time>
 {:else if showPopover}
-	<Popover label="Timestamp details" placement="bottom-start" bare>
+	<Popover label="{label}, details" placement="bottom-start" bare>
 		{#snippet trigger()}
 			<time class="{cls} ts-trigger" data-tsu="Timestamp" style={styleProp} style:font-size={sizeVar} datetime={machine}>{label}</time>
 		{/snippet}
