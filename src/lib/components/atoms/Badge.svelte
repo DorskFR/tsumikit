@@ -140,6 +140,7 @@
 	class:interactive={as === 'button' || !!href}
 	style:--badge-tone={toneColor}
 	style:--badge-max-width={maxWidth}
+	type={!href && as === 'button' ? 'button' : undefined}
 	{...rest}
 >
 	{#if dot}
@@ -294,5 +295,17 @@
 	}
 	.action:hover {
 		opacity: 1;
+	}
+	@media (pointer: coarse) {
+		.action {
+			position: relative;
+		}
+		.action::before {
+			content: '';
+			position: absolute;
+			inset-block: var(--touch-slab);
+			inset-inline-start: var(--touch-slab);
+			inset-inline-end: 0;
+		}
 	}
 </style>

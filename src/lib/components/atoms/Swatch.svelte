@@ -111,4 +111,16 @@
 		outline: 2px solid var(--accent);
 		outline-offset: 3px;
 	}
+	@media (pointer: coarse) {
+		.interactive {
+			position: relative;
+		}
+		.interactive::before {
+			content: '';
+			position: absolute;
+			inset-block: var(--touch-slab);
+			inset-inline-start: var(--touch-slab);
+			inset-inline-end: 0;
+		}
+	}
 </style>

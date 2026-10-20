@@ -28,6 +28,7 @@ const BLOCK_RE = new RegExp(`${BLOCK_L}(\\d+)${BLOCK_R}`, 'g');
 const SPAN_L = '\x10';
 const SPAN_R = '\x11';
 const SPAN_RE = new RegExp(`${SPAN_L}(\\d+)${SPAN_R}`, 'g');
+const BARE_URL_RE = new RegExp(`\\bhttps?://(?:&amp;|[^\\s&<>"${SPAN_L}${SPAN_R}])+`, 'g');
 // Terminal escape sequences (the ansi-regex pattern), then the remaining C0
 // controls except tab and newline, plus DEL.
 const ANSI_RE =
@@ -82,19 +83,26 @@ function autolinkUrls(s: string): string {
 	return s.replace(SPAN_RE, (_m, i) => saved[Number(i)]);
 }
 
-// Inline passes on already-escaped text.
+// Inline passes on already-escaped text; emphasis never reaches inside code, link tags or URLs.
 function inline(s: string, autolink: boolean): string {
-	s = s.replace(/`([^`]+)`/g, '<code>$1</code>');
-	s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-	s = s.replace(/(^|[^*\w])\*([^*\n]+)\*/g, '$1<em>$2</em>');
-	s = s.replace(/(^|[^\w])_([^_\n]+)_(?!\w)/g, '$1<em>$2</em>');
-	s = s.replace(/~~([^~]+)~~/g, '<del>$1</del>');
+	const held: string[] = [];
+	const hold = (html: string) => `${SPAN_L}${held.push(html) - 1}${SPAN_R}`;
+	s = s.replace(/`([^`]+)`/g, (_m, code: string) => hold(`<code>${code}</code>`));
 	s = s.replace(/\[([^\]]+)\]\(([^\s)]+)\)/g, (m, text: string, url: string) => {
 		const href = safeHref(url);
 		if (!href) return m;
 		const external = /^https?:/i.test(href) ? ' target="_blank" rel="noopener noreferrer"' : '';
-		return `<a href="${href}"${external}>${text}</a>`;
+		return `${hold(`<a href="${href}"${external}>`)}${text}${hold('</a>')}`;
 	});
+	s = s.replace(BARE_URL_RE, (raw) => {
+		const url = raw.replace(/[*_~]+$/, '');
+		return hold(url) + raw.slice(url.length);
+	});
+	s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+	s = s.replace(/(^|[^*\w])\*([^*\n]+)\*/g, '$1<em>$2</em>');
+	s = s.replace(/(^|[^\w])_([^_\n]+)_(?!\w)/g, '$1<em>$2</em>');
+	s = s.replace(/~~([^~]+)~~/g, '<del>$1</del>');
+	s = s.replace(SPAN_RE, (_m, i) => held[Number(i)]);
 	return autolink ? autolinkUrls(s) : s;
 }
 

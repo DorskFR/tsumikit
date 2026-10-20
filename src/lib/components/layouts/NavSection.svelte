@@ -21,13 +21,19 @@
 		class?: string;
 		style?: string;
 	} = $props();
+
+	const labelId = $props.id();
 </script>
 
 <div class="nav-section {klass}" data-tsu="NavSection" {...rest}>
 	{#if label}
-		<div class="nav-section-label">{label}</div>
+		<div class="nav-section-label" id={labelId}>{label}</div>
 	{/if}
-	<div class="nav-section-items">
+	<div
+		class="nav-section-items"
+		role={label ? 'group' : undefined}
+		aria-labelledby={label ? labelId : undefined}
+	>
 		{@render children?.()}
 	</div>
 </div>

@@ -16,6 +16,7 @@
 		consumesArrowKeys,
 		isToolbarNavKey,
 		nextToolbarStop,
+		radioGroupPeers,
 		TOOLBAR_STOP_ATTR,
 		toolbarStops
 	} from './toolbar-roving.js';
@@ -93,6 +94,10 @@
 		list.forEach((node, i) => {
 			node.setAttribute(TOOLBAR_STOP_ATTR, '');
 			node.tabIndex = i === index ? 0 : -1;
+			for (const peer of radioGroupPeers(node, el)) {
+				peer.setAttribute(TOOLBAR_STOP_ATTR, '');
+				peer.tabIndex = -1;
+			}
 		});
 	}
 

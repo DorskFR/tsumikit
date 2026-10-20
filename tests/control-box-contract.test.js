@@ -94,7 +94,8 @@ test('Button collapseLabel hides data-label children and names the button from t
 	assert.match(button, /@media \(max-width: 40rem\)\s*{\s*\.btn-collapse-mobile :global\(\[data-label\]\)\s*{\s*display: none;/s);
 	assert.match(button, /@container \(max-width: 30rem\)\s*{\s*\.btn-collapse-container :global\(\[data-label\]\)\s*{\s*display: none;/s);
 	assert.match(button, /if \(!el \|\| collapseLabel === 'never' \|\| explicitName\) return;/);
-	assert.match(button, /el\.setAttribute\('aria-label', text\)/);
+	assert.match(button, /node\.setAttribute\('aria-label', text\)/);
+	assert.match(button, /new MutationObserver\(sync\)/);
 });
 
 test('Cluster stackAt is a self-contained container query that stacks children full-width', () => {

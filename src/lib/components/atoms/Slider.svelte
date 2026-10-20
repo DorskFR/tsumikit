@@ -15,7 +15,7 @@
 		step = 1,
 		label,
 		showValue = false,
-		format = (v: number) => String(v),
+		format: formatProp,
 		id: idProp,
 		'aria-describedby': ariaDescribedby,
 		'aria-invalid': ariaInvalid,
@@ -53,6 +53,10 @@
 	const fallbackId = $props.id();
 	const id = $derived(idProp ?? field?.id ?? fallbackId);
 	const isInvalid = $derived(invalid || !!field?.invalid);
+	const format = $derived(formatProp ?? ((v: number) => String(v)));
+	const valueText = $derived(
+		marks.find((m) => m.value === Number(value))?.label ?? formatProp?.(Number(value))
+	);
 
 	$effect(() => warnUnlabelled(el, 'Slider'));
 
@@ -78,6 +82,7 @@
 		{step}
 		bind:value
 		aria-label={label}
+		aria-valuetext={valueText}
 		{...rest}
 		aria-describedby={ariaDescribedby ?? field?.describedBy}
 		aria-invalid={ariaInvalid ?? (isInvalid ? 'true' : undefined)}
@@ -211,6 +216,11 @@
 	input[type='range']:focus-visible::-moz-range-thumb {
 		outline: var(--focus-ring);
 		outline-offset: 2px;
+	}
+	@media (pointer: coarse) {
+		input[type='range'] {
+			min-height: var(--touch-target-compact);
+		}
 	}
 	input[type='range']:disabled {
 		opacity: 0.45;

@@ -20,6 +20,7 @@ const ARROW_CONSUMING_INPUTS = new Set([
 	'week',
 	'time',
 	'range',
+	'radio',
 ]);
 
 /** @param {string} key */
@@ -67,7 +68,7 @@ export function acceptsRovingStop(el) {
  */
 export function toolbarStops(container, isHidden) {
 	if (!container) return [];
-	return [
+	const stops = [
 		.../** @type {NodeListOf<HTMLElement>} */ (container.querySelectorAll(TOOLBAR_STOP_SELECTOR)),
 	].filter((node) =>
 		acceptsRovingStop({
@@ -79,6 +80,51 @@ export function toolbarStops(container, isHidden) {
 			claimed: node.hasAttribute(TOOLBAR_STOP_ATTR),
 		}),
 	);
+	return oneStopPerRadioGroup(stops);
+}
+
+/** @param {HTMLElement} node */
+function radioName(node) {
+	const input = /** @type {HTMLInputElement} */ (node);
+	return node.tagName === 'INPUT' && input.type === 'radio' && input.name ? input.name : null;
+}
+
+/**
+ * A named radio group is a single stop, like a native one: its checked radio,
+ * else its first. The arrows inside it stay the browser's.
+ *
+ * @param {HTMLElement[]} stops
+ * @returns {HTMLElement[]}
+ */
+export function oneStopPerRadioGroup(stops) {
+	/** @type {Map<string, HTMLElement>} */
+	const picked = new Map();
+	for (const node of stops) {
+		const name = radioName(node);
+		if (name === null) continue;
+		const current = /** @type {HTMLInputElement | undefined} */ (picked.get(name));
+		if (!current || (!current.checked && /** @type {HTMLInputElement} */ (node).checked))
+			picked.set(name, node);
+	}
+	return stops.filter((node) => {
+		const name = radioName(node);
+		return name === null || picked.get(name) === node;
+	});
+}
+
+/**
+ * The other radios sharing `node`'s group inside `container`.
+ *
+ * @param {HTMLElement} node
+ * @param {Element | null} container
+ * @returns {HTMLElement[]}
+ */
+export function radioGroupPeers(node, container) {
+	const name = radioName(node);
+	if (name === null || !container) return [];
+	return [
+		.../** @type {NodeListOf<HTMLElement>} */ (container.querySelectorAll('input[type="radio"]')),
+	].filter((peer) => peer !== node && radioName(peer) === name);
 }
 
 /**

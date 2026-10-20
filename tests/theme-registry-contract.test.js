@@ -130,6 +130,22 @@ test('reset/utilities/syntax carry their former app.css sections', () => {
 	for (const part of [reset, utilities, syntax]) assert.doesNotMatch(part, /@import/);
 });
 
+test('global a11y media rules live in reset.css, not syntax.css', () => {
+	for (const q of ['prefers-reduced-motion: reduce', 'forced-colors: active', 'prefers-contrast: more']) {
+		assert.match(reset, new RegExp(`^@media \\(${q}\\) {`, 'm'), q);
+		assert.doesNotMatch(syntax, new RegExp(q), q);
+	}
+	assert.match(reset, /animation-duration: 0\.01ms !important;/);
+	assert.match(reset, /outline: 2px solid Highlight;/);
+	assert.ok(reset.indexOf('forced-colors') > reset.lastIndexOf('\n:focus-visible {'));
+});
+
+test('reset sizes code on the token scale; pre keeps its own rule', () => {
+	assert.match(reset, /^code {\s*font-size: var\(--fs-xs\);\s*}/m);
+	assert.match(reset, /^pre {\s*font-size: 0\.875em;\s*}/m);
+	assert.doesNotMatch(reset, /^code,\s*pre {[^}]*font-size/m);
+});
+
 test('package.json exports every stylesheet, keeping the old entries', () => {
 	for (const f of ['app', 'variables', 'tokens', 'themes', 'reset', 'utilities', 'syntax'])
 		assert.equal(pkg.exports[`./styles/${f}.css`], `./dist/styles/${f}.css`);

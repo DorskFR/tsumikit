@@ -86,3 +86,25 @@ test('control characters are dropped, CRLF normalised, empty input renders nothi
 	assert.equal(renderMarkdown(''), '');
 	assert.equal(renderMarkdown('\n\n'), '');
 });
+
+test('inline code is literal: no emphasis or links inside it', () => {
+	assert.equal(renderMarkdown('use `a * b * c` here'), '<p>use <code>a * b * c</code> here</p>');
+	assert.equal(renderMarkdown('call `**kwargs**`'), '<p>call <code>**kwargs**</code></p>');
+	assert.equal(renderMarkdown('see `[x](https://e.com)`'), '<p>see <code>[x](https://e.com)</code></p>');
+	assert.equal(renderMarkdown('`_a_ ~~b~~`'), '<p><code>_a_ ~~b~~</code></p>');
+});
+
+test('URLs with _x_ segments stay whole; emphasis around a URL still applies', () => {
+	const ext = 'target="_blank" rel="noopener noreferrer"';
+	assert.equal(
+		renderMarkdown('path https://e.com/_next_/x ok'),
+		`<p>path <a href="https://e.com/_next_/x" ${ext}>https://e.com/_next_/x</a> ok</p>`
+	);
+	assert.equal(
+		renderMarkdown('[**b** x](https://e.com/_a_)'),
+		`<p><a href="https://e.com/_a_" ${ext}><strong>b</strong> x</a></p>`
+	);
+	assert.equal(renderMarkdown('**https://e.com**'), `<p><strong><a href="https://e.com" ${ext}>https://e.com</a></strong></p>`);
+	assert.equal(renderMarkdown('_https://e.com_'), `<p><em><a href="https://e.com" ${ext}>https://e.com</a></em></p>`);
+	assert.equal(renderMarkdown('x https://e.com/_a_ y', { autolink: false }), '<p>x https://e.com/_a_ y</p>');
+});

@@ -11,9 +11,10 @@ const dot = await readFile(
 	'utf8'
 );
 
-test('Link defaults preserve the accent + always-underlined look', () => {
+test('Link defaults to accent text underlined on hover; always stays opt-in for prose', () => {
 	assert.match(link, /tone = 'accent'/);
-	assert.match(link, /underline = 'always'/);
+	assert.match(link, /underline = 'hover'/);
+	assert.match(link, /`hover` is for navigation, lists and entity titles;\s*\/\/ use `always` for links inside running prose/);
 	assert.match(link, /align = 'start'/);
 	assert.match(link, /color: var\(--accent, var\(--text\)\);/);
 	assert.match(link, /\.link \{[^}]*text-decoration: underline;/);

@@ -102,7 +102,7 @@ individually, in this order:
 | --- | --- |
 | `styles/tokens.css` | `:root` only — every token the kit reads (`--c-*` palette, `--bg`/`--text`/`--accent` aliases, type scale, spacing, radii, shadows, fonts, `--control-height`, …). Theme-less. |
 | `styles/themes.css` | the built-in `[data-theme="id"]` blocks, one per `THEMES` entry. |
-| `styles/reset.css` | reset + element defaults. |
+| `styles/reset.css` | reset + element defaults, global reduced-motion / forced-colors / prefers-contrast rules. |
 | `styles/utilities.css` | `.container`, `.stack`, `.row`, `.sr-only`, icon sizing, … |
 | `styles/syntax.css` | highlight.js / Prism class → `--syn-*` mapping. |
 
@@ -273,7 +273,7 @@ else aria-hidden, `interactive` renders a button with `onclick` + `aria-pressed`
 from `selected`), Divider (standalone
 horizontal/vertical hairline, `tone`, `spacing`, optional centred label,
 `decorative` to drop the `separator` role), Link (`tone`, `underline`
-always/hover/none, `align`), Icon (open registry — pass a `children` snippet for
+always/hover/none, default hover for navigation and titles; pass `always` inside prose, `align`), Icon (open registry — pass a `children` snippet for
 any custom SVG).
 
 **Molecules:** Field (`grow`), IconButton (`filled` forwards to `Icon`, for a
@@ -344,7 +344,8 @@ replaces a header cell (a select-all checkbox);
 paints a left accent bar + `data-tone`, `rowClass(row)`, `rowActions` snippet
 for a hover/focus-revealed trailing cell (always visible on touch; under
 `layout="fixed"` its column is `--dt-actions-w`, default 3.5rem),
-`stickyOffset` for the sticky header's `top`, `size="sm"`, `loading`,
+`stickyOffset` for the sticky header's `top` (it sticks within the table's own
+scroller, so give the table a bounded height), `size="sm"`, `loading`,
 `onloadmore` footer button, `empty` as string or snippet; `data-part`
 hooks on head/row/cell; `responsive="stack"` turns rows into cards below
 `stackBelow` (48rem, measured on the table's own box) using `Column.role`
@@ -355,7 +356,7 @@ literal `inherit` falls back to mono), stacked tables use `table-layout: fixed`,
 `stackActions="end"` closes every card with its actions, cells that render
 nothing get `data-empty` and are hidden and skipped by the `·` separators, the `<table>`
 stays a table for assistive tech), FilterSearchBar /
-FilterInput (`size="sm"` compact bar on `--control-height-compact`, text
+FilterInput (`font="sans"` for a plain search box, `size="sm"` compact bar on `--control-height-compact`, text
 floored at 16px under `pointer: coarse` so iOS does not zoom on focus,
 `shape="pill"`, `surface`, `hotkey="/"` focuses the input from anywhere
 outside an editable element, `showHotkey` renders the `<kbd>` hint, `grow`;
@@ -383,7 +384,8 @@ insets it as an elevated rounded card), NavItem
 (collapses to an icon rail when the sidebar is narrow; `icon` from the
 registry, `iconPath` / `iconChildren` for custom glyphs, `activeStyle="bar"`
 for the inset-bar active look), MasterDetail (list + detail columns that
-become two pages — one pane at a time with a sticky 44px back header — below
+become two pages — one pane at a time with a sticky 44px back header, keeping the
+list's scroll and focus — below
 their own `breakpoint`, so `selected` can be driven from the URL; `gap` spaces
 the columns and `divider="none"` drops the seam, both also settable as the
 `--md-gap` / `--md-divider` custom properties), Container, Stack
@@ -864,6 +866,32 @@ proportionally with no code. That's the recommended path for magnification.
 `fontScale` / `<FontScalePicker>` is an **opt-in** extra (drives `--fs-scale`,
 text tokens only) for reading-dense apps that want larger body text while
 keeping chrome compact. It isn't wired into AppShell or any default.
+
+### Mobile: TabBar, SwipeRow, PullToRefresh
+
+`TabBar` is a phone bottom tab bar: `items: { id, label, icon?, href?, badge? }[]`,
+`bind:value` (the selected `id`), `onselect(id, item)`. Items without `href` are a
+`tablist` with roving focus (←/→/Home/End); items with `href` are links with
+`aria-current="page"`. It is fixed to the bottom with `env(safe-area-inset-bottom)`
+(`placement="inline"` flows with the page) and, while mounted as a bar, publishes its
+height as `--tabbar-h` on `<html>`, so content clears it with
+`padding-bottom: var(--tabbar-h)`. Targets are at least 48px; numeric badges cap at `99+`.
+
+`SwipeRow` wraps a list row with one action per side: `leadingAction` on a rightward
+swipe, `trailingAction` on a leftward one, each `{ label, icon?, tone?, onaction }`
+(or `leading` / `trailing` snippets receiving the action and an `armed` flag).
+Releasing past `threshold` (0.35 of the width) fires `onaction`. Drags that are more
+vertical than horizontal are left to the scroller (`touch-action: pan-y`). The same
+actions are visually hidden buttons for keyboard and screen-reader users.
+
+`PullToRefresh` is a scroll container with pull-down-to-refresh for touch and pen.
+`onrefresh` returns a promise; the Spinner holds and the container is `aria-busy`
+with `label` ("Refreshing…") announced politely until it settles. It starts only at
+`scrollTop === 0`, fires once past `threshold` (72px), and contains overscroll so the
+browser's own pull does not fight it. Keep a visible refresh control for mouse users.
+
+AppShell exposes `--shell-header-h` (the header plus the top safe-area inset) for
+sticky offsets under `viewport-fit=cover`.
 
 ### Toolbar control heights
 

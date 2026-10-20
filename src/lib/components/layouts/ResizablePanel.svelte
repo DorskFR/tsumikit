@@ -594,9 +594,23 @@
 		}
 	}
 
+	/* Coarse pointers: an invisible slab grows the chevron towards --touch-target. */
+	@media (pointer: coarse) {
+		.collapse-control::before {
+			content: '';
+			position: absolute;
+			inset-block: min(0px, calc((100% - var(--touch-target)) / 2));
+			inset-inline: min(0px, calc((100% - var(--touch-target)) / 2));
+		}
+	}
+
 	@media (prefers-reduced-motion: reduce) {
 		.panel {
 			transition: none;
+			animation: none;
+		}
+		.overlay .panel,
+		.overlay.right .panel {
 			animation: none;
 		}
 	}

@@ -4,8 +4,8 @@
 	// (≤ 8rem — e.g. the user drags AppShell's resizable sidebar down to a rail)
 	// the label hides and the icon centers, purely in CSS; a non-empty badge then
 	// collapses to a small dot indicator so the count cue survives the rail.
-	// `title`/`aria-label` carry the name so the icon-only state stays accessible
-	// and shows a tooltip. Renders an <a> when `href` is set, else a <button>.
+	// In the rail the label and pill stay in the accessible name (visually
+	// hidden), and `title` shows the label as a tooltip. Renders an <a> when `href` is set, else a <button>.
 	// The glyph is `iconChildren` (raw 24×24 SVG content), else `iconPath`
 	// (single path d), else the registry `icon`.
 	import type { Snippet } from 'svelte';
@@ -73,7 +73,6 @@
 	class:active
 	class:bar={activeStyle === 'bar'}
 	title={label}
-	aria-label={label}
 	aria-current={active ? 'page' : undefined}
 	{onclick}
 	{...rest}
@@ -184,7 +183,12 @@
 		}
 		.nav-label,
 		.nav-trail {
-			display: none;
+			position: absolute;
+			width: 1px;
+			height: 1px;
+			overflow: hidden;
+			clip-path: inset(50%);
+			white-space: nowrap;
 		}
 		.nav-dot {
 			display: block;

@@ -35,6 +35,18 @@ export function autoresize(node: HTMLTextAreaElement, _value?: string) {
 	};
 	resize();
 	node.addEventListener('input', resize);
+	// Re-wrap on width changes, and measure once a hidden textarea is revealed.
+	let width = node.clientWidth;
+	const ro =
+		typeof ResizeObserver === 'undefined'
+			? undefined
+			: new ResizeObserver(([entry]) => {
+					const w = entry.contentRect.width;
+					if (w === width) return;
+					width = w;
+					resize();
+				});
+	ro?.observe(node);
 	return {
 		update() {
 			// re-measure when the bound value changes from outside (e.g. cleared)
@@ -42,6 +54,7 @@ export function autoresize(node: HTMLTextAreaElement, _value?: string) {
 		},
 		destroy() {
 			node.removeEventListener('input', resize);
+			ro?.disconnect();
 		},
 	};
 }

@@ -93,8 +93,8 @@ test('Kbd atom exists, is exported and maps tokens to glyphs', () => {
 	assert.match(kbd, /class="kbd-group/);
 	assert.match(kbd, /<kbd class="kbd">/);
 	assert.match(kbd, /keys\.split\('\+'\)/);
-	assert.match(kbd, /case 'mod':\s*return isMac \? '⌘' : 'Ctrl'/);
-	assert.match(kbd, /case 'enter':\s*case 'return':\s*return '↵'/);
+	assert.match(kbd, /case 'mod':\s*return isMac \? key\('⌘', 'Command'\) : key\('Ctrl', 'Control'\)/);
+	assert.match(kbd, /case 'enter':\s*case 'return':\s*return key\('↵', 'Enter'\)/);
 	assert.match(kbd, /typeof navigator !== 'undefined' &&/);
 	assert.match(kbd, /font-family: var\(--font-mono\)/);
 	assert.match(kbd, /border-bottom-width: 2px/);

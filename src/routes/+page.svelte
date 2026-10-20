@@ -56,6 +56,8 @@
 		RadioGroup,
 		SegmentedControl,
 		SortableList,
+		SwipeRow,
+		PullToRefresh,
 		SplitButton,
 		AttachmentList,
 		SegmentedProgress,
@@ -83,6 +85,8 @@
 		type GlyphStackItem,
 		NavBar,
 		type NavBarItem,
+		TabBar,
+		type TabBarItem,
 		NavItem,
 		Drawer,
 		KeyValue,
@@ -217,6 +221,7 @@
 				{ id: 'pagination', label: 'Pagination', keywords: 'pages offset paging' },
 				{ id: 'carousel', label: 'Carousel', keywords: 'slides deck tour gallery swipe dots' },
 				{ id: 'navbar', label: 'NavBar', keywords: 'bottom bar tab bar routes links safe area' },
+				{ id: 'tab-bar', label: 'TabBar', keywords: 'bottom tabs phone safe area badge' },
 				{ id: 'accordion', label: 'Accordion', keywords: 'details disclosure collapse' },
 				{ id: 'nav-item', label: 'Artwork · NavItem', keywords: 'sidebar avatar menu entry' },
 				{ id: 'avatar', label: 'Avatar', keywords: 'initials glyph emoji identity user account hue' },
@@ -233,6 +238,8 @@
 				{ id: 'section-header', label: 'SectionHeader · KeyValue', keywords: 'header list loadmore' },
 				{ id: 'data-table', label: 'DataTable', keywords: 'table rows columns sort generic' },
 				{ id: 'sortable-list', label: 'SortableList', keywords: 'reorder drag drop priority queue order grip' },
+				{ id: 'swipe-row', label: 'SwipeRow', keywords: 'swipe actions touch row archive delete mobile' },
+				{ id: 'pull-to-refresh', label: 'PullToRefresh', keywords: 'pull refresh reload touch mobile spinner' },
 				{ id: 'filter-search-bar', label: 'FilterSearchBar', keywords: 'query search filter sql predicate' },
 				{ id: 'timestamp', label: 'Timestamp', keywords: 'date time relative utc epoch' },
 				{ id: 'git-ref', label: 'GitRef', keywords: 'branch pr commit diff' },
@@ -475,6 +482,20 @@
 	);
 	let demoRare = $state<string | undefined>('r7');
 	let demoRareMove = $state('');
+	let tab = $state('home');
+	const tabBarItems: TabBarItem[] = [
+		{ id: 'home', label: 'Home', icon: 'home' },
+		{ id: 'activity', label: 'Activity', icon: 'list', badge: 120 },
+		{ id: 'wanted', label: 'Wanted', icon: 'star', badge: 'new' },
+		{ id: 'more', label: 'More', icon: 'menu' }
+	];
+	let demoSwipeRows = $state([
+		{ id: 'a', name: 'Behemoth', meta: 'Odin — 2 min ago' },
+		{ id: 'b', name: 'Fafnir', meta: 'Hyperion — 9 min ago' },
+		{ id: 'c', name: 'Ixion', meta: 'Zalera — 14 min ago' }
+	]);
+	let demoSwipeLog = $state('');
+	let ptrRows = $state(Array.from({ length: 20 }, (_, i) => `Row ${i + 1}`));
 	const navBarItems: NavBarItem[] = [
 		{ href: '#navbar', label: 'Home', icon: 'home', current: true },
 		{ href: '#navbar', label: 'Sessions', icon: 'list', badge: 3 },
@@ -2085,6 +2106,20 @@ function greet(name) {
 				</Card>
 			</section>
 
+			<section class="section" id="tab-bar">
+				<Heading level={3} size="lg">TabBar</Heading>
+				<Text tone="muted">
+					Phone bottom tabs. Fixed to the bottom by default with the safe-area inset and
+					<code>--tabbar-h</code> on <code>&lt;html&gt;</code>; shown inline here.
+				</Text>
+				<Card>
+					<Stack gap="var(--sp-3)">
+						<TabBar items={tabBarItems} bind:value={tab} placement="inline" />
+						<Text variant="caption" tone="muted">selected: {tab}</Text>
+					</Stack>
+				</Card>
+			</section>
+
 			<section class="section" id="accordion">
 				<Heading level={3} size="lg">Accordion</Heading>
 				<Card>
@@ -2663,6 +2698,46 @@ function greet(name) {
 				<Text tone="muted" size="sm">Selected: {demoRare ?? 'none'} · last move: {demoRareMove || 'none'}</Text>
 			</section>
 
+			<section class="section" id="swipe-row">
+				<Heading level={3} size="lg">SwipeRow</Heading>
+				<Text tone="muted">
+					Swipe a row sideways to reveal an action; past 35% of the width it fires on release.
+					Vertical drags scroll as usual. Tab into a row to reach the same actions as buttons.
+				</Text>
+				<ul class="swipe-demo">
+					{#each demoSwipeRows as row (row.id)}
+						<li>
+							<SwipeRow
+								leadingAction={{ label: 'Archive', icon: 'archive', tone: 'ok', onaction: () => (demoSwipeLog = `archived ${row.name}`) }}
+								trailingAction={{ label: 'Delete', icon: 'trash', tone: 'danger', onaction: () => (demoSwipeRows = demoSwipeRows.filter((r) => r.id !== row.id)) }}
+							>
+								<div class="swipe-demo-row">
+									<Text>{row.name}</Text>
+									<Text tone="muted" variant="caption">{row.meta}</Text>
+								</div>
+							</SwipeRow>
+						</li>
+					{/each}
+				</ul>
+				{#if demoSwipeLog}<Text tone="muted" variant="caption">{demoSwipeLog}</Text>{/if}
+			</section>
+
+			<section class="section" id="pull-to-refresh">
+				<Heading level={3} size="lg">PullToRefresh</Heading>
+				<Text tone="muted">Touch or pen: pull down from the top of the list to prepend a row.</Text>
+				<PullToRefresh
+					style="height: 240px; border: 1px solid var(--border); border-radius: var(--r-md)"
+					onrefresh={async () => {
+						await new Promise((r) => setTimeout(r, 1200));
+						ptrRows = [new Date().toLocaleTimeString(), ...ptrRows];
+					}}
+				>
+					{#each ptrRows as row (row)}
+						<div style="padding: var(--sp-3); border-bottom: 1px solid var(--border)">{row}</div>
+					{/each}
+				</PullToRefresh>
+			</section>
+
 			<section class="section" id="filter-search-bar">
 				<Heading level={3} size="lg">FilterSearchBar <Badge tone="info">organism</Badge></Heading>
 				<Text tone="muted">
@@ -2678,6 +2753,7 @@ function greet(name) {
 							placeholder={'name:api role:worker status=ok'}
 							onchange={(q) => (searchQuery = q)}
 						/>
+						<FilterSearchBar schema={searchSchema} font="sans" placeholder="Search your library…" />
 						<div class="row row-wrap">
 							{#each ['role:worker', 'status=danger', 'name:cache', 'id>=2'] as ex (ex)}
 								<Badge as="button" tone="neutral" onclick={() => (searchValue = ex)}>{ex}</Badge>
@@ -3864,5 +3940,23 @@ function greet(name) {
 		color: var(--text-muted);
 		font-family: var(--font-mono);
 		font-size: var(--fs-sm);
+	}
+	.swipe-demo {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+		border: 1px solid var(--border);
+		border-radius: var(--r-md);
+		overflow: hidden;
+	}
+	.swipe-demo li + li {
+		border-top: 1px solid var(--border);
+	}
+	.swipe-demo-row {
+		display: flex;
+		justify-content: space-between;
+		gap: var(--sp-3);
+		padding: var(--sp-3) var(--sp-4);
+		background: var(--bg-elevated);
 	}
 </style>

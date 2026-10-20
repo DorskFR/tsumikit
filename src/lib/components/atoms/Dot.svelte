@@ -53,7 +53,7 @@
 	</span>
 {:else}
 	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-	<span class="dot {klass}" class:glow class:ring style="--dot-color:{resolved}" data-tsu="Dot" role={interactive ? 'img' : undefined} tabindex={interactive ? 0 : undefined} {...rest}></span>
+	<span class="dot {klass}" class:glow class:ring style="--dot-color:{resolved}" data-tsu="Dot" role={interactive ? 'img' : undefined} tabindex={interactive ? 0 : undefined} aria-label={interactive && !color ? status : undefined} {...rest}></span>
 {/if}
 
 <style>

@@ -71,6 +71,7 @@ test('controls that own the arrow keys keep them', () => {
 	assert.equal(consumesArrowKeys({ tagName: 'INPUT', type: 'search' }), true);
 	assert.equal(consumesArrowKeys({ tagName: 'INPUT', type: 'number' }), true);
 	assert.equal(consumesArrowKeys({ tagName: 'INPUT', type: 'range' }), true);
+	assert.equal(consumesArrowKeys({ tagName: 'INPUT', type: 'radio' }), true);
 	assert.equal(consumesArrowKeys({ tagName: 'INPUT' }), true);
 	assert.equal(consumesArrowKeys({ tagName: 'TEXTAREA' }), true);
 	assert.equal(consumesArrowKeys({ tagName: 'SELECT' }), true);

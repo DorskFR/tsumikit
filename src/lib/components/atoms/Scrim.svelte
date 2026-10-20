@@ -1,3 +1,7 @@
+<script lang="ts" module>
+	const open: object[] = [];
+</script>
+
 <script lang="ts">
 	import { browser } from '$lib/env';
 
@@ -38,15 +42,27 @@
 		return () => query.removeEventListener('change', sync);
 	});
 
+	let el = $state<HTMLButtonElement | null>(null);
+
+	// Only the topmost scrim reacts, and never to an Escape aimed at a dialog
+	// or popover layered above it.
 	$effect(() => {
 		if (!browser) return;
+		const self = {};
+		open.push(self);
 		const onKeydown = (event: KeyboardEvent) => {
 			if (event.key !== 'Escape' || event.defaultPrevented) return;
+			if (open.at(-1) !== self) return;
+			const layer = (event.target as Element | null)?.closest?.('dialog[open], [popover]');
+			if (layer && !(el && layer.contains(el))) return;
 			event.preventDefault();
 			onclose?.();
 		};
 		document.addEventListener('keydown', onKeydown);
-		return () => document.removeEventListener('keydown', onKeydown);
+		return () => {
+			document.removeEventListener('keydown', onKeydown);
+			open.splice(open.indexOf(self), 1);
+		};
 	});
 </script>
 
@@ -54,6 +70,7 @@
 	<button
 		type="button"
 		class="scrim {klass}"
+		bind:this={el}
 		style={styleProp}
 		style:z-index={z}
 		aria-label={label}
