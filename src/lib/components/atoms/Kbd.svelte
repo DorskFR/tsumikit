@@ -18,43 +18,46 @@
 		typeof navigator !== 'undefined' &&
 		/mac|iphone|ipad|ipod/i.test(navigator.platform || navigator.userAgent || '');
 
-	function label(token: string): string {
+	type Key = { glyph: string; name: string };
+	const key = (glyph: string, name = glyph): Key => ({ glyph, name });
+
+	function label(token: string): Key {
 		const t = token.trim().toLowerCase();
 		switch (t) {
 			case 'mod':
-				return isMac ? '⌘' : 'Ctrl';
+				return isMac ? key('⌘', 'Command') : key('Ctrl', 'Control');
 			case 'ctrl':
 			case 'control':
-				return 'Ctrl';
+				return key('Ctrl', 'Control');
 			case 'meta':
 			case 'cmd':
 			case 'command':
-				return '⌘';
+				return key('⌘', 'Command');
 			case 'alt':
 			case 'option':
-				return isMac ? '⌥' : 'Alt';
+				return isMac ? key('⌥', 'Option') : key('Alt');
 			case 'shift':
-				return '⇧';
+				return key('⇧', 'Shift');
 			case 'enter':
 			case 'return':
-				return '↵';
+				return key('↵', 'Enter');
 			case 'esc':
 			case 'escape':
-				return 'Esc';
+				return key('Esc', 'Escape');
 			case 'tab':
-				return 'Tab';
+				return key('Tab');
 			case 'space':
-				return 'Space';
+				return key('Space');
 			case 'up':
-				return '↑';
+				return key('↑', 'Up arrow');
 			case 'down':
-				return '↓';
+				return key('↓', 'Down arrow');
 			case 'left':
-				return '←';
+				return key('←', 'Left arrow');
 			case 'right':
-				return '→';
+				return key('→', 'Right arrow');
 			default:
-				return t.charAt(0).toUpperCase() + t.slice(1);
+				return key(t.charAt(0).toUpperCase() + t.slice(1));
 		}
 	}
 
@@ -73,7 +76,7 @@
 >
 	{#each tokens as token, i (i)}
 		{#if i > 0}<span class="kbd-sep" aria-hidden="true">+</span>{/if}
-		<kbd class="kbd">{token}</kbd>
+		<kbd class="kbd">{#if token.name === token.glyph}{token.glyph}{:else}<span aria-hidden="true">{token.glyph}</span><span class="kbd-name">{token.name}</span>{/if}</kbd>
 	{/each}
 </span>
 
@@ -110,6 +113,15 @@
 		border-radius: var(--r-sm);
 		background: var(--bg-elevated-2);
 		color: inherit;
+	}
+	.kbd-name {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
 	}
 	.kbd-sep {
 		font-size: 0.85em;

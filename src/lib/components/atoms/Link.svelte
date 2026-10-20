@@ -1,8 +1,10 @@
 <script lang="ts">
 	import type { HTMLAttributes } from 'svelte/elements';
-	// Inline text link — underlined accent text with no button chrome. Renders an
-	// <a> when `href` is given, otherwise a <button> (for in-page actions that
-	// read as links, e.g. "Open ChatGPT again").
+	// Inline text link — accent text with no button chrome. Renders an <a> when
+	// `href` is given, otherwise a <button> (for in-page actions that read as
+	// links, e.g. "Open ChatGPT again").
+	// Underline: the default `hover` is for navigation, lists and entity titles;
+	// use `always` for links inside running prose.
 	import type { Snippet } from 'svelte';
 
 	type Own = {
@@ -20,7 +22,7 @@
 	let {
 		href,
 		tone = 'accent',
-		underline = 'always',
+		underline = 'hover',
 		align = 'start',
 		class: klass = '',
 		children,

@@ -78,6 +78,11 @@ select {
 code,
 pre {
 	font-family: var(--font-mono);
+}
+code {
+	font-size: var(--fs-xs);
+}
+pre {
 	font-size: 0.875em;
 }
 
@@ -101,3 +106,28 @@ pre {
 	}
 }
 
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		animation-duration: 0.01ms !important;
+		animation-iteration-count: 1 !important;
+		transition-duration: 0.01ms !important;
+		scroll-behavior: auto !important;
+	}
+}
+
+/* Windows High Contrast: keep the focus ring on a system color. */
+@media (forced-colors: active) {
+	:focus-visible {
+		outline: 2px solid Highlight;
+		outline-offset: 2px;
+	}
+}
+
+/* Stronger separators when the user asks for more contrast. */
+@media (prefers-contrast: more) {
+	:root {
+		--border: var(--border-strong);
+	}
+}

@@ -43,3 +43,12 @@ test('quote and reply glyphs are registered (TSU-173)', () => {
 	assert.doesNotMatch(icon, /^\t\t(quote|reply): '<path[^']*fill="currentColor"/m);
 	assert.match(icon, /const FILLED = new Set<IconName>\(\['stop', 'star', 'live'\]\)/);
 });
+
+test('map and video glyphs are registered, stroked', () => {
+	for (const name of ['map', 'video']) {
+		assert.match(icon, new RegExp(`^\\t\\t${name}: '<`, 'm'), `missing glyph ${name}`);
+		assert.doesNotMatch(icon, new RegExp(`^\\t\\t${name}: '[^']*fill=`, 'm'));
+	}
+	assert.equal((icon.match(/^\t\tmap: '(.*)',$/m)?.[1].match(/<path /g) ?? []).length, 3);
+	assert.match(icon, /^\t\tvideo: '<path [^']*<rect x="2" y="6" width="14" height="12" rx="2" \/>',$/m);
+});
