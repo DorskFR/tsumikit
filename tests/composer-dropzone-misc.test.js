@@ -106,7 +106,7 @@ test('Dropzone overlay lets non-file drops through to the wrapped content', () =
 	const fileOver = drag(window, 'dragover', ['Files']);
 	text.dispatchEvent(fileOver);
 	assert.equal(fileOver.defaultPrevented, true);
-	assert.equal(fileOver.dataTransfer.dropEffect, 'copy');
+	assert.equal(/** @type {DragEvent} */ (fileOver).dataTransfer?.dropEffect, 'copy');
 	const fileDrop = drag(window, 'drop', ['Files']);
 	text.dispatchEvent(fileDrop);
 	assert.equal(fileDrop.defaultPrevented, true);

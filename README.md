@@ -890,6 +890,27 @@ with `label` ("Refreshing…") announced politely until it settles. It starts on
 `scrollTop === 0`, fires once past `threshold` (72px), and contains overscroll so the
 browser's own pull does not fight it. Keep a visible refresh control for mouse users.
 
+### Player: SeekSlider, VolumeSlider, TimeDisplay
+
+`SeekSlider` is a media scrubber: `bind:value` (seconds), `max` (duration;
+`null`/`Infinity`/`0` = live, track disabled), `buffered` (`[start, end][]` drawn
+as a muted fill), `step` (5 s arrows), `bigStep` (10 % PageUp/Down), `size="sm" | "md"`,
+`formatTime`, `previewSnippet(time)` for a thumbnail in the hover tooltip. `oninput`
+fires while dragging and never seeks; `onchange` fires once per release or keyboard
+step, so seek the player only there. `onscrubstart`/`onscrubend` bracket a drag. The
+hit slab is `--touch-target-compact` tall on coarse pointers while the track stays
+3–4 px, and horizontal scrubbing never scrolls the page. `aria-valuetext` reads
+"1:02 of 23:45".
+
+`VolumeSlider` pairs a mute toggle (glyph follows the level) with a short slider:
+`bind:value` (0–1), `bind:muted`, `orientation="vertical"`, `step` (5 %, also the
+wheel notch), `onchange`/`oninput`/`onmutechange`. Changing the level unmutes.
+`hideOnTouch` (default) hides the slider, not the mute button, on touch screens.
+
+`TimeDisplay` renders "1:02 / 23:45" in tabular numbers; clicking toggles
+`bind:remaining`. `formatMediaTime`, `describeMediaTime` and `isLiveDuration` are
+exported for custom readouts.
+
 AppShell exposes `--shell-header-h` (the header plus the top safe-area inset) for
 sticky offsets under `viewport-fit=cover`.
 

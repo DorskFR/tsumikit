@@ -13,6 +13,7 @@ function measure(value, caret) {
 	ta.value = value;
 	ta.setSelectionRange(caret, caret);
 	/** @type {{ marker: string, mirror: string } | null} */
+	/** @type {{ marker: string, mirror: string } | null} */
 	let seen = null;
 	const orig = w.HTMLElement.prototype.getBoundingClientRect;
 	w.HTMLElement.prototype.getBoundingClientRect = function () {
@@ -22,7 +23,7 @@ function measure(value, caret) {
 		return orig.call(this);
 	};
 	const rect = caretRect(ta);
-	return { rect, seen };
+	return { rect, seen: /** @type {{ marker: string, mirror: string } | null} */ (seen) };
 }
 
 test('caret mirror marker holds one character so a wrapping remainder cannot drag it to the line start', () => {

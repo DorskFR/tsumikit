@@ -98,7 +98,7 @@ test('the store owns the system listener, the preference and its persistence', (
 
 test('a stored blob and a stored bare id both go through preferenceFrom', () => {
 	assert.match(store, /const KEY = 'tsumikit-theme';/);
-	assert.match(store, /localStorage\.setItem\(KEY, this\.saved\)/);
+	assert.match(store, /writeStorage\(KEY, this\.saved\)/);
 	assert.match(store, /JSON\.stringify\(this\.pref\)/);
 	assert.match(store, /blob\s*\?\s*{ themeMode: blob\.mode, lightTheme: blob\.light, darkTheme: blob\.dark }\s*:\s*{ theme: this\.saved }/);
 });

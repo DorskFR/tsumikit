@@ -96,7 +96,7 @@ test('SelectButton: change still reports the picked value; row variant keeps its
 	const root = renderSelectButton({ glyph: 'A', label: 'Pick', value: 'a', options, onchange: (/** @type {string} */ v) => got.push(v) });
 	const select = /** @type {HTMLSelectElement} */ (root.querySelector('select'));
 	select.value = 'b';
-	select.dispatchEvent(new (/** @type {Window} */ (root.ownerDocument.defaultView)).Event('change', { bubbles: true }));
+	select.dispatchEvent(new (/** @type {any} */ (root.ownerDocument.defaultView)).Event('change', { bubbles: true }));
 	assert.deepEqual(got, ['b']);
 
 	const row = renderSelectButton({ icon: 'palette', variant: 'row', label: 'Theme', value: 'a', options, onchange() {} });

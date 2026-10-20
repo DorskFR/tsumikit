@@ -69,7 +69,7 @@ test('a programmatic value containing `..` serialises quoted and re-parses intac
 		root: { kind: 'filter', field: 'cwd', op: 'contains', values: ['../x'], span: [0, 0] },
 	});
 	assert.equal(s, 'cwd:"../x"');
-	assert.deepEqual(root(s)?.kind === 'filter' && root(s)?.values, ['../x']);
+	assert.deepEqual(root(s)?.kind === 'filter' && /** @type {any} */ (root(s))?.values, ['../x']);
 	assert.equal(singleQuery(schema, 'cwd', '../x'), 'cwd:"../x"');
 });
 
@@ -81,8 +81,8 @@ test('values containing `"` are escaped by serialize and re-parse to the same va
 		assert.equal(back?.kind, 'filter', s);
 		assert.deepEqual(back.kind === 'filter' && back.values, [v], s);
 	}
-	assert.equal(root('title:"say \\"hi\\" now"')?.kind === 'filter' && root('title:"say \\"hi\\" now"')?.values[0], 'say "hi" now');
-	assert.equal(root('cwd:"C:\\foo"')?.kind === 'filter' && root('cwd:"C:\\foo"')?.values[0], 'C:\\foo');
+	assert.equal(root('title:"say \\"hi\\" now"')?.kind === 'filter' && /** @type {any} */ (root('title:"say \\"hi\\" now"'))?.values[0], 'say "hi" now');
+	assert.equal(root('cwd:"C:\\foo"')?.kind === 'filter' && /** @type {any} */ (root('cwd:"C:\\foo"'))?.values[0], 'C:\\foo');
 });
 
 test('a suggested value containing `"` inserts an escaped clause', async () => {
