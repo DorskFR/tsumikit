@@ -26,7 +26,9 @@ test('Modal busy makes the body inert, shows a spinner and blocks every close pa
 	assert.match(source, /{#if busy}<Spinner label="Working" \/>{\/if}/);
 	assert.match(source, /<IconButton icon="x" label="Close dialog" disabled={busy} onclick={requestClose} \/>/);
 	assert.match(source, /oncancel={\(e\) => {\s*e\.preventDefault\(\);[^}]*requestClose\(\);/s);
-	assert.match(source, /if \(e\.target === dialogEl\) requestClose\(\);/);
+	assert.match(source, /pressOnBackdrop = e\.target === dialogEl;/);
+	assert.match(source, /const outside = pressOnBackdrop && e\.target === dialogEl;\s*pressOnBackdrop = false;\s*if \(outside\) requestClose\(\);/s);
+	assert.match(source, /onpointerdown={onDialogPointerDown}\s*onclick={onDialogClick}/);
 });
 
 test('Modal tone paints a title glyph and a 3px top border; footer is right-aligned', () => {

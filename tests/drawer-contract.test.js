@@ -17,7 +17,9 @@ test('Drawer is a native <dialog> that follows a bound `open` and closes on Esca
 	assert.match(source, /else if \(!open && dialogEl\.open\) dialogEl\.close\(\);/);
 	assert.match(source, /function requestClose\(\) {\s*if \(controlled\) open = false;\s*onclose\?\.\(\);/s);
 	assert.match(source, /oncancel={\(e\) => {\s*e\.preventDefault\(\);\s*requestClose\(\);/s);
-	assert.match(source, /if \(e\.target === dialogEl\) requestClose\(\);/);
+	assert.match(source, /pressOnBackdrop = e\.target === dialogEl;/);
+	assert.match(source, /const outside = pressOnBackdrop && e\.target === dialogEl;\s*pressOnBackdrop = false;\s*if \(outside\) requestClose\(\);/s);
+	assert.match(source, /onpointerdown={onDialogPointerDown}\s*onclick={onDialogClick}/);
 	assert.match(source, /<IconButton icon="x" label={closeLabel} onclick={requestClose} \/>/);
 	assert.match(source, /closeLabel = 'Close panel'/);
 });

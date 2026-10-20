@@ -104,9 +104,17 @@
 	}
 
 	// Click outside: <dialog fills the viewport; clicks on its padding-free self
-	// (not the inner .sheet) are backdrop clicks.
+	// (not the inner .sheet) are backdrop clicks. A drag that starts in the sheet
+	// and ends on the backdrop also fires click on the dialog, so the press must
+	// have landed on the backdrop too.
+	let pressOnBackdrop = false;
+	function onDialogPointerDown(e: PointerEvent) {
+		pressOnBackdrop = e.target === dialogEl;
+	}
 	function onDialogClick(e: MouseEvent) {
-		if (e.target === dialogEl) requestClose();
+		const outside = pressOnBackdrop && e.target === dialogEl;
+		pressOnBackdrop = false;
+		if (outside) requestClose();
 	}
 
 	// --- resize ---
@@ -167,6 +175,7 @@
 	onclose={() => {
 		if (controlled) open = false;
 	}}
+	onpointerdown={onDialogPointerDown}
 	onclick={onDialogClick}
 >
 	<div
@@ -282,6 +291,12 @@
 		from {
 			transform: translateY(8%);
 			opacity: 0.4;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.modal::backdrop,
+		.sheet {
+			animation: none;
 		}
 	}
 	.modal.resizing .sheet {

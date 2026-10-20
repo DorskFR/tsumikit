@@ -1,9 +1,11 @@
 <script lang="ts">
 	// Renders the toast queue bottom-centered in two live regions: polite for
 	// ok/info/neutral, assertive (role=alert) for errors. Mount once near the
-	// app root. The stack lives in a manual popover so it paints in the
-	// top layer above an open Modal <dialog>; without the Popover API the
-	// attribute is ignored and the fixed/z-index positioning applies instead.
+	// app root. The stack lives in a manual popover so it paints in the top
+	// layer; without the Popover API the attribute is ignored and the
+	// fixed/z-index positioning applies instead. While a modal <dialog> is open
+	// everything outside it is inert, top layer included, so the stack moves
+	// into the topmost modal dialog and back to its host when it closes.
 	import { toasts } from '$lib/stores/toast.svelte';
 	import Button from '$lib/components/atoms/Button.svelte';
 	import Card from '$lib/components/atoms/Card.svelte';
@@ -11,16 +13,61 @@
 
 	let { class: klass = '', style: styleProp = '' }: { class?: string; style?: string } = $props();
 
+	let host: HTMLDivElement | undefined = $state();
 	let el: HTMLDivElement | undefined = $state();
 	const polite = $derived(toasts.items.filter((t) => t.tone !== 'error'));
 	const assertive = $derived(toasts.items.filter((t) => t.tone === 'error'));
 
-	$effect(() => {
-		if (!el || typeof el.showPopover !== 'function') return;
+	function topModal(): HTMLDialogElement | null {
+		let found: HTMLDialogElement | null = null;
+		for (const d of document.querySelectorAll<HTMLDialogElement>('dialog[open]')) {
+			try {
+				if (d.matches(':modal')) found = d;
+			} catch {}
+		}
+		return found;
+	}
+
+	let shown = false;
+	function show(stack: HTMLDivElement) {
+		if (typeof stack.showPopover !== 'function') return;
 		try {
-			if (toasts.items.length) el.showPopover();
-			else el.hidePopover();
+			stack.showPopover();
+			shown = true;
 		} catch {}
+	}
+	function hide(stack: HTMLDivElement) {
+		if (!shown || typeof stack.hidePopover !== 'function') return;
+		shown = false;
+		try {
+			stack.hidePopover();
+		} catch {}
+	}
+
+	$effect(() => {
+		const stack = el;
+		const home = host;
+		if (!stack || !home) return;
+		if (!toasts.items.length) {
+			hide(stack);
+			return;
+		}
+		const place = () => {
+			const target = topModal() ?? home;
+			if (stack.parentNode !== target) {
+				hide(stack);
+				target.appendChild(stack);
+			}
+			show(stack);
+		};
+		place();
+		const observer = new MutationObserver(place);
+		observer.observe(document.body, { attributes: true, attributeFilter: ['open'], subtree: true });
+		return () => observer.disconnect();
+	});
+
+	$effect(() => () => {
+		if (el && host && el.parentNode !== host) host.appendChild(el);
 	});
 </script>
 
@@ -62,16 +109,21 @@
 	{/if}
 {/snippet}
 
-<div class="toaster {klass}" style={styleProp} bind:this={el} popover="manual" data-tsu="Toaster">
-	<div class="region" role="status" aria-live="polite">
-		{#each polite as t (t.id)}{@render toast(t)}{/each}
-	</div>
-	<div class="region" role="alert" aria-live="assertive">
-		{#each assertive as t (t.id)}{@render toast(t)}{/each}
+<div class="toaster-host" bind:this={host}>
+	<div class="toaster {klass}" style={styleProp} bind:this={el} popover="manual" data-tsu="Toaster">
+		<div class="region" role="status" aria-live="polite">
+			{#each polite as t (t.id)}{@render toast(t)}{/each}
+		</div>
+		<div class="region" role="alert" aria-live="assertive">
+			{#each assertive as t (t.id)}{@render toast(t)}{/each}
+		</div>
 	</div>
 </div>
 
 <style>
+	.toaster-host {
+		display: contents;
+	}
 	.toaster {
 		position: fixed;
 		inset: auto;
@@ -140,6 +192,11 @@
 		from {
 			transform: translateY(8px);
 			opacity: 0;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.toaster :global(.toast) {
+			animation: none;
 		}
 	}
 </style>

@@ -157,8 +157,9 @@ export function caretRect(el) {
 	}
 	mirror.textContent = el.value.slice(0, caret);
 	const marker = doc.createElement('span');
-	marker.textContent = el.value.slice(caret) || '.';
+	marker.textContent = el.value[caret] ?? '.';
 	mirror.appendChild(marker);
+	mirror.appendChild(doc.createTextNode(el.value.slice(caret + 1)));
 	doc.body.appendChild(mirror);
 	const m = mirror.getBoundingClientRect();
 	const s = marker.getBoundingClientRect();

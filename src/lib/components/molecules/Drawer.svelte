@@ -85,8 +85,16 @@
 		onclose?.();
 	}
 
+	// A drag that starts in the panel and ends on the backdrop fires click on the
+	// dialog too, so the press must have landed on the backdrop as well.
+	let pressOnBackdrop = false;
+	function onDialogPointerDown(e: PointerEvent) {
+		pressOnBackdrop = e.target === dialogEl;
+	}
 	function onDialogClick(e: MouseEvent) {
-		if (e.target === dialogEl) requestClose();
+		const outside = pressOnBackdrop && e.target === dialogEl;
+		pressOnBackdrop = false;
+		if (outside) requestClose();
 	}
 </script>
 
@@ -104,6 +112,7 @@
 	onclose={() => {
 		if (controlled) open = false;
 	}}
+	onpointerdown={onDialogPointerDown}
 	onclick={onDialogClick}
 >
 	<div
