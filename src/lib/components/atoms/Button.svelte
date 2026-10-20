@@ -114,14 +114,23 @@
 	const t = $derived(canonicalTone(tone));
 
 	// A link-flavoured Button is a real <a>; native `disabled`/`type` don't apply,
-	// so a disabled link is expressed via aria-disabled + inert pointer handling.
+	// so an inactive link drops `href` (no focus, no keyboard activation).
 	const tag = $derived(href !== undefined || as === 'a' ? 'a' : 'button');
 	const inactive = $derived(disabled || loading);
 	const elementAttrs = $derived(
 		tag === 'a'
-			? { href, 'aria-disabled': inactive || undefined }
+			? inactive
+				? { href: undefined, role: 'link', 'aria-disabled': true }
+				: { href }
 			: { type, disabled: inactive }
 	);
+	const handleClick = (e: Parameters<NonNullable<typeof onclick>>[0]) => {
+		if (inactive) {
+			e.preventDefault();
+			return;
+		}
+		onclick?.(e);
+	};
 
 	const counted = $derived(hasCount(count));
 	const countText = $derived(hasCount(count) ? formatCount(count, countMax) : '');
@@ -137,12 +146,19 @@
 	const ariaLabel = $derived(rest['aria-label'] ? withCount(rest['aria-label']) : undefined);
 	$effect(() => {
 		if (!el || collapseLabel === 'never' || explicitName) return;
-		const labels = Array.from(el.querySelectorAll('[data-label]'), (n) => n.textContent?.trim())
-			.filter(Boolean)
-			.join(' ');
-		const text = labels && withCount(labels);
-		if (text) el.setAttribute('aria-label', text);
-		else el.removeAttribute('aria-label');
+		const node = el;
+		const sync = () => {
+			const labels = Array.from(node.querySelectorAll('[data-label]'), (n) => n.textContent?.trim())
+				.filter(Boolean)
+				.join(' ');
+			const text = labels && withCount(labels);
+			if (text) node.setAttribute('aria-label', text);
+			else node.removeAttribute('aria-label');
+		};
+		sync();
+		const observer = new MutationObserver(sync);
+		observer.observe(node, { childList: true, characterData: true, subtree: true });
+		return () => observer.disconnect();
 	});
 </script>
 
@@ -188,7 +204,7 @@
 	class:btn-counted={counted}
 	class:btn-stacked={stacked}
 	class:btn-hinted={keyHint !== undefined}
-	onclick={onclick}
+	onclick={handleClick}
 >
 	{#if loading}<span class="btn-spinner" aria-hidden="true"></span>{/if}
 	{#if glyph !== undefined}

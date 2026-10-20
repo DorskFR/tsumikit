@@ -65,6 +65,7 @@
 		tap = false,
 		interactive = false,
 		as = 'div',
+		type = 'button',
 		padding = 'md',
 		surface = 'base',
 		border = 'solid',
@@ -147,6 +148,7 @@
 	style={`${stackStyle}${style}`}
 	role={interactive && !native ? 'button' : undefined}
 	tabindex={interactive && !native ? 0 : undefined}
+	type={as === 'button' ? type : undefined}
 	onclick={handleClick}
 	onkeydown={handleKeydown}
 	{...rest}
