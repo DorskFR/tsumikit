@@ -17,6 +17,7 @@
 		loadMoreLabel = 'Load older',
 		follow = true,
 		jumpLabel = 'Jump to latest',
+		label = 'Messages',
 		class: klass = '',
 		style: styleProp = ''
 	}: {
@@ -32,6 +33,8 @@
 		/** Stick to the bottom while the user is at the bottom. */
 		follow?: boolean;
 		jumpLabel?: string;
+		/** Accessible name of the message log. */
+		label?: string;
 		class?: string;
 		style?: string;
 	} = $props();
@@ -41,9 +44,10 @@
 	let scroller = $state<HTMLElement | null>(null);
 	let stuck = $state(true);
 	let pending = $state(false);
+	// Keeps screen readers from announcing a history load or swap as new messages.
+	let busy = $state(false);
 	let prevFirst: string | number | undefined;
 	let prevLast: string | number | undefined;
-	let prevLength = 0;
 
 	const atBottom = (el: HTMLElement) => el.scrollHeight - el.scrollTop - el.clientHeight <= THRESHOLD;
 
@@ -64,17 +68,26 @@
 		const el = scroller;
 		const first = items.length ? key(items[0]) : undefined;
 		const last = items.length ? key(items[items.length - 1]) : undefined;
-		const length = items.length;
 		if (!el) return;
-		const prepended = prevFirst !== undefined && first !== prevFirst && length > prevLength;
-		const appended = last !== undefined && last !== prevLast;
+		const keys = prevFirst === undefined ? null : new Set(items.map(key));
+		const kept = (k: string | number | undefined) => k !== undefined && keys !== null && keys.has(k);
+		const prepended = first !== prevFirst && last === prevLast && kept(prevFirst);
+		const reset = prevLast !== undefined && !kept(prevLast) && !kept(prevFirst);
+		const appended = !reset && last !== undefined && last !== prevLast;
 		prevFirst = first;
 		prevLast = last;
-		prevLength = length;
 		const fromBottom = el.scrollHeight - el.scrollTop;
+		if (prepended || reset) {
+			busy = true;
+			requestAnimationFrame(() => requestAnimationFrame(() => (busy = false)));
+		}
 		tick().then(() => {
 			if (prepended) {
 				el.scrollTop = el.scrollHeight - fromBottom;
+			} else if (reset) {
+				pending = false;
+				if (untrack(() => follow)) scrollToBottom();
+				else el.scrollTop = 0;
 			} else if (appended) {
 				if (untrack(() => follow && stuck)) scrollToBottom();
 				else pending = true;
@@ -100,7 +113,7 @@
 		{#if items.length === 0 && empty}
 			{@render empty()}
 		{/if}
-		<div class="feed-items" {@attach pin}>
+		<div class="feed-items" role="log" aria-label={label} aria-busy={busy} {@attach pin}>
 			{#each items as entry, i (key(entry))}
 				{@render item(entry, i)}
 			{/each}
@@ -138,9 +151,10 @@
 	}
 	.jump {
 		position: absolute;
-		inset-inline-start: 50%;
+		inset-inline: 0;
 		bottom: var(--sp-3);
-		transform: translateX(-50%);
+		width: fit-content;
+		margin-inline: auto;
 		z-index: 1;
 		border-radius: var(--r-pill);
 		box-shadow: var(--shadow-md);

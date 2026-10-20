@@ -1,10 +1,12 @@
 <script lang="ts">
 	// List + detail columns. Above `breakpoint` (measured on this component's own
 	// box, not the viewport) both columns render and scroll independently. Below
-	// it exactly one pane renders: the list while nothing is `selected`, the
-	// detail (with a sticky back header) once it is. The consumer drives
-	// `selected` — typically from the URL — so each pane can be its own route.
-	import type { Snippet } from 'svelte';
+	// it exactly one pane shows: the list while nothing is `selected`, the detail
+	// (with a sticky back header) once it is. Both stay mounted, so the list keeps
+	// its scroll and the focus moves to Back and returns to the opened item.
+	// The consumer drives `selected` — typically from the URL — so each pane can
+	// be its own route.
+	import { type Snippet, tick } from 'svelte';
 	import { browser } from '$lib/env';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 
@@ -49,6 +51,11 @@
 
 	let root = $state<HTMLElement | null>(null);
 	let mobile = $state(false);
+	let listEl = $state<HTMLElement | null>(null);
+	let backEl = $state<HTMLButtonElement | null>(null);
+	let listScroll = 0;
+	let listFocus: HTMLElement | null = null;
+	let wasSelected: boolean | undefined;
 
 	function toPx(length: string, el: HTMLElement): number {
 		const n = Number.parseFloat(length);
@@ -71,6 +78,26 @@
 
 	const showList = $derived(!mobile || !selected);
 	const showDetail = $derived(!mobile || selected);
+
+	$effect.pre(() => {
+		const now = selected;
+		const prev = wasSelected;
+		wasSelected = now;
+		if (!mobile || prev === undefined || prev === now) return;
+		const list = listEl;
+		if (now) {
+			listScroll = list?.scrollTop ?? 0;
+			const active = document.activeElement;
+			listFocus = active instanceof HTMLElement && list?.contains(active) ? active : null;
+			tick().then(() => backEl?.focus());
+		} else {
+			tick().then(() => {
+				if (list) list.scrollTop = listScroll;
+				if (listFocus?.isConnected) listFocus.focus({ preventScroll: true });
+				listFocus = null;
+			});
+		}
+	});
 </script>
 
 <div
@@ -84,37 +111,33 @@
 	data-tsu="MasterDetail"
 	{...rest}
 >
-	{#if showList}
-		<aside class="md-list" aria-label={listLabel}>
-			{@render list()}
-		</aside>
-	{/if}
-	{#if showDetail}
-		<section class="md-detail">
-			{#if mobile}
-				<header class="md-detail-header">
-					<button type="button" class="md-back" onclick={() => onback?.()}>
-						<Icon name="chevron-left" />
-						<span>{backLabel}</span>
-					</button>
-					{#if detailHeader}
-						<div class="md-detail-header-content">{@render detailHeader()}</div>
-					{/if}
-				</header>
-			{:else if detailHeader}
-				<header class="md-detail-header">
+	<aside bind:this={listEl} class="md-list" aria-label={listLabel} hidden={!showList}>
+		{@render list()}
+	</aside>
+	<section class="md-detail" hidden={!showDetail}>
+		{#if mobile}
+			<header class="md-detail-header">
+				<button bind:this={backEl} type="button" class="md-back" onclick={() => onback?.()}>
+					<Icon name="chevron-left" />
+					<span>{backLabel}</span>
+				</button>
+				{#if detailHeader}
 					<div class="md-detail-header-content">{@render detailHeader()}</div>
-				</header>
-			{/if}
-			<div class="md-detail-body">
-				{#if selected}
-					{@render detail()}
-				{:else}
-					{@render empty?.()}
 				{/if}
-			</div>
-		</section>
-	{/if}
+			</header>
+		{:else if detailHeader}
+			<header class="md-detail-header">
+				<div class="md-detail-header-content">{@render detailHeader()}</div>
+			</header>
+		{/if}
+		<div class="md-detail-body">
+			{#if selected}
+				{@render detail()}
+			{:else}
+				{@render empty?.()}
+			{/if}
+		</div>
+	</section>
 </div>
 
 <style>
@@ -141,6 +164,9 @@
 	.md-detail {
 		display: flex;
 		flex-direction: column;
+	}
+	.md-detail[hidden] {
+		display: none;
 	}
 	.md-detail-header {
 		position: sticky;

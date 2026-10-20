@@ -22,18 +22,20 @@ test('props default to a 17rem list, 48rem own-width breakpoint, nothing selecte
 	assert.doesNotMatch(source, /matchMedia/);
 });
 
-test('desktop renders both panes; mobile renders exactly the pane selected dictates', () => {
+test('desktop shows both panes; mobile shows exactly the pane selected dictates, keeping both mounted', () => {
 	assert.match(source, /const showList = \$derived\(!mobile \|\| !selected\)/);
 	assert.match(source, /const showDetail = \$derived\(!mobile \|\| selected\)/);
-	assert.match(markup, /{#if showList}\s*<aside class="md-list"/);
-	assert.match(markup, /{#if showDetail}\s*<section class="md-detail"/);
+	assert.match(markup, /<aside bind:this={listEl} class="md-list" aria-label={listLabel} hidden={!showList}>/);
+	assert.match(markup, /<section class="md-detail" hidden={!showDetail}>/);
+	assert.doesNotMatch(markup, /{#if show(List|Detail)}/);
+	assert.match(css, /\.md-detail\[hidden\]\s*{\s*display: none;\s*}/);
 	assert.match(markup, /{#if selected}\s*{@render detail\(\)}\s*{:else}\s*{@render empty\?\.\(\)}/);
 });
 
 test('back button exists only on mobile, calls onback, and sits in a sticky touch-sized header', () => {
 	assert.match(
 		markup,
-		/{#if mobile}\s*<header class="md-detail-header">\s*<button type="button" class="md-back" onclick={\(\) => onback\?\.\(\)}>/
+		/{#if mobile}\s*<header class="md-detail-header">\s*<button bind:this={backEl} type="button" class="md-back" onclick={\(\) => onback\?\.\(\)}>/
 	);
 	assert.match(markup, /{:else if detailHeader}\s*<header class="md-detail-header">/);
 	assert.doesNotMatch(markup.slice(markup.indexOf('{:else if detailHeader}')), /md-back/);
