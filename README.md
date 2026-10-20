@@ -1033,6 +1033,10 @@ half the gap sideways, which stays inside the group's padding, so neighbours
 never overlap. `Input size="sm"` cannot host a pseudo-element and grows to 40px
 instead, as should any control that clips its own overflow:
 `min-height: var(--touch-target-compact)`.
+`Checkbox`, `Button variant="link"` and the `DataTable` sort button take the same
+slab; inside a DataTable it is clipped at the table's top edge. A `SegmentedControl`
+wider than its container switches to the `scroll` layout until it fits again
+(`wrap` wraps instead), and `block` segments ellipsise their labels.
 
 `--control-height-*` and `--box-*` are **required tokens**: a consumer that
 forks `variables.css` must keep them (Button `control`, Select `sm`, every `box`)

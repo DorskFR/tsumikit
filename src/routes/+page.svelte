@@ -2963,7 +2963,7 @@ function greet(name) {
 							stays, then the leaf ellipsises down to <code>minLeaf</code> chars. The full path is always
 							in the tooltip.
 						</Text>
-						<ResizablePanel label="WorkingDir demo" width={360} minWidth={120} maxWidth={640} widthKey="demo-working-dir">
+						<ResizablePanel label="WorkingDir demo" width={320} minWidth={120} maxWidth={640} widthKey="demo-working-dir">
 							{#snippet panel()}
 								<div class="stack" style="padding: var(--sp-3)">
 									<WorkingDir path="/home/dorsk/Documents/tsumikit/src/lib/components" />
