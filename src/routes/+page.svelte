@@ -694,6 +694,10 @@ function greet(name) {
 		{ key: 'status', label: 'Status', role: 'meta', stackLabel: false },
 		{ key: 'id', label: 'Id', role: 'meta', stackLabel: false, get: (r) => `#${r.id}` }
 	];
+	const gapRows: Row[] = [
+		{ id: 1, name: 'api-gateway-with-a-long-unbroken-name', role: '', status: 'ok' },
+		{ id: 2, name: 'worker-02', role: 'worker', status: 'warn' }
+	];
 	const pickCols: Column<Row>[] = [
 		{ key: 'pick', label: 'Select', width: '2.5rem' },
 		{ key: 'name', label: 'Name' },
@@ -1389,6 +1393,32 @@ function greet(name) {
 								<Text variant="caption" tone="muted">selected: {filterValue}</Text>
 							</Cluster>
 						</Field>
+						<Field label="wrap + size sm: wrapped rows stay inside the pill">
+							<div style="max-width: 16rem">
+								<SegmentedControl
+									wrap
+									size="sm"
+									label="Wrapped filter"
+									value="a"
+									options={[
+										{ value: 'a', label: 'All', count: 1234 },
+										{ value: 'b', label: 'Queued', count: 3 },
+										{ value: 'c', label: 'Downloading' },
+										{ value: 'd', label: 'Failed', count: 12 },
+										{ value: 'e', label: 'Completed' }
+									]}
+								/>
+							</div>
+						</Field>
+						<Field label="Compact controls (40px hit areas on touch)">
+							<Cluster gap="var(--sp-3)" align="center">
+								<Button size="sm" count={1}>Queue</Button>
+								<Toggle pill pressed={false}>Filter</Toggle>
+								<Switch size="sm" checked={switchOn} label="Auto" onclick={() => (switchOn = !switchOn)} />
+								<Link href="#segmented-control">Review</Link>
+								<Input size="sm" placeholder="sm" aria-label="Compact input" />
+							</Cluster>
+						</Field>
 						<Field label="Icon view toggle">
 							<Cluster gap="var(--sp-3)" align="center">
 								<SegmentedControl
@@ -1512,6 +1542,13 @@ function greet(name) {
 						</Field>
 						<Field label="Select (compact, no chevron)" for="f-select-mini">
 							<Select id="f-select-mini" compact chevron={false} bind:value={selectValue}>
+								<option value="one">Option one</option>
+								<option value="two">Option two</option>
+								<option value="three">Option three</option>
+							</Select>
+						</Field>
+						<Field label="Select (size sm)" for="f-select-sm">
+							<Select id="f-select-sm" size="sm" bind:value={selectValue}>
 								<option value="one">Option one</option>
 								<option value="two">Option two</option>
 								<option value="three">Option three</option>
@@ -1948,6 +1985,18 @@ function greet(name) {
 								{ label: 'Track' }
 							]}
 						/>
+						<div style="max-width: 20rem; border: 1px dashed var(--border); padding: var(--sp-2)">
+							<Breadcrumb
+								size="md"
+								wrap={false}
+								items={[
+									{ label: 'Musique', href: '#' },
+									{ label: 'Artist', href: '#' },
+									{ label: 'A rather long album title that should ellipsise' }
+								]}
+							/>
+						</div>
+						<Breadcrumb collapseCurrent items={[{ label: 'Films', href: '#' }, { label: 'Some movie' }]} />
 						<Breadcrumb
 							char="/"
 							maxItems={3}
@@ -2102,6 +2151,12 @@ function greet(name) {
 							<Artwork alt="Kusaritoi Radio" aspect="2/3" size="5rem" radius="sm" />
 							<Artwork alt="Still frame" aspect="16/9" size="10rem" fallback="icon" icon="film" />
 							<Artwork alt="Dorsk" size="3.5rem" radius="pill" />
+							<Artwork
+								src="https://picsum.photos/seed/tsu/176"
+								srcset="https://picsum.photos/seed/tsu/176 1x, https://picsum.photos/seed/tsu/320 2x"
+								alt="Srcset cover"
+								size="7rem"
+							/>
 						</div>
 						<div class="row row-wrap">
 							<div style="width: 14rem; display: grid; gap: var(--sp-1)">
@@ -2265,6 +2320,8 @@ function greet(name) {
 							<Badge tone="warn">warn</Badge>
 							<Badge tone="danger">danger</Badge>
 							<Badge tone="info">info</Badge>
+							<Badge tone="success" size="sm">success sm</Badge>
+							<Badge tone="ok" size="xs">12</Badge>
 						</div>
 						<div class="row row-wrap">
 							<Badge mono>~/path/to/file</Badge>
@@ -2503,6 +2560,23 @@ function greet(name) {
 				</Text>
 				<div style="max-width: 22rem">
 					<DataTable columns={bareStackCols} rows={tableRows} rowKey={(r) => r.id} responsive="stack" />
+				</div>
+				<Text tone="muted">
+					Empty meta cells are hidden and skipped by the <code>·</code> separators;
+					<code>stackActions="end"</code> closes every card with its actions.
+				</Text>
+				<div style="max-width: 22rem">
+					<DataTable
+						columns={bareStackCols}
+						rows={gapRows}
+						rowKey={(r) => r.id}
+						responsive="stack"
+						stackActions="end"
+					>
+						{#snippet rowActions(r: Row)}
+							<IconButton icon="copy" label="Copy {r.name}" onclick={() => toasts.show(`Copy: ${r.name}`)} />
+						{/snippet}
+					</DataTable>
 				</div>
 				<Text tone="muted">
 					<code>headerSnippets</code> replaces a header cell — here a select-all checkbox over a

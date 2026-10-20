@@ -261,9 +261,9 @@ the trigger overlays the selected option's glyph + muted hint on the native cont
 sm/md/lg as on `Switch`, or `--cb-box` for the box alone),
 Slider (`ticks` draws a dot per step for a segmented slider), Progress, Gauge (vertical consumption cell, `variant` continuous/segments,
 threshold tones via `warnAt`/`dangerAt`, `corner` snippet), Artwork (lazy cover image with seeded gradient + initials
-fallback, `aspect`, `status` overlay), Avatar (grapheme-safe initial or `glyph`, hue hashed from
+fallback, `aspect`, `status` overlay, `srcset`/`sizes` passed to the `<img>`), Avatar (grapheme-safe initial or `glyph`, hue hashed from
 `seed`/`name` or a fixed `tone`, `size` xs–lg or px, `shape` circle/square, `decorative`, corner `status`), Card (`tone` tints the surface for inline banners), Badge
-(`tone` semantic palette or `color` for any CSS colour, `size` xs/sm/md, `dot`,
+(`tone` semantic palette (the shared `Tone`, `success` = `ok`, plus `muted`/`violet`) or `color` for any CSS colour, `size` xs/sm/md (sm/xs on `--fs-xs`), `dot`,
 `icon`, `numeric`, `truncate`, `variant="text"`, `removable`/`onremove` or any
 trailing action via `actionIcon`/`actionLabel`/`onaction`, `removed` mutes and
 strikes the pill for a restorable entry; all tints derive from
@@ -290,6 +290,8 @@ sizes the panel; an item with a `control` snippet renders as a non-button row ho
 Tabs (omit `panel` for a strip-only tablist of document tabs: `closable` + `onclose(id)`
 close through the ✕, Delete and middle-click, per-tab `leading` snippet, `title`,
 trailing `actions` snippet; `--tab-max-width` truncates long labels),
+Breadcrumb (`maxItems` collapses the middle, `size` sm/md, `wrap={false}` keeps one
+line with the current crumb ellipsised, `collapseCurrent` keeps only the ancestors),
 RadioGroup (per-option `description` in every variant, announced via
 `aria-describedby`; `onfocuschange(value)` fires once per newly focused/hovered option;
 `variant="rows"`: bordered rows, per-option `note`,
@@ -349,7 +351,9 @@ hooks on head/row/cell; `responsive="stack"` turns rows into cards below
 `title | detail | meta | actions | hidden` — detail cells get a `data-label`
 prefix, `Column.stackLabel: false` drops it so metas join on one `·` line
 and details share lines, `--dt-meta-font` restyles meta values (e.g. `var(--font-sans)`; a
-literal `inherit` falls back to mono), the `<table>`
+literal `inherit` falls back to mono), stacked tables use `table-layout: fixed`,
+`stackActions="end"` closes every card with its actions, cells that render
+nothing get `data-empty` and are hidden and skipped by the `·` separators, the `<table>`
 stays a table for assistive tech), FilterSearchBar /
 FilterInput (`size="sm"` compact bar on `--control-height-compact`, text
 floored at 16px under `pointer: coarse` so iOS does not zoom on focus,
@@ -971,6 +975,15 @@ from the hidden text unless `aria-label` is set:
 <Button collapseLabel="container"><Icon name="search" /><span data-label>Search</span></Button>
 <Cluster stackAt="md"><Button grow>Cancel</Button><Button grow variant="primary">Save</Button></Cluster>
 ```
+
+Compact text controls (`Button size="sm"`, `Toggle`, `Switch`, `Link`) take
+the same shape, sized by `--touch-slab`: at least 8px past the block edges and
+the inline start, and at least `--touch-target-compact` (40px) tall, with no
+inline-end overflow. `SegmentedControl` items grow on the block axis and by
+half the gap sideways, which stays inside the group's padding, so neighbours
+never overlap. `Input size="sm"` cannot host a pseudo-element and grows to 40px
+instead, as should any control that clips its own overflow:
+`min-height: var(--touch-target-compact)`.
 
 `--control-height-*` and `--box-*` are **required tokens**: a consumer that
 forks `variables.css` must keep them (Button `control`, Select `sm`, every `box`)

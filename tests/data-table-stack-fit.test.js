@@ -25,6 +25,7 @@ function setup() {
 	win.ResizeObserver = class {
 		/** @param {ResizeObserverCallback} cb */
 		constructor(cb) {
+			/** @type {{ cb: ResizeObserverCallback, el?: Element }} */
 			this.o = { cb };
 			observers.push(this.o);
 		}
