@@ -38,6 +38,7 @@
 
 	const text = $derived(glyph?.trim() || avatarInitial(name) || '?');
 	const hashed = $derived(tone === undefined);
+	const hidden = $derived(decorative || !name.trim());
 	const resolvedHue = $derived(hashed ? (hue ?? avatarHue(seed ?? name)) : undefined);
 </script>
 
@@ -55,9 +56,9 @@
 	class:size-lg={size === 'lg'}
 	style:--avatar-size={typeof size === 'number' ? `${size}px` : undefined}
 	style:--avatar-hue={resolvedHue}
-	role={decorative ? undefined : 'img'}
-	aria-label={decorative ? undefined : name}
-	aria-hidden={decorative ? 'true' : undefined}
+	role={hidden ? undefined : 'img'}
+	aria-label={hidden ? undefined : name}
+	aria-hidden={hidden ? 'true' : undefined}
 	{...rest}
 >
 	<span class="text" aria-hidden="true">{text}</span>

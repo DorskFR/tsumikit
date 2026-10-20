@@ -60,6 +60,7 @@
 
 	const key = $derived(seed ?? alt);
 	const showImage = $derived(Boolean(src) && !failed);
+	const tile = $derived(showImage ? undefined : alt.trim() ? 'named' : 'decorative');
 	const gradient = $derived(showImage ? undefined : artworkGradient(key));
 	const text = $derived(fallback === 'initials' ? initialsOf(key) : '');
 
@@ -76,8 +77,9 @@
 	style:aspect-ratio={aspect}
 	style:width={size}
 	style:background={gradient}
-	role={showImage ? undefined : 'img'}
-	aria-label={showImage ? undefined : alt}
+	role={tile === 'named' ? 'img' : undefined}
+	aria-label={tile === 'named' ? alt : undefined}
+	aria-hidden={tile === 'decorative' ? 'true' : undefined}
 	{...rest}
 >
 	{#if showImage}
