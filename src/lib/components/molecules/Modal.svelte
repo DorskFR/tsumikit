@@ -9,6 +9,7 @@
 	// `resizeKey`).
 	import type { Snippet } from 'svelte';
 	import { browser } from '$lib/env';
+	import { readStorage, writeStorage } from '$lib/stores/storage';
 	import Icon, { type IconName } from '$lib/components/atoms/Icon.svelte';
 	import Spinner from '$lib/components/atoms/Spinner.svelte';
 	import IconButton from '$lib/components/molecules/IconButton.svelte';
@@ -76,7 +77,7 @@
 
 	function loadWidth(): number | null {
 		if (!browser || !resizeKey) return null;
-		const n = Number(localStorage.getItem(resizeKey));
+		const n = Number(readStorage(resizeKey));
 		return Number.isFinite(n) && n >= MIN_W ? Math.min(n, MAX_W) : null;
 	}
 	let width = $state<number | null>(loadWidth());
@@ -146,7 +147,7 @@
 		} catch {
 			/* already released */
 		}
-		if (browser && resizeKey && width != null) localStorage.setItem(resizeKey, String(width));
+		if (browser && resizeKey && width != null) writeStorage(resizeKey, String(width));
 	}
 </script>
 

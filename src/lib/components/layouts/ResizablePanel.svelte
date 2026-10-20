@@ -2,6 +2,7 @@
 	import type { Snippet } from 'svelte';
 	import { untrack } from 'svelte';
 	import { browser } from '$lib/env';
+	import { readStorage, writeStorage } from '$lib/stores/storage';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import Scrim from '$lib/components/atoms/Scrim.svelte';
 	import { resizeHandle, resolveLength } from './resizable-panel-frame.js';
@@ -152,7 +153,7 @@
 		if (!widthKey) return;
 
 		const savedWidth = parseStoredWidth(
-			localStorage.getItem(widthKey),
+			readStorage(widthKey),
 			boundedMin,
 			boundedMax
 		);
@@ -160,7 +161,7 @@
 
 		if (persistCollapsed) {
 			const savedCollapsed = parseStoredCollapsed(
-				localStorage.getItem(`${widthKey}:collapsed`)
+				readStorage(`${widthKey}:collapsed`)
 			);
 			if (savedCollapsed !== undefined) collapsed = savedCollapsed;
 		}
@@ -212,7 +213,7 @@
 	});
 
 	function persistWidth(nextWidth: number) {
-		if (browser && widthKey) localStorage.setItem(widthKey, String(nextWidth));
+		if (browser && widthKey) writeStorage(widthKey, String(nextWidth));
 	}
 
 	function setWidth(nextWidth: number) {
@@ -292,7 +293,7 @@
 		}
 		collapsed = !collapsed;
 		if (browser && widthKey && persistCollapsed) {
-			localStorage.setItem(`${widthKey}:collapsed`, String(collapsed));
+			writeStorage(`${widthKey}:collapsed`, String(collapsed));
 		}
 	}
 </script>

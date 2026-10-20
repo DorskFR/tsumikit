@@ -47,7 +47,7 @@ test('resize handle spans the full panel edge and delegates drag + keys to the s
 	assert.match(source, /use:resizeHandle={{[^}]*step: resizeStep,/s);
 	assert.match(source, /use:resizeHandle={{[^}]*onwidth: setWidth,/s);
 	assert.match(source, /use:resizeHandle={{[^}]*oncommit: commitWidth,/s);
-	assert.match(source, /localStorage\.setItem\(widthKey, String\(nextWidth\)\)/);
+	assert.match(source, /writeStorage\(widthKey, String\(nextWidth\)\)/);
 	assert.doesNotMatch(source, /onpointerdown=/);
 });
 

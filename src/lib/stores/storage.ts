@@ -1,6 +1,5 @@
 // localStorage throws SecurityError when site data is blocked (Safari private
-// mode, sandboxed or third-party iframes); the stores must fall back to their
-// defaults instead of failing at import.
+// mode, sandboxed or third-party iframes); callers fall back to their defaults.
 export function readStorage(key: string): string | null {
 	try {
 		return localStorage.getItem(key);

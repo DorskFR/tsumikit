@@ -15,6 +15,7 @@
 	// `--shell-header-h` is the rendered header height (incl. the top inset).
 	import { untrack, type Snippet } from 'svelte';
 	import { browser } from '$lib/env';
+	import { readStorage, writeStorage } from '$lib/stores/storage';
 	import IconButton from '$lib/components/molecules/IconButton.svelte';
 	import { resizeHandle } from './resizable-panel-frame.js';
 
@@ -103,13 +104,13 @@
 	// --- resizable sidebar (desktop) ---
 	function loadW(): number | null {
 		if (!browser || !sidebarWidthKey) return null;
-		const n = Number(localStorage.getItem(sidebarWidthKey));
+		const n = Number(readStorage(sidebarWidthKey));
 		return Number.isFinite(n) && n >= minSidebar ? Math.min(n, maxSidebar) : null;
 	}
 	let sideW = $state<number | null>(loadW());
 	let dragging = $state(false);
 	function persistW(w: number) {
-		if (browser && sidebarWidthKey) localStorage.setItem(sidebarWidthKey, String(w));
+		if (browser && sidebarWidthKey) writeStorage(sidebarWidthKey, String(w));
 	}
 	const measureW = () => sideW ?? aside?.getBoundingClientRect().width ?? 0;
 	// The effective desktop width: a resized px value wins over the prop default.
