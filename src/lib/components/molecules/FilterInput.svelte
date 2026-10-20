@@ -148,6 +148,8 @@
 	};
 
 	const field = getFieldContext();
+	const uid = $props.id();
+	const listboxId = `${uid}-lb`;
 	let el = $state<HTMLInputElement | null>(null);
 	let menuEl = $state<HTMLDivElement | null>(null);
 	let menu = $state<SuggestState | null>(null);
@@ -378,6 +380,11 @@
 				id={id ?? field?.id}
 				aria-describedby={ariaDescribedby ?? field?.describedBy}
 				aria-invalid={ariaInvalid ?? (field?.invalid ? 'true' : undefined)}
+				role="combobox"
+				aria-autocomplete="list"
+				aria-expanded={open && !!menu}
+				aria-controls={open && menu ? listboxId : undefined}
+				aria-activedescendant={open && menu ? `${uid}-opt-${active}` : undefined}
 				spellcheck="false"
 				autocomplete="off"
 				placeholder={hint}
@@ -420,14 +427,16 @@
 	</div>
 
 	{#if open && menu}
-		<div bind:this={menuEl} class="fi__menu" role="listbox" aria-label={kindLabel[menu.kind]}>
+		<div bind:this={menuEl} id={listboxId} class="fi__menu" role="listbox" aria-label={kindLabel[menu.kind]}>
 			<div class="fi__menu-head">{kindLabel[menu.kind]}</div>
 			{#each menu.items as item, i (item.insert + i)}
 				<button
 					type="button"
+					id="{uid}-opt-{i}"
 					class="fi__opt"
 					class:is-active={i === active}
 					role="option"
+					tabindex="-1"
 					aria-selected={i === active}
 					onmousedown={(e) => e.preventDefault()}
 					onmouseenter={() => {

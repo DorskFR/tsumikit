@@ -141,7 +141,10 @@ test('hover is wired on both trigger and panel so the pointer can cross the gap'
 	assert.match(popover, /onpointerenter=\{onPanelPointerEnter\}\s*onpointerleave=\{onPointerLeave\}/);
 	assert.match(popover, /function onPointerEnter[\s\S]*opensOnHover\(openOn, e\.pointerType\)/);
 	assert.match(popover, /hover\.enter\(hoverDelay\)/);
-	assert.match(popover, /\$effect\(\(\) => \(\) => hover\.cancel\(\)\);/);
+	assert.match(
+		popover,
+		/\$effect\(\(\) => \(\) => \{\s*hover\.cancel\(\);\s*removeEventListener\('scroll', reposition, true\);\s*removeEventListener\('resize', reposition\);\s*\}\);/
+	);
 });
 
 test('the showcase demonstrates hover mode and the link trigger', () => {
