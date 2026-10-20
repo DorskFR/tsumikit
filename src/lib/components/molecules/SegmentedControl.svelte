@@ -24,6 +24,7 @@
 	// browser-free keyboard model matches Tabs: ←/→ and Home/End move selection,
 	// Space/Enter (or click) activate. `value` is bindable.
 	import type { Snippet } from 'svelte';
+	import type { Attachment } from 'svelte/attachments';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import { formatSegmentCount } from './segmented-control-count.js';
 	import { nextEnabledSegment } from './segmented-control-keyboard.js';
@@ -95,6 +96,26 @@
 	);
 	const segId = (val: string) => `${baseId}-${val}`;
 
+	// A pill wider than its container falls back to the `scroll` layout; the
+	// class is dropped again once the row fits so the touch slab stays unclipped.
+	let overflowing = $state(false);
+	const watchOverflow: Attachment<HTMLElement> = (node) => {
+		if (wrap || typeof ResizeObserver === 'undefined') {
+			overflowing = false;
+			return;
+		}
+		const check = () => {
+			overflowing = node.scrollWidth - node.clientWidth > 1;
+		};
+		const ro = new ResizeObserver(check);
+		ro.observe(node);
+		check();
+		return () => {
+			ro.disconnect();
+			overflowing = false;
+		};
+	};
+
 	function select(val: string, focus = false) {
 		if (options.find((o) => o.value === val)?.disabled) return;
 		value = val;
@@ -127,8 +148,10 @@
 	class:collapse-container={collapseLabels === 'container'}
 	class:seg-scroll={scroll}
 	class:seg-block={block}
+	class:seg-overflow={overflowing}
 	data-tsu="SegmentedControl"
 	{onkeydown}
+	{@attach watchOverflow}
 >
 	{#each options as o (o.value)}
 		{@const selected = value === o.value}
@@ -165,6 +188,8 @@
 		background: var(--bg-elevated-2);
 		border: 1px solid var(--border);
 		border-radius: var(--r-pill);
+		max-width: 100%;
+		min-width: 0;
 	}
 	.seg-icon {
 		border-radius: var(--r-md);
@@ -193,6 +218,19 @@
 	.seg-scroll .seg-item {
 		flex: none;
 	}
+	.seg-overflow {
+		flex-wrap: nowrap;
+		overflow-x: auto;
+		overflow-y: hidden;
+		scrollbar-width: none;
+		-webkit-overflow-scrolling: touch;
+	}
+	.seg-overflow::-webkit-scrollbar {
+		display: none;
+	}
+	.seg-overflow .seg-item {
+		flex: none;
+	}
 	.seg-block {
 		display: flex;
 		width: 100%;
@@ -200,6 +238,12 @@
 	.seg-block .seg-item {
 		flex: 1 1 0;
 		justify-content: center;
+		min-width: 0;
+	}
+	.seg-block .seg-label {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
 	}
 
 	.seg-item {
