@@ -5,12 +5,9 @@
 // the `inline` / `below` snippets and the `onchange` AST.
 // ─────────────────────────────────────────────────────────────────────────
 
+import { quoteIfNeeded } from './quotes';
 import { defaultOperator, findField, resolveValues, type Schema } from './schema';
 import type { Suggestion, SuggestState } from './suggest';
-
-function quoteIfNeeded(v: string): string {
-	return /[\s,()]/.test(v) ? `"${v}"` : v;
-}
 
 /**
  * The textual query a bare `value` stands for, using `key`'s default operator —

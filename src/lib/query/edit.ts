@@ -9,6 +9,7 @@
 // form — without any grammar change. UI-free and framework-agnostic.
 // ─────────────────────────────────────────────────────────────────────────
 
+import { openQuoteAt } from './quotes';
 import { findField, type Schema } from './schema';
 
 // A field name immediately followed by a string operator (`:` contains / `!:`
@@ -36,21 +37,6 @@ export function autoQuoteEdit(
 	const field = findField(schema, m[1]);
 	if (field?.type !== 'string') return null;
 	return { value: `${value.slice(0, pos)}""${value.slice(pos)}`, pos: pos + 1 };
-}
-
-// Scan from the start tracking quote state (spaces inside quotes are NOT
-// boundaries), so the caret's quote context is correct even for `"star wars"`.
-function openQuoteAt(value: string, pos: number): string | null {
-	let quote: string | null = null;
-	for (let i = 0; i < pos; i++) {
-		const c = value[i];
-		if (quote) {
-			if (c === quote) quote = null;
-		} else if (isQuote(c)) {
-			quote = c;
-		}
-	}
-	return quote;
 }
 
 /** True when the caret sits inside an open quote. */
