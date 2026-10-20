@@ -390,7 +390,7 @@
 	{/if}
 	<div id={menuId} role="menu" aria-label={label} class="radial-menu">
 		{#if open}
-			{#each petals as item, i (item.label)}
+			{#each petals as item, i (item.id ?? `${i}:${item.label}`)}
 				{@const p = points[i]}
 				{#if p}
 					{@const glyphs = menuItemGlyphs(item)}

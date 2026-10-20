@@ -89,7 +89,7 @@
 	/>
 	{#if tickValues.length > 0}
 		<span class="ticks" aria-hidden="true">
-			{#each tickValues as t (t)}
+			{#each tickValues as t, i (`${i}:${t}`)}
 				<i class="tick" class:reached={t <= Number(value)} style="--f: {frac(t)}"></i>
 			{/each}
 		</span>
@@ -100,7 +100,7 @@
 	{/if}
 	{#if marks.length > 0}
 		<span class="marks" aria-hidden="true">
-			{#each marks as m (m.value)}
+			{#each marks as m, i (`${i}:${m.value}`)}
 				<button type="button" class="mark" class:on={Number(value) === m.value} style="--f: {frac(m.value)}" tabindex="-1" onclick={() => (value = m.value)}>{m.label}</button>
 			{/each}
 		</span>
