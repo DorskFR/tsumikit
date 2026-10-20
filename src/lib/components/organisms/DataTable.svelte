@@ -25,6 +25,16 @@
 		 *  detail cells share lines (`responsive="stack"` only, default true). */
 		stackLabel?: boolean;
 	}
+
+	let rootFontPx: number | undefined;
+
+	function rootFontSize(): number {
+		if (rootFontPx === undefined) {
+			rootFontPx = Number.parseFloat(getComputedStyle(document.documentElement).fontSize);
+			window.addEventListener('resize', () => (rootFontPx = undefined), { once: true });
+		}
+		return rootFontPx;
+	}
 </script>
 
 <script lang="ts" generics="T">
@@ -60,6 +70,7 @@
 		loadMoreLabel = 'Load more',
 		responsive = 'scroll',
 		stackBelow = '48rem',
+		stackActions = 'start',
 		class: klass = '',
 		style: styleProp = '',
 		tableClass = '',
@@ -101,6 +112,9 @@
 		responsive?: 'scroll' | 'stack';
 		/** Width (px/em/rem) under which `stack` mode kicks in. */
 		stackBelow?: string;
+		/** Where actions sit in a stacked card: `start` beside the title (wraps
+		 *  under a long one), `end` always closing the card. */
+		stackActions?: 'start' | 'end';
 		class?: string;
 		style?: string;
 		/** Class on the inner <table>. */
@@ -121,22 +135,31 @@
 		return { destroy: () => observer.disconnect() };
 	}
 
+	function markEmpty(node: HTMLElement) {
+		const update = () => node.toggleAttribute('data-empty', !node.firstElementChild && !node.textContent?.trim());
+		update();
+		const observer = new MutationObserver(update);
+		observer.observe(node, { childList: true, subtree: true, characterData: true });
+		return () => observer.disconnect();
+	}
+
 	function toPx(length: string, el: HTMLElement): number {
 		const n = Number.parseFloat(length);
-		const fontSize = (node: Element) => Number.parseFloat(getComputedStyle(node).fontSize);
-		if (length.endsWith('rem')) return n * fontSize(document.documentElement);
-		if (length.endsWith('em')) return n * fontSize(el);
+		if (length.endsWith('rem')) return n * rootFontSize();
+		if (length.endsWith('em')) return n * Number.parseFloat(getComputedStyle(el).fontSize);
 		return n;
 	}
 
+	// Font sizes are read in the observer callback, after layout, so mounting never forces a style recalc.
 	$effect(() => {
 		if (responsive !== 'stack' || !wrapEl) {
 			stacked = false;
 			return;
 		}
 		const el = wrapEl;
-		const limit = toPx(stackBelow, el);
+		const below = stackBelow;
 		const observer = new ResizeObserver(([entry]) => {
+			const limit = toPx(below, el);
 			stacked = entry.contentRect.width < limit;
 		});
 		observer.observe(el);
@@ -188,6 +211,7 @@
 	data-tsu="DataTable"
 	data-size={size}
 	data-stacked={stacked || undefined}
+	data-stack-actions={responsive === 'stack' && stackActions === 'end' ? 'end' : undefined}
 	aria-busy={loading || undefined}
 >
 	<table
@@ -267,20 +291,25 @@
 							: undefined}
 					>
 						{#each columns as col (col.key)}
+							{@const value = cellSnippets[col.key] ? undefined : display(col, row)}
 							<td
 								data-part="cell"
 								data-hide-below={col.hideBelow}
 								data-role={responsive === 'stack' ? (col.role ?? 'detail') : undefined}
 								data-label={responsive === 'stack' ? col.label : undefined}
 								data-stack-label={responsive === 'stack' && col.stackLabel === false ? 'false' : undefined}
+								data-empty={responsive === 'stack' && !cellSnippets[col.key] && (value == null || value === '')
+									? ''
+									: undefined}
 								class:truncate={col.truncate}
 								class:nowrap={col.nowrap}
 								style:text-align={stacked ? undefined : (col.align ?? 'left')}
+								{@attach responsive === 'stack' && cellSnippets[col.key] ? markEmpty : undefined}
 							>
 								{#if cellSnippets[col.key]}
 									{@render cellSnippets[col.key](row)}
 								{:else}
-									{display(col, row)}
+									{value}
 								{/if}
 							</td>
 						{/each}
@@ -479,6 +508,9 @@
 	[data-stacked] {
 		overflow-x: visible;
 	}
+	[data-stacked] .dt {
+		table-layout: fixed;
+	}
 	[data-stacked] thead {
 		position: absolute;
 		width: 1px;
@@ -552,10 +584,17 @@
 	[data-stacked] td[data-stack-label='false']::before {
 		content: none;
 	}
-	[data-stacked] td[data-role='meta'] ~ td[data-role='meta'][data-stack-label='false'] {
+	[data-stacked] td[data-part='cell'][data-empty] {
+		display: none;
+	}
+	[data-stacked]
+		td[data-role='meta']:not([data-empty])
+		~ td[data-role='meta'][data-stack-label='false']:not([data-empty]) {
 		margin-inline-start: calc(var(--sp-1) - var(--sp-3));
 	}
-	[data-stacked] td[data-role='meta'] ~ td[data-role='meta'][data-stack-label='false']::before {
+	[data-stacked]
+		td[data-role='meta']:not([data-empty])
+		~ td[data-role='meta'][data-stack-label='false']:not([data-empty])::before {
 		content: '·';
 		margin-inline-end: var(--sp-1);
 		color: var(--text-faint);
@@ -567,6 +606,10 @@
 		margin-inline-start: auto;
 		width: auto;
 		opacity: 1;
+	}
+	[data-stacked][data-stack-actions='end'] td[data-role='actions'],
+	[data-stacked][data-stack-actions='end'] td.dt-actions {
+		order: 2;
 	}
 	[data-stacked] td[data-role='hidden'] {
 		display: none;
