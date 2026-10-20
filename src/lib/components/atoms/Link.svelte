@@ -74,4 +74,14 @@
 	.align-center {
 		text-align: center;
 	}
+	@media (pointer: coarse) {
+		.link {
+			position: relative;
+		}
+		.link::before {
+			content: '';
+			position: absolute;
+			inset: var(--touch-slab);
+		}
+	}
 </style>

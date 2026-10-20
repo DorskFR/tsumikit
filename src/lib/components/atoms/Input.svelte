@@ -170,6 +170,9 @@
 		.input-sm {
 			font-size: max(16px, var(--fs-sm));
 		}
+		.input-sm:not(.grouped) {
+			min-height: max(var(--touch-target-compact), var(--input-size, var(--control-height-compact)));
+		}
 	}
 	.input-grow {
 		flex: 1 1 0;

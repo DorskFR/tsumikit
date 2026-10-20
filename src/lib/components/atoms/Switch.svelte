@@ -124,6 +124,16 @@
 	.switch-sm.on .knob {
 		transform: translateX(0.8rem);
 	}
+	@media (pointer: coarse) {
+		.switch {
+			position: relative;
+		}
+		.switch::before {
+			content: '';
+			position: absolute;
+			inset: var(--touch-slab);
+		}
+	}
 	.switch-row {
 		display: inline-flex;
 		align-items: center;
