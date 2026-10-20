@@ -56,6 +56,7 @@ export {
 	resizeHandle,
 } from './components/layouts/resizable-panel-frame.js';
 export { default as Stack } from './components/layouts/Stack.svelte';
+export { default as TabBar, type TabBarItem } from './components/layouts/TabBar.svelte';
 export { default as Toolbar } from './components/layouts/Toolbar.svelte';
 export {
 	type AccordionHeaderContext,
@@ -136,6 +137,7 @@ export { default as OptionButton } from './components/molecules/OptionButton.sve
 export { default as Pagination } from './components/molecules/Pagination.svelte';
 export { default as Popover } from './components/molecules/Popover.svelte';
 export { default as Prose } from './components/molecules/Prose.svelte';
+export { default as PullToRefresh } from './components/molecules/PullToRefresh.svelte';
 export {
 	default as RadialMenu,
 	type RadialArc,
@@ -159,6 +161,7 @@ export {
 } from './components/molecules/SortableList.svelte';
 export { default as SplitButton } from './components/molecules/SplitButton.svelte';
 export { default as StatusBar } from './components/molecules/StatusBar.svelte';
+export { default as SwipeRow, type SwipeAction } from './components/molecules/SwipeRow.svelte';
 export { default as Tabs, type TabItem } from './components/molecules/Tabs.svelte';
 export { default as ThemePicker } from './components/molecules/ThemePicker.svelte';
 export { default as Timestamp } from './components/molecules/Timestamp.svelte';

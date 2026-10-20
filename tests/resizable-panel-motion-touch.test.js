@@ -7,7 +7,7 @@ const source = await readFile(
 	new URL('../src/lib/components/layouts/ResizablePanel.svelte', import.meta.url),
 	'utf8'
 );
-const css = compile(source, { filename: 'ResizablePanel.svelte', css: 'external' }).css.code.replace(/\s+/g, ' ');
+const css = compile(source, { filename: 'ResizablePanel.svelte', css: 'external' }).css?.code.replace(/\s+/g, ' ') ?? '';
 const media = (/** @type {string} */ query) => {
 	const start = css.indexOf(`@media ${query} {`);
 	assert.notEqual(start, -1, query);

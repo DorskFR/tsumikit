@@ -9,7 +9,7 @@ const source = await readFile(
 	new URL('../src/lib/components/layouts/Container.svelte', import.meta.url),
 	'utf8'
 );
-const css = compile(source, { filename: 'Container.svelte', css: 'external' }).css.code.replace(/\s+/g, ' ');
+const css = compile(source, { filename: 'Container.svelte', css: 'external' }).css?.code.replace(/\s+/g, ' ') ?? '';
 const bundle = await buildFixture('mount-container.svelte.js');
 
 /** @param {Record<string, unknown>} init @param {{ inner?: number, client?: number }} viewport */

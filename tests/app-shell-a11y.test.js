@@ -8,7 +8,7 @@ import { buildFixture } from './fixtures/build.mjs';
 const file = new URL('../src/lib/components/layouts/AppShell.svelte', import.meta.url);
 const source = await readFile(file, 'utf8');
 const bundle = await buildFixture('mount-app-shell.svelte.js');
-const css = compile(source, { filename: 'AppShell.svelte', css: 'external' }).css.code.replace(/\s+/g, ' ');
+const css = compile(source, { filename: 'AppShell.svelte', css: 'external' }).css?.code.replace(/\s+/g, ' ') ?? '';
 
 /** @param {Record<string, unknown>} init */
 function render(init = {}) {
