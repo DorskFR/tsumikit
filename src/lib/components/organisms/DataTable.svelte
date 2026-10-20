@@ -87,9 +87,11 @@
 		/** Replaces a column's header content (e.g. a select-all checkbox). */
 		headerSnippets?: Record<string, Snippet<[Column<T>]>>;
 		empty?: string | Snippet;
+		/** Sticks within the table's own scroller, which also scrolls horizontally,
+		 *  so it only sticks when the table has a bounded height
+		 *  (e.g. `style="max-height: 60vh"`), not to the page. */
 		stickyHeader?: boolean;
-		/** Distance from the scroll container's top for the sticky header, e.g.
-		 *  `var(--header-h)` when the page header overlaps. Defaults to 0. */
+		/** Distance from the scroller's top for the sticky header. Defaults to 0. */
 		stickyOffset?: string;
 		/** `fixed` makes declared column widths authoritative (needed for truncate). */
 		layout?: 'auto' | 'fixed';
@@ -171,6 +173,13 @@
 
 	const colCount = $derived(columns.length + (rowActions ? 1 : 0));
 
+	const NESTED_CONTROL = 'a,button,input,select,textarea,label,summary,[role="button"],[contenteditable]';
+
+	function fromNestedControl(e: Event & { currentTarget: HTMLElement }): boolean {
+		const hit = (e.target as Element).closest(NESTED_CONTROL);
+		return !!hit && hit !== e.currentTarget && e.currentTarget.contains(hit);
+	}
+
 	function display(col: Column<T>, row: T): unknown {
 		if (col.get) return col.get(row);
 		return (row as Record<string, unknown>)[col.key];
@@ -245,7 +254,7 @@
 						{:else if col.sortable}
 							<button type="button" class="dt-sort" onclick={() => toggleSort(col)}>
 								<span>{col.label}</span>
-								<span class="dt-arrow" class:active={sortKey === col.key}>
+								<span class="dt-arrow" aria-hidden="true" class:active={sortKey === col.key}>
 									{sortKey === col.key ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}
 								</span>
 							</button>
@@ -280,9 +289,14 @@
 						class:clickable={!!onrowclick}
 						class:toned={!!tone && tone !== 'neutral'}
 						tabindex={onrowclick ? 0 : undefined}
-						onclick={onrowclick ? () => onrowclick(row) : undefined}
+						onclick={onrowclick
+							? (e) => {
+									if (!fromNestedControl(e)) onrowclick(row);
+								}
+							: undefined}
 						onkeydown={onrowclick
 							? (e) => {
+									if (e.target !== e.currentTarget) return;
 									if (e.key === 'Enter' || e.key === ' ') {
 										e.preventDefault();
 										onrowclick(row);
@@ -432,7 +446,10 @@
 	tr.clickable:hover,
 	tr.clickable:focus-visible {
 		background: var(--bg-elevated-2);
-		outline: none;
+	}
+	tr.clickable:focus-visible {
+		outline: var(--focus-ring);
+		outline-offset: -2px;
 	}
 	td.truncate {
 		white-space: nowrap;
