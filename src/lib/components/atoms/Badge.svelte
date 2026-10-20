@@ -13,10 +13,11 @@
 	import type { Snippet } from 'svelte';
 	import Dot from './Dot.svelte';
 	import Icon, { type IconName } from './Icon.svelte';
+	import { canonicalTone, type Tone as SharedTone } from '$lib/tone';
 
-	type Tone = 'neutral' | 'ok' | 'warn' | 'danger' | 'info' | 'accent' | 'muted' | 'violet';
+	type Tone = SharedTone | 'muted' | 'violet';
 
-	const TONE_COLOR: Record<Exclude<Tone, 'neutral'>, string> = {
+	const TONE_COLOR: Record<Exclude<Tone, 'neutral' | 'success'>, string> = {
 		ok: 'var(--ok)',
 		warn: 'var(--warn)',
 		danger: 'var(--danger)',
@@ -106,7 +107,8 @@
 		...rest
 	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
 
-	const toneColor = $derived(color ?? (tone === 'neutral' ? undefined : TONE_COLOR[tone]));
+	const t = $derived(canonicalTone(tone));
+	const toneColor = $derived(color ?? (t === 'neutral' ? undefined : TONE_COLOR[t]));
 	const hasAction = $derived(removable || actionIcon !== undefined);
 </script>
 
@@ -120,10 +122,10 @@
 	class:grow={grow}
 	class:no-shrink={!shrink}
 	class:block={block}
-	class:badge-ok={tone === 'ok'}
-	class:badge-warn={tone === 'warn'}
-	class:badge-danger={tone === 'danger'}
-	class:badge-info={tone === 'info'}
+	class:badge-ok={t === 'ok'}
+	class:badge-warn={t === 'warn'}
+	class:badge-danger={t === 'danger'}
+	class:badge-info={t === 'info'}
 	class:toned={toneColor !== undefined}
 	class:badge-sm={size === 'sm'}
 	class:badge-xs={size === 'xs'}
@@ -193,7 +195,7 @@
 	}
 	.badge-sm,
 	.badge-xs {
-		font-size: var(--badge-fs, calc(var(--fs-xs) * 0.92));
+		font-size: var(--badge-fs, var(--fs-xs));
 		gap: 0.15rem;
 	}
 	.badge-sm {

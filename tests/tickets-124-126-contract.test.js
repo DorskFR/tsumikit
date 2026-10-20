@@ -24,7 +24,7 @@ test('Badge reads --badge-fs / --badge-fw on the base chip, defaulting to today 
 test('Badge sm/xs step down through --badge-fs, so setting it wins over the size prop', () => {
 	assert.match(
 		normalize(badge),
-		/\.badge-sm, \.badge-xs \{ font-size: var\(--badge-fs, calc\(var\(--fs-xs\) \* 0\.92\)\);/
+		/\.badge-sm, \.badge-xs \{ font-size: var\(--badge-fs, var\(--fs-xs\)\);/
 	);
 });
 
@@ -42,7 +42,7 @@ test('Badge numeric squares off with --badge-min-size, unset keeping 1.5em wide 
 
 test('every --badge-* size hook is read with a fallback, so unset renders exactly as before', () => {
 	for (const [prop, fallbacks] of [
-		['--badge-fs', ['var(--fs-xs)', 'calc(var(--fs-xs) * 0.92)']],
+		['--badge-fs', ['var(--fs-xs)']],
 		['--badge-fw', ['var(--fw-medium)', 'var(--fw-normal)', 'var(--fw-semibold)']],
 		['--badge-min-size', ['1.5em', 'auto']]
 	]) {

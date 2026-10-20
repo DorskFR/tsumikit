@@ -544,7 +544,8 @@
 	   The slab is the centred target with its inline-end half cut off: inline-end
 	   overflow counts towards the scrollable overflow of every scroll ancestor, and
 	   in a row that half lies under the next sibling anyway. Growing further towards
-	   the start would let each slab cover the previous sibling's centre. */
+	   the start would let each slab cover the previous sibling's centre. Text
+	   buttons at size sm take the same shape sized by --touch-slab. */
 	@media (pointer: coarse) {
 		.btn-icon:not(.hit-compact),
 		.btn-icon-inline:not(.hit-compact),
@@ -564,6 +565,16 @@
 			position: absolute;
 			inset-block: min(0px, calc((100% - var(--touch-target)) / 2));
 			inset-inline-start: min(0px, calc((100% - var(--touch-target)) / 2));
+			inset-inline-end: 0;
+		}
+		.btn-sm:not(.btn-icon, .btn-icon-inline, .btn-box, .btn-square, .btn-chip, .btn-stacked, .hit-compact) {
+			position: relative;
+		}
+		.btn-sm:not(.btn-icon, .btn-icon-inline, .btn-box, .btn-square, .btn-chip, .btn-stacked, .hit-compact)::before {
+			content: '';
+			position: absolute;
+			inset-block: var(--touch-slab);
+			inset-inline-start: var(--touch-slab);
 			inset-inline-end: 0;
 		}
 	}
@@ -703,7 +714,8 @@
 	.btn-link .btn-count,
 	.btn-icon-inline .btn-count {
 		--btn-count-size: 1rem;
-		font-size: calc(var(--fs-xs) * 0.85);
+		padding: 0 0.2rem;
+		font-size: var(--fs-xs);
 	}
 	/* The accent fill would swallow an accent pill: invert on primary. */
 	.btn-primary .btn-count {

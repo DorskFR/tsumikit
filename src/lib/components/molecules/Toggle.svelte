@@ -108,4 +108,16 @@
 	.toggle.struck {
 		text-decoration: line-through;
 	}
+	@media (pointer: coarse) {
+		.toggle {
+			position: relative;
+		}
+		.toggle::before {
+			content: '';
+			position: absolute;
+			inset-block: var(--touch-slab);
+			inset-inline-start: var(--touch-slab);
+			inset-inline-end: 0;
+		}
+	}
 </style>

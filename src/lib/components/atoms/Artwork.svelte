@@ -11,6 +11,8 @@
 
 	type Own = {
 		src?: string | null;
+		srcset?: string;
+		sizes?: string;
 		alt: string;
 		/** Drives the gradient hue and the initials. Defaults to `alt`. */
 		seed?: string;
@@ -32,6 +34,8 @@
 	};
 	let {
 		src,
+		srcset,
+		sizes,
 		alt,
 		seed,
 		aspect = '1/1',
@@ -50,6 +54,7 @@
 	let failed = $state(false);
 	$effect(() => {
 		src;
+		srcset;
 		failed = false;
 	});
 
@@ -76,7 +81,7 @@
 	{...rest}
 >
 	{#if showImage}
-		<img {src} {alt} class="img fit-{fit}" loading="lazy" decoding="async" onerror={fail} />
+		<img {src} {srcset} {sizes} {alt} class="img fit-{fit}" loading="lazy" decoding="async" onerror={fail} />
 	{:else if fallback === 'initials' && text}
 		<span class="initials" aria-hidden="true">{text}</span>
 	{:else if fallback === 'icon'}

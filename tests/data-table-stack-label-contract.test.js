@@ -57,11 +57,11 @@ test('bare cells drop the label, metas join with a dot, details share lines', ()
 	assert.match(source, /\[data-stacked\] td\[data-stack-label='false'\]::before\s*{\s*content: none;/);
 	assert.match(
 		source,
-		/\[data-stacked\] td\[data-role='meta'\] ~ td\[data-role='meta'\]\[data-stack-label='false'\]::before\s*{\s*content: '·';/
+		/\[data-stacked\]\s+td\[data-role='meta'\]:not\(\[data-empty\]\)\s+~ td\[data-role='meta'\]\[data-stack-label='false'\]:not\(\[data-empty\]\)::before\s*{\s*content: '·';/
 	);
 	assert.match(
 		source,
-		/\[data-stacked\] td\[data-role='meta'\] ~ td\[data-role='meta'\]\[data-stack-label='false'\]\s*{\s*margin-inline-start: calc\(var\(--sp-1\) - var\(--sp-3\)\);/
+		/\[data-stacked\]\s+td\[data-role='meta'\]:not\(\[data-empty\]\)\s+~ td\[data-role='meta'\]\[data-stack-label='false'\]:not\(\[data-empty\]\)\s*{\s*margin-inline-start: calc\(var\(--sp-1\) - var\(--sp-3\)\);/
 	);
 	assert.match(source, /\[data-stacked\] td\[data-role='detail'\]\[data-stack-label='false'\]\s*{\s*flex: 0 1 auto;/);
 	const noLabel = source.indexOf("td[data-stack-label='false']::before");

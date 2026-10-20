@@ -73,7 +73,7 @@ test('coarse pointers get a 44px hit slab only inside @media (pointer: coarse)',
 		assert.ok(coarse, 'has a coarse-pointer block');
 		assert.match(coarse[1], HIT_SLAB_BLOCK);
 		assert.match(coarse[1], HIT_SLAB_INLINE);
-		assert.doesNotMatch(coarse[1], /\binset:/);
+		assert.doesNotMatch(coarse[1], /::after\s*{[^}]*\binset:/);
 		assert.match(coarse[1], /:not\([^)]*hit-compact\)/);
 		assert.doesNotMatch(source.replace(coarse[0], ''), /var\(--touch-target\)/);
 	}

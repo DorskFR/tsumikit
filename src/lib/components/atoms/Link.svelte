@@ -74,4 +74,16 @@
 	.align-center {
 		text-align: center;
 	}
+	@media (pointer: coarse) {
+		.link {
+			position: relative;
+		}
+		.link::before {
+			content: '';
+			position: absolute;
+			inset-block: var(--touch-slab);
+			inset-inline-start: var(--touch-slab);
+			inset-inline-end: 0;
+		}
+	}
 </style>
