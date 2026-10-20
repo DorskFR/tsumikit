@@ -4,6 +4,7 @@
 	// `--container-gutter` so children can bleed to the column edge with
 	// `margin-inline: calc(-1 * var(--container-gutter))`.
 	import type { Snippet } from 'svelte';
+	import { browser } from '$lib/env';
 
 	let {
 		as = 'div',
@@ -36,8 +37,26 @@
 		[key: string]: unknown;
 	} = $props();
 
+	// `100vw` includes the reserved scrollbar gutter (`scrollbar-gutter: stable`).
+	let scrollbarW = $state(0);
+	$effect(() => {
+		if (!browser || !fullWidth) return;
+		const sync = () => {
+			scrollbarW = Math.max(0, window.innerWidth - document.documentElement.clientWidth);
+		};
+		sync();
+		window.addEventListener('resize', sync);
+		const ro = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(sync);
+		ro?.observe(document.documentElement);
+		return () => {
+			window.removeEventListener('resize', sync);
+			ro?.disconnect();
+		};
+	});
+
 	const style = $derived.by(() => {
 		const vars: string[] = [];
+		if (fullWidth && scrollbarW) vars.push(`--ct-scrollbar: ${scrollbarW}px`);
 		if (!fullWidth && size && size !== 'none') vars.push(`--ct-max: ${size}`);
 		if (gutter) vars.push(`--container-gutter: ${gutter}`);
 		if (fullWidth && inset) {
@@ -87,12 +106,15 @@
 
 	/* Break out of any centered ancestor to span the viewport (minus `inset`).
 	   `margin-inline: calc(50% - 50vw)` pulls each edge out to the viewport,
-	   keeping the element in normal flow (no transform/overflow side-effects). */
+	   keeping the element in normal flow (no transform/overflow side-effects).
+	   --ct-scrollbar (measured) takes the scrollbar gutter out of `100vw`. */
 	.ct.full {
 		--ct-inset-l: 0px;
 		--ct-inset-r: 0px;
+		--ct-vw: calc(100vw - var(--ct-scrollbar, 0px));
 		max-width: none;
-		width: calc(100vw - var(--ct-inset-l) - var(--ct-inset-r));
-		margin-inline: calc(50% - 50vw + var(--ct-inset-l)) calc(50% - 50vw + var(--ct-inset-r));
+		width: calc(var(--ct-vw) - var(--ct-inset-l) - var(--ct-inset-r));
+		margin-inline: calc(50% - var(--ct-vw) / 2 + var(--ct-inset-l))
+			calc(50% - var(--ct-vw) / 2 + var(--ct-inset-r));
 	}
 </style>

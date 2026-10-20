@@ -4,15 +4,30 @@
 	let {
 		open = $bindable(false),
 		closeOnNavigate = true,
-		changes = [] as boolean[]
+		changes = [] as boolean[],
+		resizableSidebar = false,
+		sidebarWidthKey = undefined as string | undefined
 	}: {
 		open?: boolean;
 		closeOnNavigate?: boolean;
 		changes?: boolean[];
+		resizableSidebar?: boolean;
+		sidebarWidthKey?: string;
 	} = $props();
 </script>
 
-<AppShell bind:open {closeOnNavigate} onOpenChange={(next) => changes.push(next)}>
+<AppShell
+	bind:open
+	{closeOnNavigate}
+	{resizableSidebar}
+	{sidebarWidthKey}
+	minSidebar={100}
+	maxSidebar={300}
+	onOpenChange={(next) => changes.push(next)}
+>
+	{#snippet header()}
+		<input data-test="search" aria-label="Search" />
+	{/snippet}
 	{#snippet sidebar()}
 		<nav>
 			<a href="/activity" data-test="local"><span>Activity</span></a>

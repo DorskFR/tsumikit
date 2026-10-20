@@ -49,9 +49,9 @@ test('fullWidth stays a viewport breakout, optionally inset for docked panels', 
 	assert.match(component, /inset\?: string/);
 	assert.match(component, /const \[left, right = left\] = inset\.trim\(\)\.split\(\/\\s\+\/\)/);
 	assert.match(component, /\.ct\.full\s*{[^}]*--ct-inset-l: 0px;/);
-	assert.match(component, /width: calc\(100vw - var\(--ct-inset-l\) - var\(--ct-inset-r\)\);/);
+	assert.match(component, /width: calc\(var\(--ct-vw\) - var\(--ct-inset-l\) - var\(--ct-inset-r\)\);/);
 	assert.match(
 		component,
-		/margin-inline: calc\(50% - 50vw \+ var\(--ct-inset-l\)\) calc\(50% - 50vw \+ var\(--ct-inset-r\)\);/
+		/margin-inline: calc\(50% - var\(--ct-vw\) \/ 2 \+ var\(--ct-inset-l\)\)\s*calc\(50% - var\(--ct-vw\) \/ 2 \+ var\(--ct-inset-r\)\);/
 	);
 });

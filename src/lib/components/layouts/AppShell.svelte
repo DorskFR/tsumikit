@@ -9,11 +9,14 @@
 	//     scrim; AppShell renders the hamburger toggle for you (shown only on
 	//     mobile), locks body scroll while open, closes on Escape / scrim click /
 	//     a same-origin link click inside it, and marks the rest of the page
-	//     `inert` so focus stays in the drawer. `bind:open` to drive it yourself.
-	// Switching to desktop auto-closes the drawer. Safe-area insets are honored.
+	//     (all but the hamburger) `inert`. Opening focuses the first control in
+	//     the drawer; closing returns focus to the toggle. `bind:open` to drive it.
+	// Switching to desktop auto-closes the drawer. Safe-area insets are honored;
+	// `--shell-header-h` is the rendered header height (incl. the top inset).
 	import { untrack, type Snippet } from 'svelte';
 	import { browser } from '$lib/env';
 	import IconButton from '$lib/components/molecules/IconButton.svelte';
+	import { resizeHandle } from './resizable-panel-frame.js';
 
 	let {
 		header,
@@ -71,6 +74,8 @@
 
 	let isMobile = $state(false);
 	let aside = $state<HTMLElement>();
+	let menuBtn = $state<HTMLElement>();
+	let asideW = $state(0);
 
 	function setOpen(next: boolean) {
 		if (open === next) return;
@@ -103,39 +108,17 @@
 	}
 	let sideW = $state<number | null>(loadW());
 	let dragging = $state(false);
-	let rafId = 0;
-	let lastX = 0;
-	function startDrag(e: PointerEvent) {
-		dragging = true;
-		lastX = e.clientX;
-		(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
-		e.preventDefault();
+	function persistW(w: number) {
+		if (browser && sidebarWidthKey) localStorage.setItem(sidebarWidthKey, String(w));
 	}
-	function onDrag(e: PointerEvent) {
-		if (!dragging) return;
-		lastX = e.clientX;
-		if (rafId) return;
-		rafId = requestAnimationFrame(() => {
-			rafId = 0;
-			sideW = Math.round(Math.max(minSidebar, Math.min(lastX, maxSidebar)));
-		});
-	}
-	function endDrag(e: PointerEvent) {
-		if (!dragging) return;
-		dragging = false;
-		if (rafId) {
-			cancelAnimationFrame(rafId);
-			rafId = 0;
-		}
-		try {
-			(e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
-		} catch {
-			/* already released */
-		}
-		if (browser && sidebarWidthKey && sideW != null) localStorage.setItem(sidebarWidthKey, String(sideW));
-	}
+	const measureW = () => sideW ?? aside?.getBoundingClientRect().width ?? 0;
 	// The effective desktop width: a resized px value wins over the prop default.
 	const widthCss = $derived(resizableSidebar && sideW != null ? `${sideW}px` : sidebarWidth);
+	$effect(() => {
+		if (!resizableSidebar || !aside) return;
+		void widthCss;
+		asideW = Math.round(measureW());
+	});
 
 	$effect(() => {
 		if (!browser) return;
@@ -167,6 +150,24 @@
 
 	// Background is inert (untabbable, hidden from AT) when the drawer is open.
 	const bgInert = $derived(open && isMobile);
+
+	const FOCUSABLE =
+		'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+	let wasInert = false;
+	$effect(() => {
+		const active = bgInert;
+		if (active === wasInert) return;
+		wasInert = active;
+		untrack(() => {
+			if (active) {
+				aside?.querySelector<HTMLElement>(FOCUSABLE)?.focus();
+				return;
+			}
+			const current = document.activeElement;
+			if (current && current !== document.body && !aside?.contains(current)) return;
+			menuBtn?.querySelector<HTMLElement>('button')?.focus();
+		});
+	});
 </script>
 
 <svelte:window onkeydown={(e) => e.key === 'Escape' && setOpen(false)} />
@@ -183,7 +184,7 @@
 		{#if sidebar}
 			<!-- Wrapper owned here so the responsive hide is a scoped rule on our own
 			     element, not a :global reach into the IconButton's button. -->
-			<div class="shell-menu-btn">
+			<div class="shell-menu-btn" bind:this={menuBtn}>
 				<IconButton
 					icon="menu"
 					label="Toggle navigation"
@@ -192,7 +193,9 @@
 				/>
 			</div>
 		{/if}
-		{@render header?.()}
+		<div class="shell-header-content" inert={bgInert || undefined}>
+			{@render header?.()}
+		</div>
 	</header>
 
 	{#if sidebar}
@@ -213,15 +216,25 @@
 		>
 			{@render sidebar()}
 			{#if resizableSidebar}
+				<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 				<div
 					class="shell-sidebar-resize"
 					role="separator"
+					tabindex="0"
 					aria-label="Resize sidebar"
 					aria-orientation="vertical"
-					onpointerdown={startDrag}
-					onpointermove={onDrag}
-					onpointerup={endDrag}
-					onpointercancel={endDrag}
+					aria-valuemin={minSidebar}
+					aria-valuemax={maxSidebar}
+					aria-valuenow={sideW ?? asideW}
+					use:resizeHandle={{
+						side: 'left',
+						min: minSidebar,
+						max: maxSidebar,
+						measure: measureW,
+						onwidth: (w) => (sideW = w),
+						oncommit: persistW,
+						onactive: (active) => (dragging = active)
+					}}
 				></div>
 			{/if}
 		</aside>
@@ -238,6 +251,7 @@
 
 <style>
 	.shell {
+		--shell-header-h: calc(var(--header-h) + var(--safe-top));
 		min-height: 100dvh;
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
@@ -256,7 +270,7 @@
 		align-items: center;
 		gap: var(--sp-3);
 		min-width: 0;
-		height: var(--header-h);
+		height: var(--shell-header-h);
 		padding-inline: max(var(--sp-4), var(--safe-left)) max(var(--sp-4), var(--safe-right));
 		padding-top: var(--safe-top);
 		background: color-mix(in srgb, var(--bg) 88%, transparent);
@@ -264,6 +278,12 @@
 		border-bottom: 1px solid var(--border);
 	}
 	.shell-header > :global(*) {
+		min-width: 0;
+	}
+	.shell-header-content {
+		display: contents;
+	}
+	.shell-header-content > :global(*) {
 		min-width: 0;
 	}
 	.shell-menu-btn {
@@ -399,8 +419,13 @@
 			transition: background 0.12s var(--ease);
 		}
 		.shell-sidebar-resize:hover::after,
+		.shell-sidebar-resize:focus-visible::after,
 		.shell.dragging .shell-sidebar-resize::after {
 			background: var(--accent);
+		}
+		.shell-sidebar-resize:focus-visible {
+			outline: 2px solid var(--accent);
+			outline-offset: -2px;
 		}
 	}
 
@@ -415,6 +440,12 @@
 		}
 		.shell-sidebar-resize {
 			display: none;
+		}
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.shell-sidebar {
+			transition: none;
 		}
 	}
 </style>
