@@ -241,6 +241,7 @@
 	   with Button size="sm", Popover size="sm" and SegmentedControl size="sm". */
 	.select.select-sm {
 		height: var(--select-size, var(--control-height-compact));
+		min-height: var(--select-size, var(--control-height-compact));
 	}
 	.select.w-auto {
 		width: auto;

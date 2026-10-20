@@ -15,12 +15,12 @@ test('Badge keeps its existing props and defaults', () => {
 	assert.match(badge, /border = true/);
 	assert.match(badge, /active = false/);
 	assert.match(badge, /removable = false/);
-	assert.match(badge, /class:badge-ok=\{tone === 'ok'\}/);
-	assert.match(badge, /class:badge-info=\{tone === 'info'\}/);
+	assert.match(badge, /class:badge-ok=\{t === 'ok'\}/);
+	assert.match(badge, /class:badge-info=\{t === 'info'\}/);
 });
 
 test('Badge tone vocabulary gains accent, muted and violet mapped to theme tokens', () => {
-	assert.match(badge, /type Tone = 'neutral' \| 'ok' \| 'warn' \| 'danger' \| 'info' \| 'accent' \| 'muted' \| 'violet'/);
+	assert.match(badge, /type Tone = SharedTone \| 'muted' \| 'violet';/);
 	assert.match(badge, /accent: 'var\(--accent\)'/);
 	assert.match(badge, /muted: 'var\(--text-muted\)'/);
 	assert.match(badge, /violet: 'var\(--c-violet\)'/);
@@ -28,7 +28,7 @@ test('Badge tone vocabulary gains accent, muted and violet mapped to theme token
 
 test('Badge color overrides tone and every tint derives from --badge-tone', () => {
 	assert.match(badge, /color\?: string;/);
-	assert.match(badge, /color \?\? \(tone === 'neutral' \? undefined : TONE_COLOR\[tone\]\)/);
+	assert.match(badge, /color \?\? \(t === 'neutral' \? undefined : TONE_COLOR\[t\]\)/);
 	assert.match(badge, /style:--badge-tone=\{toneColor\}/);
 	assert.match(css, /\.toned \{\s*color: var\(--badge-fg, var\(--badge-tone\)\);/);
 	assert.match(css, /color-mix\(in srgb, var\(--badge-tone\) 40%, transparent\)/);
@@ -40,7 +40,7 @@ test('Badge color overrides tone and every tint derives from --badge-tone', () =
 test('Badge size adds xs and derives sm/xs font from the --fs-xs token', () => {
 	assert.match(badge, /size\?: 'xs' \| 'sm' \| 'md';/);
 	assert.match(badge, /class:badge-xs=\{size === 'xs'\}/);
-	assert.match(css, /\.badge-sm,\s*\.badge-xs \{\s*font-size: var\(--badge-fs, calc\(var\(--fs-xs\) \* 0\.92\)\);/);
+	assert.match(css, /\.badge-sm,\s*\.badge-xs \{\s*font-size: var\(--badge-fs, var\(--fs-xs\)\);/);
 	assert.match(css, /\.badge-xs \{\s*padding: 0\.05rem var\(--sp-2\);/);
 	assert.doesNotMatch(css, /0\.6875rem/);
 });
@@ -79,4 +79,15 @@ test('Badge renders a leading Dot in the badge colour and a registered Icon', ()
 
 test('Interactive Badge shows a tone-derived focus ring', () => {
 	assert.match(css, /\.interactive:focus-visible \{\s*outline: 2px solid var\(--badge-tone, var\(--accent\)\);/);
+});
+
+test('Badge sm/xs font stays on the token scale', () => {
+	assert.doesNotMatch(css, /calc\(var\(--fs-xs\) \*/);
+});
+
+test('Badge accepts the shared Tone, with success aliased to ok', () => {
+	assert.match(badge, /import \{ canonicalTone, type Tone as SharedTone \} from '\$lib\/tone';/);
+	assert.match(badge, /const t = \$derived\(canonicalTone\(tone\)\);/);
+	assert.match(badge, /Record<Exclude<Tone, 'neutral' \| 'success'>, string>/);
+	assert.doesNotMatch(badge, /tone === '(ok|warn|danger|info)'/);
 });

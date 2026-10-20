@@ -52,9 +52,9 @@ test('Artwork prop surface: src, required alt, seed, aspect, size, radius, fit, 
 });
 
 test('Artwork renders a lazy async image and latches to the fallback on error, resetting when src changes', () => {
-	assert.match(source, /<img {src} {alt} class="img fit-{fit}" loading="lazy" decoding="async" onerror={fail} \/>/);
+	assert.match(source, /<img {src} {srcset} {sizes} {alt} class="img fit-{fit}" loading="lazy" decoding="async" onerror={fail} \/>/);
 	assert.match(source, /let failed = \$state\(false\);/);
-	assert.match(source, /\$effect\(\(\) => {\s*src;\s*failed = false;\s*}\);/);
+	assert.match(source, /\$effect\(\(\) => {\s*src;\s*srcset;\s*failed = false;\s*}\);/);
 	assert.match(source, /function fail\(\) {\s*failed = true;\s*onerror\?\.\(\);\s*}/);
 	assert.match(source, /const showImage = \$derived\(Boolean\(src\) && !failed\);/);
 	assert.match(source, /artworkGradient\(key\)/);
@@ -79,4 +79,10 @@ test('Artwork sizing, a11y and status overlay', () => {
 test('Artwork and the artwork helpers are part of the public API', () => {
 	assert.match(index, /export { default as Artwork } from '\.\/components\/atoms\/Artwork\.svelte';/);
 	assert.match(index, /export { artworkGradient, artworkHue, initials } from '\.\/artwork';/);
+});
+
+test('Artwork passes optional srcset and sizes through to the img', () => {
+	assert.match(source, /srcset\?: string;/);
+	assert.match(source, /sizes\?: string;/);
+	assert.match(source, /<img {src} {srcset} {sizes} /);
 });
