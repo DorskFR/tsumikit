@@ -64,15 +64,40 @@ for (const [name, src, sel] of /** @type {const} */ ([
 		'.btn-sm:not(.btn-icon, .btn-icon-inline, .btn-box, .btn-square, .btn-chip, .btn-stacked, .hit-compact)'
 	]
 ])) {
-	test(`${name}: coarse pointers get a centred --touch-slab`, () => {
+	test(`${name}: coarse pointers get a --touch-slab with no inline-end overflow`, () => {
 		const block = coarse(src);
 		assert.equal(rule(block, sel).position, 'relative');
 		const before = rule(block, `${sel}::before`);
 		assert.equal(before.content, "''");
 		assert.equal(before.position, 'absolute');
-		assert.equal(before.inset, 'var(--touch-slab)');
+		assert.equal(before.inset, undefined, 'a shorthand inset grows the slab past the inline end');
+		assert.equal(before['inset-inline'], undefined);
+		assert.equal(before['inset-block'], 'var(--touch-slab)');
+		assert.equal(before['inset-inline-start'], 'var(--touch-slab)');
+		assert.equal(before['inset-inline-end'], '0');
 	});
 }
+
+test('in a row of shape-A slabs, each visual centre hits its own control', () => {
+	for (const box of [24, 28, 32, 48, 96]) {
+		const reach = -slabAt(box);
+		for (const gap of [0, 2, 4, 8]) {
+			// Later siblings paint, and so hit-test, on top: own box, then its slab.
+			const layers = [0, 1, 2].flatMap((i) => {
+				const x = i * (box + gap);
+				return [
+					{ i, from: x, to: x + box },
+					{ i, from: x - reach, to: x + box }
+				];
+			});
+			for (const i of [0, 1, 2]) {
+				const centre = i * (box + gap) + box / 2;
+				const hit = layers.findLast((l) => l.from <= centre && centre <= l.to);
+				assert.equal(hit?.i, i, `centre of control ${i} (box ${box}px, gap ${gap}px)`);
+			}
+		}
+	}
+});
 
 test('Button: text sm buttons never stack a second slab on the icon/box ::after one', () => {
 	const block = coarse(button);
@@ -88,6 +113,8 @@ test('SegmentedControl: items grow on the block axis and only half the gap sidew
 	assert.equal(before['inset-inline'], 'calc(var(--sp-1) / -2)');
 	assert.equal(before.inset, undefined);
 	assert.equal(rule(seg, '.seg').gap, 'var(--sp-1)', 'the half-gap matches the group gap');
+	const pad = Number(rule(seg, '.seg').padding.match(/^(\d+)px$/)?.[1]);
+	assert.ok(2 <= pad, 'the edge items reach (half of the 4px gap) stays inside the group padding');
 	const gap = 4;
 	const reach = gap / 2;
 	for (const box of [24, 40, 80]) {

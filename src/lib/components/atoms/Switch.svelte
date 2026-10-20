@@ -131,7 +131,9 @@
 		.switch::before {
 			content: '';
 			position: absolute;
-			inset: var(--touch-slab);
+			inset-block: var(--touch-slab);
+			inset-inline-start: var(--touch-slab);
+			inset-inline-end: 0;
 		}
 	}
 	.switch-row {
