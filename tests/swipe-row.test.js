@@ -173,6 +173,24 @@ test('the click that ends a swipe is swallowed; a plain tap still reaches the ro
 	r.destroy();
 });
 
+test('a touch swipe that produces no click does not swallow the next tap', () => {
+	const r = render();
+	const inner = /** @type {HTMLElement} */ (r.root.querySelector('.probe-inner'));
+	r.drag([[90, 50], [70, 50]]);
+	r.pointer('pointerdown', 100, 50);
+	r.pointer('pointerup', 100, 50);
+	r.click(inner);
+	assert.deepEqual([...r.props.fired], ['click']);
+	r.pointer('pointerdown', 100, 50);
+	r.pointer('pointermove', 88, 50);
+	r.pointer('pointercancel', 88, 50);
+	r.pointer('pointerdown', 100, 50);
+	r.pointer('pointerup', 100, 50);
+	r.click(inner);
+	assert.deepEqual([...r.props.fired], ['click', 'click']);
+	r.destroy();
+});
+
 test('keyboard and screen-reader users get one hidden button per action', () => {
 	const r = render();
 	const buttons = /** @type {HTMLButtonElement[]} */ ([...r.root.querySelectorAll('[data-part="actions"] button')]);

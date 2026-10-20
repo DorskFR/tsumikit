@@ -100,6 +100,7 @@
 	}
 
 	function onpointerdown(e: PointerEvent) {
+		swallowClick = false;
 		if (disabled || e.button !== 0 || pointerId !== null) return;
 		if (!leadingAction && !trailingAction) return;
 		const el = e.currentTarget as HTMLElement;
