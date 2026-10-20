@@ -36,6 +36,7 @@ test('props: title with label alias, level 1-4 (default 2), size, subtitle, icon
 
 test('title is a Heading at the given level; count is faint, normal-weight tabular Text', () => {
 	assert.match(component, /<Heading {level} {size} class="sh-title">{text}<\/Heading>/);
+	assert.match(component, /<Heading {level} {size} class="sh-title">\s*<button\s+type="button"\s+class="sh-toggle"/);
 	assert.match(component, /<Text tone="faint" weight="normal" numeric class="sh-count">{count}<\/Text>/);
 	assert.match(component, /<Text variant="caption" class="sh-subtitle">{subtitle}<\/Text>/);
 });
@@ -63,7 +64,7 @@ test('sticky pins under the app header and publishes --section-header-h on the p
 });
 
 test('collapsible turns the title into a disclosure button controlling the children panel', () => {
-	assert.match(component, /{#if collapsible}\s*<button\s+type="button"\s+class="sh-toggle"\s+aria-expanded={open}\s+aria-controls={panelId}\s+onclick={\(\) => \(open = !open\)}/);
+	assert.match(component, /<button\s+type="button"\s+class="sh-toggle"\s+aria-expanded={open}\s+aria-controls={open \? panelId : undefined}\s+onclick={\(\) => \(open = !open\)}/);
 	assert.match(component, /{#if children && \(!collapsible \|\| open\)}\s*<div class="sh-panel" id={panelId}>{@render children\(\)}<\/div>/);
 	assert.match(component, /\.sh-open :global\(\.sh-chevron\)\s*{\s*transform: rotate\(90deg\);/);
 });

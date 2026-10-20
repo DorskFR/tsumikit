@@ -56,6 +56,7 @@
 		style?: string;
 	};
 
+	const uid = $props.id();
 	let local = $state<Record<string, boolean>>({});
 	let seen: Record<string, boolean | undefined> = {};
 
@@ -98,7 +99,7 @@
 	{#each items as item (item.id)}
 		<Disclosure
 			class="acc-item"
-			id={`acc-${item.id}`}
+			id={`${uid}-acc-${item.id}`}
 			open={isOpen(item)}
 			onchange={(o) => set(item, o)}
 			disabled={item.disabled}

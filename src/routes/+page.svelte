@@ -58,6 +58,9 @@
 		SortableList,
 		SwipeRow,
 		PullToRefresh,
+		SeekSlider,
+		VolumeSlider,
+		TimeDisplay,
 		SplitButton,
 		AttachmentList,
 		SegmentedProgress,
@@ -240,6 +243,7 @@
 				{ id: 'sortable-list', label: 'SortableList', keywords: 'reorder drag drop priority queue order grip' },
 				{ id: 'swipe-row', label: 'SwipeRow', keywords: 'swipe actions touch row archive delete mobile' },
 				{ id: 'pull-to-refresh', label: 'PullToRefresh', keywords: 'pull refresh reload touch mobile spinner' },
+				{ id: 'player-sliders', label: 'SeekSlider · VolumeSlider', keywords: 'media player seek scrub volume mute time duration buffered' },
 				{ id: 'filter-search-bar', label: 'FilterSearchBar', keywords: 'query search filter sql predicate' },
 				{ id: 'timestamp', label: 'Timestamp', keywords: 'date time relative utc epoch' },
 				{ id: 'git-ref', label: 'GitRef', keywords: 'branch pr commit diff' },
@@ -495,6 +499,11 @@
 		{ id: 'c', name: 'Ixion', meta: 'Zalera — 14 min ago' }
 	]);
 	let demoSwipeLog = $state('');
+	let position = $state(62);
+	let buffered = $state<[number, number][]>([[0, 300], [600, 900]]);
+	let volume = $state(0.8);
+	let muted = $state(false);
+	let seeks = $state(0);
 	let ptrRows = $state(Array.from({ length: 20 }, (_, i) => `Row ${i + 1}`));
 	const navBarItems: NavBarItem[] = [
 		{ href: '#navbar', label: 'Home', icon: 'home', current: true },
@@ -2736,6 +2745,26 @@ function greet(name) {
 						<div style="padding: var(--sp-3); border-bottom: 1px solid var(--border)">{row}</div>
 					{/each}
 				</PullToRefresh>
+			</section>
+
+			<section class="section" id="player-sliders">
+				<Heading level={3} size="lg">SeekSlider · VolumeSlider · TimeDisplay</Heading>
+				<Text tone="muted">
+					<code>oninput</code> previews while dragging; <code>onchange</code> fires once per release or key
+					step, so the player seeks only there. The bottom slider is a live stream (no duration).
+				</Text>
+				<Card>
+					<Stack gap="var(--sp-3)">
+						<SeekSlider bind:value={position} max={1425} {buffered} onchange={() => seeks++} />
+						<Cluster gap="var(--sp-3)" align="center">
+							<IconButton icon="play" label="Play" />
+							<TimeDisplay current={position} duration={1425} />
+							<VolumeSlider bind:value={volume} bind:muted />
+							<Text variant="caption" tone="muted">seeks: {seeks}</Text>
+						</Cluster>
+						<SeekSlider size="sm" value={30} max={null} />
+					</Stack>
+				</Card>
 			</section>
 
 			<section class="section" id="filter-search-bar">

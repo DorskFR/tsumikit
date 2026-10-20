@@ -129,8 +129,32 @@
 			addFiles(files);
 		}
 	}
-	function ondrop(e: DragEvent) {
+	// Only file drags are handled; native text drag-and-drop into the field is
+	// left to the browser. The depth counter stops dragleave on child crossings
+	// from flickering the `dragging` state.
+	let dragDepth = 0;
+	function hasFiles(e: DragEvent): boolean {
+		return Array.from(e.dataTransfer?.types ?? []).includes('Files');
+	}
+	function ondragenter(e: DragEvent) {
+		if (!hasFiles(e)) return;
+		dragDepth++;
+		dragging = true;
+	}
+	function ondragleave(e: DragEvent) {
+		if (!hasFiles(e)) return;
+		dragDepth = Math.max(0, dragDepth - 1);
+		if (dragDepth === 0) dragging = false;
+	}
+	function ondragover(e: DragEvent) {
+		if (!hasFiles(e)) return;
 		e.preventDefault();
+		if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
+	}
+	function ondrop(e: DragEvent) {
+		if (!hasFiles(e)) return;
+		e.preventDefault();
+		dragDepth = 0;
 		dragging = false;
 		addFiles(Array.from(e.dataTransfer?.files ?? []));
 	}
@@ -156,11 +180,9 @@
 	class:busy
 	style={styleProp}
 	role="group"
-	ondragover={(e) => {
-		e.preventDefault();
-		dragging = true;
-	}}
-	ondragleave={() => (dragging = false)}
+	{ondragenter}
+	{ondragleave}
+	{ondragover}
 	{ondrop}
 >
 	<AttachmentList files={attachments} onremove={removeAt} />

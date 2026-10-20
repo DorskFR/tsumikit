@@ -41,6 +41,7 @@ export { default as Switch } from './components/atoms/Switch.svelte';
 // ---- atoms ----
 export { default as Text } from './components/atoms/Text.svelte';
 export { default as Textarea } from './components/atoms/Textarea.svelte';
+export { default as TimeDisplay } from './components/atoms/TimeDisplay.svelte';
 // ---- layouts ----
 export { default as AppShell } from './components/layouts/AppShell.svelte';
 export { default as AutoGrid } from './components/layouts/AutoGrid.svelte';
@@ -147,6 +148,7 @@ export {
 	type RadioOption,
 } from './components/molecules/RadioGroup.svelte';
 export { default as SectionHeader } from './components/molecules/SectionHeader.svelte';
+export { default as SeekSlider } from './components/molecules/SeekSlider.svelte';
 export {
 	default as SegmentedControl,
 	type SegmentOption,
@@ -169,6 +171,7 @@ export { default as Toaster } from './components/molecules/Toaster.svelte';
 export { default as Toggle } from './components/molecules/Toggle.svelte';
 export { default as Tooltip } from './components/molecules/Tooltip.svelte';
 export { default as Truncate } from './components/molecules/Truncate.svelte';
+export { default as VolumeSlider } from './components/molecules/VolumeSlider.svelte';
 export { default as WorkingDir } from './components/molecules/WorkingDir.svelte';
 // ---- organisms ----
 export { default as ConversationFeed } from './components/organisms/ConversationFeed.svelte';
@@ -195,6 +198,7 @@ export {
 	renderMarkdown,
 	stripAnsi,
 } from './markdown';
+export { describeMediaTime, formatMediaTime, isLiveDuration } from './media-time';
 // ---- query core (headless: schema / parser / AST / suggest / compilers) ----
 export * as filterQuery from './query';
 export {

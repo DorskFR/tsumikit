@@ -4,7 +4,7 @@
 	// swatch and right-aligned actions on one wrapping row. `divider` underlines
 	// it, `sticky` pins it under the app header and publishes its height as
 	// `--section-header-h` on the parent so sibling sticky content can offset
-	// itself. `collapsible` turns the title into a disclosure button that
+	// itself. `collapsible` puts a disclosure button inside the heading that
 	// toggles the `children` block rendered beneath. `variant="group"` is the
 	// non-wrapping list-group row: `lead` · title · count · flexible rule · actions.
 	import type { Snippet } from 'svelte';
@@ -90,16 +90,7 @@
 >
 	<div class="sh-row">
 		{#if collapsible}
-			<button
-				type="button"
-				class="sh-toggle"
-				aria-expanded={open}
-				aria-controls={panelId}
-				onclick={() => (open = !open)}
-			>
-				<Icon name="chevron-right" class="sh-chevron" />
-				{@render head()}
-			</button>
+			<span class="sh-head">{@render head()}</span>
 		{:else}
 			{@render head()}
 		{/if}
@@ -125,10 +116,28 @@
 	{#if hue !== undefined}
 		<span class="sh-swatch" style:--sh-hue={hue} aria-hidden="true"></span>
 	{/if}
-	{#if icon}
-		<span class="sh-icon" aria-hidden="true"><Icon name={icon} /></span>
+	{#if collapsible}
+		<Heading {level} {size} class="sh-title">
+			<button
+				type="button"
+				class="sh-toggle"
+				aria-expanded={open}
+				aria-controls={open ? panelId : undefined}
+				onclick={() => (open = !open)}
+			>
+				<Icon name="chevron-right" class="sh-chevron" />
+				{#if icon}
+					<span class="sh-icon" aria-hidden="true"><Icon name={icon} /></span>
+				{/if}
+				{text}
+			</button>
+		</Heading>
+	{:else}
+		{#if icon}
+			<span class="sh-icon" aria-hidden="true"><Icon name={icon} /></span>
+		{/if}
+		<Heading {level} {size} class="sh-title">{text}</Heading>
 	{/if}
-	<Heading {level} {size} class="sh-title">{text}</Heading>
 	{#if count !== undefined}
 		<Text tone="faint" weight="normal" numeric class="sh-count">{count}</Text>
 	{/if}
@@ -232,6 +241,12 @@
 		align-items: center;
 		gap: var(--sp-2);
 		margin-inline-start: auto;
+	}
+	.sh-head {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--sp-2);
+		min-width: 0;
 	}
 	.sh-toggle {
 		display: inline-flex;

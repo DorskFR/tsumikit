@@ -21,6 +21,10 @@
 //   genre in (house, techno)    → any of
 //   year..2021..2024            → range  (field..a..b)  also  field:a..b
 //   free floating words         → TextNode (full-text)
+//   "daft punk"                 → one TextNode phrase (quotes stripped)
+//
+// `..` only splits a value on fields that accept the range operator, so
+// `cwd:../foo` stays one string. Inside quotes `\"` and `\\` are escapes.
 //
 // Error recovery: unmatched `)` is ignored, a missing `)` closes at end of
 // input, a dangling AND/OR/NOT with no operand collapses to its operand, and an
@@ -28,6 +32,7 @@
 // ─────────────────────────────────────────────────────────────────────────
 
 import type { ExprNode, FilterNode, LeafNode, Query, TextNode } from './ast';
+import { readQuoted } from './quotes';
 import { findField, operatorByCode, operatorsFor, type Schema } from './schema';
 
 const IDENT = /[A-Za-z_][\w-]*/y;
@@ -50,16 +55,16 @@ function skipWsInline(sc: Scanner) {
 	while (sc.i < sc.s.length && (sc.s[sc.i] === ' ' || sc.s[sc.i] === '\t')) sc.i++;
 }
 
-/** Read a value token: a "quoted string", or a bare run up to whitespace. */
-function readValue(sc: Scanner): { value: string; end: number } {
+/**
+ * Read a value token: a "quoted string", or a bare run up to whitespace. With
+ * `range` the bare run also stops at `..` so `a..b` splits into two values.
+ */
+function readValue(sc: Scanner, range = false): { value: string; end: number } {
 	skipWsInline(sc);
 	if (sc.s[sc.i] === '"' || sc.s[sc.i] === "'") {
-		const quote = sc.s[sc.i];
-		const start = ++sc.i;
-		while (sc.i < sc.s.length && sc.s[sc.i] !== quote) sc.i++;
-		const value = sc.s.slice(start, sc.i);
-		if (sc.s[sc.i] === quote) sc.i++; // consume closing quote
-		return { value, end: sc.i };
+		const { value, end } = readQuoted(sc.s, sc.i);
+		sc.i = end;
+		return { value, end };
 	}
 	const start = sc.i;
 	while (
@@ -68,8 +73,7 @@ function readValue(sc: Scanner): { value: string; end: number } {
 		sc.s[sc.i] !== ',' &&
 		sc.s[sc.i] !== ')' &&
 		sc.s[sc.i] !== '(' &&
-		// stop at a `..` range separator so `a..b` splits into two values
-		!sc.s.startsWith('..', sc.i)
+		!(range && sc.s.startsWith('..', sc.i))
 	)
 		sc.i++;
 	return { value: sc.s.slice(start, sc.i), end: sc.i };
@@ -105,8 +109,34 @@ function peekKeyword(sc: Scanner): { word: string; next: number } | null {
 
 export function parse(input: string, schema: Schema): Query {
 	const sc: Scanner = { s: input, i: 0 };
-	const root = parseOr(sc, schema);
-	return { root };
+	const pieces: ExprNode[] = [];
+	for (;;) {
+		const before = sc.i;
+		const node = parseOr(sc, schema);
+		if (node) pieces.push(node);
+		skipWs(sc);
+		if (sc.i >= sc.s.length) break;
+		if (sc.s[sc.i] === ')') sc.i++;
+		else if (sc.i === before) break;
+	}
+	return { root: joinAnd(pieces) };
+}
+
+/** AND the top-level pieces left around stray `)` as if the paren were not there. */
+function joinAnd(pieces: ExprNode[]): ExprNode | null {
+	const children: ExprNode[] = [];
+	for (const piece of pieces) {
+		for (const node of piece.kind === 'and' ? piece.children : [piece]) {
+			const last = children[children.length - 1];
+			if (node.kind === 'text' && last?.kind === 'text') {
+				last.value += ` ${node.value}`;
+				last.span[1] = node.span[1];
+			} else children.push(node);
+		}
+	}
+	if (children.length === 0) return null;
+	if (children.length === 1) return children[0];
+	return { kind: 'and', children };
 }
 
 // orExpr := andExpr ( OR andExpr )*
@@ -219,8 +249,14 @@ function readLeaf(sc: Scanner, schema: Schema): LeafNode | null {
 		}
 	}
 
-	// Fallback: consume one word (up to whitespace or a paren) as free text.
+	// Fallback: a "quoted phrase", or one word (up to whitespace or a paren), as free text.
 	const wStart = sc.i;
+	if (sc.s[sc.i] === '"') {
+		const { value, end } = readQuoted(sc.s, sc.i);
+		sc.i = end;
+		if (!value) return null;
+		return { kind: 'text', value, span: [wStart, end] } as TextNode;
+	}
 	while (sc.i < sc.s.length && !/\s/.test(sc.s[sc.i]) && sc.s[sc.i] !== '(' && sc.s[sc.i] !== ')')
 		sc.i++;
 	const word = sc.s.slice(wStart, sc.i);
@@ -273,21 +309,19 @@ function readFilter(
 	}
 
 	sc.i = opPos + opMatch.len;
-	const first = readValue(sc);
+	const rangeOp = legal.find((o) => o.id === 'range');
+	const first = readValue(sc, !!rangeOp);
 	// Range form: a..b
-	if (sc.s.startsWith('..', sc.i)) {
+	if (rangeOp && sc.s.startsWith('..', sc.i)) {
 		sc.i += 2;
-		const second = readValue(sc);
-		const rangeOp = operatorsFor(field).find((o) => o.id === 'range');
-		if (rangeOp) {
-			return {
-				kind: 'filter',
-				field: field.name,
-				op: 'range',
-				values: [first.value, second.value],
-				span: [clauseStart, sc.i],
-			};
-		}
+		const second = readValue(sc, true);
+		return {
+			kind: 'filter',
+			field: field.name,
+			op: 'range',
+			values: [first.value, second.value],
+			span: [clauseStart, sc.i],
+		};
 	}
 	return {
 		kind: 'filter',

@@ -186,7 +186,11 @@
 	}
 
 	const hover = createHoverIntent({ open: show, close });
-	$effect(() => () => hover.cancel());
+	$effect(() => () => {
+		hover.cancel();
+		removeEventListener('scroll', reposition, true);
+		removeEventListener('resize', reposition);
+	});
 
 	function onPointerEnter(e: PointerEvent) {
 		if (disabled || !opensOnHover(openOn, e.pointerType)) return;
@@ -194,8 +198,8 @@
 		else hover.enter(hoverDelay);
 	}
 
-	function onPointerLeave() {
-		if (openOn !== 'hover') return;
+	function onPointerLeave(e: PointerEvent) {
+		if (!opensOnHover(openOn, e.pointerType)) return;
 		hover.leave(HOVER_CLOSE_GRACE);
 	}
 

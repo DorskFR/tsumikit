@@ -9,6 +9,7 @@
 	// `resizeKey`).
 	import type { Snippet } from 'svelte';
 	import { browser } from '$lib/env';
+	import { readStorage, writeStorage } from '$lib/stores/storage';
 	import Icon, { type IconName } from '$lib/components/atoms/Icon.svelte';
 	import Spinner from '$lib/components/atoms/Spinner.svelte';
 	import IconButton from '$lib/components/molecules/IconButton.svelte';
@@ -76,7 +77,7 @@
 
 	function loadWidth(): number | null {
 		if (!browser || !resizeKey) return null;
-		const n = Number(localStorage.getItem(resizeKey));
+		const n = Number(readStorage(resizeKey));
 		return Number.isFinite(n) && n >= MIN_W ? Math.min(n, MAX_W) : null;
 	}
 	let width = $state<number | null>(loadWidth());
@@ -103,9 +104,17 @@
 	}
 
 	// Click outside: <dialog fills the viewport; clicks on its padding-free self
-	// (not the inner .sheet) are backdrop clicks.
+	// (not the inner .sheet) are backdrop clicks. A drag that starts in the sheet
+	// and ends on the backdrop also fires click on the dialog, so the press must
+	// have landed on the backdrop too.
+	let pressOnBackdrop = false;
+	function onDialogPointerDown(e: PointerEvent) {
+		pressOnBackdrop = e.target === dialogEl;
+	}
 	function onDialogClick(e: MouseEvent) {
-		if (e.target === dialogEl) requestClose();
+		const outside = pressOnBackdrop && e.target === dialogEl;
+		pressOnBackdrop = false;
+		if (outside) requestClose();
 	}
 
 	// --- resize ---
@@ -146,7 +155,7 @@
 		} catch {
 			/* already released */
 		}
-		if (browser && resizeKey && width != null) localStorage.setItem(resizeKey, String(width));
+		if (browser && resizeKey && width != null) writeStorage(resizeKey, String(width));
 	}
 </script>
 
@@ -166,6 +175,7 @@
 	onclose={() => {
 		if (controlled) open = false;
 	}}
+	onpointerdown={onDialogPointerDown}
 	onclick={onDialogClick}
 >
 	<div
@@ -281,6 +291,12 @@
 		from {
 			transform: translateY(8%);
 			opacity: 0.4;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.modal::backdrop,
+		.sheet {
+			animation: none;
 		}
 	}
 	.modal.resizing .sheet {

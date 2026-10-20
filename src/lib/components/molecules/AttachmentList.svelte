@@ -103,6 +103,7 @@
 						maxWidth="16rem"
 						removable={!!onremove}
 						onremove={() => onremove?.(i)}
+						actionLabel="{removeLabel} {f.name}"
 						title={f.name}
 					>
 						{@const src = thumb(f)}

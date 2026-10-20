@@ -52,3 +52,17 @@ test('map and video glyphs are registered, stroked', () => {
 	assert.equal((icon.match(/^\t\tmap: '(.*)',$/m)?.[1].match(/<path /g) ?? []).length, 3);
 	assert.match(icon, /^\t\tvideo: '<path [^']*<rect x="2" y="6" width="14" height="12" rx="2" \/>',$/m);
 });
+
+test('volume glyphs: volume, volume-low, volume-high, volume-mute, volume-off, stroked', () => {
+	for (const name of ['volume-low', 'volume-high', 'volume-mute', 'volume-off']) {
+		assert.match(icon, new RegExp(`^\\t\\t'${name}': '<path d="`, 'm'), `missing glyph ${name}`);
+		assert.doesNotMatch(icon, new RegExp(`^\\t\\t'${name}': '[^']*fill=`, 'm'));
+	}
+	assert.match(icon, /^\t\tvolume: '<path d="M11 4\.702a/m);
+	const paths = (/** @type {string} */ name) =>
+		(icon.match(new RegExp(`^\\t\\t'${name}': '(.*)',$`, 'm'))?.[1].match(/<path /g) ?? []).length;
+	assert.equal(paths('volume-low'), 2);
+	assert.equal(paths('volume-high'), 3);
+	assert.equal(paths('volume-mute'), 3);
+	assert.equal(paths('volume-off'), 5);
+});

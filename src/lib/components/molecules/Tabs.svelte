@@ -86,6 +86,12 @@
 	let listEl = $state<HTMLDivElement | null>(null);
 	const baseId = `tabs-${Math.random().toString(36).slice(2, 8)}`;
 	const panelId = $derived(panel ? `${baseId}-panel` : undefined);
+	// The roving tab stop: the selected tab, or the first enabled one when the
+	// selection is unknown or disabled, so the strip never drops out of the Tab order.
+	const stop = $derived(
+		tabs.find((t) => t.id === value && !t.disabled) ?? tabs.find((t) => !t.disabled)
+	);
+	const tabId = (id: string) => `${baseId}-tab-${id}`;
 
 	function canClose(t: TabItem): boolean {
 		return t.closable ?? closable;
@@ -95,7 +101,7 @@
 		if (tabs.find((t) => t.id === id)?.disabled) return;
 		value = id;
 		queueMicrotask(() => {
-			const el = listEl?.querySelector<HTMLElement>(`#${baseId}-tab-${id}`);
+			const el = listEl?.ownerDocument.getElementById(tabId(id));
 			// The list scrolls when it is too narrow, so keyboard selection has to
 			// bring the tab back into view or it moves somewhere unseen.
 			el?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
@@ -129,7 +135,7 @@
 		close(id);
 	}
 	function onkeydown(e: KeyboardEvent) {
-		const i = tabs.findIndex((t) => t.id === value);
+		const i = stop ? tabs.indexOf(stop) : -1;
 		if (i < 0) return;
 		if (e.key === 'Delete') {
 			if (!canClose(tabs[i])) return;
@@ -169,7 +175,7 @@
 						aria-selected={value === t.id}
 						aria-controls={panelId}
 						aria-disabled={t.disabled || undefined}
-						tabindex={value === t.id ? 0 : -1}
+						tabindex={stop?.id === t.id ? 0 : -1}
 						class="tab closable"
 						class:selected={value === t.id}
 						class:disabled={t.disabled}
@@ -202,7 +208,7 @@
 						aria-selected={value === t.id}
 						aria-controls={panelId}
 						disabled={t.disabled}
-						tabindex={value === t.id ? 0 : -1}
+						tabindex={stop?.id === t.id ? 0 : -1}
 						class="tab"
 						class:selected={value === t.id}
 						onclick={() => select(t.id)}
@@ -217,7 +223,7 @@
 		{/if}
 	</div>
 	{#if panel}
-		<div role="tabpanel" id={panelId} tabindex="0" class="tabpanel {panelClass}" class:pad-none={panelPadding === 'none'} class:pad-sm={panelPadding === 'sm'}>
+		<div role="tabpanel" id={panelId} aria-labelledby={value === undefined ? undefined : tabId(value)} tabindex="0" class="tabpanel {panelClass}" class:pad-none={panelPadding === 'none'} class:pad-sm={panelPadding === 'sm'}>
 			{#if value !== undefined}{@render panel(value)}{/if}
 		</div>
 	{/if}

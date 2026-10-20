@@ -6,9 +6,9 @@
 </script>
 
 <script lang="ts">
-	// Navigation trail (e.g. "Musique > Artist > Album > Track"). The last item —
-	// or any item without an `href` — renders unlinked and is marked
-	// aria-current="page". When the trail exceeds `maxItems` the middle collapses
+	// Navigation trail (e.g. "Musique > Artist > Album > Track"). The last item
+	// renders unlinked with aria-current="page"; other items without an `href`
+	// render as plain text. When the trail exceeds `maxItems` the middle collapses
 	// to an ellipsis, always keeping the first item and the tail. `separator` is a
 	// snippet for custom markup, else a char via the `char` prop.
 	import type { Snippet } from 'svelte';
@@ -30,7 +30,8 @@
 		char?: string;
 		separator?: Snippet;
 		/** Collapse the middle to an ellipsis when the trail is longer than this
-		 *  (0 = never collapse). Keeps the first item and the last `maxItems - 1`. */
+		 *  (0 = never collapse). Keeps the first item and the last `maxItems - 1`;
+		 *  values below 2 behave as 2 so the current page always shows. */
 		maxItems?: number;
 		size?: 'sm' | 'md';
 		/** `false` keeps the trail on one line: ancestors keep their width and the
@@ -46,7 +47,7 @@
 
 	const shown = $derived<Crumb[]>(
 		maxItems > 0 && items.length > maxItems
-			? [items[0], { ellipsis: true }, ...items.slice(items.length - (maxItems - 1))]
+			? [items[0], { ellipsis: true }, ...items.slice(items.length - (Math.max(2, maxItems) - 1))]
 			: items
 	);
 </script>
@@ -67,7 +68,7 @@
 				{:else if item.href && i < shown.length - 1}
 					<a class="link" href={item.href}>{item.label}</a>
 				{:else}
-					<span class="current" aria-current="page">{item.label}</span>
+					<span class="current" aria-current={i === shown.length - 1 ? 'page' : undefined}>{item.label}</span>
 				{/if}
 				{#if i < shown.length - 1}
 					<span class="sep" aria-hidden="true">

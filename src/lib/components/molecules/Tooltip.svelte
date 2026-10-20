@@ -1,6 +1,6 @@
 <script lang="ts">
 	// Lightweight tooltip. Shows on hover (after a short delay) and on keyboard
-	// focus of the trigger; hides on blur / mouseleave / Escape. The trigger is
+	// focus of the trigger; hides on blur / mouseleave / Escape (anywhere). The trigger is
 	// any snippet; an action wires `aria-describedby` onto its first focusable
 	// element so screen readers announce the text.
 	//
@@ -63,6 +63,11 @@
 		if (wrapEl && tipEl) place(wrapEl, tipEl, `${placement}-center`, 6);
 	}
 
+	// Escape must dismiss a hover-opened bubble even while focus sits elsewhere.
+	function onEscape(e: KeyboardEvent) {
+		if (e.key === 'Escape') hideNow();
+	}
+
 	function show() {
 		clearTimeout(hideTimer); // pointer came back within the grace period
 		clearTimeout(showTimer);
@@ -72,15 +77,20 @@
 			reposition();
 			addEventListener('scroll', reposition, true);
 			addEventListener('resize', reposition);
+			document.addEventListener('keydown', onEscape);
 		}, delay);
 	}
 	function hideNow() {
 		clearTimeout(showTimer);
 		clearTimeout(hideTimer);
-		if (tipEl?.matches(':popover-open')) tipEl.hidePopover();
+		try {
+			if (tipEl?.matches(':popover-open')) tipEl.hidePopover();
+		} catch {}
 		removeEventListener('scroll', reposition, true);
 		removeEventListener('resize', reposition);
+		document.removeEventListener('keydown', onEscape);
 	}
+	$effect(() => () => hideNow());
 	// Debounced close: cancelled if the pointer/focus enters the panel (rich
 	// mode) or returns to the trigger before `closeDelay` elapses.
 	function scheduleHide() {
@@ -104,21 +114,23 @@
 			node.tabIndex = 0;
 			target = node;
 		}
-		target.setAttribute('aria-describedby', id);
-		const onkey = (e: KeyboardEvent) => e.key === 'Escape' && hideNow();
+		// The trigger may already be described (a Field hint/error): append our
+		// id to the token list and take back only that token on destroy.
+		const describedBy = () => (target.getAttribute('aria-describedby') ?? '').split(/\s+/).filter(Boolean);
+		target.setAttribute('aria-describedby', [...describedBy().filter((t) => t !== id), id].join(' '));
 		node.addEventListener('mouseenter', show);
 		node.addEventListener('mouseleave', scheduleHide);
 		node.addEventListener('focusin', show);
 		node.addEventListener('focusout', scheduleHide);
-		node.addEventListener('keydown', onkey);
 		return {
 			destroy() {
-				target.removeAttribute('aria-describedby');
+				const rest = describedBy().filter((t) => t !== id);
+				if (rest.length) target.setAttribute('aria-describedby', rest.join(' '));
+				else target.removeAttribute('aria-describedby');
 				node.removeEventListener('mouseenter', show);
 				node.removeEventListener('mouseleave', scheduleHide);
 				node.removeEventListener('focusin', show);
 				node.removeEventListener('focusout', scheduleHide);
-				node.removeEventListener('keydown', onkey);
 			}
 		};
 	}
@@ -126,19 +138,16 @@
 	// Action for the panel: in rich mode it accepts the pointer/focus, which
 	// cancels the pending close (hovercard persistence).
 	function panel(node: HTMLElement) {
-		const onkey = (e: KeyboardEvent) => e.key === 'Escape' && hideNow();
 		node.addEventListener('mouseenter', cancelHide);
 		node.addEventListener('mouseleave', scheduleHide);
 		node.addEventListener('focusin', cancelHide);
 		node.addEventListener('focusout', scheduleHide);
-		node.addEventListener('keydown', onkey);
 		return {
 			destroy() {
 				node.removeEventListener('mouseenter', cancelHide);
 				node.removeEventListener('mouseleave', scheduleHide);
 				node.removeEventListener('focusin', cancelHide);
 				node.removeEventListener('focusout', scheduleHide);
-				node.removeEventListener('keydown', onkey);
 			}
 		};
 	}

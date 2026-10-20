@@ -66,7 +66,8 @@
 </script>
 
 <!-- The wrapper (owned here, so styled scoped) is the positioning context that
-     clips the transparent overlaid <select>; the icon Button shows through. -->
+     clips the transparent overlaid <select>; the inert icon Button is the face
+     behind it, so the select is the only focusable control. -->
 <span
 	class="select-button {klass}"
 	class:row={variant === 'row'}
@@ -77,32 +78,33 @@
 	class:no-shrink={!shrink}
 	class:block={block || variant === 'row'}
 >
-	<Button variant="ghost" icon={variant === 'square'} block={variant === 'row'} {box} {hitArea} {title} aria-label={label}>
+	<Button variant="ghost" icon={variant === 'square'} block={variant === 'row'} {box} {hitArea} inert tabindex={-1}>
 		<span aria-hidden="true" class="sb-glyph">
 			{#if iconChildren}<Icon>{@render iconChildren()}</Icon>{:else if icon}<Icon name={icon} />{:else}{glyph}{/if}
 		</span>
 		{#if variant === 'row'}<span aria-hidden="true" class="sb-label">{label}</span>{/if}
-		<Select
-			variant="ghost"
-			aria-label={label}
-			{value}
-			onchange={(e) => onchange((e.currentTarget as HTMLSelectElement).value)}
-		>
-			{#if groups}
-				{#each groups as g (g.label)}
-					<optgroup label={g.label}>
-						{#each g.options as o (o.value)}
-							<option value={o.value}>{o.label}</option>
-						{/each}
-					</optgroup>
-				{/each}
-			{:else}
-				{#each options ?? [] as o (o.value)}
-					<option value={o.value}>{o.label}</option>
-				{/each}
-			{/if}
-		</Select>
 	</Button>
+	<Select
+		variant="ghost"
+		aria-label={label}
+		{title}
+		{value}
+		onchange={(e) => onchange((e.currentTarget as HTMLSelectElement).value)}
+	>
+		{#if groups}
+			{#each groups as g (g.label)}
+				<optgroup label={g.label}>
+					{#each g.options as o (o.value)}
+						<option value={o.value}>{o.label}</option>
+					{/each}
+				</optgroup>
+			{/each}
+		{:else}
+			{#each options ?? [] as o (o.value)}
+				<option value={o.value}>{o.label}</option>
+			{/each}
+		{/if}
+	</Select>
 </span>
 
 <style>
@@ -126,6 +128,15 @@
 	}
 	.select-button.active {
 		color: var(--accent);
+	}
+	/* The inert face takes no pointer events: mirror ghost hover and the
+	   focus ring from the select overlaying it. */
+	.select-button:hover :global(.btn-ghost) {
+		background: var(--bg-elevated-2);
+	}
+	.select-button:has(:focus-visible) {
+		outline: 2px solid var(--accent);
+		outline-offset: 2px;
 	}
 	.select-button.row :global(.btn) {
 		justify-content: flex-start;

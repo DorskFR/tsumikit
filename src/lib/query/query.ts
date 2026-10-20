@@ -7,10 +7,11 @@
 // ─────────────────────────────────────────────────────────────────────────
 
 import type { ExprNode, FilterNode, Query } from './ast';
+import { quote, quoteIfNeeded } from './quotes';
 import { operatorById } from './schema';
 
-function quoteIfNeeded(v: string): string {
-	return /[\s,()]/.test(v) || v === '' ? `"${v}"` : v;
+function quoteText(v: string): string {
+	return /[()"]|^'/.test(v) ? quote(v) : v;
 }
 
 // ── Serialiser (AST → canonical textual query, round-trips through parse) ────
@@ -40,7 +41,7 @@ function serializeBare(node: ExprNode): string {
 		case 'filter':
 			return serializeFilter(node);
 		case 'text':
-			return node.value;
+			return quoteText(node.value);
 		case 'not':
 			// Child must bind at least as tight as NOT, else parenthesise.
 			return `NOT ${serializeNode(node.child, 3)}`;
@@ -81,13 +82,17 @@ function sqlLiteral(s: string): string {
 	return `'${s.replace(/'/g, "''")}'`;
 }
 
+function sqlLike(v: string): string {
+	return `${sqlLiteral(`%${v.replace(/[\\%_]/g, '\\$&')}%`)} ESCAPE '\\'`;
+}
+
 function filterToSql(f: FilterNode): string {
 	const col = f.field;
 	switch (f.op) {
 		case 'contains':
-			return `${col} ILIKE '%${f.values[0]}%'`;
+			return `${col} ILIKE ${sqlLike(f.values[0] ?? '')}`;
 		case 'not_contains':
-			return `${col} NOT ILIKE '%${f.values[0]}%'`;
+			return `${col} NOT ILIKE ${sqlLike(f.values[0] ?? '')}`;
 		case 'in':
 			return `${col} IN (${f.values.map(sqlLiteral).join(', ')})`;
 		case 'range':

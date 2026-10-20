@@ -91,12 +91,13 @@
 		if (depth === 0) setOver(false);
 	}
 	function onDragOver(e: DragEvent) {
-		if (disabled) return;
+		if (disabled || !hasFiles(e)) return;
 		// preventDefault is required or `drop` never fires.
 		e.preventDefault();
 		if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy';
 	}
 	function onDrop(e: DragEvent) {
+		if (!hasFiles(e)) return;
 		e.preventDefault();
 		depth = 0;
 		setOver(false);

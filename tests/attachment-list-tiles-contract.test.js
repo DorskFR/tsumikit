@@ -173,7 +173,7 @@ test('onopen: the chip name is a button calling onopen, Remove stays separate', 
 	assert.equal(open.getAttribute('title'), 'Open');
 	assert.match(open.textContent ?? '', /report\.pdf/);
 	/** @type {HTMLButtonElement} */ (open).click();
-	const remove = chip.querySelector('button[aria-label="Remove"]');
+	const remove = chip.querySelector('button[aria-label="Remove report.pdf"]');
 	assert.ok(remove);
 	/** @type {HTMLButtonElement} */ (remove).click();
 	flushSync();

@@ -112,7 +112,7 @@
 	let limit = $state(0);
 	let dragging = $state(false);
 	let keying = $state(false);
-	let committed = cap;
+	let committed: number | null = null;
 
 	const stacked = $derived(isStacked(layout, width, limit));
 
@@ -151,6 +151,7 @@
 		if (readonly || !trackEl || e.button !== 0) return;
 		e.preventDefault();
 		dragging = true;
+		committed = cap;
 		trackEl.setPointerCapture(e.pointerId);
 		setCap(capFromPointer(e.clientX, trackEl.getBoundingClientRect(), step, min, max));
 		trackEl.querySelector<HTMLElement>('.handle')?.focus();
@@ -169,6 +170,7 @@
 		const next = capKeyStep(e.key, e.shiftKey, snapCap(cap ?? max, step, min, max), step, min, max);
 		if (next === null) return;
 		e.preventDefault();
+		if (!keying) committed = cap;
 		keying = true;
 		setCap(next);
 	}

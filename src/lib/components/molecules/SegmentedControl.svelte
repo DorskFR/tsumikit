@@ -88,19 +88,23 @@
 
 	let listEl = $state<HTMLDivElement | null>(null);
 	const baseId = `seg-${Math.random().toString(36).slice(2, 8)}`;
+	// The roving tab stop: the selected option, or the first enabled one when the
+	// selection is unknown or disabled, so the group never drops out of the Tab order.
+	const stop = $derived(
+		options.find((o) => o.value === value && !o.disabled) ?? options.find((o) => !o.disabled)
+	);
+	const segId = (val: string) => `${baseId}-${val}`;
 
 	function select(val: string, focus = false) {
 		if (options.find((o) => o.value === val)?.disabled) return;
 		value = val;
 		onchange?.(val);
 		if (focus) {
-			queueMicrotask(() =>
-				listEl?.querySelector<HTMLButtonElement>(`#${baseId}-${val}`)?.focus()
-			);
+			queueMicrotask(() => listEl?.ownerDocument.getElementById(segId(val))?.focus());
 		}
 	}
 	function onkeydown(e: KeyboardEvent) {
-		const i = options.findIndex((o) => o.value === value);
+		const i = stop ? options.indexOf(stop) : -1;
 		const next = nextEnabledSegment(options, i, e.key);
 		if (next === undefined) return;
 		e.preventDefault();
@@ -130,11 +134,11 @@
 		{@const selected = value === o.value}
 		<button
 			type="button"
-			id="{baseId}-{o.value}"
+			id={segId(o.value)}
 			role="radio"
 			aria-checked={selected}
 			aria-label={variant === 'icon' && !o.label ? o.value : o.label}
-			tabindex={selected ? 0 : -1}
+			tabindex={stop?.value === o.value ? 0 : -1}
 			class="seg-item"
 			class:has-label={!!o.label}
 			class:selected

@@ -7,6 +7,7 @@
 // This is pure logic, deliberately UI-free so the Svelte organism stays dumb.
 // ─────────────────────────────────────────────────────────────────────────
 
+import { quoteIfNeeded, quoteOpensAt, unquote } from './quotes';
 import {
 	type FieldDef,
 	findField,
@@ -51,41 +52,39 @@ export interface SuggestState {
  * (`album:"ok computer`) stays one token and keeps the caret in the value step
  * rather than collapsing to an empty token (which would wrongly re-offer
  * fields). Breaking on parens means `(artist:` offers operators for a clean
- * `artist`, and autocomplete fires at the right spot inside a group.
+ * `artist`, and autocomplete fires at the right spot inside a group. A quote
+ * only opens where a value can start, so `don't` is a plain word.
  */
-function isBoundary(c: string): boolean {
+function isTokenBoundary(c: string): boolean {
 	return /\s/.test(c) || c === '(' || c === ')';
 }
 
 export function activeToken(s: string, pos: number): { start: number; end: number; raw: string } {
-	// Walk from the start so we can track quote state; the last unquoted
-	// boundary before the caret is the token start.
 	let start = 0;
-	let inQuote = false;
-	let q = '';
-	for (let i = 0; i < pos; i++) {
+	let q: string | null = null;
+	const step = (i: number): number => {
 		const c = s[i];
-		if (inQuote) {
-			if (c === q) inQuote = false;
-		} else if (c === '"' || c === "'") {
-			inQuote = true;
+		if (q) {
+			if (c === '\\' && (s[i + 1] === q || s[i + 1] === '\\')) return i + 2;
+			if (c === q) q = null;
+		} else if (quoteOpensAt(s, i)) {
 			q = c;
-		} else if (isBoundary(c)) {
+		} else if (isTokenBoundary(c)) {
 			start = i + 1;
 		}
-	}
+		return i + 1;
+	};
+	// Walk from the start so we can track quote state; the last unquoted
+	// boundary before the caret is the token start.
+	let i = 0;
+	while (i < pos) i = step(i);
 	// Extend forward through the rest of the token, still respecting quotes.
 	let end = pos;
-	for (let i = pos; i < s.length; i++) {
-		const c = s[i];
-		if (!inQuote && isBoundary(c)) break;
-		if (inQuote) {
-			if (c === q) inQuote = false;
-		} else if (c === '"' || c === "'") {
-			inQuote = true;
-			q = c;
-		}
-		end = i + 1;
+	i = pos;
+	while (i < s.length) {
+		if (!q && isTokenBoundary(s[i])) break;
+		i = step(i);
+		end = i;
 	}
 	return { start, end, raw: s.slice(start, end) };
 }
@@ -113,14 +112,6 @@ function splitToken(raw: string): { field: string; opCode: string | null; value:
 		opCode: bestCode,
 		value: raw.slice(best + bestCode.length),
 	};
-}
-
-function unquote(v: string): string {
-	return v.replace(/^["']|["']$/g, '');
-}
-
-function quoteIfNeeded(v: string): string {
-	return /[\s,()]/.test(v) ? `"${v}"` : v;
 }
 
 function fieldSuggestions(schema: Schema, frag: string, span: [number, number]): SuggestState {
@@ -169,7 +160,7 @@ function buildValueState(
 	options: ValueOption[],
 ): SuggestState {
 	const items: Suggestion[] = options.map((o) => {
-		const insert = `${field.name}${opCode}${quoteIfNeeded(o.value)}`;
+		const insert = `${field.name}${opCode}${o.value === '' ? '' : quoteIfNeeded(o.value)}`;
 		return {
 			label: o.label,
 			hint: o.hint,

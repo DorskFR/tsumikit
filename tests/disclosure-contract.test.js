@@ -39,7 +39,7 @@ function render(init = {}) {
 		root,
 		/** @param {string} id */
 		item(id) {
-			const el = /** @type {HTMLElement} */ (doc.getElementById(`acc-${id}-button`)?.closest('[data-tsu="Disclosure"]'));
+			const el = /** @type {HTMLElement} */ (doc.querySelector(`[id$="-acc-${id}-button"]`)?.closest('[data-tsu="Disclosure"]'));
 			return {
 				el,
 				button: /** @type {HTMLButtonElement} */ (el.querySelector('button')),
@@ -156,7 +156,7 @@ test('Accordion is built on Disclosure and accepts title or summary per item', (
 	ui.flush();
 	assert.equal(ui.item('b').button.querySelector('.probe-state')?.textContent, 'on');
 	assert.equal(ui.item('b').panel.hidden, false);
-	assert.equal(ui.item('b').panel.getAttribute('aria-labelledby'), 'acc-b-button');
+	assert.equal(ui.item('b').panel.getAttribute('aria-labelledby'), ui.item('b').button.id);
 });
 
 test('per-item open is controlled by the parent and reports through both onchange hooks', () => {

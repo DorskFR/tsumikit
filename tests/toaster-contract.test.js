@@ -40,11 +40,21 @@ test('store: action toasts linger longer and act() dismisses once run settles', 
 	assert.match(store, /await t\.action\.run\(\);[\s\S]*finally {\s*this\.dismiss\(id\);/);
 });
 
-test('renders the stack in a manual popover shown on mount, guarded when unsupported', () => {
+test('renders the stack in a manual popover shown while toasts exist, guarded when unsupported', () => {
 	assert.match(component, /popover="manual"/);
-	assert.match(component, /typeof el\.showPopover !== 'function'\) return;/);
-	assert.match(component, /if \(toasts\.items\.length\) el\.showPopover\(\);\s*else el\.hidePopover\(\);/);
+	assert.match(component, /typeof stack\.showPopover !== 'function'\) return;/);
+	assert.match(component, /if \(!shown \|\| typeof stack\.hidePopover !== 'function'\) return;/);
+	assert.match(component, /if \(!toasts\.items\.length\) {\s*hide\(stack\);\s*return;/);
 	assert.match(component, /\.toaster:not\(:popover-open\)\s*{\s*display: none;/);
+});
+
+test('moves the stack into the topmost open modal dialog so it is neither covered nor inert', () => {
+	assert.match(component, /querySelectorAll<HTMLDialogElement>\('dialog\[open\]'\)/);
+	assert.match(component, /d\.matches\(':modal'\)/);
+	assert.match(component, /const target = topModal\(\) \?\? home;\s*if \(stack\.parentNode !== target\) {\s*hide\(stack\);\s*target\.appendChild\(stack\);/s);
+	assert.match(component, /observer\.observe\(document\.body, { attributes: true, attributeFilter: \['open'\], subtree: true }\)/);
+	assert.match(component, /<div class="toaster-host" bind:this={host}>\s*<div class="toaster {klass}"/);
+	assert.match(component, /\.toaster-host\s*{\s*display: contents;/);
 });
 
 test('two live regions: polite for ok/info/neutral, assertive alert for errors; removals announced', () => {
