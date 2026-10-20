@@ -16,7 +16,7 @@ test('Progress draws markers and auto-tones by percent thresholds', () => {
 	assert.match(progress, /toneAt\?: { warn\?: number; danger\?: number };/);
 	assert.match(progress, /if \(toneAt\.danger !== undefined && pct >= toneAt\.danger\) return 'danger';/);
 	assert.match(progress, /if \(toneAt\.warn !== undefined && pct >= toneAt\.warn\) return 'warn';/);
-	assert.match(progress, /{#each markers as m \(m\.at\)}/);
+	assert.match(progress, /{#each markers as m, i \(`\${i}:\${m\.at}`\)}/);
 	assert.match(progress, /\.marker\s*{[^}]*position: absolute;[^}]*width: 2px;/s);
 });
 

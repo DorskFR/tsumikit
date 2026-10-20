@@ -429,7 +429,7 @@
 	{#if open && menu}
 		<div bind:this={menuEl} id={listboxId} class="fi__menu" role="listbox" aria-label={kindLabel[menu.kind]}>
 			<div class="fi__menu-head">{kindLabel[menu.kind]}</div>
-			{#each menu.items as item, i (item.insert + i)}
+			{#each menu.items as item, i (`${i}:${item.insert}`)}
 				<button
 					type="button"
 					id="{uid}-opt-{i}"

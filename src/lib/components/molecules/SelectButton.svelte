@@ -92,7 +92,7 @@
 		onchange={(e) => onchange((e.currentTarget as HTMLSelectElement).value)}
 	>
 		{#if groups}
-			{#each groups as g (g.label)}
+			{#each groups as g, i (`${i}:${g.label}`)}
 				<optgroup label={g.label}>
 					{#each g.options as o (o.value)}
 						<option value={o.value}>{o.label}</option>

@@ -1,6 +1,8 @@
 <script lang="ts" module>
 	export interface MenuItem {
 		label: string;
+		/** Stable row identity; labels may repeat. */
+		id?: string;
 		/** Required for button rows; a `control` row's hosted control acts on its own. */
 		onselect?: () => void;
 		icon?: import('$lib/components/atoms/Icon.svelte').IconName;
@@ -202,7 +204,7 @@
 >
 	{#snippet children({ close }: { close: () => void })}
 	<div bind:this={listEl} role="none" class="menu" data-tsu="Menu" tabindex="-1" {onkeydown}>
-		{#each items as item (item.label)}
+		{#each items as item, i (item.id ?? `${i}:${item.label}`)}
 			{#if item.control}
 			<div {...item.attrs as HTMLAttributes<HTMLDivElement>} role="none" class="menu-item menu-row" class:danger={item.danger} inert={item.disabled}>
 				{#if item.icon}<Icon name={item.icon} />{/if}

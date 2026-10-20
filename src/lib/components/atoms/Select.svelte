@@ -112,7 +112,7 @@
 
 {#snippet optionList()}
 	{#if options}
-		{#each sections as section, i (section.group ?? `-${i}`)}
+		{#each sections as section, i (`${i}:${section.group ?? ''}`)}
 			{#if section.group === undefined}
 				{#each section.options as o (o.value)}
 					<option value={o.value} disabled={o.disabled}>{optionText(o)}</option>

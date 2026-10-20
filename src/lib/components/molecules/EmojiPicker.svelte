@@ -173,7 +173,7 @@
 						onclick={(e) => onGridClick(e, close)}
 						onkeydown={(e) => onGridKeydown(e, close)}
 					>
-						{#each shown as x, i (x.emoji)}
+						{#each shown as x, i (`${i}:${x.emoji}`)}
 							<div
 								role="option"
 								class="cell"

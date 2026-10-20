@@ -96,7 +96,7 @@
 	aria-valuenow={indeterminate ? undefined : value}
 >
 	<div class="bar" style={indeterminate ? undefined : `width: ${pct}%`}></div>
-	{#each markers as m (m.at)}
+	{#each markers as m, i (`${i}:${m.at}`)}
 		<span
 			class="marker tone-{m.tone ? canonicalTone(m.tone) : 'text'}"
 			style="left: {markerPct(m.at)}%"
