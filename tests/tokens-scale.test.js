@@ -14,7 +14,7 @@ for (const m of root.matchAll(/^\s*(--[\w-]+):\s*([^;]+);/gm)) {
 }
 const value = (/** @type {string} */ name) => decls.get(name)?.[0];
 
-/** @param {string} v */
+/** @param {string} v @returns {string} */
 function resolve(v, depth = 0) {
 	assert.ok(depth < 10, `cycle while resolving ${v}`);
 	return v.replace(/var\((--[\w-]+)\)/g, (_, n) => {

@@ -26,8 +26,6 @@
 	/>
 	<IconButton
 		href="https://github.com/DorskFR/tsumikit"
-		target="_blank"
-		rel="noopener noreferrer"
 		icon="fork"
 		label="Source on GitHub"
 		box="sm"

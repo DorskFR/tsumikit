@@ -74,7 +74,7 @@ function env({ blocked = false, seed = {}, active } = {}) {
 	const state = { clock: 1000, reduce: false, hidden: false, frames: /** @type {Function[]} */ ([]), listeners: /** @type {string[]} */ ([]), audioContexts: 0 };
 	win.performance.now = () => state.clock;
 	win.requestAnimationFrame = (/** @type {Function} */ cb) => state.frames.push(cb);
-	win.matchMedia = (/** @type {string} */ q) => ({ matches: state.reduce && q.includes('reduced-motion'), media: q });
+	win.matchMedia = /** @type {any} */ ((/** @type {string} */ q) => ({ matches: state.reduce && q.includes('reduced-motion'), media: q }));
 	Object.defineProperty(win.document, 'hidden', { configurable: true, get: () => state.hidden });
 	if (active !== undefined) Object.defineProperty(win.navigator, 'userActivation', { configurable: true, value: { hasBeenActive: active } });
 	const add = win.addEventListener.bind(win);
@@ -233,7 +233,7 @@ test('reduced motion mutes decorative sounds but keeps success and error', async
 	await tick(100);
 	fx.playSound('error');
 	await tick(100);
-	assert.deepEqual(synth.played.map((p) => p[0]), ['success', 'error']);
+	assert.deepEqual(synth.played.map((/** @type {any[]} */ p) => p[0]), ['success', 'error']);
 	state.reduce = false;
 	assert.equal(fx.sound.muted, null);
 	fx.playSound('click');
@@ -250,19 +250,19 @@ test('same-frame calls coalesce to the highest priority sound', async () => {
 	fx.playSound('close');
 	fx.playSound('toggle-on');
 	await tick();
-	assert.deepEqual(synth.played.map((p) => p[0]), ['close']);
+	assert.deepEqual(synth.played.map((/** @type {any[]} */ p) => p[0]), ['close']);
 	fx.playSound('click');
 	fx.playSound('error');
 	fx.playSound('success');
 	await tick(100);
-	assert.deepEqual(synth.played.map((p) => p[0]), ['close', 'error']);
+	assert.deepEqual(synth.played.map((/** @type {any[]} */ p) => p[0]), ['close', 'error']);
 });
 
 test('the same sound plays at most once per 50 ms (tick: 40 ms)', async () => {
 	const { fx, synth, tick } = env({ active: true });
 	fx.sound.setEnabled(true);
 	await tick();
-	const count = (/** @type {string} */ n) => synth.played.filter((p) => p[0] === n).length;
+	const count = (/** @type {string} */ n) => synth.played.filter((/** @type {any[]} */ p) => p[0] === n).length;
 	fx.playSound('click');
 	await tick(20);
 	fx.playSound('click');
@@ -295,7 +295,7 @@ function audioStub() {
 			ramps.push(v);
 		}
 	});
-	const node = (/** @type {object} */ extra = {}) => ({
+	const node = (/** @type {object} */ extra = {}) => /** @type {any} */ ({
 		connect(/** @type {object} */ target) {
 			return target;
 		},
@@ -320,6 +320,7 @@ function audioStub() {
 			return Promise.resolve();
 		}
 		createGain() {
+			/** @type {any[]} */
 			const ramps = [];
 			const g = node({ gain: param(ramps) });
 			g.gain.ramps = ramps;

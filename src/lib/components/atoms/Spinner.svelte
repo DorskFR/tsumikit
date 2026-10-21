@@ -135,6 +135,7 @@
 			radial-gradient(farthest-side, transparent calc(100% - var(--sw)), #000 calc(100% - var(--sw) + 0.5px))
 				intersect,
 			conic-gradient(#000 var(--tsu-spin-arc), transparent 0);
+		mask-composite: intersect;
 		animation:
 			tsu-spin-arc calc(var(--t) * 1.4) cubic-bezier(0.5, 0, 0.5, 1) infinite,
 			tsu-spin-rot calc(var(--t) * 1.4) linear infinite;

@@ -5,7 +5,7 @@ import test from 'node:test';
 const tokens = await readFile(new URL('../src/lib/styles/tokens.css', import.meta.url), 'utf8');
 const reset = await readFile(new URL('../src/lib/styles/reset.css', import.meta.url), 'utf8');
 
-/** @param {string} css */
+/** @param {string} css @param {string} open */
 function block(css, open) {
 	const start = css.indexOf(open);
 	assert.ok(start >= 0, `missing ${open}`);

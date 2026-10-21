@@ -7,9 +7,10 @@
 
 	const layout = $derived(example.meta.layout ?? 'row');
 	const previewStyle = $derived(example.meta.height ? `--example-h: ${example.meta.height}` : '');
-	let link = $state(`#${example.id}`);
+	let origin = $state('');
+	const link = $derived(`${origin}#${example.id}`);
 	$effect(() => {
-		link = `${location.origin}${location.pathname}#${example.id}`;
+		origin = `${location.origin}${location.pathname}`;
 	});
 </script>
 
