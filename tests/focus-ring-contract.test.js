@@ -17,7 +17,7 @@ const [tokens, input, select, textarea, sw, checkbox, slider, filterInput] = awa
 
 test('a single --focus-ring token drives every form atom focus-visible outline', () => {
 	assert.match(tokens, /--focus-ring: 2px solid var\(--accent\);/);
-	assert.match(tokens, /--focus-ring-offset: 1px;/);
+	assert.match(tokens, /--focus-ring-offset: 2px;/);
 	assert.match(input, /\.input:focus-visible\s*{\s*outline: var\(--focus-ring\);/);
 	assert.match(select, /\.select:focus-visible\s*{\s*outline: var\(--focus-ring\);/);
 	assert.match(textarea, /\.textarea:focus-visible\s*{\s*outline: var\(--focus-ring\);/);

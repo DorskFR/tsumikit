@@ -2,6 +2,8 @@
 	import type { HTMLAttributes } from 'svelte/elements';
 	// Shimmering placeholder bar(s) standing in for content that is still
 	// loading. Decorative only — the surrounding region should carry aria-busy.
+	// Bars are tinted from --text so they read on any surface; the sweep is
+	// viewport-anchored so every bar on screen shimmers in sync.
 	type Own = {
 		width?: string;
 		height?: string;
@@ -46,24 +48,28 @@
 		max-width: 100%;
 	}
 	.skeleton-bar {
+		--sk-base: var(--skeleton, color-mix(in srgb, var(--text) 7%, transparent));
+		--sk-hi: var(--skeleton-highlight, color-mix(in srgb, var(--text) 13%, transparent));
 		display: block;
 		width: 100%;
-		background: linear-gradient(90deg, var(--bg-elevated-2) 25%, var(--bg-elevated) 50%, var(--bg-elevated-2) 75%);
-		background-size: 200% 100%;
-		animation: tsu-shimmer 1.4s ease-in-out infinite;
+		background: linear-gradient(100deg, var(--sk-base) 42%, var(--sk-hi) 50%, var(--sk-base) 58%) var(--sk-base);
+		background-size: 200vw 100%;
+		background-attachment: fixed;
+		animation: tsu-shimmer 1.8s linear infinite;
 	}
 	@keyframes tsu-shimmer {
-		from {
-			background-position: 200% 0;
+		0% {
+			background-position: 100% 0;
 		}
-		to {
-			background-position: -200% 0;
+		75%,
+		100% {
+			background-position: 0% 0;
 		}
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.skeleton-bar {
 			animation: none;
-			background: var(--bg-elevated-2);
+			background: var(--sk-base);
 		}
 	}
 </style>

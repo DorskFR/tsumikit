@@ -233,22 +233,22 @@
 	}
 	.progress.indeterminate .bar {
 		width: 40%;
-		animation: kt-progress-slide 1.1s ease-in-out infinite;
+		animation: kt-progress-slide 1.3s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 	}
 	.progress.striped .bar {
 		animation: kt-stripe 0.6s linear infinite;
 	}
 	.progress.striped.indeterminate .bar {
 		animation:
-			kt-progress-slide 1.1s ease-in-out infinite,
+			kt-progress-slide 1.3s cubic-bezier(0.65, 0, 0.35, 1) infinite,
 			kt-stripe 0.6s linear infinite;
 	}
 	@keyframes kt-progress-slide {
 		0% {
-			transform: translateX(-110%);
+			transform: translateX(-100%);
 		}
 		100% {
-			transform: translateX(310%);
+			transform: translateX(250%);
 		}
 	}
 	@keyframes kt-stripe {
@@ -264,6 +264,10 @@
 		.progress.striped .bar,
 		.progress.striped.indeterminate .bar {
 			animation: none;
+		}
+		.progress.indeterminate .bar {
+			width: 100%;
+			opacity: 0.35;
 		}
 	}
 </style>

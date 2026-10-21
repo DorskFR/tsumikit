@@ -57,9 +57,10 @@ test('Skeleton atom exposes width/height/lines/circle/radius', () => {
 });
 
 test('Skeleton shimmers and honours reduced motion', () => {
-	assert.match(skeleton, /animation: tsu-shimmer 1\.4s ease-in-out infinite;/);
-	assert.match(skeleton, /@keyframes tsu-shimmer\s*{\s*from\s*{\s*background-position: 200% 0;\s*}\s*to\s*{\s*background-position: -200% 0;/);
-	assert.match(skeleton, /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.skeleton-bar\s*{\s*animation: none;\s*background: var\(--bg-elevated-2\);/);
+	assert.match(skeleton, /animation: tsu-shimmer 1\.8s linear infinite;/);
+	assert.match(skeleton, /background-attachment: fixed;/);
+	assert.match(skeleton, /@keyframes tsu-shimmer\s*{\s*0%\s*{\s*background-position: 100% 0;\s*}\s*75%,\s*100%\s*{\s*background-position: 0% 0;/);
+	assert.match(skeleton, /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.skeleton-bar\s*{\s*animation: none;\s*background: var\(--sk-base\);/);
 });
 
 test('index exports Skeleton', () => {

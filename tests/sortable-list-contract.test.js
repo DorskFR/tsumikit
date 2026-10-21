@@ -13,6 +13,7 @@ import {
 } from '../src/lib/components/molecules/sortable-list-order.js';
 import { buildFixture } from './fixtures/build.mjs';
 import { hasDecl } from './helpers.mjs';
+import { readDemo } from './helpers/demo-source.js';
 
 /** @param {string} p */
 const read = (p) => readFile(new URL(p, import.meta.url), 'utf8');
@@ -20,7 +21,7 @@ const [source, index, readme, page] = await Promise.all([
 	read('../src/lib/components/molecules/SortableList.svelte'),
 	read('../src/lib/index.ts'),
 	read('../README.md'),
-	read('../src/routes/+page.svelte')
+	readDemo()
 ]);
 const style = source.slice(source.indexOf('<style>'));
 const bundle = await buildFixture('mount-sortable-list.js');

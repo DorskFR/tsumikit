@@ -6,13 +6,14 @@ import { JSDOM } from 'jsdom';
 import { compile, preprocess } from 'svelte/compiler';
 import { buildFixture } from './fixtures/build.mjs';
 import { hasDecl, normalize } from './helpers.mjs';
+import { readDemo } from './helpers/demo-source.js';
 
 const read = (/** @type {string} */ p) => readFile(new URL(p, import.meta.url), 'utf8');
 const [source, index, readme, page] = await Promise.all([
 	read('../src/lib/components/molecules/GlyphStack.svelte'),
 	read('../src/lib/index.ts'),
 	read('../README.md'),
-	read('../src/routes/+page.svelte'),
+	readDemo(),
 ]);
 const css = source.slice(source.indexOf('<style>'));
 const flat = normalize(source);

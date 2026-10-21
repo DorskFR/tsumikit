@@ -2,13 +2,14 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { sectionOptions } from '../src/lib/select-options.ts';
+import { readDemo } from './helpers/demo-source.js';
 
 /** @param {string} p */
 const read = (p) => readFile(new URL(`../src/${p}`, import.meta.url), 'utf8');
 const [select, index, page] = await Promise.all([
 	read('lib/components/atoms/Select.svelte'),
 	read('lib/index.ts'),
-	read('routes/+page.svelte')
+	readDemo()
 ]);
 
 /** @param {ReturnType<typeof sectionOptions>} sections */

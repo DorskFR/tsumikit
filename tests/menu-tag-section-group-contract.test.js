@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { readDemo } from './helpers/demo-source.js';
 
 /** @param {string} name */
 const component = (name) =>
@@ -8,7 +9,7 @@ const component = (name) =>
 const [menu, header, page] = await Promise.all([
 	component('Menu.svelte'),
 	component('SectionHeader.svelte'),
-	readFile(new URL('../src/routes/+page.svelte', import.meta.url), 'utf8')
+	readDemo()
 ]);
 
 test('MenuItem carries a free-form string tag with a Badge tone', () => {

@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { normalize, rule } from './helpers.mjs';
+import { readDemo } from './helpers/demo-source.js';
 
 /** @param {string} p */
 const read = (p) => readFile(new URL(p, import.meta.url), 'utf8');
@@ -12,7 +13,7 @@ const [badge, popover, menu, fontScale, themePicker, readme, showcase] = await P
 	read('../src/lib/components/molecules/FontScalePicker.svelte'),
 	read('../src/lib/components/molecules/ThemePicker.svelte'),
 	read('../README.md'),
-	read('../src/routes/+page.svelte')
+	readDemo()
 ]);
 
 test('Badge reads --badge-fs / --badge-fw on the base chip, defaulting to today values', () => {

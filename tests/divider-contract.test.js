@@ -1,13 +1,14 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { readDemo } from './helpers/demo-source.js';
 
 const source = await readFile(
 	new URL('../src/lib/components/atoms/Divider.svelte', import.meta.url),
 	'utf8'
 );
 const index = await readFile(new URL('../src/lib/index.ts', import.meta.url), 'utf8');
-const docs = await readFile(new URL('../src/routes/+page.svelte', import.meta.url), 'utf8');
+const docs = await readDemo();
 
 test('Divider prop surface and defaults', () => {
 	assert.match(source, /orientation\?: 'horizontal' \| 'vertical';/);
