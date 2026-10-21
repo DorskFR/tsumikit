@@ -35,6 +35,7 @@ export type { SelectOption } from './components/atoms/Select.svelte';
 export { default as Select } from './components/atoms/Select.svelte';
 export { default as Skeleton } from './components/atoms/Skeleton.svelte';
 export { default as Slider } from './components/atoms/Slider.svelte';
+export type { SpinnerVariant } from './components/atoms/Spinner.svelte';
 export { default as Spinner } from './components/atoms/Spinner.svelte';
 export { default as Swatch } from './components/atoms/Swatch.svelte';
 export { default as Switch } from './components/atoms/Switch.svelte';
