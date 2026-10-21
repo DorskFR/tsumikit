@@ -5,6 +5,7 @@
 	import Input from '$lib/components/atoms/Input.svelte';
 	import Popover from '$lib/components/molecules/Popover.svelte';
 	import { type EmojiGroup, EMOJI_GROUPS, searchEmoji } from '$lib/emoji';
+	import { playSound } from '$lib/sound';
 
 	let {
 		value = '',
@@ -17,6 +18,7 @@
 		placement = 'bottom-start',
 		triggerClass = '',
 		disabled = false,
+		sound = true,
 		class: klass = '',
 		style: styleProp = '',
 	}: {
@@ -33,6 +35,8 @@
 		placement?: 'bottom-start' | 'bottom-end' | 'top-start' | 'top-end';
 		triggerClass?: string;
 		disabled?: boolean;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		class?: string;
 		style?: string;
 	} = $props();
@@ -110,10 +114,13 @@
 	style={styleProp}
 	control
 	role="dialog"
+	{sound}
 	onopen={() => {
 		query = '';
 		cursor = 0;
+		playSound('open', sound);
 	}}
+	onclose={() => playSound('close', sound)}
 >
 	{#snippet trigger()}
 		<span class="emoji-trigger" aria-hidden="true">{picked || '🙂'}</span>
@@ -198,7 +205,7 @@
 <style>
 	.emoji-trigger {
 		font-size: var(--fs-md);
-		line-height: 1;
+		line-height: var(--lh-none);
 	}
 	.picker {
 		display: flex;
@@ -221,24 +228,36 @@
 		background: none;
 		color: inherit;
 		font-size: var(--fs-lg);
-		line-height: 1;
+		line-height: var(--lh-none);
 		cursor: pointer;
+		--cell-scale-dur: var(--dur-fast);
+		transition:
+			background-color var(--dur-fast) ease,
+			border-color var(--dur-fast) ease,
+			scale var(--cell-scale-dur) var(--ease-out);
 	}
 	.tab.on,
 	.cell.on {
 		border-color: var(--accent);
 		background: var(--bg-elevated-2);
 	}
-	.tab:hover,
-	.cell:hover,
 	.tab:focus-visible,
 	.cell:focus-visible {
 		background: var(--bg-elevated-2);
-	}
-	.tab:focus-visible,
-	.cell:focus-visible {
 		outline: var(--focus-ring);
-		outline-offset: var(--focus-ring-offset);
+		outline-offset: var(--focus-ring-offset-inset);
+	}
+	.tab:active,
+	.cell:active {
+		--cell-scale-dur: var(--dur-press);
+		scale: var(--press-scale-sm);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.tab:hover,
+		.cell:hover {
+			background: var(--bg-elevated-2);
+			transition-duration: var(--dur-instant);
+		}
 	}
 	.grid {
 		display: grid;

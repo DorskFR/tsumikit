@@ -24,6 +24,13 @@ export function rowsFloor(node: HTMLTextAreaElement): number {
 	return rows <= 1 ? 0 : rowsHeight(node, rows);
 }
 
+/** Vertical border a border-box `height` must cover on top of scrollHeight. */
+export function borderBlock(node: HTMLTextAreaElement): number {
+	const cs = getComputedStyle(node);
+	if (cs.boxSizing !== 'border-box') return 0;
+	return (parseFloat(cs.borderTopWidth) || 0) + (parseFloat(cs.borderBottomWidth) || 0);
+}
+
 export function autoresize(node: HTMLTextAreaElement, _value?: string) {
 	const resize = () => {
 		// A manual drag handle may set `min-height` as a user-chosen floor; grow
@@ -31,7 +38,7 @@ export function autoresize(node: HTMLTextAreaElement, _value?: string) {
 		// bound, so dragging shorter than the text can't shrink past it.
 		const floor = Math.max(parseFloat(node.style.minHeight) || 0, rowsFloor(node));
 		node.style.height = 'auto';
-		node.style.height = `${Math.max(node.scrollHeight, floor)}px`;
+		node.style.height = `${Math.max(node.scrollHeight + borderBlock(node), floor)}px`;
 	};
 	resize();
 	node.addEventListener('input', resize);

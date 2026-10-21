@@ -465,20 +465,26 @@
 		min-width: 0;
 	}
 	.fi__bar {
+		--fi-icon: var(--control-icon-md);
 		display: flex;
 		align-items: center;
 		gap: var(--sp-2);
-		padding: 0 var(--sp-3);
+		padding: 0 var(--control-px-md);
 		min-height: var(--control-height-default);
 		background: var(--bg-elevated);
 		border: 1px solid var(--border-strong);
 		border-radius: var(--r-md);
+		transition:
+			border-color var(--dur-fast) ease,
+			box-shadow var(--dur-fast) ease;
 	}
 	.fi--sm .fi__bar {
 		min-height: var(--control-height-compact);
+		padding: 0 var(--control-px-sm);
+		--fi-icon: var(--control-icon-sm);
 	}
 	.fi--sm .fi__input {
-		font-size: var(--fs-sm);
+		font-size: var(--control-fs-sm);
 	}
 	.fi--pill .fi__bar {
 		border-radius: var(--r-pill);
@@ -493,11 +499,11 @@
 	.fi__kbd {
 		font-family: var(--font-mono);
 		font-size: var(--fs-xs);
-		line-height: 1;
+		line-height: var(--lh-none);
 		color: var(--text-faint);
 		border: 1px solid var(--border);
 		border-radius: var(--r-sm);
-		padding: 2px var(--sp-1);
+		padding: var(--sp-0-5) var(--sp-1);
 	}
 	.fi__bar:focus-within {
 		border-color: var(--accent);
@@ -509,6 +515,7 @@
 	}
 	.fi__icon {
 		display: flex;
+		font-size: var(--fi-icon);
 		color: var(--text-faint);
 	}
 	.fi__field {
@@ -533,16 +540,16 @@
 		background: transparent;
 		color: var(--text);
 		font-family: var(--font-mono);
-		font-size: var(--fs-md);
+		font-size: var(--control-fs-md);
 		outline: none;
 		min-width: 0;
 	}
 	@media (pointer: coarse) {
 		.fi__input {
-			font-size: max(16px, var(--fs-md));
+			font-size: max(16px, var(--control-fs-md));
 		}
 		.fi--sm .fi__input {
-			font-size: max(16px, var(--fs-sm));
+			font-size: max(16px, var(--control-fs-sm));
 		}
 	}
 	.fi--sans .fi__input {
@@ -555,22 +562,40 @@
 		color: transparent;
 	}
 	.fi__clear {
+		--clear-scale-dur: var(--dur-fast);
 		display: flex;
 		border: 0;
 		background: transparent;
+		font-size: var(--fi-icon);
 		color: var(--text-faint);
 		cursor: pointer;
 		padding: var(--sp-1);
 		border-radius: var(--r-sm);
+		transition:
+			color var(--dur-fast) ease,
+			background-color var(--dur-fast) ease,
+			opacity var(--dur-fast) ease,
+			scale var(--clear-scale-dur) var(--ease-out);
 	}
-	.fi__clear:hover {
-		color: var(--text);
-		background: var(--bg-elevated-2);
+	@starting-style {
+		.fi__clear {
+			opacity: 0;
+		}
+	}
+	.fi__clear:active {
+		--clear-scale-dur: var(--dur-press);
+		scale: var(--press-scale-sm);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.fi__clear:hover {
+			color: var(--text);
+			background: var(--bg-elevated-2);
+		}
 	}
 
 	.fi__menu {
 		position: absolute;
-		top: calc(100% + 4px);
+		top: calc(100% + var(--sp-1));
 		left: 0;
 		right: 0;
 		z-index: var(--z-drawer);
@@ -581,6 +606,18 @@
 		padding: var(--sp-1);
 		max-height: 320px;
 		overflow-y: auto;
+		transform-origin: top left;
+		transition:
+			opacity var(--dur-fast) var(--ease-out),
+			scale var(--dur-fast) var(--ease-out),
+			translate var(--dur-fast) var(--ease-out);
+	}
+	@starting-style {
+		.fi__menu {
+			opacity: 0;
+			scale: var(--enter-scale);
+			translate: 0 calc(-1 * var(--shift-sm));
+		}
 	}
 	.fi__menu-head {
 		font-size: var(--fs-xs);
@@ -602,9 +639,12 @@
 		border-radius: var(--r-sm);
 		cursor: pointer;
 		font-size: var(--fs-sm);
+		transition: background-color var(--dur-fast) ease;
 	}
+	/* Highlight lands instantly and fades out: list navigation is high frequency. */
 	.fi__opt.is-active {
 		background: var(--accent-dim);
+		transition-duration: var(--dur-instant);
 	}
 	.fi__opt-label {
 		font-weight: var(--fw-medium);

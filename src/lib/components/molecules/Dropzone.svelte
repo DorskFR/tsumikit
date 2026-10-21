@@ -122,7 +122,7 @@
 		{@render children?.()}
 		{#if over}
 			<div class="dz-overlay" aria-hidden="true">
-				<Icon name="upload" size={28} />
+				<Icon name="upload" />
 				<span class="dz-label">{label}</span>
 			</div>
 		{/if}
@@ -163,7 +163,7 @@
 		{#if children}
 			{@render children()}
 		{:else}
-			<Icon name="upload" size={28} />
+			<Icon name="upload" />
 			<span class="dz-label">{label}</span>
 			<span class="dz-hint">{hint}</span>
 		{/if}
@@ -185,15 +185,25 @@
 		border-radius: var(--r-lg);
 		cursor: pointer;
 		transition:
-			border-color 0.12s var(--ease),
-			background 0.12s var(--ease),
-			color 0.12s var(--ease);
+			border-color var(--dur-fast) ease,
+			background-color var(--dur-fast) ease,
+			color var(--dur-fast) ease;
 	}
-	.dz:hover:not(.disabled),
+	.dz > :global(svg),
+	.dz-overlay > :global(svg) {
+		font-size: var(--icon-xl);
+	}
 	.dz:focus-visible {
 		border-color: var(--accent);
 		color: var(--text);
-		outline: none;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.dz:hover:not(.disabled) {
+			border-color: var(--accent);
+			color: var(--text);
+		}
 	}
 	.dz.over {
 		border-color: var(--accent);
@@ -201,7 +211,7 @@
 		color: var(--text);
 	}
 	.dz.disabled {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
 	}
 
@@ -233,6 +243,12 @@
 		border-radius: var(--r-lg);
 		pointer-events: none;
 		backdrop-filter: blur(1px);
+		transition: opacity var(--dur-fast) ease;
+	}
+	@starting-style {
+		.dz-overlay {
+			opacity: 0;
+		}
 	}
 
 	.dz-label {

@@ -24,7 +24,7 @@ test('bar heights come from the control tokens, not a literal 44px', () => {
 	assert.doesNotMatch(input, /44px/);
 	assert.match(input, /\.fi__bar\s*{[^}]*min-height: var\(--control-height-default\);/s);
 	assert.match(input, /\.fi--sm \.fi__bar\s*{\s*min-height: var\(--control-height-compact\);/);
-	assert.match(input, /\.fi--sm \.fi__input\s*{\s*font-size: var\(--fs-sm\);/);
+	assert.match(input, /\.fi--sm \.fi__input\s*{\s*font-size: var\(--control-fs-sm\);/);
 	assert.match(input, /\.fi--pill \.fi__bar\s*{[^}]*border-radius: var\(--r-pill\);/s);
 	assert.match(input, /\.surface-raised \.fi__bar\s*{\s*background: var\(--surface\);/);
 	assert.match(input, /\.surface-sunken \.fi__bar\s*{\s*background: var\(--bg-elevated-2\);/);

@@ -75,14 +75,14 @@
 	.glyph {
 		font-weight: var(--fw-bold);
 		font-size: 1rem;
-		line-height: 1;
+		line-height: var(--lh-none);
 	}
 	.panel {
 		width: min(15rem, calc(100vw - var(--sp-6)));
 		box-sizing: border-box;
 		overflow: hidden;
 		font-size: 0.875rem;
-		line-height: 1.4;
+		line-height: var(--lh-snug);
 		padding: var(--sp-2) var(--sp-3);
 	}
 	.row {
@@ -106,16 +106,27 @@
 		color: var(--text-muted);
 		font-family: inherit;
 		font-weight: var(--fw-bold);
-		line-height: 1;
+		line-height: var(--lh-none);
 		cursor: pointer;
-	}
-	.end:hover {
-		background: var(--bg-elevated-2);
-		color: var(--text);
+		--end-scale-dur: var(--dur-fast);
+		transition:
+			background-color var(--dur-fast) ease,
+			color var(--dur-fast) ease,
+			scale var(--end-scale-dur) var(--ease-out);
 	}
 	.end:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 1px;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset-inset);
+	}
+	.end:active {
+		--end-scale-dur: var(--dur-press);
+		scale: var(--press-scale-sm);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.end:hover {
+			background: var(--bg-elevated-2);
+			color: var(--text);
+		}
 	}
 	.small {
 		font-size: 0.75rem;

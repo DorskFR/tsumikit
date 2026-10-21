@@ -129,8 +129,8 @@
 		border-radius: var(--r-lg);
 		background: var(--bg);
 		transition:
-			border-color 0.12s var(--ease),
-			background 0.12s var(--ease);
+			border-color var(--dur-fast) ease,
+			background-color var(--dur-fast) ease;
 	}
 	.fieldset.dashed {
 		border-style: dashed;
@@ -151,16 +151,16 @@
 	.fieldset-legend {
 		position: absolute;
 		top: -13px;
-		left: 16px;
+		left: var(--sp-4);
 		display: inline-flex;
 		align-items: center;
 		gap: var(--sp-2);
-		max-width: calc(100% - 32px);
-		padding: 0 8px;
+		max-width: calc(100% - var(--sp-8));
+		padding: 0 var(--sp-2);
 		background: var(--bg);
 		font-size: var(--fs-sm);
 		font-weight: var(--fw-semibold);
-		line-height: 1.5;
+		line-height: var(--lh-normal);
 		color: var(--text);
 	}
 
@@ -182,12 +182,7 @@
 		pointer-events: none;
 	}
 	.fieldset.disabled {
-		opacity: 0.6;
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.fieldset {
-			transition: none;
-		}
+		opacity: var(--disabled-opacity);
+		cursor: not-allowed;
 	}
 </style>

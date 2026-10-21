@@ -20,6 +20,8 @@ const fontTokens = (() => {
 		/--(fs-[a-z0-9]+):\s*calc\(([\d.]+)rem\s*\*\s*var\(--fs-scale\)\)/g
 	))
 		out[name] = Number(rem);
+	for (const [, alias, target] of strip(tokens).matchAll(/--(control-fs-[a-z]+):\s*var\(--(fs-[a-z0-9]+)\)/g))
+		out[alias] = out[target];
 	return out;
 })();
 
@@ -179,8 +181,8 @@ test('fine pointer: lg is never smaller than md', () => {
 });
 
 test('fine pointer: sm and compact keep their dense sizes', () => {
-	assert.equal(computedFontSize(variants['Input sm'], 'fine'), fontTokens['fs-sm'] * 16);
-	assert.equal(computedFontSize(variants['Textarea sm'], 'fine'), fontTokens['fs-sm'] * 16);
+	assert.equal(computedFontSize(variants['Input sm'], 'fine'), fontTokens['fs-xs'] * 16);
+	assert.equal(computedFontSize(variants['Textarea sm'], 'fine'), fontTokens['fs-xs'] * 16);
 	assert.equal(computedFontSize(variants['Select compact'], 'fine'), fontTokens['fs-xs'] * 16);
 	assert.equal(computedFontSize(variants['Select face compact'], 'fine'), fontTokens['fs-xs'] * 16);
 });

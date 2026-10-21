@@ -171,7 +171,7 @@
 		{#if hasFace}
 			<span class="select-face" class:compact={small} aria-hidden="true">
 				{#if selected?.icon}
-					<Icon name={selected.icon} size={small ? 14 : 16} />
+					<Icon name={selected.icon} />
 				{:else if selected?.emoji}
 					<span class="select-emoji">{selected.emoji}</span>
 				{/if}
@@ -183,7 +183,7 @@
 		{/if}
 		{#if showChevron}
 			<span class="select-chevron" aria-hidden="true">
-				<Icon name="chevron-down" size={16} />
+				<Icon name="chevron-down" />
 			</span>
 		{/if}
 	</div>
@@ -191,6 +191,7 @@
 
 <style>
 	.select-wrap {
+		--select-icon: var(--control-icon-md);
 		position: relative;
 		display: block;
 		width: 100%;
@@ -203,39 +204,46 @@
 		flex: 1 1 0;
 		min-width: 0;
 	}
+	.select-wrap:has(.select.compact) {
+		--select-icon: var(--control-icon-sm);
+	}
+	.select-wrap:has(.select.select-lg) {
+		--select-icon: var(--control-icon-lg);
+	}
 	.select {
 		width: 100%;
 		min-height: var(--select-size, var(--control-height-default));
-		padding: var(--sp-2) var(--sp-3);
+		padding: var(--sp-2) var(--control-px-md);
+		font-size: var(--control-fs-md);
 		line-height: var(--lh-tight);
 		background: var(--select-bg, var(--bg));
 		border: 1px solid var(--select-border, var(--border-strong));
 		border-radius: var(--select-radius, var(--r-md));
 		color: var(--select-fg, var(--text));
-		transition: border-color 0.12s var(--ease);
+		transition: border-color var(--dur-fast) ease;
 	}
 	/* Default variant: drop the OS chevron, reserve room for our own. */
 	.select-wrap .select {
 		appearance: none;
 		-webkit-appearance: none;
-		padding-right: calc(var(--sp-3) + 1.25rem);
+		padding-right: calc(var(--control-px-md) + var(--select-icon) + var(--sp-1));
 	}
 	/* No custom chevron: reclaim the reserved right padding. */
 	.select-wrap.no-chevron .select {
-		padding-right: var(--sp-3);
+		padding-right: var(--control-px-md);
 	}
-	/* Compact inline form for dense headers/toolbars. */
 	.select.select-lg {
 		min-height: var(--select-size, var(--control-height-large));
-		padding: var(--sp-3) var(--sp-4);
-		font-size: max(16px, var(--fs-md));
+		padding: var(--sp-3) var(--control-px-lg);
+		font-size: var(--control-fs-lg);
 	}
+	/* Compact inline form for dense headers/toolbars. */
 	.select.compact {
-		padding: var(--sp-1) var(--sp-2);
-		font-size: var(--fs-xs);
+		padding: var(--sp-1) var(--control-px-sm);
+		font-size: var(--control-fs-sm);
 	}
 	.select-wrap:not(.no-chevron) .select.compact {
-		padding-right: calc(var(--sp-2) + 1rem);
+		padding-right: calc(var(--control-px-sm) + var(--select-icon) + var(--sp-1));
 	}
 	/* Toolbar contract: size="sm" shares the compact control height so it lines up
 	   with Button size="sm", Popover size="sm" and SegmentedControl size="sm". */
@@ -263,6 +271,13 @@
 	.select[aria-invalid='true']:focus {
 		border-color: var(--danger);
 	}
+	.select:disabled {
+		cursor: not-allowed;
+	}
+	/* The wrap dims as one so the face and the chevron fade with the control. */
+	.select-wrap:has(.select:disabled) {
+		opacity: var(--disabled-opacity);
+	}
 	/* The face draws the trigger text; the native text underneath stays laid out
 	   (so `width="auto"` still sizes to it) but invisible. Popup options keep
 	   their own colour so the transparency does not inherit into the list. */
@@ -280,38 +295,45 @@
 		display: flex;
 		align-items: center;
 		gap: var(--sp-2);
-		padding: 0 var(--sp-3);
-		padding-right: calc(var(--sp-3) + 1.25rem);
+		padding: 0 var(--control-px-md);
+		padding-right: calc(var(--control-px-md) + var(--select-icon) + var(--sp-1));
+		font-size: var(--control-fs-md);
 		color: var(--select-fg, var(--text));
 		pointer-events: none;
 		overflow: hidden;
 	}
+	.select-face > :global(svg) {
+		flex: none;
+		font-size: var(--select-icon);
+	}
 	.select-wrap.no-chevron .select-face {
-		padding-right: var(--sp-3);
+		padding-right: var(--control-px-md);
 	}
 	.select-face.compact {
-		padding: 0 var(--sp-2);
-		padding-right: calc(var(--sp-2) + 1rem);
-		font-size: var(--fs-xs);
+		padding: 0 var(--control-px-sm);
+		padding-right: calc(var(--control-px-sm) + var(--select-icon) + var(--sp-1));
+		font-size: var(--control-fs-sm);
 	}
 	.select-wrap.no-chevron .select-face.compact {
-		padding-right: var(--sp-2);
+		padding-right: var(--control-px-sm);
 	}
 	/* iOS auto-zooms any field under 16px on focus; on touch the size modifiers
 	   carry their difference through padding and height alone. */
 	@media (pointer: coarse) {
-		.select.compact {
-			font-size: max(16px, var(--fs-xs));
+		.select,
+		.select-face {
+			font-size: max(16px, var(--control-fs-md));
 		}
+		.select.select-lg {
+			font-size: max(16px, var(--control-fs-lg));
+		}
+		.select.compact,
 		.select-face.compact {
-			font-size: max(16px, var(--fs-xs));
+			font-size: max(16px, var(--control-fs-sm));
 		}
-	}
-	.select:disabled ~ .select-face {
-		color: var(--text-muted);
 	}
 	.select-emoji {
-		line-height: 1;
+		line-height: var(--lh-none);
 	}
 	.select-label {
 		flex: 1 1 auto;
@@ -330,11 +352,20 @@
 	.select-chevron {
 		position: absolute;
 		top: 50%;
-		right: var(--sp-3);
+		right: var(--control-px-md);
 		transform: translateY(-50%);
 		display: inline-flex;
+		font-size: var(--select-icon);
 		color: var(--text-muted);
 		pointer-events: none; /* clicks fall through to the select */
+	}
+	.select-wrap:has(.select.compact) .select-chevron {
+		right: var(--control-px-sm);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.select:hover:not(:disabled, :focus, [aria-invalid='true'], .ghost, .embedded) {
+			border-color: var(--text-faint);
+		}
 	}
 	/* Transparent overlay: fills the positioned parent, the trigger shows through. */
 	.select.ghost {

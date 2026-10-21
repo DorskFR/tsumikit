@@ -229,8 +229,8 @@
 		border-radius: var(--r-lg);
 	}
 	.composer.dragging {
-		outline: 2px dashed var(--accent);
-		outline-offset: var(--sp-1);
+		outline: var(--focus-ring-width) dashed var(--accent);
+		outline-offset: var(--focus-ring-offset);
 	}
 	.toolbar {
 		display: flex;

@@ -266,23 +266,29 @@
 		position: relative;
 		display: flex;
 	}
+	/* The wrap dims as one so the resize grip fades with the field; inside an
+	   InputGroup the group dims instead. */
+	.textarea-wrap:has(.textarea:disabled):not(.grouped) {
+		opacity: var(--disabled-opacity);
+	}
 	.textarea {
 		width: 100%;
 		/* Horizontal padding matches Input/Button; vertical padding is tighter
 		   (--sp-2) so a single line-box + border actually fits the 2.5rem floor —
 		   --sp-3 top+bottom would overshoot it and a `rows={1}` textarea would
 		   render taller than the buttons it sits beside. */
-		padding: var(--sp-2) var(--sp-3);
+		padding: var(--sp-2) var(--control-px-md);
 		background: var(--textarea-bg, var(--bg));
 		border: 1px solid var(--textarea-border, var(--border-strong));
 		border-radius: var(--textarea-radius, var(--r-md));
 		color: var(--textarea-fg, var(--text));
-		transition: border-color 0.12s var(--ease);
+		transition: border-color var(--dur-fast) ease;
 		/* Custom handle replaces the native grip; never show the native one. */
 		resize: none;
 		/* Match the single-row height of Button/Input so a `rows={1}` textarea
 		   lines up with them; the native `rows` attribute grows it from here. */
-		min-height: var(--textarea-size, 2.5rem);
+		min-height: var(--textarea-size, var(--control-height-default));
+		font-size: var(--control-fs-md);
 		line-height: var(--lh-tight);
 		font-family: inherit;
 	}
@@ -294,24 +300,33 @@
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset);
 	}
+	.textarea:disabled {
+		cursor: not-allowed;
+	}
 	.textarea.capped {
 		overflow-y: auto;
 	}
 	.textarea-sm {
-		padding: var(--sp-1) var(--sp-2);
-		font-size: var(--fs-sm);
-		min-height: var(--textarea-size, 2rem);
+		padding: var(--sp-1) var(--control-px-sm);
+		font-size: var(--control-fs-sm);
+		min-height: var(--textarea-size, var(--control-height-compact));
 	}
 	.textarea-lg {
-		padding: var(--sp-3) var(--sp-4);
-		font-size: max(16px, var(--fs-md));
+		padding: var(--sp-3) var(--control-px-lg);
+		font-size: var(--control-fs-lg);
 		min-height: var(--textarea-size, var(--control-height-large));
 	}
 	/* iOS auto-zooms any field under 16px on focus; on touch the size modifiers
 	   carry their difference through padding and height alone. */
 	@media (pointer: coarse) {
+		.textarea {
+			font-size: max(16px, var(--control-fs-md));
+		}
 		.textarea-sm {
-			font-size: max(16px, var(--fs-sm));
+			font-size: max(16px, var(--control-fs-sm));
+		}
+		.textarea-lg {
+			font-size: max(16px, var(--control-fs-lg));
 		}
 	}
 	.textarea[aria-invalid='true'],
@@ -378,9 +393,9 @@
 		transform: translateX(-50%);
 		width: 28px;
 		height: 3px;
-		border-radius: 999px;
+		border-radius: var(--r-pill);
 		background: var(--border-strong);
-		transition: background 0.12s var(--ease);
+		transition: background-color var(--dur-fast) ease;
 	}
 	.resize-bottom::after {
 		bottom: 3px;
@@ -388,8 +403,15 @@
 	.resize-top::after {
 		top: 3px;
 	}
-	.resize-handle:hover::after,
 	.dragging .resize-handle::after {
 		background: var(--accent);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.textarea:hover:not(:disabled, :focus, [aria-invalid='true']) {
+			border-color: var(--text-faint);
+		}
+		.resize-handle:hover::after {
+			background: var(--accent);
+		}
 	}
 </style>
