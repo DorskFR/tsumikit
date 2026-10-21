@@ -162,6 +162,7 @@ export {
 	type SortableListMove,
 	type SortableListRowContext,
 } from './components/molecules/SortableList.svelte';
+export { default as SoundSettings } from './components/molecules/SoundSettings.svelte';
 export { default as SplitButton } from './components/molecules/SplitButton.svelte';
 export { default as StatusBar } from './components/molecules/StatusBar.svelte';
 export { default as SwipeRow, type SwipeAction } from './components/molecules/SwipeRow.svelte';

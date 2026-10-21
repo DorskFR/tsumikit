@@ -98,6 +98,7 @@ export const CATALOG: Record<Family, Record<string, string | null>> = {
 		SegmentedControl: 'segmented-control',
 		SelectButton: 'toggle',
 		SortableList: 'sortable-list',
+		SoundSettings: null,
 		SplitButton: 'split-button',
 		StatusBar: 'conversation',
 		SwipeRow: 'swipe-row',
