@@ -244,8 +244,10 @@ export {
 } from './query';
 export { type OptionSection, sectionOptions } from './select-options';
 export type { ControlSize } from './size';
+export { playSound, type SoundMuted, type SoundName } from './sound';
 export { fontScale, SCALE_LEVELS, type ScaleLevel } from './stores/fontscale.svelte';
 // ---- stores / actions ----
+export { sound } from './stores/sound.svelte';
 export { type Mode, THEMES, theme } from './stores/theme.svelte';
 export {
 	type Toast,
