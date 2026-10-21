@@ -45,7 +45,7 @@ test('block items shrink and truncate their label instead of pushing the pill wi
 
 test('the coarse-pointer slab and the keyboard contract are untouched', () => {
 	assert.match(css, /\.seg-item::before\s*{[^}]*inset-block: var\(--touch-slab\)/);
-	assert.equal(rule(css, '.seg').padding, '3px');
+	assert.equal(rule(css, '.seg').padding, 'var(--sp-0-5)');
 	assert.match(seg, /tabindex=\{stop\?\.value === o\.value \? 0 : -1\}/);
 });
 

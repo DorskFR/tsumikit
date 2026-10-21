@@ -8,6 +8,7 @@
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import type { IconName } from '$lib/components/atoms/Icon.svelte';
 	import { formatCount, hasCount } from '$lib/count';
+	import { playSound } from '$lib/sound';
 
 	export interface TabBarItem {
 		id: string;
@@ -27,6 +28,7 @@
 		onselect,
 		label = 'Primary',
 		placement = 'bar',
+		sound = true,
 		class: klass = '',
 		...rest
 	}: {
@@ -38,6 +40,8 @@
 		label?: string;
 		/** 'bar' = fixed to the bottom edge; 'inline' = flows with its parent. */
 		placement?: 'bar' | 'inline';
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		class?: string;
 		[key: string]: unknown;
 	} = $props();
@@ -60,6 +64,7 @@
 	function select(item: TabBarItem) {
 		if (item.id === value) return;
 		value = item.id;
+		playSound('click', sound);
 		onselect?.(item.id, item);
 	}
 
@@ -82,7 +87,7 @@
 {#snippet glyph(item: TabBarItem)}
 	<span class="tabbar-glyph">
 		{#if item.icon}
-			<Icon name={item.icon} size={22} />
+			<Icon name={item.icon} />
 		{/if}
 		{#if badgeText(item.badge)}
 			<Badge class="tabbar-badge" tone="accent" size="xs" border={false} active numeric={typeof item.badge === 'number'}>
@@ -167,7 +172,7 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 2px;
+		gap: var(--sp-0-5);
 		padding: var(--sp-1) var(--sp-2);
 		border: none;
 		border-radius: 0;
@@ -179,15 +184,17 @@
 		text-decoration: none;
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;
-		transition: color 0.12s var(--ease);
+		transition: color var(--dur-fast) var(--ease);
 	}
-	.tabbar-item:hover {
-		color: var(--text);
-		text-decoration: none;
+	@media (hover: hover) and (pointer: fine) {
+		.tabbar-item:hover {
+			color: var(--text);
+			text-decoration: none;
+		}
 	}
 	.tabbar-item:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: -2px;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset-inset);
 	}
 	.tabbar-item.current {
 		color: var(--accent);
@@ -197,6 +204,13 @@
 		display: inline-flex;
 		flex: none;
 		align-items: center;
+		font-size: var(--icon-xl);
+		--icon-size: var(--icon-xl);
+		transition: scale var(--dur-fast) var(--ease-out);
+	}
+	.tabbar-item:active .tabbar-glyph {
+		scale: var(--press-scale-sm);
+		transition-duration: var(--dur-press);
 	}
 	.tabbar-label {
 		max-width: 100%;
@@ -209,11 +223,7 @@
 		top: -0.4rem;
 		left: calc(100% - 2px);
 		max-width: none;
-		padding-inline: 0.3rem;
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.tabbar-item {
-			transition: none;
-		}
+		padding-inline: var(--sp-1-5);
+		font-size: var(--fs-xs);
 	}
 </style>

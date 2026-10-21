@@ -23,9 +23,11 @@
 	// Implemented with `radiogroup`/`radio` semantics + roving tabindex so the
 	// browser-free keyboard model matches Tabs: ←/→ and Home/End move selection,
 	// Space/Enter (or click) activate. `value` is bindable.
+	import { tick } from 'svelte';
 	import type { Snippet } from 'svelte';
 	import type { Attachment } from 'svelte/attachments';
 	import Icon from '$lib/components/atoms/Icon.svelte';
+	import { playSound } from '$lib/sound';
 	import { formatSegmentCount } from './segmented-control-count.js';
 	import { nextEnabledSegment } from './segmented-control-keyboard.js';
 
@@ -49,6 +51,7 @@
 		collapseLabels = 'never',
 		scroll = false,
 		block = false,
+		sound = true,
 		class: klass = '',
 		// Custom rendering per option (overrides the built-in label/count/icon).
 		option: optionSnippet
@@ -75,6 +78,8 @@
 		scroll?: boolean;
 		/** Fill the parent width, sharing it equally between segments. */
 		block?: boolean;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		class?: string;
 		option?: Snippet<[SegmentOption, boolean]>;
 	} = $props();
@@ -116,8 +121,55 @@
 		};
 	};
 
+	// A thumb slides under the selected segment on translate/scale (never
+	// width/left): the size snaps, the old-to-new width ratio is inverted and
+	// released (FLIP). It snaps on mount and reflow; until placed the selected
+	// segment paints its own fill.
+	let thumb = $state<HTMLSpanElement | null>(null);
+	let placed = $state(false);
+	let rect = { x: 0, y: 0, w: 0, h: 0 };
+	function placeThumb(animate: boolean) {
+		const el = listEl?.querySelector<HTMLElement>('.seg-item.selected');
+		const th = thumb;
+		if (!el || !th) {
+			placed = false;
+			return;
+		}
+		const prev = rect;
+		rect = { x: el.offsetLeft, y: el.offsetTop, w: el.offsetWidth, h: el.offsetHeight };
+		th.style.width = `${rect.w}px`;
+		th.style.height = `${rect.h}px`;
+		th.style.transition = 'none';
+		if (!animate || !placed || rect.w === 0) {
+			th.style.translate = `${rect.x}px ${rect.y}px`;
+			th.style.scale = '1 1';
+			th.getBoundingClientRect();
+			th.style.transition = '';
+			placed = true;
+			return;
+		}
+		th.style.translate = `${prev.x}px ${prev.y}px`;
+		th.style.scale = `${prev.w / rect.w} ${prev.h / rect.h}`;
+		th.getBoundingClientRect();
+		th.style.transition = '';
+		th.style.translate = `${rect.x}px ${rect.y}px`;
+		th.style.scale = '1 1';
+	}
+	$effect(() => {
+		value;
+		options;
+		tick().then(() => placeThumb(true));
+	});
+	$effect(() => {
+		if (!listEl || typeof ResizeObserver === 'undefined') return;
+		const ro = new ResizeObserver(() => placeThumb(false));
+		ro.observe(listEl);
+		return () => ro.disconnect();
+	});
+
 	function select(val: string, focus = false) {
 		if (options.find((o) => o.value === val)?.disabled) return;
+		if (value !== val) playSound('click', sound);
 		value = val;
 		onchange?.(val);
 		if (focus) {
@@ -149,10 +201,12 @@
 	class:seg-scroll={scroll}
 	class:seg-block={block}
 	class:seg-overflow={overflowing}
+	class:placed
 	data-tsu="SegmentedControl"
 	{onkeydown}
 	{@attach watchOverflow}
 >
+	<span bind:this={thumb} class="seg-thumb" aria-hidden="true"></span>
 	{#each options as o (o.value)}
 		{@const selected = value === o.value}
 		<button
@@ -180,11 +234,19 @@
 </div>
 
 <style>
+	/* Every size pins the track height (sm 32 / md 40 / control 44 / box 40);
+	   items fill the inside, which is the height minus border and padding. */
 	.seg {
+		--seg-h: var(--control-md);
+		--seg-inset: calc(var(--sp-0-5) + 1px);
+		--seg-item-h: calc(var(--seg-h) - 2 * var(--seg-inset));
+		position: relative;
 		display: inline-flex;
 		align-items: center;
 		gap: var(--sp-1);
-		padding: 3px;
+		height: var(--seg-h);
+		min-height: var(--seg-h);
+		padding: var(--sp-0-5);
 		background: var(--bg-elevated-2);
 		border: 1px solid var(--border);
 		border-radius: var(--r-pill);
@@ -194,8 +256,19 @@
 	.seg-icon {
 		border-radius: var(--r-md);
 	}
+	.seg-sm {
+		--seg-h: var(--control-sm);
+	}
+	.seg-control {
+		--seg-h: var(--control-height);
+		height: var(--control-height);
+	}
+	.seg-box {
+		--seg-h: var(--control-height-default);
+	}
 	.seg-wrap {
 		flex-wrap: wrap;
+		height: auto;
 	}
 	.justify-start {
 		margin-inline-end: auto;
@@ -246,103 +319,83 @@
 		text-overflow: ellipsis;
 	}
 
+	.seg-thumb {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 0;
+		height: 0;
+		border-radius: var(--r-pill);
+		background: var(--bg);
+		box-shadow: var(--shadow-sm);
+		transform-origin: top left;
+		pointer-events: none;
+		transition:
+			translate var(--dur-spring) var(--ease-spring),
+			scale var(--dur-spring) var(--ease-spring);
+	}
+	.seg:not(.placed) .seg-thumb {
+		display: none;
+	}
 	.seg-item {
+		position: relative;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		gap: var(--sp-2);
-		padding: 0.3rem var(--sp-3);
+		height: 100%;
+		padding: 0 var(--control-px-md);
 		border: 0;
 		border-radius: var(--r-pill);
 		background: transparent;
 		color: var(--text-muted);
-		font-size: var(--fs-sm);
+		font-size: var(--control-fs-md);
 		font-weight: var(--fw-medium);
-		line-height: 1.3;
+		line-height: var(--lh-none);
+		--icon-size: var(--control-icon-md);
 		white-space: nowrap;
 		cursor: pointer;
 		transition:
-			background 0.12s var(--ease),
-			color 0.12s var(--ease);
+			background var(--dur-fast) var(--ease),
+			color var(--dur-fast) var(--ease);
 	}
 	.seg-sm .seg-item {
-		padding: 0.2rem var(--sp-2);
-		font-size: var(--fs-xs);
+		padding: 0 var(--control-px-sm);
+		font-size: var(--control-fs-sm);
+		--icon-size: var(--control-icon-sm);
 	}
-	/* Compact toolbar contract: the outer interactive box exactly matches
-	   Button size="sm" and Popover size="sm". */
-	.seg-sm {
-		height: var(--control-height-compact);
-		min-height: var(--control-height-compact);
-	}
-	.seg-sm .seg-item {
-		height: 100%;
-	}
-	/* Shared toolbar/composer height contract — matches Button/Popover `control`. */
-	.seg-control {
-		height: var(--control-height);
-		min-height: var(--control-height);
-	}
-	.seg-control .seg-item {
-		height: 100%;
-	}
-	.seg-box {
-		height: var(--control-height-default);
-		min-height: var(--control-height-default);
-	}
-	.seg-box .seg-item {
-		height: 100%;
-	}
-	/* Wrapped rows size to their content; each item keeps the one-row height. */
-	.seg-wrap.seg-sm,
-	.seg-wrap.seg-control,
-	.seg-wrap.seg-box {
+	.seg-wrap .seg-item {
 		height: auto;
-	}
-	.seg-wrap.seg-sm .seg-item {
-		height: auto;
-		min-height: calc(var(--control-height-compact) - 8px);
-	}
-	.seg-wrap.seg-control .seg-item {
-		height: auto;
-		min-height: calc(var(--control-height) - 8px);
-	}
-	.seg-wrap.seg-box .seg-item {
-		height: auto;
-		min-height: calc(var(--control-height-default) - 8px);
+		min-height: var(--seg-item-h);
 	}
 	/* Capped at half a row: one row stays a pill, extra rows square the corners. */
 	.seg-wrap:not(.seg-icon) {
-		border-radius: calc((0.6rem + 1.3 * var(--fs-sm)) / 2 + 4px);
+		border-radius: calc(var(--seg-h) / 2);
 	}
-	.seg-wrap.seg-sm:not(.seg-icon) {
-		border-radius: calc(var(--control-height-compact) / 2);
-	}
-	.seg-wrap.seg-control:not(.seg-icon) {
-		border-radius: calc(var(--control-height) / 2);
-	}
-	.seg-wrap.seg-box:not(.seg-icon) {
-		border-radius: calc(var(--control-height-default) / 2);
+	/* Icon-only segments are squares; corners stay concentric with the track. */
+	.seg-icon .seg-item,
+	.seg-icon .seg-thumb {
+		border-radius: calc(var(--r-md) - var(--seg-inset));
 	}
 	.seg-icon .seg-item {
 		gap: 0;
-		padding: 0.35rem;
-		border-radius: var(--r-sm);
-		font-size: var(--fs-md);
+		padding: 0;
+		width: var(--seg-item-h);
+		font-size: var(--control-icon-md);
 	}
 	.seg-icon.seg-sm .seg-item {
-		padding: 0.25rem;
-		font-size: var(--fs-sm);
+		font-size: var(--control-icon-sm);
 	}
 	/* A labelled icon segment renders <icon><label>, so it must keep the normal
 	   icon/label gap and the roomier pill padding — only true icon-only segments
-	   collapse to the square gap:0 layout above. */
+	   collapse to the square layout above. */
 	.seg-icon .seg-item.has-label {
 		gap: var(--sp-2);
-		padding: 0.3rem var(--sp-3);
+		width: auto;
+		padding: 0 var(--control-px-md);
 	}
 	.seg-icon.seg-sm .seg-item.has-label {
-		padding: 0.2rem var(--sp-2);
+		padding: 0 var(--control-px-sm);
 	}
 
 	/* collapseLabels='mobile': below the breakpoint, drop the label text and
@@ -354,10 +407,8 @@
 		}
 		.seg-collapse-mobile .seg-item.has-label {
 			gap: 0;
-			padding: 0.35rem;
-		}
-		.seg-collapse-mobile.seg-sm .seg-item.has-label {
-			padding: 0.25rem;
+			padding: 0;
+			width: var(--seg-item-h);
 		}
 	}
 	@container (max-width: 35rem) {
@@ -366,37 +417,42 @@
 		}
 		.collapse-container .seg-item.has-label {
 			gap: 0;
-			padding: 0.35rem;
-		}
-		.collapse-container.seg-sm .seg-item.has-label {
-			padding: 0.25rem;
+			padding: 0;
+			width: var(--seg-item-h);
 		}
 	}
 
-	.seg-item:hover:not(:disabled):not(.selected) {
-		color: var(--text);
-		background: var(--bg-elevated);
+	@media (hover: hover) and (pointer: fine) {
+		.seg-item:hover:not(:disabled):not(.selected) {
+			color: var(--text);
+			background: var(--bg-elevated);
+		}
 	}
 	.seg-item.selected {
 		color: var(--text);
 		background: var(--bg);
 		box-shadow: var(--shadow-sm);
 	}
+	.seg.placed .seg-item.selected {
+		background: transparent;
+		box-shadow: none;
+	}
 	.seg-item:disabled {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
 	}
+	/* Scrolling tracks clip their overflow, so the ring sits inside the item. */
 	.seg-item:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 2px;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset-inset);
 	}
 
 	.seg-count {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		min-width: 1.25rem;
-		padding: 0 0.35rem;
+		min-width: var(--sp-5);
+		padding: 0 var(--sp-1-5);
 		border-radius: var(--r-pill);
 		background: var(--bg-elevated-2);
 		color: var(--text-faint);
@@ -404,13 +460,10 @@
 		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
 		transition:
-			background 0.12s var(--ease),
-			color 0.12s var(--ease);
+			background var(--dur-fast) var(--ease),
+			color var(--dur-fast) var(--ease);
 	}
 	@media (pointer: coarse) {
-		.seg-item {
-			position: relative;
-		}
 		.seg-item::before {
 			content: '';
 			position: absolute;

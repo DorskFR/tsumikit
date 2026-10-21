@@ -90,7 +90,7 @@ test('GlyphStack grid: 2×2 of 1rem cells, 1px gap, centred; inline run keeps a 
 	assert.equal(hasDecl(css, '.stacked', 'display', 'inline-grid'), true);
 	assert.equal(hasDecl(css, '.stacked', 'grid-template-columns', 'repeat(2, 1rem)'), true);
 	assert.equal(hasDecl(css, '.stacked', 'grid-auto-rows', '1rem'), true);
-	assert.equal(hasDecl(css, '.stacked', 'gap', '1px'), true);
+	assert.equal(hasDecl(css, '.stacked', 'gap', 'var(--sp-px)'), true);
 	assert.equal(hasDecl(css, '.stacked', 'place-items', 'center'), true);
 	assert.equal(hasDecl(css, '.stacked > :global(*)', 'width', '1rem'), true);
 	assert.equal(hasDecl(css, '.stacked > :global(*)', 'height', '1rem'), true);

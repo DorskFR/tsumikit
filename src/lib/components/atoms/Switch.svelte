@@ -5,6 +5,7 @@
 	// `label` is the accessible name; `labelVisible` renders it beside the track.
 	import type { HTMLButtonAttributes } from 'svelte/elements';
 	import { getFieldContext } from '$lib/field-context';
+	import { playSound } from '$lib/sound';
 
 	let {
 		checked = $bindable(false),
@@ -12,6 +13,7 @@
 		label,
 		labelVisible = false,
 		size = 'md',
+		sound = true,
 		onclick,
 		id,
 		'aria-describedby': ariaDescribedby,
@@ -25,6 +27,8 @@
 		/** Render `label` as visible text beside the track. */
 		labelVisible?: boolean;
 		size?: ControlSize;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		id?: string;
 		'aria-describedby'?: string | null;
 		'aria-invalid'?: HTMLButtonAttributes['aria-invalid'];
@@ -37,6 +41,7 @@
 		onclick?.(e);
 		if (e.defaultPrevented) return;
 		checked = !checked;
+		playSound(checked ? 'toggle-on' : 'toggle-off', sound);
 	}
 </script>
 
@@ -70,59 +75,67 @@
 {/if}
 
 <style>
+	/* Track and knob sit on the 4px grid: md 24 / sm 20 tall, knob = track minus
+	   border and padding, travel = track width minus the knob and insets. */
 	.switch {
+		--sw-h: var(--chip-md);
+		--sw-w: 2.75rem;
+		--sw-inset: calc(var(--sp-0-5) + 1px);
+		--sw-knob: calc(var(--sw-h) - 2 * var(--sw-inset));
 		flex: none;
-		width: 2.75rem;
-		height: 1.6rem;
+		width: var(--sw-w);
+		height: var(--sw-h);
 		border-radius: var(--r-pill);
 		border: 1px solid var(--border-strong);
 		background: var(--bg-elevated-2);
-		padding: 2px;
+		padding: var(--sp-0-5);
 		display: flex;
 		align-items: center;
 		cursor: pointer;
 		transition:
-			background 0.14s var(--ease),
-			border-color 0.14s var(--ease);
+			background var(--dur-fast) var(--ease),
+			border-color var(--dur-fast) var(--ease);
 	}
 	.switch .knob {
-		width: 1.25rem;
-		height: 1.25rem;
-		border-radius: 50%;
+		width: var(--sw-knob);
+		height: var(--sw-knob);
+		border-radius: var(--r-pill);
 		background: var(--text-muted);
+		transform-origin: left center;
 		transition:
-			transform 0.14s var(--ease),
-			background 0.14s var(--ease);
+			translate var(--dur-spring) var(--ease-spring),
+			scale var(--dur-fast) var(--ease-out),
+			background var(--dur-fast) var(--ease);
 	}
 	.switch.on {
 		background: var(--accent);
 		border-color: var(--accent);
 	}
 	.switch.on .knob {
-		transform: translateX(1.15rem);
+		translate: calc(var(--sw-w) - var(--sw-knob) - 2 * var(--sw-inset)) 0;
 		background: var(--text-on-accent);
+		transform-origin: right center;
+	}
+	/* 1.12 stretch toward the travel side; derived from the press tokens so the
+	   reduced-motion root (press scales = 1) flattens it to 1. */
+	.switch:active:not(:disabled) .knob {
+		scale: calc(1 + (var(--press-scale) - var(--press-scale-sm)) * 2.4) 1;
+		transition-duration: var(--dur-press);
 	}
 	.switch:focus-visible {
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset);
 	}
 	.switch:disabled {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
 	}
 	.switch[aria-invalid='true']:not(.on) {
 		border-color: var(--danger);
 	}
 	.switch-sm {
-		width: 2rem;
-		height: 1.2rem;
-	}
-	.switch-sm .knob {
-		width: 0.9rem;
-		height: 0.9rem;
-	}
-	.switch-sm.on .knob {
-		transform: translateX(0.8rem);
+		--sw-h: var(--chip-sm);
+		--sw-w: 2rem;
 	}
 	@media (pointer: coarse) {
 		.switch {

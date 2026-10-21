@@ -12,7 +12,7 @@ test('Switch: bindable checked, toggles on click, still forwards onclick', () =>
 test('Switch size=sm shrinks the track and knob', () => {
 	assert.match(source, /size\?: ControlSize/);
 	assert.match(source, /class:switch-sm={size === 'sm'}/);
-	assert.match(source, /\.switch-sm\s*{\s*width: 2rem;/);
+	assert.match(source, /\.switch-sm\s*{\s*--sw-h: var\(--chip-sm\);\s*--sw-w: 2rem;/);
 });
 
 test('Switch labelVisible renders the label as text and drops the duplicate aria-label', () => {

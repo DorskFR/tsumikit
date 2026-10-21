@@ -113,7 +113,7 @@ test('SegmentedControl: items grow on the block axis and only half the gap sidew
 	assert.equal(before['inset-inline'], 'calc(var(--sp-1) / -2)');
 	assert.equal(before.inset, undefined);
 	assert.equal(rule(seg, '.seg').gap, 'var(--sp-1)', 'the half-gap matches the group gap');
-	const pad = Number(rule(seg, '.seg').padding.match(/^(\d+)px$/)?.[1]);
+	const pad = rule(seg, '.seg').padding === 'var(--sp-0-5)' ? 2 : Number.NaN;
 	assert.ok(2 <= pad, 'the edge items reach (half of the 4px gap) stays inside the group padding');
 	const gap = 4;
 	const reach = gap / 2;

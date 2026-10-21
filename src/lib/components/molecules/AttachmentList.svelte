@@ -128,7 +128,7 @@
 								{#if src}
 									<img class="thumb" {src} alt="" />
 								{:else}
-									<Icon name={isImage(f) ? 'image' : 'file'} size={18} />
+									<Icon name={isImage(f) ? 'image' : 'file'} style="font-size: var(--icon-lg)" />
 								{/if}
 								{#if numbered}<span class="num tile-num">{i + 1}</span>{/if}
 							</span>
@@ -149,7 +149,7 @@
 												onremove?.(i);
 											}}
 										>
-											<Icon name="trash" size={16} />
+											<Icon name="trash" style="font-size: var(--control-icon-sm)" />
 										</Button>
 									{/if}
 								</div>
@@ -223,7 +223,7 @@
 		width: 100%;
 		height: 100%;
 		object-fit: cover;
-		border-radius: calc(var(--r-md) - 1px);
+		border-radius: calc(var(--r-md) - var(--sp-px));
 	}
 	.detail {
 		display: flex;
@@ -247,7 +247,7 @@
 		overflow-wrap: anywhere;
 	}
 	.chip :global(.action) {
-		font-size: 1.4em;
+		font-size: var(--fs-md);
 	}
 	.chip :global(.clip) {
 		display: inline-flex;
@@ -278,13 +278,16 @@
 		color: inherit;
 		cursor: pointer;
 	}
-	.open:hover {
-		text-decoration: underline;
+	@media (hover: hover) and (pointer: fine) {
+		.open:hover {
+			text-decoration: underline;
+		}
 	}
+	/* The clip span hides overflow, so the ring sits inside the name. */
 	.open:focus-visible {
 		outline: var(--focus-ring);
-		outline-offset: var(--focus-ring-offset);
-		border-radius: var(--r-sm);
+		outline-offset: var(--focus-ring-offset-inset);
+		border-radius: var(--r-xs);
 	}
 	.mini {
 		flex: none;
@@ -295,9 +298,9 @@
 	}
 	.num {
 		flex: none;
-		font-size: 0.8em;
-		font-weight: 600;
-		line-height: 1;
+		font-size: var(--fs-2xs);
+		font-weight: var(--fw-semibold);
+		line-height: var(--lh-none);
 		color: var(--text-muted);
 	}
 	.face {

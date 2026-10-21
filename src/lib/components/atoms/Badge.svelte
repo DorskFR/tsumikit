@@ -179,15 +179,20 @@
 		display: flex;
 		width: 100%;
 	}
+	/* Chip heights sit on the 4px grid (md 24 / sm 20 / xs 16) through a
+	   min-height, so the leading never decides the box. */
 	.badge {
+		--badge-h: var(--chip-md);
 		display: inline-flex;
 		align-items: center;
 		gap: var(--sp-1);
-		padding: 0.15rem var(--sp-2);
+		min-height: var(--badge-h);
+		padding: 0 var(--sp-2);
 		border-radius: var(--badge-radius, var(--r-pill));
 		font-size: var(--badge-fs, var(--fs-xs));
 		font-weight: var(--badge-fw, var(--fw-medium));
-		line-height: 1.4;
+		line-height: var(--lh-snug);
+		--icon-size: var(--icon-xs);
 		background: var(--badge-bg, var(--bg-elevated-2));
 		color: var(--badge-fg, var(--text-muted));
 		border: 1px solid var(--badge-border, var(--border));
@@ -197,13 +202,15 @@
 	.badge-sm,
 	.badge-xs {
 		font-size: var(--badge-fs, var(--fs-xs));
-		gap: 0.15rem;
+		gap: var(--sp-0-5);
 	}
 	.badge-sm {
-		padding: 0 0.4rem;
+		--badge-h: var(--chip-sm);
+		padding: 0 var(--sp-1-5);
 	}
 	.badge-xs {
-		padding: 0.05rem var(--sp-2);
+		--badge-h: var(--chip-xs);
+		line-height: var(--lh-none);
 	}
 	.toned {
 		color: var(--badge-fg, var(--badge-tone));
@@ -211,6 +218,7 @@
 		background: var(--badge-bg, color-mix(in srgb, var(--badge-tone) 12%, transparent));
 	}
 	.text {
+		min-height: 0;
 		padding: 0;
 		border-color: transparent;
 		background: none;
@@ -233,7 +241,7 @@
 	.numeric {
 		font-variant-numeric: tabular-nums;
 		min-width: var(--badge-min-size, 1.5em);
-		min-height: var(--badge-min-size, auto);
+		min-height: var(--badge-min-size, var(--badge-h));
 		justify-content: center;
 	}
 	.truncate {
@@ -255,25 +263,36 @@
 	.interactive {
 		cursor: pointer;
 		transition:
-			border-color 0.12s var(--ease),
-			color 0.12s var(--ease);
+			border-color var(--dur-fast) var(--ease),
+			color var(--dur-fast) var(--ease),
+			scale var(--dur-fast) var(--ease-out);
 	}
-	.interactive:hover {
-		border-color: var(--border-strong);
-		color: var(--text);
+	@media (hover: hover) and (pointer: fine) {
+		.interactive:hover {
+			border-color: var(--border-strong);
+			color: var(--text);
+		}
+		.interactive.active:hover {
+			color: var(--text-on-accent);
+			border-color: var(--badge-tone, var(--accent));
+			filter: brightness(1.08);
+		}
 	}
-	.interactive.active:hover {
-		color: var(--text-on-accent);
-		border-color: var(--badge-tone, var(--accent));
-		filter: brightness(1.08);
+	.interactive:active:not(:disabled, [aria-disabled='true']) {
+		scale: var(--press-scale);
+		transition-duration: var(--dur-press);
 	}
 	.interactive:focus-visible {
-		outline: 2px solid var(--badge-tone, var(--accent));
-		outline-offset: 2px;
+		outline: var(--focus-ring-width) solid var(--badge-tone, var(--accent));
+		outline-offset: var(--focus-ring-offset);
 	}
 	.removed {
 		opacity: 0.55;
 		text-decoration: line-through;
+		transition:
+			opacity var(--dur-base) var(--ease),
+			color var(--dur-base) var(--ease),
+			text-decoration-color var(--dur-base) var(--ease);
 	}
 	.removed .action {
 		text-decoration: none;
@@ -282,19 +301,36 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		margin: 0 -0.15rem 0 0;
-		padding: 0 0.1rem;
+		margin: 0 calc(-1 * var(--sp-0-5)) 0 0;
+		padding: 0 var(--sp-0-5);
 		border: 0;
+		border-radius: var(--r-xs);
 		background: none;
 		color: inherit;
 		font: inherit;
-		line-height: 1;
+		line-height: var(--lh-none);
 		cursor: pointer;
 		opacity: 0.6;
-		transition: opacity 0.12s var(--ease);
+		transition:
+			opacity var(--dur-fast) var(--ease),
+			background var(--dur-fast) var(--ease),
+			scale var(--dur-fast) var(--ease-out);
 	}
-	.action:hover {
-		opacity: 1;
+	@media (hover: hover) and (pointer: fine) {
+		.action:hover {
+			opacity: 1;
+			background: color-mix(in srgb, currentColor 12%, transparent);
+			transition-duration: var(--dur-instant);
+		}
+	}
+	.action:active {
+		scale: var(--press-scale-sm);
+		transition-duration: var(--dur-press);
+	}
+	/* The ring sits inside: a truncating badge clips its box. */
+	.action:focus-visible {
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset-inset);
 	}
 	@media (pointer: coarse) {
 		.action {

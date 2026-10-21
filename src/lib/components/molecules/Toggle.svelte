@@ -10,6 +10,7 @@
 	// <button> + scoped styles rather than specializing the Button atom.
 	import type { Snippet } from 'svelte';
 	import type { HTMLButtonAttributes } from 'svelte/elements';
+	import { playSound } from '$lib/sound';
 
 	let {
 		pressed = false,
@@ -20,6 +21,8 @@
 		shrink = true,
 		type = 'button',
 		disabled = false,
+		sound = true,
+		onclick,
 		class: klass = '',
 		children,
 		...rest
@@ -32,8 +35,17 @@
 		grow?: boolean;
 		// `shrink={false}` keeps the chip at its intrinsic width (flex: none).
 		shrink?: boolean;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		children?: Snippet;
 	} = $props();
+
+	function click(e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }) {
+		const next = !pressed;
+		onclick?.(e);
+		if (e.defaultPrevented) return;
+		playSound(next ? 'toggle-on' : 'toggle-off', sound);
+	}
 </script>
 
 <button
@@ -41,6 +53,7 @@
 	{...rest}
 	{type}
 	{disabled}
+	onclick={click}
 	class="toggle {klass}"
 	class:pill
 	class:struck
@@ -60,34 +73,38 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		gap: 4px;
+		gap: var(--sp-1);
 		box-sizing: border-box;
-		height: var(--toggle-size, var(--box-xs));
-		padding: 0 var(--sp-2);
+		height: var(--toggle-size, var(--control-sm));
+		padding: 0 var(--control-px-sm);
 		border-radius: var(--r-sm);
-		font-size: var(--fs-xs);
+		font-size: var(--control-fs-sm);
 		font-weight: var(--fw-medium);
-		line-height: 1;
+		line-height: var(--lh-none);
+		--icon-size: var(--control-icon-sm);
 		background: var(--bg-elevated-2);
 		color: var(--text-muted);
 		border: 1px solid var(--border);
 		white-space: nowrap;
 		user-select: none;
 		transition:
-			background 0.12s var(--ease),
-			border-color 0.12s var(--ease),
-			color 0.12s var(--ease);
+			background var(--dur-fast) var(--ease),
+			border-color var(--dur-fast) var(--ease),
+			color var(--dur-fast) var(--ease),
+			scale var(--dur-fast) var(--ease-out);
 	}
 	.toggle:disabled {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
 	}
 	.toggle.pill {
 		border-radius: var(--r-pill);
 	}
 	.toggle.md {
-		height: var(--toggle-size, var(--control-height-compact));
-		font-size: var(--fs-sm);
+		height: var(--toggle-size, var(--control-md));
+		padding: 0 var(--control-px-md);
+		font-size: var(--control-fs-md);
+		--icon-size: var(--control-icon-md);
 	}
 	.toggle.grow {
 		flex: 1 1 0;
@@ -96,8 +113,14 @@
 	.toggle.no-shrink {
 		flex: none;
 	}
-	.toggle:hover:not(:disabled) {
-		border-color: var(--border-strong);
+	@media (hover: hover) and (pointer: fine) {
+		.toggle:hover:not(:disabled) {
+			border-color: var(--border-strong);
+		}
+	}
+	.toggle:active:not(:disabled) {
+		scale: var(--press-scale);
+		transition-duration: var(--dur-press);
 	}
 	.toggle.on {
 		--tc: var(--toggle-accent, var(--accent));

@@ -6,6 +6,7 @@
 	import type { HTMLInputAttributes } from 'svelte/elements';
 	import { getFieldContext } from '$lib/field-context';
 	import type { ControlSize } from '$lib/size';
+	import { playSound } from '$lib/sound';
 
 	let {
 		checked = $bindable(false),
@@ -14,11 +15,13 @@
 		label,
 		labelHidden = false,
 		size = 'md',
+		sound = true,
 		id,
 		'aria-describedby': ariaDescribedby,
 		'aria-invalid': ariaInvalid,
 		class: klass = '',
 		el = $bindable(null),
+		onchange,
 		...rest
 	}: Omit<HTMLInputAttributes, 'size'> & {
 		checked?: boolean;
@@ -31,6 +34,8 @@
 		/** Box + label scale, as on `Switch`. Override the box alone with
 		 *  `style="--cb-box: 1rem"`. */
 		size?: ControlSize;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		id?: string;
 		'aria-describedby'?: string | null;
 		'aria-invalid'?: HTMLInputAttributes['aria-invalid'];
@@ -39,6 +44,11 @@
 
 	const field = getFieldContext();
 	const isInvalid = $derived(invalid || !!field?.invalid);
+
+	function change(e: Event & { currentTarget: EventTarget & HTMLInputElement }) {
+		onchange?.(e);
+		playSound(e.currentTarget.checked ? 'toggle-on' : 'toggle-off', sound);
+	}
 
 	// `indeterminate` is a property, not an attribute — sync it imperatively.
 	$effect(() => {
@@ -57,6 +67,7 @@
 		type="checkbox"
 		bind:checked
 		{...rest}
+		onchange={change}
 		id={id ?? field?.id}
 		aria-describedby={ariaDescribedby ?? field?.describedBy}
 		aria-invalid={ariaInvalid ?? (isInvalid ? 'true' : undefined)}
@@ -83,24 +94,29 @@
 		margin: 0;
 	}
 	.checkbox-sm {
-		--cb-box: 0.95rem;
+		--cb-box: var(--chip-xs);
 		font-size: var(--fs-xs);
 	}
 	.checkbox-lg {
-		--cb-box: 1.35rem;
+		--cb-box: var(--chip-md);
 		font-size: var(--fs-base);
 	}
 	.box {
 		position: relative;
 		flex: none;
-		width: var(--cb-box, 1.15rem);
-		height: var(--cb-box, 1.15rem);
+		width: var(--cb-box, var(--chip-sm));
+		height: var(--cb-box, var(--chip-sm));
 		border: 1px solid var(--border-strong);
 		border-radius: var(--r-sm);
 		background: var(--bg);
 		transition:
-			background 0.12s var(--ease),
-			border-color 0.12s var(--ease);
+			background var(--dur-fast) var(--ease),
+			border-color var(--dur-fast) var(--ease),
+			scale var(--dur-fast) var(--ease-out);
+	}
+	.checkbox:active:not(:has(input:disabled)) .box {
+		scale: var(--press-scale-sm);
+		transition-duration: var(--dur-press);
 	}
 	/* check mark */
 	.box::after {
@@ -110,7 +126,10 @@
 		background: var(--text-on-accent);
 		clip-path: polygon(41% 67%, 79% 26%, 87% 35%, 41% 84%, 15% 56%, 24% 47%);
 		opacity: 0;
-		transition: opacity 0.1s var(--ease);
+		scale: 0.6;
+		transition:
+			opacity var(--dur-exit-fast) var(--ease-out),
+			scale var(--dur-exit-fast) var(--ease-out);
 	}
 	input:checked + .box {
 		background: var(--accent);
@@ -118,6 +137,10 @@
 	}
 	input:checked + .box::after {
 		opacity: 1;
+		scale: 1;
+		transition:
+			opacity var(--dur-spring) var(--ease-spring),
+			scale var(--dur-spring) var(--ease-spring);
 	}
 	/* indeterminate dash */
 	input:indeterminate + .box {
@@ -126,17 +149,21 @@
 	}
 	input:indeterminate + .box::after {
 		opacity: 1;
+		scale: 1;
 		clip-path: polygon(22% 42%, 78% 42%, 78% 58%, 22% 58%);
+		transition:
+			opacity var(--dur-spring) var(--ease-spring),
+			scale var(--dur-spring) var(--ease-spring);
 	}
 	input:focus-visible + .box {
 		outline: var(--focus-ring);
-		outline-offset: 2px;
+		outline-offset: var(--focus-ring-offset);
 	}
 	input[aria-invalid='true']:not(:checked):not(:indeterminate) + .box {
 		border-color: var(--danger);
 	}
 	input:disabled ~ * {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
 	}
 	.checkbox:has(input:disabled) {
 		cursor: not-allowed;
