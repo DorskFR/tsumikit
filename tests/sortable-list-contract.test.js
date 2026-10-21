@@ -320,7 +320,8 @@ test('styles: token-driven, touch-ready grip, reduced motion', () => {
 	assert.ok(hasDecl(style, '.sl-lift', 'min-height', 'var(--sortable-row-h, 2.25rem)'));
 	assert.ok(hasDecl(style, '.sortable-sm .sl-lift', 'min-height', 'var(--sortable-row-h, 1.875rem)'));
 	assert.match(style, /@media \(pointer: coarse\)[\s\S]*width: var\(--touch-target\)/);
-	assert.match(style, /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.sl-lift\s*{\s*transition: none;/);
+	assert.match(style, /\.sl-lift\s*{[^}]*transition:\s*transform var\(--dur-base\) var\(--ease\),\s*box-shadow var\(--dur-base\) var\(--ease\);/);
+	assert.doesNotMatch(style, /prefers-reduced-motion/);
 	assert.match(source, /animate:flip={{ duration: motion && !lifted \? 160 : 0 }}/);
 	assert.match(source, /'\(prefers-reduced-motion: reduce\)'/);
 	assert.match(source, /LONG_PRESS_MS = 250/);

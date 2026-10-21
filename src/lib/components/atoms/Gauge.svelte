@@ -91,7 +91,7 @@
 			{/each}
 		</span>
 	{:else}
-		<span class="fill" style:height="{pct}%"></span>
+		<span class="fill" style:--p={pct / 100}></span>
 	{/if}
 	{#if corner}
 		<span class="corner">{@render corner()}</span>
@@ -120,12 +120,14 @@
 	.interactive {
 		cursor: pointer;
 	}
-	.interactive:hover {
-		border-color: var(--gauge-fill);
+	@media (hover: hover) and (pointer: fine) {
+		.interactive:hover {
+			border-color: var(--gauge-fill);
+		}
 	}
 	.interactive:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 2px;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
 	}
 	.tone-ok {
 		--gauge-fill: var(--ok);
@@ -138,23 +140,27 @@
 	}
 	.fill {
 		position: absolute;
-		inset: auto 0 0 0;
-		border-radius: calc(var(--r-sm) - 1px);
+		inset: 0;
+		border-radius: calc(var(--r-sm) - var(--sp-px));
 		background: var(--gauge-fill);
-		transition: height 0.2s var(--ease), background 0.2s var(--ease);
+		transform-origin: bottom;
+		scale: 1 var(--p, 0);
+		transition:
+			scale var(--dur-base) var(--ease-out),
+			background var(--dur-fast) var(--ease);
 	}
 	.segments {
 		position: absolute;
-		inset: 2px;
+		inset: var(--sp-0-5);
 		display: flex;
 		flex-direction: column-reverse;
-		gap: 2px;
+		gap: var(--sp-0-5);
 	}
 	.segment {
 		flex: 1 1 0%;
-		border-radius: 2px;
+		border-radius: var(--r-xs);
 		background: var(--bg-elevated);
-		transition: background 0.2s var(--ease);
+		transition: background var(--dur-fast) var(--ease);
 	}
 	.segment.lit {
 		background: var(--gauge-fill);
@@ -164,8 +170,8 @@
 		right: -0.35em;
 		bottom: -0.35em;
 		display: inline-flex;
-		font-size: 0.625rem;
-		line-height: 1;
+		font-size: var(--fs-xs);
+		line-height: var(--lh-none);
 		pointer-events: none;
 	}
 </style>

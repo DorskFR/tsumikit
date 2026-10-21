@@ -84,8 +84,10 @@
 		cursor: pointer;
 		border-radius: var(--r-sm);
 	}
-	.td--button:hover {
-		color: var(--text);
+	@media (hover: hover) and (pointer: fine) {
+		.td--button:hover {
+			color: var(--text);
+		}
 	}
 	.td--button:focus-visible {
 		outline: var(--focus-ring);

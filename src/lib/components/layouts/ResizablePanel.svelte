@@ -364,7 +364,7 @@
 				style="transform: translateY({stickyShift}px)"
 				onclick={toggle}
 			>
-				<Icon name={toggleIcon} size={14} />
+				<Icon name={toggleIcon} />
 			</button>
 			{/if}
 		</svelte:element>
@@ -403,7 +403,12 @@
 		width: var(--panel-current-width);
 		background: var(--bg-elevated);
 		border-right: 1px solid var(--border);
-		transition: width 0.18s var(--ease), box-shadow 0.18s var(--ease);
+		transition:
+			width var(--dur-base) var(--ease),
+			box-shadow var(--dur-base) var(--ease);
+	}
+	.resizing .panel {
+		transition: none;
 	}
 	.right .panel {
 		grid-column: 2;
@@ -442,14 +447,19 @@
 		padding: 0;
 		color: var(--text-faint);
 		font: inherit;
+		font-size: var(--icon-sm);
 		background: transparent;
 		border: 1px solid transparent;
 		border-radius: var(--r-sm);
 		cursor: pointer;
 		transition:
-			color 0.12s var(--ease),
-			background 0.12s var(--ease),
-			border-color 0.12s var(--ease);
+			color var(--dur-fast) var(--ease),
+			background var(--dur-fast) var(--ease),
+			border-color var(--dur-fast) var(--ease),
+			scale var(--dur-press) var(--ease-out);
+	}
+	.collapse-control:active {
+		scale: var(--press-scale-sm);
 	}
 	.collapse-control.top {
 		top: var(--sp-2);
@@ -461,15 +471,17 @@
 		left: auto;
 		right: var(--sp-1);
 	}
-	.collapse-control:hover {
-		color: var(--text);
-		background: var(--bg-elevated-2);
-		border-color: var(--border);
+	@media (hover: hover) and (pointer: fine) {
+		.collapse-control:hover {
+			color: var(--text);
+			background: var(--bg-elevated-2);
+			border-color: var(--border);
+		}
 	}
 	.collapse-control:focus-visible,
 	.resize-handle:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: -2px;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset-inset);
 	}
 	/* The handle overhangs the panel edge by 6px, but never past the host
 	   container: when the panel fills it (edge at the window border), the
@@ -503,12 +515,19 @@
 		border-radius: var(--r-pill);
 		background: var(--border-strong);
 		transform: translate(-50%, -50%);
-		transition: background 0.12s var(--ease), height 0.12s var(--ease);
+		transition:
+			background var(--dur-fast) var(--ease),
+			scale var(--dur-fast) var(--ease);
 	}
-	.resize-handle:hover::after,
+	@media (hover: hover) and (pointer: fine) {
+		.resize-handle:hover::after {
+			scale: 1 1.5;
+			background: var(--accent);
+		}
+	}
 	.resize-handle:focus-visible::after,
 	.resizing .resize-handle::after {
-		height: var(--sp-12);
+		scale: 1 1.5;
 		background: var(--accent);
 	}
 	.resizing {
@@ -564,7 +583,7 @@
 		width: min(var(--panel-current-width), 100%);
 		box-shadow: var(--shadow-md);
 		outline: none;
-		animation: panel-slide-left 0.18s var(--ease);
+		animation: panel-slide-left var(--dur-base) var(--ease);
 	}
 	.overlay.right .panel {
 		right: 0;
@@ -597,6 +616,9 @@
 
 	/* Coarse pointers: an invisible slab grows the chevron towards --touch-target. */
 	@media (pointer: coarse) {
+		.collapse-control {
+			min-inline-size: var(--sp-6);
+		}
 		.collapse-control::before {
 			content: '';
 			position: absolute;
@@ -607,7 +629,6 @@
 
 	@media (prefers-reduced-motion: reduce) {
 		.panel {
-			transition: none;
 			animation: none;
 		}
 		.overlay .panel,

@@ -188,7 +188,7 @@
 		letter-spacing: 0.06em;
 		color: var(--text-muted);
 		font-family: var(--font-mono);
-		line-height: 1.4;
+		line-height: var(--lh-snug);
 	}
 	.metric-chip {
 		display: inline-flex;
@@ -198,7 +198,7 @@
 		width: 1.75rem;
 		height: 1.75rem;
 		border-radius: var(--r-md);
-		font-size: 1rem;
+		font-size: var(--fs-md);
 		color: var(--metric-tone);
 		background: color-mix(in srgb, var(--metric-tone) 14%, transparent);
 		border: 1px solid color-mix(in srgb, var(--metric-tone) 30%, transparent);
@@ -208,7 +208,7 @@
 		align-items: baseline;
 		gap: var(--sp-1);
 		font-family: var(--font-mono);
-		line-height: 1.1;
+		line-height: var(--lh-none);
 	}
 	.metric-num {
 		min-width: 0;
@@ -229,7 +229,7 @@
 	.metric-sub {
 		font-size: var(--fs-xs);
 		color: var(--text-faint);
-		line-height: 1.4;
+		line-height: var(--lh-snug);
 	}
 	:global(.metric-sm) .metric-num {
 		font-size: var(--fs-lg);
@@ -237,7 +237,7 @@
 	:global(.metric-sm) .metric-chip {
 		width: 1.5rem;
 		height: 1.5rem;
-		font-size: 0.875rem;
+		font-size: var(--fs-sm);
 	}
 	.metric-inline {
 		flex-direction: row;
@@ -260,12 +260,14 @@
 		cursor: pointer;
 		border-radius: var(--r-sm);
 	}
-	.metric-inline.metric-tap:hover .metric-label {
-		color: var(--text);
+	@media (hover: hover) and (pointer: fine) {
+		.metric-inline.metric-tap:hover .metric-label {
+			color: var(--text);
+		}
 	}
 	.metric-inline.metric-tap:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 2px;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
 	}
 	.metric-segments {
 		display: flex;

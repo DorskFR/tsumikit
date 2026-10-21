@@ -143,7 +143,7 @@
 		{onpointerup}
 		{onpointercancel}
 	>
-		<div class="track" style:transform="translateX(-{index * 100}%)">
+		<div class="track" style:translate="{-index * 100}% 0">
 			{#each slides as item, i (i)}
 				<div
 					class="slide {slideClass}"
@@ -222,7 +222,7 @@
 	.track {
 		display: flex;
 		width: 100%;
-		transition: transform 0.35s var(--ease);
+		transition: translate var(--dur-sheet) var(--ease-in-out);
 	}
 	.slide {
 		flex: 0 0 100%;
@@ -240,37 +240,47 @@
 		gap: var(--sp-2);
 	}
 	.dot {
-		width: 0.5rem;
-		height: 0.5rem;
+		position: relative;
+		width: var(--sp-2);
+		height: var(--sp-2);
 		padding: 0;
 		border: 0;
 		border-radius: var(--r-pill);
 		background: var(--border);
 		cursor: pointer;
 		transition:
-			background 0.12s var(--ease),
-			transform 0.12s var(--ease);
+			background var(--dur-fast) var(--ease),
+			scale var(--dur-fast) var(--ease);
 	}
-	.dot:hover {
-		background: var(--text-faint);
+	@media (hover: hover) and (pointer: fine) {
+		.dot:hover {
+			background: var(--text-faint);
+		}
+	}
+	.dot:active {
+		scale: var(--press-scale-sm);
 	}
 	.dot.active {
 		background: var(--accent);
-		transform: scale(1.25);
+		scale: 1.25;
 	}
 	.dot:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 2px;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
+	}
+	@media (pointer: coarse) {
+		.dots {
+			gap: var(--sp-4);
+		}
+		.dot::before {
+			content: '';
+			position: absolute;
+			inset: calc((100% - var(--sp-6)) / 2);
+		}
 	}
 	.counter {
 		color: var(--text-muted);
 		font-size: var(--fs-sm);
 		font-variant-numeric: tabular-nums;
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.track,
-		.dot {
-			transition: none;
-		}
 	}
 </style>

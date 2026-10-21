@@ -207,7 +207,7 @@
 		onpointerup={pointerUp}
 		onpointercancel={pointerUp}
 	>
-		<div class="fill"></div>
+		<div class="fill-clip"><div class="fill"></div></div>
 		{#if markerPct !== null}
 			<div class="marker marker-{markerTone}" title={markerLabel} aria-hidden="true"></div>
 			{#if markerLabel}
@@ -287,14 +287,20 @@
 		box-shadow: inset 0 0 0 1px var(--border);
 		pointer-events: none;
 	}
+	.fill-clip {
+		position: absolute;
+		inset: 0;
+		border-radius: var(--r-pill);
+		overflow: hidden;
+		z-index: 1;
+	}
 	.fill {
 		position: absolute;
-		inset: 0 auto 0 0;
-		width: var(--pct);
+		inset: 0;
 		border-radius: var(--r-pill);
 		background: var(--fill);
-		transition: width 0.2s var(--ease);
-		z-index: 1;
+		translate: calc(var(--pct) - 100%) 0;
+		transition: translate var(--dur-base) var(--ease-out);
 	}
 	.uncapped .track::after {
 		display: none;
@@ -306,7 +312,7 @@
 		width: 2px;
 		height: calc(var(--track-h) + 6px);
 		transform: translate(-50%, -50%);
-		border-radius: 1px;
+		border-radius: var(--r-xs);
 		background: var(--marker-color, var(--text-muted));
 		pointer-events: none;
 		z-index: 2;
@@ -338,7 +344,7 @@
 		width: 3px;
 		height: 16px;
 		transform: translate(-50%, -50%);
-		border-radius: 2px;
+		border-radius: var(--r-xs);
 		background: var(--text);
 		box-shadow: 0 0 0 2px var(--surface);
 		cursor: ew-resize;
@@ -348,36 +354,37 @@
 		opacity: 0.4;
 	}
 	.handle:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 2px;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
 	}
 	.bubble {
 		position: absolute;
-		bottom: calc(100% + 8px);
-		left: var(--cap);
-		transform: translateX(-50%);
-		padding: 1px var(--sp-1);
+		bottom: calc(100% + var(--sp-2));
+		left: clamp(0%, var(--cap), 100%);
+		translate: calc(-1 * clamp(0%, var(--cap), 100%)) 0;
+		padding: var(--sp-px) var(--sp-1);
 		border: 1px solid var(--border-strong);
 		border-radius: var(--r-sm);
 		background: var(--bg-elevated-2);
 		box-shadow: var(--shadow-sm);
 		color: var(--text);
 		font-size: var(--fs-xs);
-		line-height: 1.4;
+		line-height: var(--lh-snug);
 		font-variant-numeric: tabular-nums;
 		white-space: nowrap;
 		pointer-events: none;
 		opacity: 0;
 		visibility: hidden;
 		transition:
-			opacity 0.12s var(--ease),
-			visibility 0.12s;
+			opacity var(--dur-exit) var(--ease),
+			visibility var(--dur-exit);
 		z-index: 3;
 	}
 	.dragging .bubble,
 	.keying .bubble {
 		opacity: 1;
 		visibility: visible;
+		transition-duration: var(--dur-fast);
 	}
 	.readonly .track,
 	.readonly .handle {
@@ -418,11 +425,5 @@
 	}
 	.cap-bar.stacked .caption {
 		grid-column: 1 / -1;
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.fill,
-		.bubble {
-			transition: none;
-		}
 	}
 </style>

@@ -48,9 +48,9 @@ test('interactive gauges keep their native role and fold the value into the name
 	);
 });
 
-test('continuous variant fills upward by height', () => {
-	assert.match(component, /<span class="fill" style:height="{pct}%"><\/span>/);
-	assert.match(component, /\.fill\s*{[^}]*inset: auto 0 0 0;/);
+test('continuous variant fills upward by scaling from the bottom', () => {
+	assert.match(component, /<span class="fill" style:--p={pct \/ 100}><\/span>/);
+	assert.match(component, /\.fill\s*{[^}]*transform-origin: bottom;[^}]*scale: 1 var\(--p, 0\);/);
 });
 
 test('segments variant stacks bars lit bottom-up', () => {

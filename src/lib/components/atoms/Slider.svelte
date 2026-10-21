@@ -7,6 +7,7 @@
 	// Recolor per-instance via `--slider-accent` (defaults to the theme accent).
 	import type { HTMLInputAttributes } from 'svelte/elements';
 	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
+	import { playSound } from '$lib/sound';
 
 	let {
 		value = $bindable(0),
@@ -23,6 +24,11 @@
 		ticks = false,
 		marks = [],
 		width,
+		sound = true,
+		oninput,
+		onpointerdown,
+		onpointerup,
+		onpointercancel,
 		class: klass = '',
 		el = $bindable(null),
 		...rest
@@ -43,6 +49,8 @@
 		marks?: { value: number; label: string }[];
 		/** Fixed width (`flex: none`). */
 		width?: string;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		id?: string;
 		'aria-describedby'?: string | null;
 		'aria-invalid'?: HTMLInputAttributes['aria-invalid'];
@@ -59,6 +67,32 @@
 	);
 
 	$effect(() => warnUnlabelled(el, 'Slider'));
+
+	let dragging = false;
+	const discrete = $derived((+max - +min) / (+step || 1) <= 20);
+	function tick() {
+		if (!dragging || discrete) playSound('tick', sound);
+	}
+	function handleInput(e: Event & { currentTarget: EventTarget & HTMLInputElement }) {
+		tick();
+		oninput?.(e);
+	}
+	function handlePointerDown(e: PointerEvent & { currentTarget: EventTarget & HTMLInputElement }) {
+		dragging = true;
+		onpointerdown?.(e);
+	}
+	function handlePointerUp(e: PointerEvent & { currentTarget: EventTarget & HTMLInputElement }) {
+		dragging = false;
+		onpointerup?.(e);
+	}
+	function handlePointerCancel(e: PointerEvent & { currentTarget: EventTarget & HTMLInputElement }) {
+		dragging = false;
+		onpointercancel?.(e);
+	}
+	function pick(v: number) {
+		value = v;
+		playSound('tick', sound);
+	}
 
 	const frac = (v: number) => Math.max(0, Math.min(1, (v - +min) / (+max - +min || 1)));
 	const pct = $derived(frac(Number(value)) * 100);
@@ -84,6 +118,10 @@
 		aria-label={label}
 		aria-valuetext={valueText}
 		{...rest}
+		oninput={handleInput}
+		onpointerdown={handlePointerDown}
+		onpointerup={handlePointerUp}
+		onpointercancel={handlePointerCancel}
 		aria-describedby={ariaDescribedby ?? field?.describedBy}
 		aria-invalid={ariaInvalid ?? (isInvalid ? 'true' : undefined)}
 	/>
@@ -101,7 +139,7 @@
 	{#if marks.length > 0}
 		<span class="marks" aria-hidden="true">
 			{#each marks as m, i (`${i}:${m.value}`)}
-				<button type="button" class="mark" class:on={Number(value) === m.value} style="--f: {frac(m.value)}" tabindex="-1" onclick={() => (value = m.value)}>{m.label}</button>
+				<button type="button" class="mark" class:on={Number(value) === m.value} style="--f: {frac(m.value)}" tabindex="-1" onclick={() => pick(m.value)}>{m.label}</button>
 			{/each}
 		</span>
 	{/if}
@@ -138,6 +176,9 @@
 		color: var(--text);
 	}
 	.slider {
+		--thumb: 1.2rem;
+		--track: 0.35rem;
+		--halo: 0 0 0 4px color-mix(in srgb, var(--slider-accent, var(--accent)) 20%, transparent);
 		display: flex;
 		align-items: center;
 		gap: var(--sp-3);
@@ -164,7 +205,7 @@
 	}
 	/* Track — WebKit/Blink. Filled up to --pct with the accent, then the rail. */
 	input[type='range']::-webkit-slider-runnable-track {
-		height: 0.35rem;
+		height: var(--track);
 		border-radius: var(--r-pill);
 		background: linear-gradient(
 			to right,
@@ -173,12 +214,12 @@
 		);
 	}
 	input[type='range']::-moz-range-track {
-		height: 0.35rem;
+		height: var(--track);
 		border-radius: var(--r-pill);
 		background: var(--bg-elevated-2);
 	}
 	input[type='range']::-moz-range-progress {
-		height: 0.35rem;
+		height: var(--track);
 		border-radius: var(--r-pill);
 		background: var(--slider-accent, var(--accent));
 	}
@@ -186,36 +227,52 @@
 	input[type='range']::-webkit-slider-thumb {
 		appearance: none;
 		-webkit-appearance: none;
-		margin-top: -0.425rem; /* center on the 0.35rem track */
-		width: 1.2rem;
-		height: 1.2rem;
-		border-radius: 50%;
+		margin-top: calc((var(--track) - var(--thumb)) / 2);
+		width: var(--thumb);
+		height: var(--thumb);
+		border-radius: var(--r-pill);
 		background: var(--slider-accent, var(--accent));
 		border: 2px solid var(--bg);
 		box-shadow: var(--shadow-sm);
-		transition: transform 0.1s var(--ease);
+		transition:
+			scale var(--dur-press) var(--ease-out),
+			box-shadow var(--dur-fast) var(--ease);
 	}
 	input[type='range']::-moz-range-thumb {
-		width: 1.2rem;
-		height: 1.2rem;
-		border-radius: 50%;
+		width: var(--thumb);
+		height: var(--thumb);
+		border-radius: var(--r-pill);
 		background: var(--slider-accent, var(--accent));
 		border: 2px solid var(--bg);
 		box-shadow: var(--shadow-sm);
+		transition:
+			scale var(--dur-press) var(--ease-out),
+			box-shadow var(--dur-fast) var(--ease);
 	}
-	input[type='range']:active::-webkit-slider-thumb {
-		transform: scale(1.12);
+	@media (hover: hover) and (pointer: fine) {
+		input[type='range']:not(:disabled):hover::-webkit-slider-thumb {
+			box-shadow: var(--shadow-sm), var(--halo);
+		}
+		input[type='range']:not(:disabled):hover::-moz-range-thumb {
+			box-shadow: var(--shadow-sm), var(--halo);
+		}
+	}
+	input[type='range']:not(:disabled):active::-webkit-slider-thumb {
+		scale: 1.15;
+	}
+	input[type='range']:not(:disabled):active::-moz-range-thumb {
+		scale: 1.15;
 	}
 	input[type='range']:focus-visible {
 		outline: none;
 	}
 	input[type='range']:focus-visible::-webkit-slider-thumb {
 		outline: var(--focus-ring);
-		outline-offset: 2px;
+		outline-offset: var(--focus-ring-offset);
 	}
 	input[type='range']:focus-visible::-moz-range-thumb {
 		outline: var(--focus-ring);
-		outline-offset: 2px;
+		outline-offset: var(--focus-ring-offset);
 	}
 	@media (pointer: coarse) {
 		input[type='range'] {
@@ -223,7 +280,7 @@
 		}
 	}
 	input[type='range']:disabled {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
 	}
 	.ticks {
@@ -235,11 +292,11 @@
 	.tick {
 		position: absolute;
 		top: 50%;
-		left: calc(0.6rem + (100% - 1.2rem) * var(--f));
-		width: 0.35rem;
-		height: 0.35rem;
-		margin: -0.175rem 0 0 -0.175rem;
-		border-radius: 50%;
+		left: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--f));
+		width: var(--track);
+		height: var(--track);
+		margin: calc(var(--track) / -2) 0 0 calc(var(--track) / -2);
+		border-radius: var(--r-pill);
 		background: var(--border-strong);
 	}
 	.tick.reached {

@@ -34,7 +34,7 @@ test('label | track | readout grid with overridable widths', () => {
 test('fill width follows value, tone thresholds default to 75 / cap', () => {
 	assert.match(component, /warnAt = 75/);
 	assert.match(component, /const tone = \$derived\(capTone\(value, cap, warnAt\)\)/);
-	assert.match(component, /\.fill\s*{[^}]*width: var\(--pct\);/);
+	assert.match(component, /\.fill\s*{[^}]*translate: calc\(var\(--pct\) - 100%\) 0;/);
 	assert.match(component, /--fill: var\(--ok\);/);
 	assert.match(component, /\.tone-warn\s*{\s*--fill: var\(--warn\);/);
 	assert.match(component, /\.tone-danger\s*{\s*--fill: var\(--danger\);/);
@@ -75,7 +75,7 @@ test('pointer sets the cap live, keyboard steps, oninput vs onchange', () => {
 
 test('cap bubble reads the live cap while dragging or keyboard-focused', () => {
 	assert.match(component, /<div class="bubble" aria-hidden="true">{capText}<\/div>/);
-	assert.match(component, /\.bubble\s*{[^}]*left: var\(--cap\);[^}]*pointer-events: none;[^}]*opacity: 0;[^}]*visibility: hidden;/s);
+	assert.match(component, /\.bubble\s*{[^}]*left: clamp\(0%, var\(--cap\), 100%\);[^}]*translate: calc\(-1 \* clamp\(0%, var\(--cap\), 100%\)\) 0;[^}]*pointer-events: none;[^}]*opacity: 0;[^}]*visibility: hidden;/s);
 	assert.match(component, /\.dragging \.bubble,\s*\.keying \.bubble\s*{\s*opacity: 1;\s*visibility: visible;/);
 	assert.match(component, /class:keying/);
 	assert.match(component, /onblur={\(\) => \(keying = false\)}/);
