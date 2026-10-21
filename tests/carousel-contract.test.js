@@ -2,13 +2,14 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { clampSlide, nextSlideForKey, stepSlide, swipeStep } from '../src/lib/components/molecules/carousel-keyboard.js';
+import { readDemo } from './helpers/demo-source.js';
 
 const source = await readFile(
 	new URL('../src/lib/components/molecules/Carousel.svelte', import.meta.url),
 	'utf8'
 );
 const index = await readFile(new URL('../src/lib/index.ts', import.meta.url), 'utf8');
-const docs = await readFile(new URL('../src/routes/+page.svelte', import.meta.url), 'utf8');
+const docs = await readDemo();
 
 test('index clamps to the edges without loop and wraps with loop', () => {
 	assert.equal(clampSlide(-1, 3), 0);

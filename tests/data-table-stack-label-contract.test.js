@@ -3,13 +3,14 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { JSDOM } from 'jsdom';
 import { buildFixture } from './fixtures/build.mjs';
+import { readDemo } from './helpers/demo-source.js';
 
 /** @param {string} p */
 const read = (p) => readFile(new URL(p, import.meta.url), 'utf8');
 const [source, readme, page] = await Promise.all([
 	read('../src/lib/components/organisms/DataTable.svelte'),
 	read('../README.md'),
-	read('../src/routes/+page.svelte')
+	readDemo()
 ]);
 const bundle = await buildFixture('mount-data-table.js');
 

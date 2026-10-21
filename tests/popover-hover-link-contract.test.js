@@ -7,12 +7,13 @@ import {
 	createHoverIntent,
 	opensOnHover,
 } from '../src/lib/components/molecules/popover-hover.js';
+import { readDemo } from './helpers/demo-source.js';
 
 const popover = await readFile(
 	new URL('../src/lib/components/molecules/Popover.svelte', import.meta.url),
 	'utf8'
 );
-const docs = await readFile(new URL('../src/routes/+page.svelte', import.meta.url), 'utf8');
+const docs = await readDemo();
 
 function fakeClock() {
 	/** @type {Map<number, { fn: () => void, at: number }>} */

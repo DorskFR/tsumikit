@@ -1,11 +1,12 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { readDemo } from './helpers/demo-source.js';
 
 const [component, index, page] = await Promise.all([
 	readFile(new URL('../src/lib/components/molecules/Fieldset.svelte', import.meta.url), 'utf8'),
 	readFile(new URL('../src/lib/index.ts', import.meta.url), 'utf8'),
-	readFile(new URL('../src/routes/+page.svelte', import.meta.url), 'utf8')
+	readDemo()
 ]);
 
 test('Fieldset is exported from the package index', () => {

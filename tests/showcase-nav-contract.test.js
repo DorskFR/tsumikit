@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { readDemo } from './helpers/demo-source.js';
 
-const page = await readFile(new URL('../src/routes/+page.svelte', import.meta.url), 'utf8');
+const page = await readDemo();
 const reset = await readFile(new URL('../src/lib/styles/reset.css', import.meta.url), 'utf8');
 
 const script = page.slice(0, page.indexOf('</script>'));

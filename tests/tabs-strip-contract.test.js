@@ -2,12 +2,13 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { hasDecl, normalize } from './helpers.mjs';
+import { readDemo } from './helpers/demo-source.js';
 
 /** @param {string} p */
 const read = (p) => readFile(new URL(p, import.meta.url), 'utf8');
 const [tabs, docs, readme] = await Promise.all([
 	read('../src/lib/components/molecules/Tabs.svelte'),
-	read('../src/routes/+page.svelte'),
+	readDemo(),
 	read('../README.md')
 ]);
 const src = normalize(tabs);

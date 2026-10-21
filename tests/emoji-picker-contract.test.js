@@ -2,13 +2,14 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { EMOJI_GROUPS, searchEmoji } from '../src/lib/emoji.ts';
+import { readDemo } from './helpers/demo-source.js';
 
 /** @param {string} p */
 const read = (p) => readFile(new URL(`../src/${p}`, import.meta.url), 'utf8');
 const [picker, index, page] = await Promise.all([
 	read('lib/components/molecules/EmojiPicker.svelte'),
 	read('lib/index.ts'),
-	read('routes/+page.svelte')
+	readDemo()
 ]);
 
 const entries = EMOJI_GROUPS.flatMap((g) => g.entries);

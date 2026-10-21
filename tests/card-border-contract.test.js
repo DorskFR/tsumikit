@@ -1,9 +1,10 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { readDemo } from './helpers/demo-source.js';
 
 const card = await readFile(new URL('../src/lib/components/atoms/Card.svelte', import.meta.url), 'utf8');
-const page = await readFile(new URL('../src/routes/+page.svelte', import.meta.url), 'utf8');
+const page = await readDemo();
 
 test('Card accepts a border prop defaulting to solid', () => {
 	assert.match(card, /border\?: 'solid' \| 'dashed' \| 'none';/);
