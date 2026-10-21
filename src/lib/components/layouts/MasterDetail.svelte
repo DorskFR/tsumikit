@@ -208,12 +208,14 @@
 		cursor: pointer;
 		flex-shrink: 0;
 	}
-	.md-back:hover {
-		background: color-mix(in srgb, var(--accent) 12%, transparent);
+	@media (hover: hover) and (pointer: fine) {
+		.md-back:hover {
+			background: color-mix(in srgb, var(--accent) 12%, transparent);
+		}
 	}
 	.md-back:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 2px;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset-inset);
 	}
 
 	.md.mobile {
@@ -228,7 +230,23 @@
 	}
 	.md.mobile .md-detail {
 		width: 100%;
-		animation: md-slide-in 0.2s var(--ease);
+		translate: 0 0;
+		opacity: 1;
+		transition:
+			translate var(--dur-base) var(--ease-out),
+			opacity var(--dur-base) var(--ease-out),
+			display var(--dur-base) allow-discrete;
+	}
+	@starting-style {
+		.md.mobile .md-detail {
+			translate: var(--shift-md) 0;
+			opacity: 0;
+		}
+	}
+	.md.mobile .md-detail[hidden] {
+		translate: var(--shift-md) 0;
+		opacity: 0;
+		transition-duration: var(--dur-exit);
 	}
 	.md.mobile .md-detail-header {
 		padding-inline: max(var(--sp-3), var(--safe-left)) max(var(--sp-3), var(--safe-right));
@@ -236,21 +254,5 @@
 	.md.mobile .md-detail-body {
 		padding-inline: var(--safe-left) var(--safe-right);
 		padding-bottom: var(--safe-bottom);
-	}
-
-	@keyframes md-slide-in {
-		from {
-			transform: translateX(8%);
-			opacity: 0;
-		}
-		to {
-			transform: none;
-			opacity: 1;
-		}
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.md.mobile .md-detail {
-			animation: none;
-		}
 	}
 </style>

@@ -13,6 +13,7 @@
 	import type { Snippet } from 'svelte';
 	import type { HTMLAttributes } from 'svelte/elements';
 	import Icon from '$lib/components/atoms/Icon.svelte';
+	import { playSound } from '$lib/sound';
 
 	let {
 		open = $bindable(false),
@@ -23,6 +24,7 @@
 		id,
 		onchange,
 		disabled = false,
+		sound = true,
 		class: klass = '',
 		style: styleProp = '',
 		buttonClass = '',
@@ -45,6 +47,8 @@
 		id?: string;
 		onchange?: (open: boolean) => void;
 		disabled?: boolean;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		class?: string;
 		style?: string;
 		buttonClass?: string;
@@ -58,6 +62,7 @@
 
 	function toggle() {
 		open = !open;
+		playSound(open ? 'open' : 'close', sound);
 		onchange?.(open);
 	}
 </script>
@@ -119,16 +124,18 @@
 		cursor: pointer;
 		user-select: none;
 	}
-	.disclosure__button:hover:not(:disabled) {
-		background: var(--bg-elevated-2);
+	@media (hover: hover) and (pointer: fine) {
+		.disclosure__button:hover:not(:disabled) {
+			background: var(--bg-elevated-2);
+		}
 	}
 	.disclosure__button:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: -2px;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset-inset);
 	}
 	.disclosure__button:disabled {
 		cursor: not-allowed;
-		opacity: 0.6;
+		opacity: var(--disabled-opacity);
 	}
 	.disclosure__header {
 		display: flex;
@@ -141,20 +148,24 @@
 		display: inline-flex;
 		flex: none;
 		color: var(--text-muted);
-		transition: transform 0.15s var(--ease);
+		transition: rotate var(--dur-base) var(--ease-out);
 	}
 	.disclosure--open .disclosure__chevron {
-		transform: rotate(180deg);
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.disclosure__chevron {
-			transition: none;
-		}
+		rotate: 180deg;
 	}
 	.disclosure__panel {
 		padding: var(--disclosure-panel-pad, 0 var(--sp-4) var(--sp-4));
 		font-size: var(--disclosure-fs, var(--fs-sm));
 		color: var(--text-muted);
+		transition:
+			opacity var(--dur-base) var(--ease-out),
+			translate var(--dur-base) var(--ease-out);
+	}
+	@starting-style {
+		.disclosure__panel:not([hidden]) {
+			opacity: 0;
+			translate: 0 calc(-1 * var(--shift-xs));
+		}
 	}
 	.disclosure--compact {
 		--disclosure-pad: var(--sp-1) var(--sp-2);

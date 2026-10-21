@@ -107,8 +107,9 @@
 		color: var(--text-muted);
 		container-type: inline-size;
 		transition:
-			border-color 0.12s var(--ease),
-			box-shadow 0.12s var(--ease);
+			border-color var(--dur-fast) var(--ease),
+			box-shadow var(--dur-fast) var(--ease),
+			scale var(--dur-fast) var(--ease-out);
 	}
 	.r-sm {
 		border-radius: var(--r-sm);
@@ -122,9 +123,15 @@
 	.r-pill {
 		border-radius: var(--r-pill);
 	}
-	.hover:hover {
-		border-color: var(--border-strong);
-		box-shadow: var(--shadow-md);
+	@media (hover: hover) and (pointer: fine) {
+		.hover:hover {
+			border-color: var(--border-strong);
+			box-shadow: var(--shadow-md);
+		}
+	}
+	.hover:active {
+		scale: var(--press-scale-lg);
+		transition-duration: var(--dur-press);
 	}
 	.img {
 		position: absolute;

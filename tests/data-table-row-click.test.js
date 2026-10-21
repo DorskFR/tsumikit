@@ -75,7 +75,10 @@ test('sort arrow is hidden from the button accessible name', () => {
 });
 
 test('a focused clickable row draws the kit focus ring inset', () => {
-	assert.match(source, /}\s*tr\.clickable:focus-visible\s*{\s*outline: var\(--focus-ring\);\s*outline-offset: -2px;/);
+	assert.match(
+		source,
+		/}\s*tr\.clickable:focus-visible\s*{[^}]*outline: var\(--focus-ring\);\s*outline-offset: var\(--focus-ring-offset-inset\);/
+	);
 	assert.doesNotMatch(source, /tr\.clickable:focus-visible\s*{[^}]*outline: none/);
 });
 

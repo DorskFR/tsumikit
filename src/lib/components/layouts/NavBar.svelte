@@ -275,18 +275,21 @@
 		text-decoration: none;
 		cursor: pointer;
 		transition:
-			background 0.12s var(--ease),
-			color 0.12s var(--ease);
+			background var(--dur-fast) var(--ease),
+			color var(--dur-fast) var(--ease);
 	}
 	.stacked .navbar-link {
 		flex-direction: column;
-		gap: 2px;
+		gap: var(--sp-0-5);
 		font-size: var(--fs-xs);
 	}
-	.navbar-link:hover {
-		background: var(--bg-elevated-2);
-		color: var(--text);
-		text-decoration: none;
+	@media (hover: hover) and (pointer: fine) {
+		.navbar-link:hover {
+			background: var(--bg-elevated-2);
+			color: var(--text);
+			text-decoration: none;
+			transition-duration: var(--dur-instant);
+		}
 	}
 	.navbar-link.current {
 		color: var(--accent);
@@ -300,7 +303,7 @@
 	}
 	.navbar-emoji {
 		font-size: 1.15em;
-		line-height: 1;
+		line-height: var(--lh-none);
 	}
 	.navbar-label {
 		min-width: 0;

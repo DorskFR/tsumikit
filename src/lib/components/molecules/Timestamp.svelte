@@ -199,9 +199,18 @@
 		text-underline-offset: 2px;
 		text-decoration-color: var(--border-strong);
 	}
-	.ts-trigger:hover,
 	.ts-trigger:focus-visible {
 		text-decoration-color: currentColor;
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.ts-trigger:hover {
+			text-decoration-color: currentColor;
+		}
+		.ts-mode:hover {
+			background: var(--bg-elevated-2);
+			color: var(--text);
+			transition-duration: var(--dur-instant);
+		}
 	}
 
 	.ts-panel {
@@ -224,12 +233,8 @@
 		font-size: var(--fs-xs);
 		cursor: pointer;
 		transition:
-			background 0.12s var(--ease),
-			color 0.12s var(--ease);
-	}
-	.ts-mode:hover {
-		background: var(--bg-elevated-2);
-		color: var(--text);
+			background var(--dur-fast) var(--ease),
+			color var(--dur-fast) var(--ease);
 	}
 	.ts-mode.active {
 		background: var(--bg-elevated-2);

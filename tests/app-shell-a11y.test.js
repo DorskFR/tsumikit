@@ -114,7 +114,12 @@ test('header height adds the top safe-area inset instead of eating into 52px', (
 	assert.match(css, /\.shell-header\.svelte-[\w-]+ \{[^}]*height: var\(--shell-header-h\);[^}]*padding-top: var\(--safe-top\);/);
 });
 
-test('drawer slide and focus ring respect reduced motion / keyboard focus', () => {
-	assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{ \.shell-sidebar\.svelte-[\w-]+ \{ transition: none; \}/);
-	assert.match(css, /.shell-sidebar-resize\.svelte-[\w-]+:focus-visible \{ outline: 2px solid var\(--accent\);/);
+test('drawer slide reads motion tokens and the resize handle draws the kit focus ring inset', () => {
+	assert.match(css, /\.shell-sidebar\.svelte-[\w-]+ \{[^}]*transition: translate var\(--dur-exit-slow\) var\(--ease-drawer\);/);
+	assert.match(css, /\.shell-sidebar\.open\.svelte-[\w-]+ \{[^}]*transition-duration: var\(--dur-sheet\);/);
+	assert.doesNotMatch(css, /prefers-reduced-motion/);
+	assert.match(
+		css,
+		/.shell-sidebar-resize\.svelte-[\w-]+:focus-visible \{ outline: var\(--focus-ring\); outline-offset: var\(--focus-ring-offset-inset\);/
+	);
 });

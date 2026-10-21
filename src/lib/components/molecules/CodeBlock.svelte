@@ -118,7 +118,7 @@
 		user-select: none;
 		font-family: var(--font-mono);
 		font-size: var(--fs-sm);
-		line-height: 1.5;
+		line-height: var(--lh-normal);
 	}
 	.cb-pre {
 		margin: 0;
@@ -126,7 +126,7 @@
 		flex: 1;
 		font-family: var(--font-mono);
 		font-size: var(--fs-sm);
-		line-height: 1.5;
+		line-height: var(--lh-normal);
 		color: var(--md-text, var(--text));
 		tab-size: 2;
 	}

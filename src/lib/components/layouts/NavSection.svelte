@@ -62,7 +62,7 @@
 	.nav-section-items {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: var(--sp-0-5);
 	}
 
 	/* Icon-rail: drop the textual label and use a hairline divider to keep groups

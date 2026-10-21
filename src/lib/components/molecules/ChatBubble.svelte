@@ -134,8 +134,8 @@
 		align-self: flex-start;
 	}
 	.selected {
-		outline: 2px solid var(--accent);
-		outline-offset: 1px;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
 	}
 	.bubble[data-state='sending'] {
 		opacity: 0.7;

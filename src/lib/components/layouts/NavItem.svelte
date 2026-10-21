@@ -115,13 +115,21 @@
 		text-decoration: none;
 		white-space: nowrap;
 		transition:
-			background 0.12s var(--ease),
-			color 0.12s var(--ease);
+			background var(--dur-fast) var(--ease),
+			color var(--dur-fast) var(--ease);
 	}
-	.nav-item:hover {
-		background: var(--bg-elevated-2);
-		color: var(--text);
-		text-decoration: none;
+	@media (hover: hover) and (pointer: fine) {
+		.nav-item:hover {
+			background: var(--bg-elevated-2);
+			color: var(--text);
+			text-decoration: none;
+			transition-duration: var(--dur-instant);
+		}
+	}
+	/* Nav items live in scrolling sidebars and lists; the ring stays inside. */
+	.nav-item:focus-visible {
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset-inset);
 	}
 	.nav-item.active {
 		background: color-mix(in srgb, var(--accent) 14%, transparent);
@@ -158,7 +166,7 @@
 	.nav-item.vertical {
 		flex-direction: column;
 		justify-content: center;
-		gap: 2px;
+		gap: var(--sp-0-5);
 		padding: var(--sp-1) var(--sp-2);
 		font-size: var(--fs-xs);
 		text-align: center;

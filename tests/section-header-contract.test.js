@@ -66,7 +66,7 @@ test('sticky pins under the app header and publishes --section-header-h on the p
 test('collapsible turns the title into a disclosure button controlling the children panel', () => {
 	assert.match(component, /<button\s+type="button"\s+class="sh-toggle"\s+aria-expanded={open}\s+aria-controls={open \? panelId : undefined}\s+onclick={\(\) => \(open = !open\)}/);
 	assert.match(component, /{#if children && \(!collapsible \|\| open\)}\s*<div class="sh-panel" id={panelId}>{@render children\(\)}<\/div>/);
-	assert.match(component, /\.sh-open :global\(\.sh-chevron\)\s*{\s*transform: rotate\(90deg\);/);
+	assert.match(component, /\.sh-open :global\(\.sh-chevron\)\s*{\s*rotate: 90deg;/);
 });
 
 test('tone token --sh-tone maps to semantic colours and tints the title', () => {

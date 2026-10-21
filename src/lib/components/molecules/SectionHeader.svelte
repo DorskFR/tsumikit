@@ -86,6 +86,7 @@
 	class:sh-sticky={sticky}
 	class:sh-uppercase={uppercase}
 	class:sh-open={open}
+	class:sh-collapsible={collapsible}
 	{...rest}
 >
 	<div class="sh-row">
@@ -221,7 +222,7 @@
 		display: inline-flex;
 		flex: none;
 		color: var(--sh-tone);
-		line-height: 1;
+		line-height: var(--lh-none);
 	}
 	.sh-swatch {
 		flex: none;
@@ -263,23 +264,27 @@
 		border-radius: var(--r-sm);
 	}
 	.sh-toggle:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 2px;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
 	}
 	.section-header :global(.sh-chevron) {
 		flex: none;
 		color: var(--text-muted);
-		transition: transform 0.15s var(--ease);
+		transition: rotate var(--dur-base) var(--ease-out);
 	}
 	.sh-open :global(.sh-chevron) {
-		transform: rotate(90deg);
+		rotate: 90deg;
 	}
 	.sh-panel {
 		margin-top: var(--sp-3);
+		transition:
+			opacity var(--dur-base) var(--ease-out),
+			translate var(--dur-base) var(--ease-out);
 	}
-	@media (prefers-reduced-motion: reduce) {
-		.section-header :global(.sh-chevron) {
-			transition: none;
+	@starting-style {
+		.sh-collapsible.sh-open .sh-panel {
+			opacity: 0;
+			translate: 0 calc(-1 * var(--shift-xs));
 		}
 	}
 </style>

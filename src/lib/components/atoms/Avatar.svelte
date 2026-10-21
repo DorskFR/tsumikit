@@ -80,7 +80,7 @@
 		border-radius: var(--r-pill);
 		font-weight: var(--fw-semibold);
 		font-size: calc(var(--avatar-size) * 0.46);
-		line-height: 1;
+		line-height: var(--lh-none);
 		background: var(--avatar-bg, var(--bg-elevated-2));
 		color: var(--avatar-fg, var(--text-muted));
 		user-select: none;

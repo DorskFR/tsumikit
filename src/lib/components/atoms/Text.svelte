@@ -232,7 +232,7 @@
 		line-height: var(--lh-normal);
 	}
 	.lh-none {
-		line-height: 1;
+		line-height: var(--lh-none);
 	}
 	.grow {
 		flex: 1 1 0;

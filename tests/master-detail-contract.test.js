@@ -53,9 +53,11 @@ test('columns scroll independently with a --border divider; mobile panes are ful
 	assert.match(css, /\.md\.mobile \.md-detail-body\s*{[^}]*padding-bottom: var\(--safe-bottom\);/s);
 });
 
-test('slide-in is reduced-motion aware and no :global leaks', () => {
-	assert.match(css, /\.md\.mobile \.md-detail\s*{[^}]*animation: md-slide-in/s);
-	assert.match(css, /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.md\.mobile \.md-detail\s*{\s*animation: none;/);
+test('mobile detail slides in on translate and opacity from tokens, exits faster, and no :global leaks', () => {
+	assert.match(css, /\.md\.mobile \.md-detail\s*{[^}]*translate var\(--dur-base\) var\(--ease-out\)/s);
+	assert.match(css, /@starting-style\s*{\s*\.md\.mobile \.md-detail\s*{\s*translate: var\(--shift-md\) 0;\s*opacity: 0;/);
+	assert.match(css, /\.md\.mobile \.md-detail\[hidden\]\s*{[^}]*transition-duration: var\(--dur-exit\);/s);
+	assert.doesNotMatch(css, /@keyframes|prefers-reduced-motion/);
 	assert.doesNotMatch(source, /:global/);
 });
 
