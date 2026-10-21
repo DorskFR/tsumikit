@@ -48,7 +48,6 @@
 	{#snippet header()}
 		<Heading level={1} size="md"><a href="#top" class="demo-brand">@dorsk/tsumikit</a></Heading>
 		<Text variant="caption" tone="muted" class="cq-hide">Svelte 5 · pure CSS · zero deps</Text>
-		<div class="spacer"></div>
 		<DemoToolbar extras={toolbar} />
 	{/snippet}
 
@@ -70,6 +69,16 @@
 	.demo-brand {
 		color: inherit;
 		text-decoration: none;
+		white-space: nowrap;
+	}
+	:global(.demo-toolbar) {
+		flex: 1 1 0;
+		justify-content: flex-end;
+	}
+	@media (max-width: 40rem) {
+		:global(.shell-header .cq-hide) {
+			display: none;
+		}
 	}
 	.demo-page {
 		display: flex;

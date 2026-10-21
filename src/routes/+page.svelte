@@ -1,5 +1,5 @@
 <script lang="ts">
-	import DemoShell from '../demo/framework/DemoShell.svelte';
+	import Legacy from './legacy/+page.svelte';
 </script>
 
-<DemoShell />
+<Legacy />

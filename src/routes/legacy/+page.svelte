@@ -800,9 +800,8 @@ function greet(name) {
 			onclick={() => (navOpen = !navOpen)}
 		/>
 		<Heading level={1} size="lg">@dorsk/tsumikit</Heading>
-		<Badge tone="warn" size="sm">legacy</Badge>
 		<div class="spacer"></div>
-		<Link href="{base}/" class="hide-sm">← New showcase</Link>
+		<Link href="{base}/next" class="hide-sm">New showcase (preview) →</Link>
 		<Link href="{base}/shell" class="hide-sm">AppShell demo →</Link>
 		<ThemePicker
 			auto
