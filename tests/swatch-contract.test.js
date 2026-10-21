@@ -69,7 +69,7 @@ test('Swatch uses only tokens: hairline border, radii, selection ring, focus rin
 	assert.match(css, /\.selected \{[^}]*border-color: var\(--text\);/);
 	assert.match(css, /\.selected \{[^}]*0 0 0 2px var\(--bg\),\s*0 0 0 3px var\(--text\)/);
 	assert.match(css, /\.interactive \{[^}]*cursor: pointer;/);
-	assert.match(css, /\.interactive:focus-visible \{[^}]*outline: 2px solid var\(--accent\);/);
+	assert.match(css, /\.interactive:focus-visible \{[^}]*outline: var\(--focus-ring\);/);
 	assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i);
 	assert.doesNotMatch(css, /\b(?:rgb|hsl)a?\(/);
 });

@@ -76,7 +76,7 @@
 		color: var(--text);
 		font: inherit;
 		font-size: calc(var(--swatch-size) * 0.6);
-		line-height: 1;
+		line-height: var(--lh-none);
 		vertical-align: middle;
 		box-sizing: border-box;
 	}
@@ -90,7 +90,7 @@
 		border-radius: var(--r-sm);
 	}
 	.sm.square {
-		border-radius: 3px;
+		border-radius: var(--r-xs);
 	}
 	.selected {
 		border-color: var(--text);
@@ -100,16 +100,27 @@
 	}
 	.interactive {
 		cursor: pointer;
+		--swatch-scale-dur: var(--dur-fast);
 		transition:
-			transform 0.1s var(--ease),
-			box-shadow 0.12s var(--ease);
+			scale var(--swatch-scale-dur) var(--ease-out),
+			border-color var(--dur-fast) ease,
+			box-shadow var(--dur-fast) ease;
 	}
-	.interactive:hover {
-		transform: scale(1.15);
+	.interactive:active {
+		--swatch-scale-dur: var(--dur-press);
+		scale: var(--press-scale-sm);
 	}
 	.interactive:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 3px;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.interactive:hover {
+			scale: 1.15;
+		}
+		.interactive:hover:active {
+			scale: calc(1.15 * var(--press-scale-sm));
+		}
 	}
 	@media (pointer: coarse) {
 		.interactive {

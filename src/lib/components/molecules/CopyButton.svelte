@@ -7,6 +7,7 @@
 	import Button from '$lib/components/atoms/Button.svelte';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import { copyToClipboard } from '$lib/clipboard';
+	import { playSound } from '$lib/sound';
 
 	let {
 		text,
@@ -17,6 +18,7 @@
 		box,
 		hitArea = 'auto',
 		resetMs = 1500,
+		sound = true,
 		class: klass = ''
 	}: {
 		/** The string to copy. */
@@ -30,6 +32,8 @@
 		box?: 'xs' | 'sm' | 'md' | 'lg';
 		hitArea?: 'auto' | 'compact';
 		resetMs?: number;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		class?: string;
 	} = $props();
 
@@ -40,6 +44,7 @@
 
 	async function copy() {
 		const ok = await copyToClipboard(text);
+		playSound(ok ? 'success' : 'error', sound);
 		copied = ok;
 		status = ok ? copiedLabel : 'Copy failed';
 		clearTimeout(timer);
@@ -55,12 +60,51 @@
 	{variant}
 	{box}
 	{hitArea}
-	class={klass}
+	class="copy-btn {klass}"
+	sound={false}
 	onclick={copy}
 	aria-label={copied ? copiedLabel : label}
 	title={label}
 >
-	<Icon name={copied ? 'check' : 'copy'} />
+	<span class="glyphs" class:copied aria-hidden="true">
+		<span class="glyph copy"><Icon name="copy" /></span>
+		<span class="glyph check"><Icon name="check" /></span>
+	</span>
 	{#if labelShown}<span>{copied ? copiedLabel : label}</span>{/if}
 </Button>
 <span class="sr-only" role="status" aria-live="polite">{status}</span>
+
+<style>
+	/* Both glyphs share one grid cell so the swap never changes the width. The
+	   check springs in (the kit's one bounce: a rare confirmation); the copy
+	   glyph fades out fast and back in over the base duration on revert. */
+	.glyphs {
+		display: inline-grid;
+		place-items: center;
+	}
+	.glyph {
+		grid-area: 1 / 1;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		transition: opacity var(--dur-base) ease;
+	}
+	.check {
+		opacity: 0;
+		scale: 0.6;
+		transition:
+			opacity var(--dur-base) ease,
+			scale var(--dur-base) var(--ease-out);
+	}
+	.copied .copy {
+		opacity: 0;
+		transition-duration: var(--dur-exit-fast);
+	}
+	.copied .check {
+		opacity: 1;
+		scale: 1;
+		transition:
+			opacity var(--dur-spring-bounce) ease,
+			scale var(--dur-spring-bounce) var(--ease-spring-bounce);
+	}
+</style>

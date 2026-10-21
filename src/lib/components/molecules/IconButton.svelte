@@ -26,8 +26,7 @@
 		tone?: Tone | 'none';
 		// Outlined `--box-lg` square icon-chip (header/toolbar actions).
 		chip?: boolean;
-		// Shared square box scale (`--box-xs/sm/md/lg`); default `md` is the classic
-		// 2.25rem box. Forwarded to Button.
+		// Shared square box scale (`--box-xs/sm/md/lg`). Forwarded to Button.
 		box?: 'xs' | 'sm' | 'md' | 'lg';
 		// SVG glyph px. Emoji text glyphs render at ×1.35 of it.
 		size?: number;
@@ -63,6 +62,8 @@
 		 *  in the accessible name. */
 		count?: number;
 		countMax?: number;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		class?: string;
 	};
 
@@ -90,6 +91,7 @@
 		loading = false,
 		count,
 		countMax,
+		sound = true,
 		disabled = false,
 		onclick,
 		class: klass = '',
@@ -118,6 +120,7 @@
 	{loading}
 	{count}
 	{countMax}
+	{sound}
 	{title}
 	{onclick}
 	icon={!inline && !chip && !showLabel}
@@ -166,6 +169,6 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		line-height: 1;
+		line-height: var(--lh-none);
 	}
 </style>

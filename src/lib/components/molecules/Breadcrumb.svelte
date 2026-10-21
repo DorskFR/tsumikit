@@ -72,10 +72,7 @@
 				{/if}
 				{#if i < shown.length - 1}
 					<span class="sep" aria-hidden="true">
-						{#if separator}{@render separator()}{:else if char}{char}{:else}<Icon
-								name="chevron-right"
-								size={size === 'md' ? 16 : 14}
-							/>{/if}
+						{#if separator}{@render separator()}{:else if char}{char}{:else}<Icon name="chevron-right" />{/if}
 					</span>
 				{/if}
 			</li>
@@ -127,11 +124,14 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		max-width: 16ch;
-		transition: color 0.12s var(--ease);
+		transition: color var(--dur-fast) ease;
 	}
-	.link:hover {
-		color: var(--text);
-		text-decoration: underline;
+	@media (hover: hover) and (pointer: fine) {
+		.link:hover {
+			color: var(--text);
+			text-decoration: underline;
+			transition-duration: var(--dur-instant);
+		}
 	}
 	.current {
 		color: var(--text);
@@ -143,7 +143,7 @@
 	}
 	@media (hover: none) and (pointer: coarse) {
 		.link {
-			min-height: 40px;
+			min-height: var(--control-md);
 			align-content: center;
 		}
 	}
@@ -154,5 +154,9 @@
 		display: inline-flex;
 		align-items: center;
 		color: var(--text-subtle, var(--text-muted));
+		font-size: var(--icon-sm);
+	}
+	.crumbs--md .sep {
+		font-size: var(--icon-md);
 	}
 </style>

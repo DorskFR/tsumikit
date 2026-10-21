@@ -127,8 +127,10 @@ test('caret="half" halves the caret width and keeps its chevron size', () => {
 	assert.ok(!render().root.classList.contains('split-half'));
 	const half = render({ caret: 'half' });
 	assert.ok(half.root.classList.contains('split-half'));
-	assert.equal(half.caret.querySelector('svg')?.style.fontSize, '16px');
-	assert.equal(render({ caret: 'half', size: 'sm' }).caret.querySelector('svg')?.style.fontSize, '14px');
+	assert.ok(half.caret.querySelector('.caret-glyph svg'));
+	assert.ok(hasDecl(style, '.caret-glyph', 'font-size', 'var(--control-icon-md)'));
+	assert.ok(hasDecl(style, '.split-sm .caret-glyph', 'font-size', 'var(--control-icon-sm)'));
+	assert.ok(render({ caret: 'half', size: 'sm' }).root.classList.contains('split-sm'));
 });
 
 test('the segments are joined through published properties, not :global reach', () => {

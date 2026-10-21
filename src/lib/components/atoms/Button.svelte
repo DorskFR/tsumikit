@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Icon, { isIconName } from '$lib/components/atoms/Icon.svelte';
 	import { formatCount, hasCount } from '$lib/count';
+	import { playSound } from '$lib/sound';
 	import type { ControlSize } from '$lib/size';
 	import { canonicalTone, type Tone } from '$lib/tone';
 	import type { Snippet } from 'svelte';
@@ -32,7 +33,7 @@
 		href?: string;
 		target?: string;
 		rel?: string;
-		// Square icon-only tap target (IconButton), `--box-md` (2.25rem) unless
+		// Square icon-only tap target (IconButton), `--box-md` unless
 		// `box` says otherwise. `iconInline` is the borderless, compact variant
 		// (chip-remove ✕, inline edit ✎); pair with `hoverDanger` to tint it red on
 		// hover (delete affordances).
@@ -73,6 +74,8 @@
 		shortcut?: string;
 		// Two-state toggle: sets `aria-pressed`.
 		pressed?: boolean;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		class?: string;
 		children?: Snippet;
 	};
@@ -103,6 +106,7 @@
 		glyph,
 		shortcut,
 		pressed,
+		sound = true,
 		type = 'button',
 		disabled = false,
 		title,
@@ -129,6 +133,7 @@
 			e.preventDefault();
 			return;
 		}
+		playSound('click', sound);
 		onclick?.(e);
 	};
 
@@ -234,28 +239,42 @@
 		align-items: center;
 		justify-content: center;
 		gap: var(--sp-2);
-		padding: var(--sp-2) var(--sp-4);
+		padding: var(--sp-2) var(--btn-px-md);
 		min-height: var(--btn-size, var(--control-height-default));
+		max-width: 100%;
 		border: 1px solid var(--btn-border, var(--border-strong));
 		border-radius: var(--btn-radius, var(--r-md));
 		background: var(--btn-bg, var(--surface));
 		color: var(--btn-fg, var(--text));
 		font-weight: var(--fw-medium);
-		font-size: var(--fs-sm);
-		line-height: 1;
+		font-size: var(--control-fs-md);
+		line-height: var(--lh-none);
+		--icon-size: var(--control-icon-md);
+		--btn-scale-dur: var(--dur-fast);
 		transition:
-			background 0.12s var(--ease),
-			border-color 0.12s var(--ease),
-			opacity 0.12s var(--ease);
+			background var(--dur-fast) ease,
+			border-color var(--dur-fast) ease,
+			color var(--dur-fast) ease,
+			opacity var(--dur-fast) ease,
+			scale var(--btn-scale-dur) var(--ease-out);
 		user-select: none;
-		white-space: nowrap;
-	}
-	.btn:hover:not(:disabled) {
-		border-color: var(--accent);
+		white-space: normal;
+		overflow-wrap: break-word;
 	}
 	.btn:disabled {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
+	}
+	/* Press: scale in over --dur-press, release over --dur-fast. */
+	.btn:active:not(:disabled, [aria-disabled='true'], .loading, .btn-link) {
+		--btn-scale-dur: var(--dur-press);
+		scale: var(--press-scale);
+	}
+	.btn-icon:active:not(:disabled, [aria-disabled='true'], .loading),
+	.btn-box:active:not(:disabled, [aria-disabled='true'], .loading),
+	.btn-square:active:not(:disabled, [aria-disabled='true'], .loading),
+	.btn-icon-inline:active:not(:disabled, [aria-disabled='true'], .loading) {
+		scale: var(--press-scale-sm);
 	}
 	.btn-primary {
 		background: var(--btn-bg, var(--accent));
@@ -263,35 +282,25 @@
 		color: var(--btn-fg, var(--text-on-accent));
 		font-weight: var(--fw-semibold);
 	}
-	.btn-primary:hover:not(:disabled) {
-		filter: brightness(1.08);
-	}
 	.btn-danger {
 		color: var(--danger);
 		border-color: color-mix(in srgb, var(--danger) 50%, var(--border));
-	}
-	.btn-danger:hover:not(:disabled) {
-		background: color-mix(in srgb, var(--danger) 14%, transparent);
-		border-color: var(--danger);
 	}
 	.btn-ghost {
 		background: var(--btn-bg, transparent);
 		border-color: var(--btn-border, transparent);
 	}
-	.btn-ghost:hover:not(:disabled) {
-		background: var(--bg-elevated-2);
-		border-color: transparent;
-	}
 	.btn-sm {
-		height: var(--btn-size, var(--control-height-compact));
 		min-height: var(--btn-size, var(--control-height-compact));
-		padding: var(--sp-1) var(--sp-3);
-		font-size: var(--fs-xs);
+		padding: var(--sp-1) var(--btn-px-sm);
+		font-size: var(--control-fs-sm);
+		--icon-size: var(--control-icon-sm);
 	}
 	.btn-lg {
 		min-height: var(--btn-size, var(--control-height-large));
-		padding: var(--sp-3) var(--sp-5);
-		font-size: var(--fs-base);
+		padding: var(--sp-3) var(--btn-px-lg);
+		font-size: var(--control-fs-lg);
+		--icon-size: var(--control-icon-lg);
 	}
 	.btn-block {
 		width: 100%;
@@ -305,7 +314,7 @@
 		text-decoration: none;
 	}
 	a.btn[aria-disabled='true'] {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
 		pointer-events: none;
 		cursor: not-allowed;
 	}
@@ -335,14 +344,6 @@
 		color: var(--btn-tone);
 		border-color: color-mix(in srgb, var(--btn-tone) 50%, var(--border));
 	}
-	.btn-tone-accent:hover:not(:disabled),
-	.btn-tone-success:hover:not(:disabled),
-	.btn-tone-info:hover:not(:disabled),
-	.btn-tone-warn:hover:not(:disabled),
-	.btn-tone-danger:hover:not(:disabled) {
-		background: color-mix(in srgb, var(--btn-tone) 14%, transparent);
-		border-color: var(--btn-tone);
-	}
 
 	/* Icon-chip: larger square outlined tap target for header/toolbar actions.
 	   Combines with a tone for tinted severity chips. */
@@ -370,26 +371,19 @@
 		gap: var(--sp-2);
 		height: var(--btn-size, var(--control-height));
 		min-height: var(--btn-size, var(--control-height));
-		padding: 0 var(--sp-3);
+		padding: 0 var(--control-px-md);
 		border: 1px solid var(--btn-border, var(--border-strong));
 		border-radius: var(--btn-radius, var(--r-md));
 		background: var(--btn-bg, var(--surface));
 		color: var(--btn-fg, var(--text));
 		font-weight: var(--fw-medium);
-		font-size: var(--fs-sm);
-		line-height: 1;
-		white-space: nowrap;
-		transition:
-			background 0.12s var(--ease),
-			border-color 0.12s var(--ease),
-			opacity 0.12s var(--ease);
+		font-size: var(--control-fs-md);
+		line-height: var(--lh-none);
+		white-space: normal;
 		user-select: none;
 	}
-	.btn-control:hover:not(:disabled) {
-		border-color: var(--accent);
-	}
 	.btn-control:disabled {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
 	}
 	/* .btn-control follows .btn-primary in source order and would otherwise paint
@@ -400,27 +394,14 @@
 		border-color: var(--btn-border, var(--accent));
 		color: var(--btn-fg, var(--text-on-accent));
 	}
-	.btn-control.btn-primary:hover:not(:disabled) {
-		border-color: var(--accent);
-		filter: brightness(1.08);
-	}
 	.btn-control.btn-tone-success {
 		color: var(--ok);
 		border-color: color-mix(in srgb, var(--ok) 50%, var(--border));
-	}
-	.btn-control.btn-tone-success:hover:not(:disabled) {
-		background: color-mix(in srgb, var(--ok) 14%, transparent);
-		border-color: var(--ok);
 	}
 	.btn-control.btn-danger,
 	.btn-control.btn-tone-danger {
 		color: var(--danger);
 		border-color: color-mix(in srgb, var(--danger) 50%, var(--border));
-	}
-	.btn-control.btn-danger:hover:not(:disabled),
-	.btn-control.btn-tone-danger:hover:not(:disabled) {
-		background: color-mix(in srgb, var(--danger) 14%, transparent);
-		border-color: var(--danger);
 	}
 	/* A positive primary action uses success as its fill, not merely as the
 	   neutral tint. This follows the control override so both heights match. */
@@ -428,11 +409,6 @@
 		background: var(--ok);
 		border-color: var(--ok);
 		color: var(--text-on-success);
-	}
-	.btn-primary.btn-tone-success:hover:not(:disabled) {
-		background: var(--ok);
-		border-color: var(--ok);
-		filter: brightness(1.08);
 	}
 	/* Other tones on a primary action tint the accent fill rather than repaint the
 	   text, so the on-accent foreground stays readable (bare tone-as-text would be
@@ -444,14 +420,6 @@
 		background: color-mix(in srgb, var(--btn-tone) 35%, var(--accent));
 		border-color: color-mix(in srgb, var(--btn-tone) 35%, var(--accent));
 		color: var(--text-on-accent);
-	}
-	.btn-primary.btn-tone-accent:hover:not(:disabled),
-	.btn-primary.btn-tone-info:hover:not(:disabled),
-	.btn-primary.btn-tone-warn:hover:not(:disabled),
-	.btn-primary.btn-tone-danger:hover:not(:disabled) {
-		background: color-mix(in srgb, var(--btn-tone) 35%, var(--accent));
-		border-color: color-mix(in srgb, var(--btn-tone) 35%, var(--accent));
-		filter: brightness(1.08);
 	}
 
 	.no-shrink {
@@ -472,10 +440,9 @@
 		box-shadow: none;
 		border-radius: 0;
 		font-size: inherit;
-		line-height: 1;
+		line-height: var(--lh-none);
 		color: var(--btn-tone, var(--link));
 	}
-	.btn-link:hover:not(:disabled),
 	.btn-link:focus-visible {
 		background: none;
 		border: none;
@@ -523,14 +490,6 @@
 		border: none;
 		background: none;
 		color: var(--text-muted);
-	}
-	.btn-icon-inline:hover:not(:disabled) {
-		border: none;
-		background: none;
-		color: var(--text);
-	}
-	.btn-icon-inline.hover-danger:hover:not(:disabled) {
-		color: var(--danger);
 	}
 
 	/* Label collapse: `[data-label]` children disappear below the threshold and
@@ -629,14 +588,14 @@
 	}
 	.btn-stacked.btn-sm {
 		min-height: var(--btn-size, var(--control-height-default));
-		min-width: var(--btn-size, calc(var(--control-height-default) + var(--sp-1) + 0.125rem));
-		gap: 0.1875rem;
+		min-width: var(--btn-size, calc(var(--control-height-default) + var(--sp-1) + var(--sp-0-5)));
+		gap: var(--sp-0-5);
 		padding: var(--sp-1);
 		font-size: calc(var(--fs-xs) * 0.85);
 	}
 	.btn-stacked.btn-lg {
-		min-height: var(--btn-size, calc(var(--control-height-large) + var(--sp-2) + 0.125rem));
-		min-width: var(--btn-size, calc(var(--control-height-large) + var(--sp-2) + 0.125rem));
+		min-height: var(--btn-size, calc(var(--control-height-large) + var(--sp-2) + var(--sp-0-5)));
+		min-width: var(--btn-size, calc(var(--control-height-large) + var(--sp-2) + var(--sp-0-5)));
 		padding: var(--sp-2) var(--sp-3);
 		font-size: var(--fs-sm);
 	}
@@ -645,7 +604,8 @@
 		align-items: center;
 		justify-content: center;
 		flex: none;
-		line-height: 1;
+		line-height: var(--lh-none);
+		font-size: var(--icon-size);
 	}
 	.btn-stacked .btn-glyph {
 		font-size: var(--fs-lg);
@@ -677,13 +637,13 @@
 	}
 	.btn-shortcut {
 		position: absolute;
-		top: 0.125rem;
-		left: 0.25rem;
+		top: var(--sp-0-5);
+		left: var(--sp-1);
 		font-family: var(--font-mono);
 		font-size: calc(var(--fs-xs) * 0.75);
 		font-weight: var(--fw-medium);
 		color: var(--text-faint);
-		line-height: 1;
+		line-height: var(--lh-none);
 		pointer-events: none;
 	}
 
@@ -701,8 +661,14 @@
 		flex: none;
 		border: 2px solid currentColor;
 		border-top-color: transparent;
-		border-radius: 50%;
+		border-radius: var(--r-pill);
 		animation: btn-spin 0.6s linear infinite;
+		transition: opacity var(--dur-fast) ease;
+	}
+	@starting-style {
+		.btn-spinner {
+			opacity: 0;
+		}
 	}
 	@keyframes btn-spin {
 		to {
@@ -733,7 +699,7 @@
 		font-size: var(--fs-xs);
 		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
-		line-height: 1;
+		line-height: var(--lh-none);
 		white-space: nowrap;
 		pointer-events: none;
 	}
@@ -741,7 +707,7 @@
 	.btn-link .btn-count,
 	.btn-icon-inline .btn-count {
 		--btn-count-size: 1rem;
-		padding: 0 0.2rem;
+		padding: 0 var(--sp-0-5);
 		font-size: var(--fs-xs);
 	}
 	/* The accent fill would swallow an accent pill: invert on primary. */
@@ -758,5 +724,73 @@
 		overflow: hidden;
 		clip-path: inset(50%);
 		white-space: nowrap;
+	}
+
+	/* Hover only on devices that have it: taps leave sticky hovers on touch. */
+	@media (hover: hover) and (pointer: fine) {
+		.btn:hover:not(:disabled) {
+			border-color: var(--accent);
+		}
+		.btn-primary:hover:not(:disabled) {
+			filter: brightness(1.08);
+		}
+		.btn-danger:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--danger) 14%, transparent);
+			border-color: var(--danger);
+		}
+		.btn-ghost:hover:not(:disabled) {
+			background: var(--bg-elevated-2);
+			border-color: transparent;
+		}
+		.btn-tone-accent:hover:not(:disabled),
+		.btn-tone-success:hover:not(:disabled),
+		.btn-tone-info:hover:not(:disabled),
+		.btn-tone-warn:hover:not(:disabled),
+		.btn-tone-danger:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--btn-tone) 14%, transparent);
+			border-color: var(--btn-tone);
+		}
+		.btn-control:hover:not(:disabled) {
+			border-color: var(--accent);
+		}
+		.btn-control.btn-primary:hover:not(:disabled) {
+			border-color: var(--accent);
+			filter: brightness(1.08);
+		}
+		.btn-control.btn-tone-success:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--ok) 14%, transparent);
+			border-color: var(--ok);
+		}
+		.btn-control.btn-danger:hover:not(:disabled),
+		.btn-control.btn-tone-danger:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--danger) 14%, transparent);
+			border-color: var(--danger);
+		}
+		.btn-primary.btn-tone-success:hover:not(:disabled) {
+			background: var(--ok);
+			border-color: var(--ok);
+			filter: brightness(1.08);
+		}
+		.btn-primary.btn-tone-accent:hover:not(:disabled),
+		.btn-primary.btn-tone-info:hover:not(:disabled),
+		.btn-primary.btn-tone-warn:hover:not(:disabled),
+		.btn-primary.btn-tone-danger:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--btn-tone) 35%, var(--accent));
+			border-color: color-mix(in srgb, var(--btn-tone) 35%, var(--accent));
+			filter: brightness(1.08);
+		}
+		.btn-link:hover:not(:disabled) {
+			background: none;
+			border: none;
+			text-decoration: underline;
+		}
+		.btn-icon-inline:hover:not(:disabled) {
+			border: none;
+			background: none;
+			color: var(--text);
+		}
+		.btn-icon-inline.hover-danger:hover:not(:disabled) {
+			color: var(--danger);
+		}
 	}
 </style>

@@ -31,15 +31,13 @@ test('Button link variant is boxless, inherits text size and underlines on hover
 		'background: none;',
 		'box-shadow: none;',
 		'font-size: inherit;',
-		'line-height: 1;',
+		'line-height: var(--lh-none);',
 		'color: var(--btn-tone, var(--link));'
 	]) {
 		assert.ok(rule[1].includes(decl), decl);
 	}
-	assert.match(
-		button,
-		/\.btn-link:hover:not\(:disabled\),\s*\.btn-link:focus-visible\s*{[^}]*text-decoration: underline;/s
-	);
+	assert.match(button, /\.btn-link:focus-visible\s*{[^}]*text-decoration: underline;/s);
+	assert.match(button, /\.btn-link:hover:not\(:disabled\)\s*{[^}]*text-decoration: underline;/s);
 	// Cascade: link chrome must win over size/control padding at equal specificity.
 	const after = (/** @type {string} */ a, /** @type {string} */ b) => button.indexOf(a) > button.indexOf(b);
 	assert.ok(after('.btn-link {', '.btn-lg {'));

@@ -26,7 +26,7 @@ test('props: state (default idle), onload, label, loadingLabel, errorLabel, retr
 
 test('each state renders its own branch: done note, error + retry, idle/loading Button', () => {
 	assert.match(component, /{#if state === 'done'}\s*<Text variant="caption" class="load-more-done">{doneLabel}<\/Text>/);
-	assert.match(component, /{:else if state === 'error'}\s*<Text tone="danger" size="sm" class="load-more-error">{errorLabel}<\/Text>\s*<Button size="sm" onclick={\(\) => onload\?\.\(\)}>{retryLabel}<\/Button>/);
+	assert.match(component, /{:else if state === 'error'}\s*<Text tone="danger" size="sm" class="load-more-error">{errorLabel}<\/Text>\s*<Button size="sm" {sound} onclick={\(\) => onload\?\.\(\)}>{retryLabel}<\/Button>/);
 	assert.match(component, /loading={state === 'loading'}/);
 	assert.match(component, /{state === 'loading' \? loadingLabel : label}/);
 });

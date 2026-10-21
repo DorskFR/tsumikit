@@ -52,8 +52,8 @@ test('shortcut and count coexist in opposite corners', () => {
 	const icon = render()('icon');
 	assert.equal(icon.querySelector('.btn-shortcut')?.textContent, '2');
 	assert.equal(icon.querySelector('.btn-count')?.textContent, '3');
-	assert.ok(hasDecl(button, '.btn-shortcut', 'left', '0.25rem'));
-	assert.ok(hasDecl(button, '.btn-shortcut', 'top', '0.125rem'));
+	assert.ok(hasDecl(button, '.btn-shortcut', 'left', 'var(--sp-1)'));
+	assert.ok(hasDecl(button, '.btn-shortcut', 'top', 'var(--sp-0-5)'));
 	assert.ok(hasDecl(button, '.btn-count', 'right', '0'));
 });
 
@@ -74,7 +74,7 @@ test('inline layout is unchanged', () => {
 test('stacked heights follow size from tokens; danger paints border and ink', () => {
 	assert.ok(hasDecl(button, '.btn-stacked.btn-sm', 'min-height', 'var(--btn-size, var(--control-height-default))'));
 	assert.ok(
-		hasDecl(button, '.btn-stacked.btn-lg', 'min-height', 'var(--btn-size, calc(var(--control-height-large) + var(--sp-2) + 0.125rem))')
+		hasDecl(button, '.btn-stacked.btn-lg', 'min-height', 'var(--btn-size, calc(var(--control-height-large) + var(--sp-2) + var(--sp-0-5)))')
 	);
 	assert.match(button, /\.btn-stacked,\s*\.btn-stacked\.btn-sm,[^{]*{[^}]*min-height: var\(--btn-size, var\(--control-height-large\)\);/s);
 	assert.match(button, /\.btn-stacked\.btn-danger,\s*\.btn-stacked\.btn-tone-danger\s*{\s*color: var\(--danger\);\s*border-color: var\(--danger\);/);
