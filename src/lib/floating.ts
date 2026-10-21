@@ -77,7 +77,36 @@ export function placeAt(
 
 	floating.style.top = `${Math.round(top)}px`;
 	floating.style.left = `${Math.round(left)}px`;
+
+	const resolved: Side =
+		side === 'top' || side === 'bottom'
+			? top + f.height / 2 < t.top + t.height / 2
+				? 'top'
+				: 'bottom'
+			: left + f.width / 2 < t.left + t.width / 2
+				? 'left'
+				: 'right';
+	const cx = Math.round(clamp(t.left + t.width / 2 - left, 0, f.width));
+	const cy = Math.round(clamp(t.top + t.height / 2 - top, 0, f.height));
+	floating.dataset.side = resolved;
+	floating.style.setProperty('--tsu-origin', ORIGIN[resolved](cx, cy));
+	floating.style.setProperty('--tsu-shift', SHIFT[resolved]);
 }
+
+// Enter motion grows out of the trigger: the origin sits on the trigger-facing
+// edge, level with the trigger centre, and the panel starts shifted towards it.
+const ORIGIN: Record<Side, (cx: number, cy: number) => string> = {
+	top: (cx) => `${cx}px 100%`,
+	bottom: (cx) => `${cx}px 0`,
+	left: (_cx, cy) => `100% ${cy}px`,
+	right: (_cx, cy) => `0 ${cy}px`,
+};
+const SHIFT: Record<Side, string> = {
+	top: '0 var(--shift-sm)',
+	bottom: '0 calc(-1 * var(--shift-sm))',
+	left: 'var(--shift-sm) 0',
+	right: 'calc(-1 * var(--shift-sm)) 0',
+};
 
 /** Viewport edges (px) that a floating layout must stay inside. */
 export interface Bounds {

@@ -70,7 +70,7 @@ test('dismiss affordance is named and decorative icons are hidden from the name'
 });
 
 test('toast rows are raised Cards; action is a real ghost sm Button with loading', () => {
-	assert.match(component, /<Card as="div" surface="raised" class="toast" {tone}>/);
+	assert.match(component, /<Card\s+as="div"\s+surface="raised"\s+class="toast"\s+{tone}/);
 	assert.match(component, /<Card\s+as="button"\s+surface="raised"\s+class="toast"/);
 	assert.match(component, /<Button size="sm" variant="ghost" loading={t\.pending} onclick={\(\) => toasts\.act\(t\.id\)}>/);
 	assert.match(component, /<button\s+type="button"\s+class="toast-text"\s+aria-label="Dismiss: {t\.message}"\s+onclick={\(\) => toasts\.dismiss\(t\.id\)}\s*>/);

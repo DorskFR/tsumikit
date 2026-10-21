@@ -6,6 +6,7 @@
 	import { browser } from '$lib/env';
 	import Icon, { type IconName } from '$lib/components/atoms/Icon.svelte';
 	import IconButton from '$lib/components/molecules/IconButton.svelte';
+	import { playSound } from '$lib/sound';
 
 	let {
 		open = $bindable(),
@@ -23,7 +24,8 @@
 		children,
 		footer,
 		class: className,
-		style
+		style,
+		sound = true
 	}: {
 		/** Controlled visibility. When provided the `<dialog>` stays mounted and
 		 *  `showModal()`/`close()` follow the value; closing sets it back to false.
@@ -53,6 +55,8 @@
 		footer?: Snippet;
 		class?: string;
 		style?: string;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 	} = $props();
 
 	const titleId = `drawer-title-${Math.random().toString(36).slice(2, 8)}`;
@@ -61,14 +65,20 @@
 	const controlled = $derived(open !== undefined);
 	const shown = $derived(!controlled || open === true);
 
+	// Mounting (or mounting with `open` already true) is a sync, not a
+	// transition, so it stays silent.
+	let synced = false;
 	$effect(() => {
 		if (!dialogEl) return;
 		if (!controlled) {
 			dialogEl.showModal();
 			return;
 		}
-		if (open && !dialogEl.open) dialogEl.showModal();
-		else if (!open && dialogEl.open) dialogEl.close();
+		if (open && !dialogEl.open) {
+			dialogEl.showModal();
+			if (synced) playSound('open', sound);
+		} else if (!open && dialogEl.open) dialogEl.close();
+		synced = true;
 	});
 
 	$effect(() => {
@@ -82,6 +92,7 @@
 
 	function requestClose() {
 		if (controlled) open = false;
+		else playSound('close', sound);
 		onclose?.();
 	}
 
@@ -111,6 +122,7 @@
 	}}
 	onclose={() => {
 		if (controlled) open = false;
+		playSound('close', sound);
 	}}
 	onpointerdown={onDialogPointerDown}
 	onclick={onDialogClick}
@@ -126,7 +138,7 @@
 			{@render header()}
 		{:else}
 			<div class="panel-head">
-				{#if icon}<span class="panel-icon"><Icon name={icon} size={18} /></span>{/if}
+				{#if icon}<span class="panel-icon"><Icon name={icon} /></span>{/if}
 				<span id={titleId} class="panel-title truncate">{title}</span>
 				{#if page}<span class="panel-page truncate">{page}</span>{/if}
 				<div class="spacer"></div>
@@ -163,6 +175,10 @@
 		color: var(--text);
 		display: flex;
 		justify-content: flex-end;
+		/* Exits run natively on close(): the box leaves the top layer once the panel is gone. */
+		transition:
+			display var(--dur-exit-slow) allow-discrete,
+			overlay var(--dur-exit-slow) allow-discrete;
 	}
 	.drawer:not([open]) {
 		display: none;
@@ -172,10 +188,18 @@
 	}
 	.drawer::backdrop {
 		background: rgba(0, 0, 0, 0.55);
-		animation: drawer-backdrop-in 0.18s var(--ease);
+		opacity: 0;
+		transition:
+			opacity var(--dur-exit) var(--ease-out),
+			display var(--dur-exit) allow-discrete,
+			overlay var(--dur-exit) allow-discrete;
 	}
-	@keyframes drawer-backdrop-in {
-		from {
+	.drawer[open]::backdrop {
+		opacity: 1;
+		transition-duration: var(--dur-base);
+	}
+	@starting-style {
+		.drawer[open]::backdrop {
 			opacity: 0;
 		}
 	}
@@ -192,28 +216,23 @@
 		width: 100%;
 		height: 100%;
 		background: var(--bg-elevated);
-		will-change: transform;
+		will-change: translate;
 		padding-top: var(--safe-top);
 		padding-bottom: var(--safe-bottom);
-		animation: drawer-slide-right 0.2s var(--ease);
+		--drawer-from: 100% 0;
+		translate: var(--drawer-from);
+		transition: translate var(--dur-exit-slow) var(--ease-drawer);
 	}
 	.drawer[data-side='left'] .panel {
-		animation-name: drawer-slide-left;
+		--drawer-from: -100% 0;
 	}
-	@keyframes drawer-slide-right {
-		from {
-			transform: translateX(100%);
-		}
+	.drawer[open] .panel {
+		translate: 0;
+		transition-duration: var(--dur-sheet);
 	}
-	@keyframes drawer-slide-left {
-		from {
-			transform: translateX(-100%);
-		}
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.drawer::backdrop,
-		.panel {
-			animation: none;
+	@starting-style {
+		.drawer[open] .panel {
+			translate: var(--drawer-from);
 		}
 	}
 
@@ -228,6 +247,7 @@
 	.panel-icon {
 		display: inline-flex;
 		flex: none;
+		font-size: var(--icon-lg);
 		color: var(--text-muted);
 	}
 	.panel-title {

@@ -129,10 +129,14 @@ for (const [name, tsu, part] of [
 	});
 }
 
-test('Modal and Drawer disable the sheet and backdrop animations under prefers-reduced-motion', () => {
-	assert.match(modal, /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.modal::backdrop,\s*\.sheet\s*{\s*animation: none;/s);
-	assert.match(drawer, /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.drawer::backdrop,\s*\.panel\s*{\s*animation: none;/s);
-	assert.match(toaster, /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.toaster :global\(\.toast\)\s*{\s*animation: none;/s);
+test('Modal, Drawer and Toaster enter/exit with transitions; reduced motion is handled by reset.css', () => {
+	for (const src of [modal, drawer, toaster]) {
+		assert.doesNotMatch(src, /@keyframes|prefers-reduced-motion|animation:/);
+	}
+	assert.match(modal, /\.modal\[open\] \.sheet\s*{\s*opacity: 1;\s*translate: 0;\s*transition-duration: var\(--dur-sheet\);/);
+	assert.match(modal, /@starting-style\s*{\s*\.modal\[open\]::backdrop\s*{\s*opacity: 0;/);
+	assert.match(drawer, /\.drawer\[open\] \.panel\s*{\s*translate: 0;\s*transition-duration: var\(--dur-sheet\);/);
+	assert.match(toaster, /\.toaster :global\(\.toast\[data-leaving\]\)\s*{\s*opacity: 0;\s*scale: 0\.96;/);
 });
 
 test('Toaster: with no modal open the stack stays in its host and the popover is shown once per queue', () => {
@@ -144,7 +148,7 @@ test('Toaster: with no modal open the stack stays in its host and the popover is
 	r.flush();
 	assert.deepEqual(r.popover, ['show']);
 	assert.ok(stack.parentElement?.classList.contains('toaster-host'));
-	r.toasts.dismiss(1);
+	r.toasts.remove(1);
 	r.flush();
 	assert.deepEqual(r.popover, ['show', 'hide']);
 	r.destroy();

@@ -111,8 +111,8 @@
 		flex: none;
 		align-items: center;
 		color: var(--callout-tone);
-		font-size: 1.125rem;
-		line-height: 1;
+		font-size: var(--fs-lg);
+		line-height: var(--lh-none);
 		min-height: 1.4em;
 	}
 	.callout-body {
@@ -122,7 +122,7 @@
 		flex-direction: column;
 		gap: var(--sp-1);
 		font-size: var(--fs-sm);
-		line-height: 1.5;
+		line-height: var(--lh-normal);
 		color: var(--text);
 	}
 	.callout-title {

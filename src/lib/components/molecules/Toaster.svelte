@@ -7,11 +7,21 @@
 	// everything outside it is inert, top layer included, so the stack moves
 	// into the topmost modal dialog and back to its host when it closes.
 	import { toasts } from '$lib/stores/toast.svelte';
+	import { playSound } from '$lib/sound';
 	import Button from '$lib/components/atoms/Button.svelte';
 	import Card from '$lib/components/atoms/Card.svelte';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 
-	let { class: klass = '', style: styleProp = '' }: { class?: string; style?: string } = $props();
+	let {
+		class: klass = '',
+		style: styleProp = '',
+		sound = true
+	}: {
+		class?: string;
+		style?: string;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
+	} = $props();
 
 	let host: HTMLDivElement | undefined = $state();
 	let el: HTMLDivElement | undefined = $state();
@@ -69,12 +79,45 @@
 	$effect(() => () => {
 		if (el && host && el.parentNode !== host) host.appendChild(el);
 	});
+
+	// Feedback tones sound once, when the toast appears; the queue present at
+	// mount is a sync, not an arrival.
+	let seen: Set<number> | null = null;
+	$effect(() => {
+		const items = toasts.items;
+		if (!seen) {
+			seen = new Set(items.map((t) => t.id));
+			return;
+		}
+		for (const t of items) {
+			if (seen.has(t.id)) continue;
+			seen.add(t.id);
+			if (t.tone === 'ok') playSound('success', sound);
+			else if (t.tone === 'error') playSound('error', sound);
+		}
+	});
+
+	// Hovering a toast holds its timer; only a real pointer counts.
+	function hold(e: PointerEvent, id: number) {
+		if (e.pointerType === 'mouse') toasts.pause(id);
+	}
+	function release(e: PointerEvent, id: number) {
+		if (e.pointerType === 'mouse') toasts.resume(id);
+	}
 </script>
 
 {#snippet toast(t: (typeof toasts.items)[number])}
 	{@const tone = t.tone === 'ok' ? 'ok' : t.tone === 'error' ? 'danger' : t.tone === 'info' ? 'info' : undefined}
 	{#if t.action}
-		<Card as="div" surface="raised" class="toast" {tone}>
+		<Card
+			as="div"
+			surface="raised"
+			class="toast"
+			{tone}
+			data-leaving={t.leaving || undefined}
+			onpointerenter={(e: PointerEvent) => hold(e, t.id)}
+			onpointerleave={(e: PointerEvent) => release(e, t.id)}
+		>
 			<button
 				type="button"
 				class="toast-text"
@@ -98,6 +141,9 @@
 			{tone}
 			type="button"
 			aria-label="Dismiss: {t.message}"
+			data-leaving={t.leaving || undefined}
+			onpointerenter={(e: PointerEvent) => hold(e, t.id)}
+			onpointerleave={(e: PointerEvent) => release(e, t.id)}
 			onclick={() => toasts.dismiss(t.id)}
 		>
 			<span aria-hidden="true" class="toast-icon">
@@ -160,7 +206,23 @@
 		width: 100%;
 		text-align: left;
 		font-size: var(--fs-sm);
-		animation: toast-in 0.18s var(--ease);
+		transition:
+			opacity var(--dur-sheet) var(--ease-out),
+			translate var(--dur-sheet) var(--ease-out),
+			scale var(--dur-sheet) var(--ease-out);
+	}
+	@starting-style {
+		.toaster :global(.toast) {
+			opacity: 0;
+			translate: 0 var(--shift-md);
+			scale: 0.98;
+		}
+	}
+	.toaster :global(.toast[data-leaving]) {
+		opacity: 0;
+		scale: 0.96;
+		pointer-events: none;
+		transition-duration: var(--dur-exit-slow);
 	}
 	.toaster :global(.toast.card-ok) {
 		color: var(--ok);
@@ -187,16 +249,5 @@
 	}
 	.msg {
 		flex: 1;
-	}
-	@keyframes toast-in {
-		from {
-			transform: translateY(8px);
-			opacity: 0;
-		}
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.toaster :global(.toast) {
-			animation: none;
-		}
 	}
 </style>

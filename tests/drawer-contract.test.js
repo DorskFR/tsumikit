@@ -13,9 +13,9 @@ test('Drawer is a native <dialog> that follows a bound `open` and closes on Esca
 	assert.match(source, /<dialog\s+bind:this={dialogEl}\s+data-tsu="Drawer"/);
 	assert.match(source, /open = \$bindable\(\)/);
 	assert.match(source, /const controlled = \$derived\(open !== undefined\);/);
-	assert.match(source, /if \(open && !dialogEl\.open\) dialogEl\.showModal\(\);/);
-	assert.match(source, /else if \(!open && dialogEl\.open\) dialogEl\.close\(\);/);
-	assert.match(source, /function requestClose\(\) {\s*if \(controlled\) open = false;\s*onclose\?\.\(\);/s);
+	assert.match(source, /if \(open && !dialogEl\.open\) {\s*dialogEl\.showModal\(\);/);
+	assert.match(source, /} else if \(!open && dialogEl\.open\) dialogEl\.close\(\);/);
+	assert.match(source, /function requestClose\(\) {\s*if \(controlled\) open = false;\s*else playSound\('close', sound\);\s*onclose\?\.\(\);/s);
 	assert.match(source, /oncancel={\(e\) => {\s*e\.preventDefault\(\);\s*requestClose\(\);/s);
 	assert.match(source, /pressOnBackdrop = e\.target === dialogEl;/);
 	assert.match(source, /const outside = pressOnBackdrop && e\.target === dialogEl;\s*pressOnBackdrop = false;\s*if \(outside\) requestClose\(\);/s);
@@ -41,7 +41,8 @@ test('Drawer sides, width clamp and full-screen narrow layout', () => {
 	assert.doesNotMatch(narrow, /100dvh|100vw/);
 	assert.match(wide, /\.panel\s*{[^}]*width: min\(var\(--drawer-w\), 100%\);[^}]*border-left: 1px solid var\(--border-strong\);/s);
 	assert.match(wide, /\.drawer\[data-side='left'\] \.panel\s*{[^}]*border-right: 1px solid var\(--border-strong\);/s);
-	assert.match(source, /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.drawer::backdrop,\s*\.panel\s*{\s*animation: none;/s);
+	assert.match(source, /@starting-style\s*{\s*\.drawer\[open\] \.panel\s*{\s*translate: var\(--drawer-from\);/s);
+	assert.doesNotMatch(source, /prefers-reduced-motion|@keyframes/);
 });
 
 test('Drawer header, nav column and sticky footer slots', () => {

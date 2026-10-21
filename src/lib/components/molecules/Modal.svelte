@@ -10,6 +10,7 @@
 	import type { Snippet } from 'svelte';
 	import { browser } from '$lib/env';
 	import { readStorage, writeStorage } from '$lib/stores/storage';
+	import { playSound } from '$lib/sound';
 	import Icon, { type IconName } from '$lib/components/atoms/Icon.svelte';
 	import Spinner from '$lib/components/atoms/Spinner.svelte';
 	import IconButton from '$lib/components/molecules/IconButton.svelte';
@@ -37,6 +38,7 @@
 		style: styleProp = '',
 		bodyClass = '',
 		maxHeight,
+		sound = true,
 	}: {
 		title: string;
 		/** Controlled visibility. When provided the `<dialog>` stays mounted and
@@ -67,6 +69,8 @@
 		bodyClass?: string;
 		/** Cap the sheet height; the body scrolls inside it. */
 		maxHeight?: string;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 	} = $props();
 	const t = $derived(canonicalTone(tone));
 
@@ -87,19 +91,26 @@
 
 	// Open as a modal (top layer + trap + inert background + focus mgmt). The
 	// native element restores focus to the trigger automatically on close.
+	// Mounting (or mounting with `open` already true) is a sync, not a
+	// transition, so it stays silent.
+	let synced = false;
 	$effect(() => {
 		if (!dialogEl) return;
 		if (!controlled) {
 			dialogEl.showModal();
 			return;
 		}
-		if (open && !dialogEl.open) dialogEl.showModal();
-		else if (!open && dialogEl.open) dialogEl.close();
+		if (open && !dialogEl.open) {
+			dialogEl.showModal();
+			if (synced) playSound('open', sound);
+		} else if (!open && dialogEl.open) dialogEl.close();
+		synced = true;
 	});
 
 	function requestClose() {
 		if (busy) return;
 		if (controlled) open = false;
+		else playSound('close', sound);
 		onclose?.();
 	}
 
@@ -174,6 +185,7 @@
 	}}
 	onclose={() => {
 		if (controlled) open = false;
+		playSound('close', sound);
 	}}
 	onpointerdown={onDialogPointerDown}
 	onclick={onDialogClick}
@@ -189,7 +201,7 @@
 	>
 		<div class="sheet-head">
 			{#if t !== 'neutral'}
-				<span class="sheet-tone-icon"><Icon name={TONE_ICON[t]} size={18} /></span>
+				<span class="sheet-tone-icon"><Icon name={TONE_ICON[t]} /></span>
 			{/if}
 			<span id={titleId} class="sheet-title truncate">{title}</span>
 			{#if busy}<Spinner label="Working" />{/if}
@@ -234,17 +246,28 @@
 		display: flex;
 		align-items: flex-end;
 		justify-content: center;
+		/* Exits run natively on close(): the box leaves the top layer once the sheet is gone. */
+		transition:
+			display var(--dur-exit-slow) allow-discrete,
+			overlay var(--dur-exit-slow) allow-discrete;
 	}
 	.modal:not([open]) {
 		display: none;
 	}
 	.modal::backdrop {
 		background: rgba(0, 0, 0, 0.55);
-		/* animate the backdrop in (progressive enhancement) */
-		animation: backdrop-in 0.18s var(--ease);
+		opacity: 0;
+		transition:
+			opacity var(--dur-exit) var(--ease-out),
+			display var(--dur-exit) allow-discrete,
+			overlay var(--dur-exit) allow-discrete;
 	}
-	@keyframes backdrop-in {
-		from {
+	.modal[open]::backdrop {
+		opacity: 1;
+		transition-duration: var(--dur-base);
+	}
+	@starting-style {
+		.modal[open]::backdrop {
 			opacity: 0;
 		}
 	}
@@ -267,8 +290,24 @@
 		border: 1px solid var(--border);
 		border-radius: var(--r-lg) var(--r-lg) 0 0;
 		box-shadow: var(--shadow-lg);
-		animation: sheet-up 0.18s var(--ease);
 		padding-bottom: var(--safe-bottom);
+		/* Bottom sheet: slides up on enter, down on exit. */
+		opacity: 0;
+		translate: 0 100%;
+		transition:
+			opacity var(--dur-exit-slow) var(--ease-out),
+			translate var(--dur-exit-slow) var(--ease-drawer);
+	}
+	.modal[open] .sheet {
+		opacity: 1;
+		translate: 0;
+		transition-duration: var(--dur-sheet);
+	}
+	@starting-style {
+		.modal[open] .sheet {
+			opacity: 0;
+			translate: 0 100%;
+		}
 	}
 	@media (min-width: 640px) {
 		.sheet {
@@ -276,6 +315,22 @@
 			padding-bottom: 0;
 			width: var(--sheet-w, var(--sw));
 			max-width: min(var(--sheet-w, var(--sw)), calc(100vw - 2rem));
+			/* Centred dialog: scales from the middle instead of sliding. */
+			translate: 0;
+			scale: var(--enter-scale);
+			transition:
+				opacity var(--dur-exit) var(--ease-out),
+				scale var(--dur-exit) var(--ease-out);
+		}
+		.modal[open] .sheet {
+			scale: 1;
+			transition-duration: var(--dur-slow);
+		}
+		@starting-style {
+			.modal[open] .sheet {
+				translate: 0;
+				scale: var(--enter-scale);
+			}
 		}
 		.sheet-sm {
 			--sw: 24rem;
@@ -285,18 +340,6 @@
 		}
 		.sheet-xl {
 			--sw: 72rem;
-		}
-	}
-	@keyframes sheet-up {
-		from {
-			transform: translateY(8%);
-			opacity: 0.4;
-		}
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.modal::backdrop,
-		.sheet {
-			animation: none;
 		}
 	}
 	.modal.resizing .sheet {
@@ -322,6 +365,7 @@
 	.sheet-tone-icon {
 		display: inline-flex;
 		flex: none;
+		font-size: var(--icon-lg);
 		color: var(--modal-tone);
 	}
 	.sheet-title {
@@ -372,9 +416,9 @@
 			bottom: 0;
 			right: 6px;
 			width: 2px;
-			border-radius: 999px;
+			border-radius: var(--r-pill);
 			background: transparent;
-			transition: background 0.12s var(--ease);
+			transition: background-color var(--dur-fast) var(--ease);
 		}
 		.sheet-resize::after {
 			content: '';
@@ -384,16 +428,22 @@
 			transform: translateY(-50%);
 			width: 4px;
 			height: 44px;
-			border-radius: 999px;
+			border-radius: var(--r-pill);
 			background: var(--border-strong);
-			transition: background 0.12s var(--ease);
+			transition: background-color var(--dur-fast) var(--ease);
 		}
-		.sheet-resize:hover::before,
 		.modal.resizing .sheet-resize::before {
 			background: color-mix(in srgb, var(--accent) 45%, transparent);
 		}
-		.sheet-resize:hover::after,
 		.modal.resizing .sheet-resize::after {
+			background: var(--accent);
+		}
+	}
+	@media (min-width: 640px) and (hover: hover) and (pointer: fine) {
+		.sheet-resize:hover::before {
+			background: color-mix(in srgb, var(--accent) 45%, transparent);
+		}
+		.sheet-resize:hover::after {
 			background: var(--accent);
 		}
 	}

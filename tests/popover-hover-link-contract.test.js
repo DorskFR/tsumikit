@@ -133,7 +133,7 @@ test('the trigger is the element `as` names, keeping popovertarget for buttons o
 test('a link trigger without href toggles by hand on click and on Enter/Space', () => {
 	assert.match(popover, /function onTriggerClick[\s\S]*if \(as !== 'a'\) return;/);
 	assert.match(popover, /if \(href === undefined\) \{\s*e\.preventDefault\(\);\s*toggle\(\);/);
-	assert.match(popover, /function onTriggerKeydown[\s\S]*e\.key === 'Enter' \|\| e\.key === ' '/);
+	assert.match(popover, /function onTriggerKeydown[\s\S]*if \(key !== 'Enter' && key !== ' '\) return;/);
 	assert.match(popover, /role: href === undefined \? 'button' : undefined/);
 });
 

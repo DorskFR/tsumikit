@@ -21,6 +21,7 @@
 		oncancel,
 		class: klass = '',
 		style: styleProp = '',
+		sound = true,
 	}: {
 		open?: boolean;
 		title: string;
@@ -35,6 +36,8 @@
 		oncancel?: () => void;
 		class?: string;
 		style?: string;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 	} = $props();
 	const t = $derived(canonicalTone(tone));
 	const modalTone = $derived(t === 'danger' || t === 'warn' || t === 'info' ? t : 'neutral');
@@ -80,6 +83,7 @@
 	size="sm"
 	class={klass}
 	style={styleProp}
+	{sound}
 >
 	{#snippet body()}
 		<div class="confirm-body" data-tsu="ConfirmModal">

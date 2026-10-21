@@ -51,6 +51,7 @@
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import Badge from '$lib/components/atoms/Badge.svelte';
 	import { menuItemCloses, menuItemGlyphs } from '$lib/components/molecules/menu-item';
+	import { playSound } from '$lib/sound';
 
 	type PopoverProps = ComponentProps<typeof Popover>;
 	type TriggerChrome = Pick<
@@ -103,6 +104,7 @@
 		style: styleProp = '',
 		panelClass = '',
 		panelStyle = '',
+		sound = true,
 		...rest
 	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
 
@@ -123,9 +125,13 @@
 		 *  size or cap it (`min-width`, `max-height`, `padding`). */
 		panelClass?: string;
 		panelStyle?: string;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 	} & TriggerChrome;
 
 	let listEl = $state<HTMLDivElement | null>(null);
+	// The activated row keeps its accent flash while the menu runs its exit.
+	let flashed = $state<string | null>(null);
 
 	const ROW_TARGET = ':is(select, input, textarea, button):not(:disabled), a[href], [tabindex]:not([tabindex="-1"])';
 
@@ -162,9 +168,13 @@
 			focusAt(b.length - 1);
 		}
 	}
-	function select(item: MenuItem, close: () => void) {
+	function select(item: MenuItem, key: string, close: () => void) {
 		if (item.disabled) return;
-		if (menuItemCloses(item, closeOnSelect)) close();
+		playSound('click', sound);
+		if (menuItemCloses(item, closeOnSelect)) {
+			flashed = key;
+			close();
+		}
 		item.onselect?.();
 	}
 </script>
@@ -193,11 +203,13 @@
 	{gap}
 	{count}
 	{countMax}
+	{sound}
 	role="menu"
 	haspopup="menu"
 	bind:open
 	{onclose}
 	onopen={() => {
+		flashed = null;
 		queueMicrotask(() => focusAt(0));
 		onopen?.();
 	}}
@@ -205,6 +217,7 @@
 	{#snippet children({ close }: { close: () => void })}
 	<div bind:this={listEl} role="none" class="menu" data-tsu="Menu" tabindex="-1" {onkeydown}>
 		{#each items as item, i (item.id ?? `${i}:${item.label}`)}
+			{@const key = item.id ?? `${i}:${item.label}`}
 			{#if item.control}
 			<div {...item.attrs as HTMLAttributes<HTMLDivElement>} role="none" class="menu-item menu-row" class:danger={item.danger} inert={item.disabled}>
 				{#if item.icon}<Icon name={item.icon} />{/if}
@@ -219,9 +232,10 @@
 				class="menu-item"
 				class:danger={item.danger}
 				class:on={item.pressed}
+				data-flash={flashed === key || undefined}
 				disabled={item.disabled}
 				tabindex="-1"
-				onclick={() => select(item, close)}
+				onclick={() => select(item, key, close)}
 			>
 				{#if item.content}
 					{@render item.content(item)}
@@ -251,7 +265,7 @@
 	.menu {
 		display: flex;
 		flex-direction: column;
-		gap: 1px;
+		gap: var(--sp-px);
 	}
 	.menu-item {
 		display: flex;
@@ -266,15 +280,27 @@
 		border-radius: var(--r-sm);
 		font-size: var(--fs-sm);
 		white-space: nowrap;
+		transition: background-color var(--dur-fast) var(--ease);
 	}
 	.menu-row {
 		position: relative;
 	}
-	.menu-item:hover:not(:disabled),
+	/* Highlight lands instantly and fades out: rows change at pointer speed. */
 	.menu-item:focus-visible,
-	.menu-row:focus-within {
+	.menu-row:focus-within,
+	.menu-item[data-flash] {
 		background: var(--bg-elevated-2);
 		outline: none;
+		transition-duration: var(--dur-instant);
+	}
+	.menu-item[data-flash] {
+		background: color-mix(in srgb, var(--accent) 18%, transparent);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.menu-item:hover:not(:disabled) {
+			background: var(--bg-elevated-2);
+			transition-duration: var(--dur-instant);
+		}
 	}
 	.menu-item.danger {
 		color: var(--danger);
@@ -305,7 +331,7 @@
 	}
 	.menu-item:disabled,
 	.menu-row[inert] {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
 	}
 </style>
