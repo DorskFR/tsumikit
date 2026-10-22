@@ -51,11 +51,6 @@ a {
 	color: var(--link);
 	text-decoration: none;
 }
-@media (hover: hover) and (pointer: fine) {
-	a:hover {
-		text-decoration: underline;
-	}
-}
 
 button {
 	font: inherit;
@@ -98,6 +93,9 @@ pre {
 /* Slim scrollbars for mice only. On touch, a custom scrollbar replaces the
    native overlay bars with classic space-taking ones. */
 @media (hover: hover) and (pointer: fine) {
+	a:hover {
+		text-decoration: underline;
+	}
 	::-webkit-scrollbar {
 		width: 8px;
 		height: 8px;
