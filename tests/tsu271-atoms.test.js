@@ -8,6 +8,7 @@ const src = Object.fromEntries(
 	await Promise.all(files.map(async (f) => [f.replace('.svelte', ''), await readFile(new URL(f, dir), 'utf8')]))
 );
 
+/** @type {Record<string, number>} */
 const ALLOWED_LITERALS = {};
 
 test('no atom hardcodes a 1px border from --border / --border-strong', () => {

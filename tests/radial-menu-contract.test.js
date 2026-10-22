@@ -120,7 +120,7 @@ test('prop surface reuses MenuItem and the shared floating + slide helpers', () 
 
 test('tokens: petals, FAB and overrides with defaults; reduced motion drops the scale-in', () => {
 	assert.equal(hasDecl(css, '.radial-petal', 'background', 'var(--raised-fill)'), true);
-	assert.equal(hasDecl(css, '.radial-petal', 'border', 'var(--edge-width) solid var(--border-strong)'), true);
+	assert.equal(hasDecl(css, '.radial-petal', 'border', 'var(--edge-width) solid var(--raised-edge)'), true);
 	assert.equal(hasDecl(css, '.radial-petal', 'box-shadow', 'var(--raised-shadow)'), true);
 	assert.equal(hasDecl(css, '.radial-petal', 'width', 'max(var(--radial-petal-size, 3.5rem), var(--touch-target))'), true);
 	assert.equal(hasDecl(css, '.radial-glyph', 'color', 'var(--text-muted)'), true);

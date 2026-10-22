@@ -204,7 +204,7 @@ test('center notch and raise read published custom properties with defaults', ()
 });
 
 test('floating is an inset elevated card; flush keeps the edge-to-edge bar', () => {
-	assert.ok(hasDecl(css, '.floating', 'border', 'var(--edge-width) solid var(--border-strong)'));
+	assert.ok(hasDecl(css, '.floating', 'border', 'var(--edge-width) solid var(--raised-edge)'));
 	assert.ok(hasDecl(css, '.floating', 'border-radius', 'var(--r-md)'));
 	assert.ok(hasDecl(css, '.floating', 'background', 'var(--raised-fill)'));
 	assert.ok(hasDecl(css, '.floating', 'box-shadow', 'var(--raised-shadow)'));

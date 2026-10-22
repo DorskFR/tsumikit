@@ -47,6 +47,7 @@ const src = Object.fromEntries(
 );
 
 // ChatBubble tints its edge with the role colour via color-mix; no role token reproduces it.
+/** @type {Record<string, number>} */
 const allowed = { ChatBubble: 1 };
 
 test('no hardcoded 1px border/border-strong edges remain in molecules A–M', () => {

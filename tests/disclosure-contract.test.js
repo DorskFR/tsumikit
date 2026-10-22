@@ -261,8 +261,8 @@ test('Accordion variant="plain" drops the outer border and radius, keeps the div
 	assert.equal(plain.border, '0');
 	assert.equal(plain['border-radius'], '0');
 	// The item dividers are a separate rule, so they survive `plain`.
-	assert.match(normalize(accordion), /\.accordion > :global\(\.acc-item \+ \.acc-item\) \{ border-top: 1px solid var\(--border\); \}/);
-	assert.ok(hasDecl(accordion, '.accordion', 'border', '1px solid var(--border)'));
+	assert.match(normalize(accordion), /\.accordion > :global\(\.acc-item \+ \.acc-item\) \{ border-top: var\(--edge-width\) solid var\(--surface-edge\); \}/);
+	assert.ok(hasDecl(accordion, '.accordion', 'border', 'var(--edge-width) solid var(--surface-edge)'));
 	const ui = render({ variant: 'plain' });
 	const root = ui.doc.querySelector('[data-tsu="Accordion"]');
 	assert.equal(root?.classList.contains('accordion--plain'), true);

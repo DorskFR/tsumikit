@@ -4,6 +4,11 @@ import test from 'node:test';
 
 const root = new URL('../src/lib/components/', import.meta.url);
 
+/**
+ * @param {string} dir
+ * @param {(name: string) => boolean} [filter]
+ * @returns {Promise<[string, string][]>}
+ */
 async function sources(dir, filter = () => true) {
 	const names = (await readdir(new URL(dir, root))).filter((n) => n.endsWith('.svelte') && filter(n));
 	return Promise.all(
@@ -11,17 +16,20 @@ async function sources(dir, filter = () => true) {
 	);
 }
 
+/** @type {Record<string, string>} */
 const files = Object.fromEntries([
 	...(await sources('molecules/', (n) => /^[N-Z]/.test(n))),
 	...(await sources('organisms/')),
 	...(await sources('layouts/'))
 ]);
 
+/** @param {string} path */
 const src = (path) => {
 	assert.ok(files[path], `${path} is in the lane`);
 	return files[path];
 };
 
+/** @type {Record<string, string[]>} */
 const RAW_SHADOW_ALLOWED = {
 	'molecules/RadialMenu.svelte': ['var(--shadow-lg)'] // FAB: accent-ringed --bg-elevated-2 disc, matches no role token
 };
