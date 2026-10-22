@@ -4,11 +4,12 @@ import test from 'node:test';
 import { readDemo } from './helpers/demo-source.js';
 
 const page = await readDemo();
+const scrollspy = await readFile(new URL('../src/demo/framework/scrollspy.svelte.ts', import.meta.url), 'utf8');
 const reset = await readFile(new URL('../src/lib/styles/reset.css', import.meta.url), 'utf8');
 
 test('nav entries and sections render from the same registry entries, in the same order', () => {
 	assert.match(page, /\{#each entries as entry \(entry\.id\)\}\s*<DemoSection \{entry\}/);
-	assert.match(page, /<section id=\{entry\.id\} class="demo-section" data-demo-section/);
+	assert.match(page, /<section\s+bind:this=\{section\}\s+id=\{entry\.id\}\s+class="demo-section"\s+data-demo-section/);
 	assert.match(page, /export const groups[^=]*= FAMILIES\.map\(\(family\) => \(\{\s*family,\s*entries: entries\.filter/);
 });
 
@@ -22,7 +23,7 @@ test('the sidebar links every entry and tracks the active section', () => {
 });
 
 test('the scroll-spy marks the last section past the line, not the one filling a band', () => {
-	assert.doesNotMatch(page, /new IntersectionObserver/);
+	assert.doesNotMatch(scrollspy, /new IntersectionObserver/);
 	assert.match(page, /if \(el\.getBoundingClientRect\(\)\.top > line\) break;/);
 	assert.match(page, /window\.innerHeight \+ window\.scrollY >= document\.documentElement\.scrollHeight/);
 });

@@ -101,7 +101,10 @@ function setup(): void {
 
 export function startsLive(id: string): boolean {
 	return (
-		SSR || new URLSearchParams(location.search).has('eager') || sectionOf(location.hash) === id
+		SSR ||
+		typeof IntersectionObserver === 'undefined' ||
+		new URLSearchParams(location.search).has('eager') ||
+		sectionOf(location.hash) === id
 	);
 }
 

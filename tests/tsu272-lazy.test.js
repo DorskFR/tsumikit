@@ -69,7 +69,7 @@ function ssr() {
 function boot(hash) {
 	const html = ssr();
 	const d = new JSDOM(
-		`<!doctype html><html><body>${html.map((h, i) => `<div id="t${i}">${h}</div>`).join('')}</body></html>`,
+		`<!doctype html><html><body>${html.map((/** @type {string} */ h, /** @type {number} */ i) => `<div id="t${i}">${h}</div>`).join('')}</body></html>`,
 		{ runScripts: 'outside-only', pretendToBeVisual: true, url: `http://localhost/${hash}` },
 	);
 	const w = /** @type {any} */ (d.window);
