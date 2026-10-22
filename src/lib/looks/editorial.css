@@ -33,7 +33,6 @@
   --overlay-fill: var(--bg-elevated);
   --overlay-edge: var(--text);
   --overlay-shadow: 8px 8px 0 var(--accent);
-  --control-fill: var(--bg-elevated-2);
   --control-edge: var(--text);
   --control-edge-hover: var(--text);
   --track-fill: var(--bg-elevated-2);
@@ -46,6 +45,12 @@
   --hover-lift: 2px;
   --focus-glow: 0 0 0 4px color-mix(in oklab, var(--accent) 28%, transparent);
   --press-scale: 0.97;
+}
+
+@property --ed-wipe {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: transparent;
 }
 
 :root[data-look="editorial"] body {
@@ -72,13 +77,14 @@
   --ed-tone: var(--ed-btn-fill, var(--btn-tone, var(--text)));
   border-width: 2px;
   background-color: transparent;
-  background-image: linear-gradient(var(--ed-btn-ink), var(--ed-btn-ink));
+  background-image: linear-gradient(var(--ed-wipe), var(--ed-wipe));
   background-repeat: no-repeat;
   background-position: 0 100%;
   background-size: 100% 0%;
   font-weight: var(--fw-semibold);
   transition:
     background-size var(--dur-fast) var(--ease-out),
+    --ed-wipe var(--dur-fast) var(--ease-out),
     color var(--dur-fast) var(--ease),
     box-shadow var(--dur-fast) var(--ease-out),
     translate var(--ed-dur-settle) var(--ease-spring),
@@ -114,10 +120,12 @@
 :root[data-look="editorial"] .btn-link {
   border: 0;
   border-radius: 0;
-  background-image: linear-gradient(currentColor, currentColor);
-  background-position: 0 100%;
-  background-size: 100% 1px;
-  text-decoration: none;
+  background-image: none;
+  text-decoration: underline 1px;
+  text-underline-offset: 0.2em;
+  transition:
+    text-decoration-thickness var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease);
 }
 :root[data-look="editorial"] :is(.btn-icon-inline, .btn-icon:not(.btn-primary)) {
   border-color: transparent;
@@ -183,7 +191,7 @@
   background: var(--bg-elevated);
 }
 :root[data-look="editorial"] .card.card-stacked {
-  background: var(--bg-elevated-2);
+  background: var(--bg-elevated);
 }
 :root[data-look="editorial"] .card.surface-sunken {
   box-shadow: inset 0 0 0 1px var(--border-strong);
@@ -267,8 +275,8 @@
   font-weight: var(--fw-bold);
 }
 :root[data-look="editorial"] .card.callout .btn:not(.btn-primary) {
-  --ed-btn-ink: currentColor;
-  border-color: currentColor;
+  --ed-btn-ink: var(--text);
+  border-color: var(--text);
   color: inherit;
 }
 
@@ -290,11 +298,13 @@
   background: var(--metric-tone, var(--text));
   color: var(--ed-ink);
 }
+:root[data-look="editorial"] .metric:not(.metric-sm, .metric-inline) .metric-num {
+  font-size: calc(var(--fs-2xl) * 1.5);
+}
 :root[data-look="editorial"] .metric-num {
-  font-size: clamp(2.25rem, 1.6rem + 2.2vw, 3.5rem);
   font-weight: 800;
-  letter-spacing: -0.05em;
-  line-height: 0.9;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
 }
 
 /* ---------- Badges ---------- */
@@ -371,7 +381,7 @@
   background: var(--text-on-accent);
 }
 
-/* segmented control: an ink block slides under the selection */
+/* segmented control: an ink block slides under the selection; the label turns once it lands */
 :root[data-look="editorial"] .seg {
   border: 2px solid var(--text);
   background: transparent;
@@ -382,8 +392,14 @@
 :root[data-look="editorial"] .seg .seg-item.selected {
   color: var(--bg);
 }
-:root[data-look="editorial"] .seg:not(.placed) .seg-item.selected {
+:root[data-look="editorial"] .seg:not(.placed) .seg-item.selected,
+:root[data-look="editorial"] .seg.placed .seg-thumb ~ .seg-item.selected {
   background: var(--text);
+}
+:root[data-look="editorial"] .seg.placed .seg-thumb ~ .seg-item.selected {
+  transition:
+    background 0s linear var(--dur-spring),
+    color 0s linear var(--dur-spring);
 }
 
 /* ---------- Tabs, tables, accordions: heavy top rules ---------- */
@@ -461,6 +477,7 @@
     background-color: transparent;
     background-size: 100% 100%;
     color: var(--bg);
+    --ed-wipe: var(--ed-btn-ink);
   }
   :root[data-look="editorial"] .btn-ghost:hover:not(:disabled, [aria-disabled="true"]) {
     border-color: transparent;
@@ -480,7 +497,7 @@
     box-shadow: 4px 4px 0 var(--ed-hard);
   }
   :root[data-look="editorial"] .btn-link:hover:not(:disabled, [aria-disabled="true"]) {
-    background-size: 100% 3px;
+    text-decoration-thickness: 3px;
     color: var(--btn-tone, var(--accent));
   }
   :root[data-look="editorial"] .card.callout .btn:not(.btn-primary):hover:not(:disabled) {
