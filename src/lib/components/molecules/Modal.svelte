@@ -286,10 +286,10 @@
 		max-height: calc(100dvh - var(--safe-top) - var(--sp-6));
 		display: flex;
 		flex-direction: column;
-		background: var(--bg-elevated);
-		border: 1px solid var(--border);
+		background: var(--overlay-fill);
+		border: var(--edge-width) solid var(--overlay-edge);
 		border-radius: var(--r-lg) var(--r-lg) 0 0;
-		box-shadow: var(--shadow-lg);
+		box-shadow: var(--overlay-shadow);
 		padding-bottom: var(--safe-bottom);
 		/* Bottom sheet: slides up on enter, down on exit. */
 		opacity: 0;
@@ -357,7 +357,7 @@
 		align-items: center;
 		gap: var(--sp-2);
 		padding: var(--sp-4);
-		border-bottom: 1px solid var(--border);
+		border-bottom: var(--edge-width) solid var(--surface-edge);
 	}
 	.sheet-toned {
 		border-top: 3px solid var(--modal-tone);
@@ -382,7 +382,7 @@
 		justify-content: flex-end;
 		gap: var(--sp-2);
 		padding: var(--sp-4);
-		border-top: 1px solid var(--border);
+		border-top: var(--edge-width) solid var(--surface-edge);
 	}
 	/* Opt-in: a flex item is shrink-to-fit, so a layout wrapper handed to the
 	   footer would size to its content and hug the right edge instead of

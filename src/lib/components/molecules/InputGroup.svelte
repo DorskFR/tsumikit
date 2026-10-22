@@ -221,8 +221,8 @@
 		position: absolute;
 		inset: auto 0 0 0;
 		height: var(--ig-h);
-		background: var(--textarea-bg, var(--bg));
-		border: 1px solid var(--textarea-border, var(--border-strong));
+		background: var(--textarea-bg, var(--control-fill));
+		border: var(--edge-width) solid var(--textarea-border, var(--control-edge));
 		border-top: 0;
 		border-radius: 0 0 var(--ig-radius) var(--ig-radius);
 		transition: border-color var(--dur-fast) ease;

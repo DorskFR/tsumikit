@@ -238,7 +238,7 @@
 	   items fill the inside, which is the height minus border and padding. */
 	.seg {
 		--seg-h: var(--control-md);
-		--seg-inset: calc(var(--sp-0-5) + 1px);
+		--seg-inset: calc(var(--sp-0-5) + var(--edge-width));
 		--seg-item-h: calc(var(--seg-h) - 2 * var(--seg-inset));
 		position: relative;
 		display: inline-flex;
@@ -247,8 +247,8 @@
 		height: var(--seg-h);
 		min-height: var(--seg-h);
 		padding: var(--sp-0-5);
-		background: var(--bg-elevated-2);
-		border: 1px solid var(--border);
+		background: var(--track-fill);
+		border: var(--edge-width) solid var(--track-edge);
 		border-radius: var(--r-pill);
 		max-width: 100%;
 		min-width: 0;
@@ -326,8 +326,8 @@
 		width: 0;
 		height: 0;
 		border-radius: var(--r-pill);
-		background: var(--bg);
-		box-shadow: var(--shadow-sm);
+		background: var(--thumb-fill);
+		box-shadow: var(--thumb-shadow);
 		transform-origin: top left;
 		pointer-events: none;
 		transition:
@@ -430,8 +430,8 @@
 	}
 	.seg-item.selected {
 		color: var(--text);
-		background: var(--bg);
-		box-shadow: var(--shadow-sm);
+		background: var(--thumb-fill);
+		box-shadow: var(--thumb-shadow);
 	}
 	.seg.placed .seg-item.selected {
 		background: transparent;

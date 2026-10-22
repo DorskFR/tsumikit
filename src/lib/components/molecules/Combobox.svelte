@@ -281,11 +281,11 @@
 		max-height: var(--cb-max-height, min(16rem, 40vh));
 		overflow-y: auto;
 		padding: var(--sp-1);
-		background: var(--cb-bg, var(--bg-elevated));
+		background: var(--cb-bg, var(--raised-fill));
 		color: var(--text);
-		border: 1px solid var(--cb-border, var(--border-strong));
+		border: var(--edge-width) solid var(--cb-border, var(--raised-edge));
 		border-radius: var(--cb-radius, var(--r-md));
-		box-shadow: var(--shadow-md);
+		box-shadow: var(--raised-shadow);
 		transform-origin: var(--tsu-origin, top left);
 		opacity: 1;
 		scale: 1;

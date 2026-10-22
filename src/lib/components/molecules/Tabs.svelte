@@ -297,7 +297,7 @@
 		flex: 1 1 auto;
 		min-width: 0;
 		gap: var(--sp-1);
-		border-bottom: 1px solid var(--border);
+		border-bottom: var(--edge-width) solid var(--surface-edge);
 		overflow-x: auto;
 		overflow-y: hidden;
 		scrollbar-width: thin;
@@ -330,7 +330,7 @@
 		font-weight: var(--fw-medium);
 		--icon-size: var(--control-icon-md);
 		border-bottom: 2px solid transparent;
-		margin-bottom: -1px;
+		margin-bottom: calc(-1 * var(--edge-width));
 		max-width: var(--tab-max-width, none);
 		transition:
 			color var(--dur-fast) var(--ease),
@@ -373,7 +373,7 @@
 		align-items: center;
 		gap: var(--sp-1);
 		padding-inline-start: var(--sp-2);
-		border-bottom: 1px solid var(--border);
+		border-bottom: var(--edge-width) solid var(--surface-edge);
 	}
 	.tabpanel {
 		padding-top: var(--sp-4);

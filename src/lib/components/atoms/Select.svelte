@@ -217,9 +217,10 @@
 		padding: var(--sp-2) var(--control-px-md);
 		font-size: var(--control-fs-md);
 		line-height: var(--lh-tight);
-		background: var(--select-bg, var(--bg));
-		border: 1px solid var(--select-border, var(--border-strong));
+		background: var(--select-bg, var(--control-fill));
+		border: var(--edge-width) solid var(--select-border, var(--control-edge));
 		border-radius: var(--select-radius, var(--r-md));
+		box-shadow: var(--control-shadow);
 		color: var(--select-fg, var(--text));
 		transition: border-color var(--dur-fast) ease;
 	}
@@ -261,10 +262,14 @@
 		background: var(--select-bg, var(--bg-elevated-2));
 		border: none;
 		border-radius: var(--select-radius, var(--r-sm));
+		box-shadow: none;
 	}
 	.select:focus {
 		outline: none;
 		border-color: var(--accent);
+	}
+	.select:focus-visible:not(.embedded, .ghost) {
+		box-shadow: var(--control-shadow), var(--focus-glow);
 	}
 	.select:focus-visible {
 		outline: var(--focus-ring);
@@ -367,7 +372,7 @@
 	}
 	@media (hover: hover) and (pointer: fine) {
 		.select:hover:not(:disabled, :focus, [aria-invalid='true'], .ghost, .embedded) {
-			border-color: var(--text-faint);
+			border-color: var(--control-edge-hover);
 		}
 	}
 	/* Transparent overlay: fills the positioned parent, the trigger shows through. */
@@ -380,6 +385,7 @@
 		opacity: 0;
 		border: none;
 		background: none;
+		box-shadow: none;
 		cursor: pointer;
 	}
 </style>

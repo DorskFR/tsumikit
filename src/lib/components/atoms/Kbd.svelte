@@ -108,7 +108,7 @@
 		font-size: inherit;
 		line-height: var(--lh-snug);
 		padding: 0 var(--sp-1);
-		border: 1px solid var(--border-strong);
+		border: var(--edge-width) solid var(--border-strong);
 		border-bottom-width: 2px;
 		border-radius: var(--r-sm);
 		background: var(--bg-elevated-2);

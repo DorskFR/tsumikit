@@ -285,6 +285,40 @@
   --shift-xs: 2px;
   --shift-sm: 4px;
   --shift-md: 8px;
+
+  /* Structural look. Components read these instead of hardcoding borders,
+     fills and shadows, so a theme can restyle the kit's surfaces from tokens. */
+  --edge-width: 1px;
+  --surface-fill: var(--bg-elevated);
+  --surface-fill-2: var(--bg-elevated-2);
+  --surface-edge: var(--border);
+  --surface-edge-strong: var(--border-strong);
+  --surface-shadow: 0 0 0 0 transparent;
+  --surface-shadow-hover: var(--surface-shadow);
+  --raised-fill: var(--bg-elevated);
+  --raised-edge: var(--border-strong);
+  --raised-shadow: var(--shadow-md);
+  --overlay-fill: var(--bg-elevated);
+  --overlay-edge: var(--border);
+  --overlay-shadow: var(--shadow-lg);
+  --control-fill: var(--bg);
+  --control-edge: var(--border-strong);
+  --control-edge-hover: var(--text-faint);
+  --control-shadow: 0 0 0 0 transparent;
+  --track-fill: var(--bg-elevated-2);
+  --track-edge: var(--border);
+  --thumb-fill: var(--bg);
+  --thumb-shadow: var(--shadow-sm);
+  --btn-fill: var(--surface);
+  --btn-edge: var(--border-strong);
+  --btn-shadow: 0 0 0 0 transparent;
+  --btn-shadow-hover: var(--btn-shadow);
+  --btn-primary-fill: var(--accent);
+  --btn-primary-edge: var(--accent);
+  --btn-primary-shadow: 0 0 0 0 transparent;
+  --btn-primary-shadow-hover: var(--btn-primary-shadow);
+  --hover-lift: 0px;
+  --focus-glow: 0 0 0 0 transparent;
 }
 
 @supports (animation-timing-function: linear(0, 1)) {

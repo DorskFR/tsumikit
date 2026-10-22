@@ -276,7 +276,7 @@
 		padding-top: var(--safe-top);
 		background: color-mix(in srgb, var(--bg) 88%, transparent);
 		backdrop-filter: blur(8px);
-		border-bottom: 1px solid var(--border);
+		border-bottom: var(--edge-width) solid var(--surface-edge);
 	}
 	.shell-header > :global(*) {
 		min-width: 0;
@@ -302,7 +302,7 @@
 	}
 	.shell-footer {
 		grid-area: footer;
-		border-top: 1px solid var(--border);
+		border-top: var(--edge-width) solid var(--surface-edge);
 		padding: var(--sp-4) max(var(--sp-4), var(--safe-right)) calc(var(--sp-4) + var(--safe-bottom))
 			max(var(--sp-4), var(--safe-left));
 	}
@@ -318,8 +318,8 @@
 		overflow-y: auto;
 		overflow-x: hidden; /* overflow-y:auto would otherwise make x auto too */
 		-webkit-overflow-scrolling: touch;
-		background: var(--bg-elevated);
-		border-right: 1px solid var(--border);
+		background: var(--surface-fill);
+		border-right: var(--edge-width) solid var(--surface-edge);
 		--shell-sidebar-pad: var(--sp-3);
 		padding: var(--shell-sidebar-pad);
 		padding-top: max(var(--shell-sidebar-pad), var(--safe-top));
@@ -338,7 +338,7 @@
 	}
 	.shell-sidebar.open {
 		translate: 0 0;
-		box-shadow: var(--shadow-lg);
+		box-shadow: var(--overlay-shadow);
 		transition-duration: var(--dur-sheet);
 	}
 	.shell-scrim {
@@ -396,7 +396,7 @@
 			transition: none;
 			z-index: auto;
 			box-shadow: none;
-			border-right: 1px solid var(--border);
+			border-right: var(--edge-width) solid var(--surface-edge);
 		}
 		.shell.sticky-sidebar .shell-sidebar {
 			position: sticky;

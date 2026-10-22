@@ -107,7 +107,7 @@
 	class:selected
 	style="--md-list-w: {listWidth}; --md-gap: {gap}; --md-divider: {divider === 'none'
 		? 'none'
-		: '1px solid var(--border)'};{style ? ` ${style}` : ''}"
+		: 'var(--edge-width) solid var(--surface-edge)'};{style ? ` ${style}` : ''}"
 	data-tsu="MasterDetail"
 	{...rest}
 >
@@ -159,7 +159,7 @@
 		-webkit-overflow-scrolling: touch;
 	}
 	.md-list {
-		border-right: var(--md-divider, 1px solid var(--border));
+		border-right: var(--md-divider, var(--edge-width) solid var(--surface-edge));
 	}
 	.md-detail {
 		display: flex;
@@ -180,7 +180,7 @@
 		padding-inline: var(--sp-3);
 		background: color-mix(in srgb, var(--bg) 88%, transparent);
 		backdrop-filter: blur(8px);
-		border-bottom: 1px solid var(--border);
+		border-bottom: var(--edge-width) solid var(--surface-edge);
 	}
 	.md-detail-header-content {
 		flex: 1;

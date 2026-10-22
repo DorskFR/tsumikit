@@ -278,9 +278,10 @@
 		   --sp-3 top+bottom would overshoot it and a `rows={1}` textarea would
 		   render taller than the buttons it sits beside. */
 		padding: var(--sp-2) var(--control-px-md);
-		background: var(--textarea-bg, var(--bg));
-		border: 1px solid var(--textarea-border, var(--border-strong));
+		background: var(--textarea-bg, var(--control-fill));
+		border: var(--edge-width) solid var(--textarea-border, var(--control-edge));
 		border-radius: var(--textarea-radius, var(--r-md));
+		box-shadow: var(--control-shadow);
 		color: var(--textarea-fg, var(--text));
 		transition: border-color var(--dur-fast) ease;
 		/* Custom handle replaces the native grip; never show the native one. */
@@ -299,6 +300,7 @@
 	.textarea:focus-visible {
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset);
+		box-shadow: var(--control-shadow), var(--focus-glow);
 	}
 	.textarea:disabled {
 		cursor: not-allowed;
@@ -347,6 +349,7 @@
 	}
 	.textarea.grouped:focus-visible {
 		outline: none;
+		box-shadow: var(--control-shadow);
 	}
 	.textarea.grouped.bar {
 		padding-inline: var(--ig-pad-x);
@@ -408,7 +411,7 @@
 	}
 	@media (hover: hover) and (pointer: fine) {
 		.textarea:hover:not(:disabled, :focus, [aria-invalid='true']) {
-			border-color: var(--text-faint);
+			border-color: var(--control-edge-hover);
 		}
 		.resize-handle:hover::after {
 			background: var(--accent);

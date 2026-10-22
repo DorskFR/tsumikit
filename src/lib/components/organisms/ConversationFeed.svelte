@@ -181,6 +181,6 @@
 		margin-inline: auto;
 		z-index: 1;
 		border-radius: var(--r-pill);
-		box-shadow: var(--shadow-md);
+		box-shadow: var(--raised-shadow);
 	}
 </style>

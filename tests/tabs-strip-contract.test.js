@@ -74,7 +74,7 @@ test('the strip row keeps the tablist scrolling and continues the rule under the
 	assert.ok(hasDecl(tabs, '.tablist', 'flex', '1 1 auto'));
 	assert.ok(hasDecl(tabs, '.tablist', 'min-width', '0'));
 	assert.ok(hasDecl(tabs, '.tablist', 'overflow-x', 'auto'));
-	assert.ok(hasDecl(tabs, '.actions', 'border-bottom', '1px solid var(--border)'));
+	assert.ok(hasDecl(tabs, '.actions', 'border-bottom', 'var(--edge-width) solid var(--surface-edge)'));
 	assert.ok(hasDecl(tabs, '.tab.closable', 'cursor', 'pointer'));
 	assert.ok(hasDecl(tabs, '.label', 'text-overflow', 'ellipsis'));
 	assert.ok(hasDecl(tabs, '.tab', 'max-width', 'var(--tab-max-width, none)'));

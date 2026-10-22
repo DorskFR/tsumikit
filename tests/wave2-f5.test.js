@@ -232,7 +232,7 @@ test('no component keeps its own reduced-motion transition kill, raw durations o
 test('slider thumbs scale on press, halo on hover and never animate layout', () => {
 	const slider = css(files.Slider);
 	assert.match(slider, /input\[type='range'\]:not\(:disabled\):active::-webkit-slider-thumb\s*{\s*scale: 1\.15;/);
-	assert.match(slider, /@media \(hover: hover\) and \(pointer: fine\)\s*{\s*input\[type='range'\]:not\(:disabled\):hover::-webkit-slider-thumb\s*{\s*box-shadow: var\(--shadow-sm\), var\(--halo\);/);
+	assert.match(slider, /@media \(hover: hover\) and \(pointer: fine\)\s*{\s*input\[type='range'\]:not\(:disabled\):hover::-webkit-slider-thumb\s*{\s*box-shadow: var\(--thumb-shadow\), var\(--halo\);/);
 	assert.match(rule(slider, "input[type='range']::-webkit-slider-thumb").transition, /scale var\(--dur-press\) var\(--ease-out\), box-shadow var\(--dur-fast\) var\(--ease\)/);
 	assert.equal(rule(slider, "input[type='range']:disabled").opacity, 'var(--disabled-opacity)');
 

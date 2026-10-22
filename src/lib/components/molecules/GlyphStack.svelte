@@ -343,11 +343,11 @@
 		margin: 0;
 		padding: var(--sp-1);
 		max-width: calc(100vw - 2 * var(--sp-2));
-		background: var(--bg-elevated);
+		background: var(--raised-fill);
 		color: var(--text);
-		border: 1px solid var(--border-strong);
+		border: var(--edge-width) solid var(--raised-edge);
 		border-radius: var(--r-md);
-		box-shadow: var(--shadow-md);
+		box-shadow: var(--raised-shadow);
 		opacity: 0;
 		scale: var(--enter-scale);
 		transition:

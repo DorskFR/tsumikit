@@ -102,13 +102,14 @@
 		justify-content: center;
 		overflow: hidden;
 		flex: none;
-		background: var(--bg-elevated-2);
-		border: 1px solid var(--border);
+		background: var(--surface-fill-2);
+		border: var(--edge-width) solid var(--surface-edge);
 		color: var(--text-muted);
 		container-type: inline-size;
 		transition:
 			border-color var(--dur-fast) var(--ease),
 			box-shadow var(--dur-fast) var(--ease),
+			translate var(--dur-fast) var(--ease-out),
 			scale var(--dur-fast) var(--ease-out);
 	}
 	.r-sm {
@@ -125,8 +126,9 @@
 	}
 	@media (hover: hover) and (pointer: fine) {
 		.hover:hover {
-			border-color: var(--border-strong);
+			border-color: var(--surface-edge-strong);
 			box-shadow: var(--shadow-md);
+			translate: 0 calc(-1 * var(--hover-lift));
 		}
 	}
 	.hover:active {

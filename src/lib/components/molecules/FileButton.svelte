@@ -107,9 +107,12 @@
 		gap: var(--sp-2);
 		padding: var(--sp-2) var(--btn-px-md);
 		min-height: var(--control-height-default);
-		border: 1px solid var(--border-strong);
+		border: var(--edge-width) solid var(--btn-edge);
 		border-radius: var(--r-md);
-		background: var(--surface);
+		background: var(--btn-fill);
+		--file-shadow-rest: var(--btn-shadow);
+		--file-shadow-lift: var(--btn-shadow-hover);
+		box-shadow: var(--file-shadow-rest);
 		color: var(--text);
 		font-weight: var(--fw-medium);
 		font-size: var(--control-fs-md);
@@ -123,8 +126,10 @@
 		transition:
 			background var(--dur-fast) ease,
 			border-color var(--dur-fast) ease,
+			box-shadow var(--dur-fast) ease,
 			color var(--dur-fast) ease,
 			opacity var(--dur-fast) ease,
+			translate var(--dur-fast) var(--ease-out),
 			scale var(--file-scale-dur) var(--ease-out);
 	}
 	.file-btn:active:not(.disabled) {
@@ -197,20 +202,25 @@
 		font-size: var(--icon-xl);
 	}
 	.file-btn.primary {
-		background: var(--accent);
-		border-color: var(--accent);
+		background: var(--btn-primary-fill);
+		border-color: var(--btn-primary-edge);
+		--file-shadow-rest: var(--btn-primary-shadow);
+		--file-shadow-lift: var(--btn-primary-shadow-hover);
 		color: var(--text-on-accent);
 		font-weight: var(--fw-semibold);
 	}
 	.file-btn.ghost {
 		background: transparent;
 		border-color: transparent;
+		--file-shadow-rest: none;
+		--file-shadow-lift: none;
 	}
 	/* The hidden input keeps focusability (sr-only, not display:none), so mirror
 	   its focus onto the label for a visible ring. */
 	.file-btn:focus-within {
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset);
+		box-shadow: var(--file-shadow-rest), var(--focus-glow);
 	}
 	.file-btn.disabled {
 		opacity: var(--disabled-opacity);
@@ -219,6 +229,8 @@
 	@media (hover: hover) and (pointer: fine) {
 		.file-btn:hover:not(.disabled) {
 			border-color: var(--accent);
+			translate: 0 calc(-1 * var(--hover-lift));
+			--file-shadow-rest: var(--file-shadow-lift);
 		}
 		.file-btn.primary:hover:not(.disabled) {
 			filter: brightness(1.08);

@@ -239,14 +239,14 @@
 		padding-inline: max(var(--safe-left), var(--sp-1)) max(var(--safe-right), var(--sp-1));
 		background: color-mix(in srgb, var(--bg-elevated) 88%, transparent);
 		backdrop-filter: blur(12px);
-		border-top: 1px solid var(--border);
+		border-top: var(--edge-width) solid var(--surface-edge);
 	}
 	.floating {
 		padding: var(--sp-1);
-		border: 1px solid var(--border-strong);
+		border: var(--edge-width) solid var(--raised-edge);
 		border-radius: var(--r-md);
-		background: var(--bg-elevated);
-		box-shadow: var(--shadow-md);
+		background: var(--raised-fill);
+		box-shadow: var(--raised-shadow);
 	}
 	.bar.floating {
 		left: calc(var(--sp-2) + var(--safe-left));

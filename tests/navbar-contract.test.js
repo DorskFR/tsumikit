@@ -204,15 +204,15 @@ test('center notch and raise read published custom properties with defaults', ()
 });
 
 test('floating is an inset elevated card; flush keeps the edge-to-edge bar', () => {
-	assert.ok(hasDecl(css, '.floating', 'border', '1px solid var(--border-strong)'));
+	assert.ok(hasDecl(css, '.floating', 'border', 'var(--edge-width) solid var(--border-strong)'));
 	assert.ok(hasDecl(css, '.floating', 'border-radius', 'var(--r-md)'));
-	assert.ok(hasDecl(css, '.floating', 'background', 'var(--bg-elevated)'));
-	assert.ok(hasDecl(css, '.floating', 'box-shadow', 'var(--shadow-md)'));
+	assert.ok(hasDecl(css, '.floating', 'background', 'var(--raised-fill)'));
+	assert.ok(hasDecl(css, '.floating', 'box-shadow', 'var(--raised-shadow)'));
 	assert.ok(hasDecl(css, '.bar.floating', 'left', 'calc(var(--sp-2) + var(--safe-left))'));
 	assert.ok(hasDecl(css, '.bar.floating', 'right', 'calc(var(--sp-2) + var(--safe-right))'));
 	assert.ok(hasDecl(css, '.bar.floating', 'bottom', 'calc(var(--sp-2) + var(--safe-bottom))'));
 	assert.ok(hasDecl(css, '.bar', 'inset-inline', '0'));
-	assert.ok(hasDecl(css, '.bar', 'border-top', '1px solid var(--border)'));
+	assert.ok(hasDecl(css, '.bar', 'border-top', 'var(--edge-width) solid var(--surface-edge)'));
 });
 
 test('items keep the touch target and buttons drop native chrome', () => {

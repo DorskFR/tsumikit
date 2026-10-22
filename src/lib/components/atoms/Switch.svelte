@@ -86,8 +86,8 @@
 		width: var(--sw-w);
 		height: var(--sw-h);
 		border-radius: var(--r-pill);
-		border: 1px solid var(--border-strong);
-		background: var(--bg-elevated-2);
+		border: var(--edge-width) solid var(--border-strong);
+		background: var(--track-fill);
 		padding: var(--sp-0-5);
 		display: flex;
 		align-items: center;
@@ -125,6 +125,7 @@
 	.switch:focus-visible {
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset);
+		box-shadow: var(--focus-glow);
 	}
 	.switch:disabled {
 		opacity: var(--disabled-opacity);

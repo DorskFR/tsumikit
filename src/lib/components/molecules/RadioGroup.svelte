@@ -172,9 +172,10 @@
 		width: var(--chip-sm);
 		height: var(--chip-sm);
 		margin-top: var(--sp-px);
-		border: 1px solid var(--border-strong);
+		border: var(--edge-width) solid var(--control-edge);
 		border-radius: var(--r-pill);
-		background: var(--bg);
+		background: var(--control-fill);
+		box-shadow: var(--control-shadow);
 		transition: border-color var(--dur-fast) var(--ease);
 	}
 	.dot-ctl::after {
@@ -205,6 +206,7 @@
 	input:focus-visible + .dot-ctl {
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset);
+		box-shadow: var(--control-shadow), var(--focus-glow);
 	}
 	.texts {
 		display: flex;
@@ -231,7 +233,7 @@
 		min-width: 0;
 		gap: var(--sp-2);
 		padding: var(--pad, var(--sp-2) var(--sp-3));
-		border: 1px solid var(--border);
+		border: var(--edge-width) solid var(--surface-edge);
 		border-radius: var(--r-md);
 		transition:
 			border-color var(--dur-fast) var(--ease),
@@ -239,7 +241,7 @@
 	}
 	.row.selected {
 		border-color: var(--accent-dim);
-		background: var(--bg-elevated);
+		background: var(--surface-fill);
 	}
 	.row .radio {
 		flex: 1 1 auto;

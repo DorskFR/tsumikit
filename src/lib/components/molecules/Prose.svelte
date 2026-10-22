@@ -76,15 +76,15 @@
 		font-family: var(--font-mono);
 		font-size: 0.92em;
 		color: var(--md-code, var(--text));
-		background: var(--md-code-bg, var(--bg-elevated-2));
+		background: var(--md-code-bg, var(--surface-fill-2));
 		padding: 0.1em 0.35em;
 		border-radius: var(--r-sm);
 	}
 	.prose :global(pre) {
 		margin: 0;
 		padding: var(--sp-3);
-		background: var(--bg-elevated);
-		border: 1px solid var(--border);
+		background: var(--surface-fill);
+		border: var(--edge-width) solid var(--surface-edge);
 		border-radius: var(--r-md);
 		overflow-x: auto;
 		font-family: var(--font-mono);
@@ -119,12 +119,12 @@
 	.prose :global(th),
 	.prose :global(td) {
 		padding: var(--sp-1) var(--sp-2);
-		border: 1px solid var(--border);
+		border: var(--edge-width) solid var(--surface-edge);
 		text-align: left;
 		vertical-align: top;
 	}
 	.prose :global(th) {
-		background: var(--bg-elevated-2);
+		background: var(--surface-fill-2);
 		color: var(--text-muted);
 		font-weight: var(--fw-semibold);
 	}
@@ -135,6 +135,6 @@
 	}
 	.prose :global(hr) {
 		border: 0;
-		border-top: 1px solid var(--border);
+		border-top: var(--edge-width) solid var(--surface-edge);
 	}
 </style>

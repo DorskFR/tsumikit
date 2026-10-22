@@ -46,7 +46,7 @@ test('back button exists only on mobile, calls onback, and sits in a sticky touc
 test('columns scroll independently with a --border divider; mobile panes are full-width with safe-area padding', () => {
 	assert.match(css, /\.md\s*{[^}]*grid-template-columns: var\(--md-list-w\) minmax\(0, 1fr\);[^}]*overflow: hidden;/s);
 	assert.match(css, /\.md-list,\s*\.md-detail\s*{[^}]*overflow-y: auto;[^}]*overflow-x: hidden;/s);
-	assert.match(css, /\.md-list\s*{\s*border-right: var\(--md-divider, 1px solid var\(--border\)\);/);
+	assert.match(css, /\.md-list\s*{\s*border-right: var\(--md-divider, var\(--edge-width\) solid var\(--surface-edge\)\);/);
 	assert.match(css, /\.md\.mobile\s*{\s*grid-template-columns: minmax\(0, 1fr\);/);
 	assert.match(css, /\.md\.mobile \.md-list\s*{[^}]*width: 100%;[^}]*padding-inline: var\(--safe-left\) var\(--safe-right\);/s);
 	assert.match(css, /\.md\.mobile \.md-detail-header\s*{[^}]*max\(var\(--sp-3\), var\(--safe-left\)\) max\(var\(--sp-3\), var\(--safe-right\)\)/s);
@@ -63,7 +63,7 @@ test('mobile detail slides in on translate and opacity from tokens, exits faster
 
 test('gap and divider ship as overridable custom properties on the root', () => {
 	assert.match(markup, /--md-gap: {gap};/);
-	assert.match(markup, /--md-divider: {divider === 'none'\s*\?\s*'none'\s*:\s*'1px solid var\(--border\)'};/);
+	assert.match(markup, /--md-divider: {divider === 'none'\s*\?\s*'none'\s*:\s*'var\(--edge-width\) solid var\(--surface-edge\)'};/);
 	assert.match(css, /\.md\s*{[^}]*gap: var\(--md-gap, 0\);/s);
 	assert.match(css, /\.md\.mobile\s*{[^}]*gap: 0;/s);
 });

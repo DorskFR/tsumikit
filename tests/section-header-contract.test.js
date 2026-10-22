@@ -52,7 +52,7 @@ test('layout: wrapping flex row, actions pushed to the inline end, divider under
 	assert.match(component, /\.sh-row\s*{[^}]*display: flex;[^}]*align-items: center;[^}]*gap: var\(--sp-3\);[^}]*flex-wrap: wrap;/s);
 	assert.match(component, /\.sh-actions\s*{[^}]*margin-inline-start: auto;/s);
 	assert.match(component, /class:sh-divider={divider}/);
-	assert.match(component, /\.sh-divider > \.sh-row\s*{[^}]*border-bottom: 1px solid var\(--border\);/s);
+	assert.match(component, /\.sh-divider > \.sh-row\s*{[^}]*border-bottom: var\(--edge-width\) solid var\(--surface-edge\);/s);
 });
 
 test('sticky pins under the app header and publishes --section-header-h on the parent', () => {

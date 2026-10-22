@@ -95,9 +95,10 @@
 		flex-direction: column;
 		gap: var(--sp-0-5);
 		padding: var(--sp-2);
-		background: var(--bg);
-		border: 1px solid var(--border-strong);
+		background: var(--control-fill);
+		border: var(--edge-width) solid var(--control-edge);
 		border-radius: var(--r-md);
+		box-shadow: var(--control-shadow);
 		color: var(--text);
 		text-align: left;
 		white-space: normal;
@@ -107,6 +108,7 @@
 			background var(--dur-fast) ease,
 			border-color var(--dur-fast) ease,
 			color var(--dur-fast) ease,
+			translate var(--dur-fast) ease,
 			scale var(--opt-scale-dur) var(--ease-out);
 	}
 	.opt:disabled {
@@ -154,8 +156,11 @@
 		color: var(--oc);
 	}
 	@media (hover: hover) and (pointer: fine) {
+		.opt:hover:not(:disabled) {
+			translate: 0 calc(-1 * var(--hover-lift));
+		}
 		.opt:hover:not(:disabled):not(.selected) {
-			border-color: var(--border-strong);
+			border-color: var(--control-edge);
 		}
 		.opt.selected:hover:not(:disabled) {
 			border-color: var(--oc);

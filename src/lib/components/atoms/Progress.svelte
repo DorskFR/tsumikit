@@ -146,7 +146,7 @@
 		position: relative;
 		width: 100%;
 		height: 0.5rem;
-		background: var(--bg-elevated-2);
+		background: var(--track-fill);
 		border-radius: var(--r-pill);
 		overflow: hidden;
 	}

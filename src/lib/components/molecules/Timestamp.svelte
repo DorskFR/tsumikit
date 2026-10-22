@@ -226,7 +226,7 @@
 	.ts-mode {
 		flex: 1;
 		padding: var(--sp-1) var(--sp-2);
-		border: 1px solid var(--border-strong);
+		border: var(--edge-width) solid var(--btn-edge);
 		border-radius: var(--r-sm);
 		background: transparent;
 		color: var(--text-muted);

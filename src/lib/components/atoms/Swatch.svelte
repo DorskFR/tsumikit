@@ -70,7 +70,7 @@
 		height: var(--swatch-size);
 		padding: 0;
 		margin: 0;
-		border: 1px solid var(--border);
+		border: var(--edge-width) solid var(--border);
 		border-radius: var(--r-pill);
 		background: var(--swatch-color);
 		color: var(--text);

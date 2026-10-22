@@ -195,7 +195,7 @@
 		--icon-size: var(--icon-xs);
 		background: var(--badge-bg, var(--bg-elevated-2));
 		color: var(--badge-fg, var(--text-muted));
-		border: 1px solid var(--badge-border, var(--border));
+		border: var(--edge-width) solid var(--badge-border, var(--border));
 		white-space: nowrap;
 		max-width: var(--badge-max-width, 100%);
 	}

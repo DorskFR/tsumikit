@@ -189,7 +189,7 @@
 		min-width: var(--box-md);
 		height: var(--box-md);
 		padding: 0 var(--control-px-md);
-		border: 1px solid transparent;
+		border: var(--edge-width) solid transparent;
 		border-radius: var(--r-md);
 		background: transparent;
 		color: var(--text-muted);
@@ -201,6 +201,7 @@
 			background var(--dur-fast) ease,
 			border-color var(--dur-fast) ease,
 			color var(--dur-fast) ease,
+			translate var(--dur-fast) ease,
 			scale var(--page-scale-dur) var(--ease-out);
 	}
 	.page:active {
@@ -211,6 +212,7 @@
 		.page:hover {
 			background: var(--bg-elevated-2);
 			color: var(--text);
+			translate: 0 calc(-1 * var(--hover-lift));
 		}
 	}
 	.page.on {

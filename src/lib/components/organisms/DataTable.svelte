@@ -363,7 +363,7 @@
 		width: 100%;
 		overflow-x: auto;
 		-webkit-overflow-scrolling: touch;
-		border: 1px solid var(--border);
+		border: var(--edge-width) solid var(--surface-edge);
 		border-radius: var(--r-lg);
 		container-type: inline-size;
 	}
@@ -382,7 +382,7 @@
 	th,
 	td {
 		padding: var(--sp-2) var(--sp-3);
-		border-bottom: 1px solid var(--border);
+		border-bottom: var(--edge-width) solid var(--surface-edge);
 	}
 	.dt.sm th,
 	.dt.sm td {
@@ -394,7 +394,7 @@
 		color: var(--text-muted);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
-		background: var(--bg-elevated-2);
+		background: var(--surface-fill-2);
 		white-space: nowrap;
 	}
 	.dt.sticky th {
@@ -587,7 +587,7 @@
 		align-items: baseline;
 		gap: var(--sp-1) var(--sp-3);
 		padding: var(--sp-3);
-		border-bottom: 1px solid var(--border);
+		border-bottom: var(--edge-width) solid var(--surface-edge);
 	}
 	[data-stacked] tbody tr:last-child {
 		border-bottom: none;
@@ -679,7 +679,7 @@
 	.dt-more {
 		text-align: center;
 		padding: var(--sp-2);
-		border-top: 1px solid var(--border);
+		border-top: var(--edge-width) solid var(--surface-edge);
 	}
 	.dt-more-btn {
 		border: 0;

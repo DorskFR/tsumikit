@@ -123,7 +123,7 @@ test('Menu forwards pill through its TriggerChrome Pick<>', () => {
 
 test('the default trigger reads every paint axis, defaulting to the values it draws today', () => {
 	const base = normalize(popover).match(/:where\(\.pop-trigger:not\(\.bare\)\) \{([^}]*)\}/)?.[1] ?? '';
-	assert.match(base, /border: 1px solid var\(--pop-trigger-border, transparent\);/);
+	assert.match(base, /border: var\(--edge-width\) solid var\(--pop-trigger-border, transparent\);/);
 	assert.match(base, /background: var\(--pop-trigger-bg, transparent\);/);
 	assert.match(base, /color: var\(--pop-trigger-fg, var\(--text\)\);/);
 	assert.match(base, /font-size: var\(--pop-trigger-size, inherit\);/);
@@ -131,12 +131,12 @@ test('the default trigger reads every paint axis, defaulting to the values it dr
 
 test('the canonical and variant triggers read the same hooks, each keeping its own value as the fallback', () => {
 	const canonical = rule(popover, '.pop-trigger.canonical');
-	assert.equal(canonical.background, 'var(--pop-trigger-bg, var(--surface))');
-	assert.equal(canonical['border-color'], 'var(--pop-trigger-border, var(--border-strong))');
+	assert.equal(canonical.background, 'var(--pop-trigger-bg, var(--btn-fill))');
+	assert.equal(canonical['border-color'], 'var(--pop-trigger-border, var(--btn-edge))');
 	assert.equal(canonical['font-size'], 'var(--pop-trigger-size, var(--control-fs-md))');
 
 	const primary = rule(popover, '.pop-trigger.trigger-primary');
-	assert.equal(primary.background, 'var(--pop-trigger-bg, var(--accent))');
+	assert.equal(primary.background, 'var(--pop-trigger-bg, var(--btn-primary-fill))');
 	assert.equal(primary.color, 'var(--pop-trigger-fg, var(--text-on-accent))');
 
 	assert.equal(rule(popover, '.pop-trigger.trigger-sm')['font-size'], 'var(--pop-trigger-size, var(--control-fs-sm))');

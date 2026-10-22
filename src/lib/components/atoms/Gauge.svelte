@@ -108,9 +108,9 @@
 		height: var(--gauge-h, 1.25rem);
 		margin: 0;
 		padding: 0;
-		border: 1px solid var(--border);
+		border: var(--edge-width) solid var(--track-edge);
 		border-radius: var(--r-sm);
-		background: var(--bg-elevated-2);
+		background: var(--track-fill);
 		overflow: visible;
 		color: inherit;
 		font: inherit;

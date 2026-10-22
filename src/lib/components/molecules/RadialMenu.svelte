@@ -542,11 +542,11 @@
 		width: max(var(--radial-petal-size, 3.5rem), var(--touch-target));
 		height: max(var(--radial-petal-size, 3.5rem), var(--touch-target));
 		padding: 0 var(--sp-0-5);
-		border: 1px solid var(--border-strong);
+		border: var(--edge-width) solid var(--raised-edge);
 		border-radius: 50%;
-		background: var(--bg-elevated);
+		background: var(--raised-fill);
 		color: var(--text);
-		box-shadow: var(--shadow-md);
+		box-shadow: var(--raised-shadow);
 		font-size: var(--fs-xs);
 		line-height: var(--lh-heading);
 		translate: -50% -50%;

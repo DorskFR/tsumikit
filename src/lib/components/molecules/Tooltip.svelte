@@ -206,9 +206,9 @@
 		padding: var(--sp-1) var(--sp-2);
 		background: var(--bg-elevated-2);
 		color: var(--text);
-		border: 1px solid var(--border-strong);
+		border: var(--edge-width) solid var(--raised-edge);
 		border-radius: var(--r-sm);
-		box-shadow: var(--shadow-md);
+		box-shadow: var(--raised-shadow);
 		font-size: var(--fs-xs);
 		line-height: var(--lh-snug);
 		white-space: normal;

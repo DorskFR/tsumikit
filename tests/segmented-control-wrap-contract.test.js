@@ -42,6 +42,6 @@ test('wrap radius is capped at half a row so a wrapped pill squares its corners'
 });
 
 test('icon segments stay concentric with the track', () => {
-	assert.equal(rule(css, '.seg')['--seg-inset'], 'calc(var(--sp-0-5) + 1px)');
+	assert.equal(rule(css, '.seg')['--seg-inset'], 'calc(var(--sp-0-5) + var(--edge-width))');
 	assert.equal(rule(css, '.seg-icon .seg-item,\n\t.seg-icon .seg-thumb')['border-radius'], 'calc(var(--r-md) - var(--seg-inset))');
 });

@@ -223,7 +223,7 @@
 		align-items: center;
 		justify-content: center;
 		padding: var(--sp-1);
-		border: 1px solid transparent;
+		border: var(--edge-width) solid transparent;
 		border-radius: var(--r-sm);
 		background: none;
 		color: inherit;

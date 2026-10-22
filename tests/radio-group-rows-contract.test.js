@@ -22,11 +22,11 @@ test('option shape gains description and note', () => {
 	assert.match(src, /\.note\s*{[^}]*color: var\(--text-faint\);/s);
 });
 
-test('rows: bordered row, selected row uses --accent-dim border and --bg-elevated', () => {
+test('rows: bordered row, selected row uses --accent-dim border and --surface-fill', () => {
 	assert.match(src, /class="row" class:selected={o\.value === value}/);
-	assert.match(src, /\.row\s*{[^}]*border: 1px solid var\(--border\);[^}]*border-radius: var\(--r-md\);/s);
+	assert.match(src, /\.row\s*{[^}]*border: var\(--edge-width\) solid var\(--surface-edge\);[^}]*border-radius: var\(--r-md\);/s);
 	assert.match(src, /\.row\s*{[^}]*padding: var\(--pad,/s);
-	assert.match(src, /\.row\.selected\s*{[^}]*border-color: var\(--accent-dim\);[^}]*background: var\(--bg-elevated\);/s);
+	assert.match(src, /\.row\.selected\s*{[^}]*border-color: var\(--accent-dim\);[^}]*background: var\(--surface-fill\);/s);
 });
 
 test('rows: action renders outside the label so clicking it never toggles the radio', () => {

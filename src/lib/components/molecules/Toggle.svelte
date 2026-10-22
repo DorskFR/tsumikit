@@ -82,15 +82,16 @@
 		font-weight: var(--fw-medium);
 		line-height: var(--lh-none);
 		--icon-size: var(--control-icon-sm);
-		background: var(--bg-elevated-2);
+		background: var(--surface-fill-2);
 		color: var(--text-muted);
-		border: 1px solid var(--border);
+		border: var(--edge-width) solid var(--surface-edge);
 		white-space: nowrap;
 		user-select: none;
 		transition:
 			background var(--dur-fast) var(--ease),
 			border-color var(--dur-fast) var(--ease),
 			color var(--dur-fast) var(--ease),
+			translate var(--dur-fast) var(--ease),
 			scale var(--dur-fast) var(--ease-out);
 	}
 	.toggle:disabled {
@@ -125,7 +126,8 @@
 	}
 	@media (hover: hover) and (pointer: fine) {
 		.toggle:hover:not(:disabled) {
-			border-color: var(--border-strong);
+			border-color: var(--surface-edge-strong);
+			translate: 0 calc(-1 * var(--hover-lift));
 		}
 	}
 	.toggle:active:not(:disabled) {

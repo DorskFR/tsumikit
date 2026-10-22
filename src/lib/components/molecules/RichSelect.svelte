@@ -431,9 +431,10 @@
 		min-width: 0;
 		min-height: var(--rs-height);
 		padding: var(--sp-1) var(--sp-2) var(--sp-1) var(--sp-1);
-		border: 1px solid var(--border-strong);
+		border: var(--edge-width) solid var(--control-edge);
 		border-radius: var(--r-md);
 		background: var(--surface);
+		box-shadow: var(--control-shadow);
 		color: var(--text);
 		text-align: start;
 		cursor: pointer;
@@ -444,6 +445,7 @@
 	.rich-select :global(.pop-trigger.rs-trigger:focus-visible) {
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset);
+		box-shadow: var(--control-shadow), var(--focus-glow);
 	}
 	.rich-select :global(.pop-trigger.rs-trigger:active:not(:disabled)) {
 		scale: var(--press-scale-lg);
@@ -534,8 +536,8 @@
 	}
 	.rs-row[data-dragging] {
 		z-index: 1;
-		box-shadow: var(--shadow-md);
-		background: var(--bg-elevated);
+		box-shadow: var(--raised-shadow);
+		background: var(--raised-fill);
 		transition: none;
 	}
 	.rs-option {
@@ -587,6 +589,6 @@
 		display: flex;
 		flex-direction: column;
 		padding-top: var(--sp-1);
-		border-top: 1px solid var(--border);
+		border-top: var(--edge-width) solid var(--surface-edge);
 	}
 </style>

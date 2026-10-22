@@ -172,7 +172,7 @@
 	}
 	.sh-divider > .sh-row {
 		padding-bottom: var(--sp-2);
-		border-bottom: 1px solid var(--border);
+		border-bottom: var(--edge-width) solid var(--surface-edge);
 	}
 	.sh-group > .sh-row {
 		flex-wrap: nowrap;
