@@ -64,6 +64,25 @@
 		if (stuck) pending = false;
 	}
 
+	// Keyboard focus at the scroll edge would cut its ring: bring it inside the scroll padding.
+	function onfocusin(e: FocusEvent) {
+		const el = scroller;
+		const target = e.target;
+		if (!el || !(target instanceof Element) || target === el) return;
+		try {
+			if (!target.matches(':focus-visible')) return;
+		} catch {
+			return;
+		}
+		const pad = Number.parseFloat(getComputedStyle(el).scrollPaddingTop) || 0;
+		const box = el.getBoundingClientRect();
+		const r = target.getBoundingClientRect();
+		const top = box.top + el.clientTop;
+		const bottom = top + el.clientHeight;
+		if (r.top - pad < top) el.scrollTop -= top - (r.top - pad);
+		else if (r.bottom + pad > bottom) el.scrollTop += r.bottom + pad - bottom;
+	}
+
 	$effect.pre(() => {
 		const el = scroller;
 		const first = items.length ? key(items[0]) : undefined;
@@ -106,7 +125,7 @@
 </script>
 
 <div data-tsu="ConversationFeed" class="feed-wrap {klass}" style={styleProp}>
-	<div class="feed" bind:this={scroller} {onscroll}>
+	<div class="feed" bind:this={scroller} {onscroll} {onfocusin}>
 		{#if loadMore}
 			<LoadMore pill state={loadMore} onload={onloadmore} label={loadMoreLabel} />
 		{/if}
