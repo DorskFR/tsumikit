@@ -119,10 +119,20 @@
 	});
 
 	$effect(() => {
-		if (!open || active < 0) return;
-		const el = root?.ownerDocument.getElementById(optionId(active));
-		el?.scrollIntoView?.({ block: 'nearest' });
+		if (open && active >= 0) revealActive();
 	});
+
+	// Scrolls the listbox only: `scrollIntoView` on a top-layer panel also
+	// scrolls the document in Chromium.
+	function revealActive() {
+		const list = root?.querySelector<HTMLElement>('.rs-list');
+		const row = rowEls()[active];
+		if (!list || !row) return;
+		const top = row.offsetTop;
+		const bottom = top + row.offsetHeight;
+		if (top < list.scrollTop) list.scrollTop = top;
+		else if (bottom > list.scrollTop + list.clientHeight) list.scrollTop = bottom - list.clientHeight;
+	}
 
 	function close() {
 		open = false;
@@ -303,8 +313,7 @@
 	async function onOpen() {
 		typeahead.reset();
 		await tick();
-		const el = active >= 0 ? root?.ownerDocument.getElementById(optionId(active)) : null;
-		el?.scrollIntoView?.({ block: 'nearest' });
+		if (active >= 0) revealActive();
 	}
 
 	function onClose() {
@@ -459,7 +468,6 @@
 	}
 	.rs-placeholder {
 		display: block;
-		padding-inline: var(--sp-1);
 		color: var(--text-muted);
 		font-size: var(--control-fs-md);
 		line-height: var(--lh-tight);
@@ -486,6 +494,7 @@
 		padding: var(--sp-1);
 	}
 	.rs-list {
+		position: relative;
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp-0-5);

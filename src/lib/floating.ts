@@ -35,6 +35,13 @@ export function place(
 	placeAt(trigger.getBoundingClientRect(), floating, placement, gap);
 }
 
+// The enter transition starts the panel at `scale: var(--enter-scale)`, so a
+// client rect taken on open is ~4% short; offset sizes ignore transforms.
+function layoutSize(el: HTMLElement): { width: number; height: number } {
+	const { width, height } = el.getBoundingClientRect();
+	return { width: el.offsetWidth || width, height: el.offsetHeight || height };
+}
+
 /** `place` against a viewport rect instead of an element. */
 export function placeAt(
 	t: AnchorRect,
@@ -42,7 +49,7 @@ export function placeAt(
 	placement: Placement = 'bottom-start',
 	gap = 6,
 ): void {
-	const f = floating.getBoundingClientRect();
+	const f = layoutSize(floating);
 	const vw = document.documentElement.clientWidth;
 	const vh = document.documentElement.clientHeight;
 	const [side, align] = placement.split('-') as [Side, Align];
