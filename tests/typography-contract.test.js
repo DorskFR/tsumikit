@@ -44,7 +44,7 @@ for (const [name, src] of [
 		assert.ok(hasDecl(src, '.uppercase', 'letter-spacing'));
 		assert.ok(hasDecl(src, '.lh-tight', 'line-height', 'var(--lh-tight)'));
 		assert.ok(hasDecl(src, '.lh-normal', 'line-height', 'var(--lh-normal)'));
-		assert.ok(hasDecl(src, '.lh-none', 'line-height', '1'));
+		assert.ok(hasDecl(src, '.lh-none', 'line-height', 'var(--lh-none)'));
 		assert.ok(hasDecl(src, '.grow', 'flex', '1 1 0'));
 		assert.ok(hasDecl(src, '.grow', 'min-width', '0'));
 		assert.match(src, /max-width: \${measure}/);

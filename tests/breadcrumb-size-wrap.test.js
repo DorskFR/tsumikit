@@ -30,7 +30,8 @@ test('new props are optional with non-breaking defaults', () => {
 test('size md bumps the trail font and separator icon', () => {
 	assert.match(source, /size === 'md' && 'crumbs--md'/);
 	assert.ok(hasDecl(css, '.crumbs--md', 'font-size', 'var(--fs-md)'));
-	assert.match(source, /size=\{size === 'md' \? 16 : 14\}/);
+	assert.ok(hasDecl(css, '.sep', 'font-size', 'var(--icon-sm)'));
+	assert.ok(hasDecl(css, '.crumbs--md .sep', 'font-size', 'var(--icon-md)'));
 });
 
 test('wrap=false keeps one line: ancestors keep width, current ellipsis-shrinks uncapped', () => {
@@ -56,6 +57,6 @@ test('coarse pointers grow ellipsised links to 40px instead of a clipped ::befor
 	const at = flat.indexOf('@media (hover: none) and (pointer: coarse) {');
 	assert.ok(at > flat.indexOf('.link {'), 'coarse block follows the base link rule');
 	const block = flat.slice(at, flat.indexOf('} }', at) + 3);
-	assert.match(block, /\.link { min-height: 40px; align-content: center; }/);
+	assert.match(block, /\.link { min-height: var\(--control-md\); align-content: center; }/);
 	assert.doesNotMatch(css, /\.link::before/);
 });

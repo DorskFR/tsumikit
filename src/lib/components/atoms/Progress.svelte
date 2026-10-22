@@ -95,7 +95,7 @@
 	aria-valuemax={indeterminate ? undefined : max}
 	aria-valuenow={indeterminate ? undefined : value}
 >
-	<div class="bar" style={indeterminate ? undefined : `width: ${pct}%`}></div>
+	<div class="bar" style={indeterminate ? undefined : `--p: ${pct / 100}`}></div>
 	{#each markers as m, i (`${i}:${m.at}`)}
 		<span
 			class="marker tone-{m.tone ? canonicalTone(m.tone) : 'text'}"
@@ -154,10 +154,12 @@
 		height: 0.3125rem;
 	}
 	.bar {
+		width: 100%;
 		height: 100%;
 		background: var(--fill, var(--accent));
 		border-radius: inherit;
-		transition: width 0.2s var(--ease);
+		translate: calc((var(--p, 1) - 1) * 100%) 0;
+		transition: translate var(--dur-base) var(--ease-out);
 	}
 	.marker {
 		position: absolute;

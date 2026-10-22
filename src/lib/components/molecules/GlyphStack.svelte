@@ -55,6 +55,10 @@
 	}: Omit<HTMLAttributes<HTMLSpanElement>, keyof Own> & Own = $props();
 
 	let root = $state<HTMLElement>();
+	// Coarse pointers cannot hit 1rem cells, so a folded stack with items opens
+	// its tiles on tap unless the caller chose an expand mode.
+	let coarse = $state(false);
+	const mode = $derived(expand !== 'none' ? expand : coarse ? 'tap' : 'none');
 	let width = $state(Number.POSITIVE_INFINITY);
 	let limit = $state(0);
 	const stacked = $derived(stack === 'always' || (stack === 'auto' && width < limit));
@@ -82,7 +86,7 @@
 	const CONTROL = 'button, a[href], input, select, textarea, [role="button"], [tabindex]:not([tabindex="-1"])';
 
 	const tiles = $derived(items?.slice(0, 4) ?? []);
-	const expandable = $derived(expand !== 'none' && stacked && tiles.length > 0);
+	const expandable = $derived(mode !== 'none' && stacked && tiles.length > 0);
 	let panel = $state<HTMLDivElement>();
 	let open = $state(false);
 	let armed = $state(-1);
@@ -151,7 +155,7 @@
 	}
 
 	function onPointerDown(e: PointerEvent) {
-		if (!expandable || expand !== 'slide' || e.button !== 0) return;
+		if (!expandable || mode !== 'slide' || e.button !== 0) return;
 		e.preventDefault();
 		e.stopPropagation();
 		slide.down(e, root);
@@ -177,11 +181,20 @@
 		if (!expandable || e.detail === 0) return;
 		e.preventDefault();
 		e.stopPropagation();
-		if (expand === 'tap') {
+		if (mode === 'tap') {
 			if (open) hide();
 			else show();
 		}
 	}
+
+	$effect(() => {
+		if (!browser || typeof matchMedia !== 'function') return;
+		const mq = matchMedia('(pointer: coarse)');
+		const sync = () => (coarse = mq.matches);
+		sync();
+		mq.addEventListener?.('change', sync);
+		return () => mq.removeEventListener?.('change', sync);
+	});
 
 	$effect(() => {
 		if (!expandable && open) hide();
@@ -229,7 +242,7 @@
 	class:stacked
 	data-stack={stack}
 	data-stacked={stacked || undefined}
-	data-expand={expandable ? expand : undefined}
+	data-expand={expandable ? mode : undefined}
 	{...rest}
 	onpointerdown={onPointerDown}
 	onpointermove={onPointerMove}
@@ -249,13 +262,13 @@
 	{/if}
 </span>
 
-{#if expand !== 'none' && items}
+{#if mode !== 'none' && items}
 	<!-- `manual`: an `auto` popover would light-dismiss on the captured slide release. -->
 	<div
 		bind:this={panel}
 		popover="manual"
 		class="expand-panel"
-		data-expand-panel={expand}
+		data-expand-panel={mode}
 		role="group"
 		aria-label={expandLabel}
 		ontoggle={onToggle}
@@ -291,10 +304,12 @@
 		display: inline-grid;
 		grid-template-columns: repeat(2, 1rem);
 		grid-auto-rows: 1rem;
-		gap: 1px;
+		gap: var(--sp-px);
 		place-items: center;
 	}
+	/* Cells clip, so any focus ring inside draws inset. */
 	.stacked > :global(*) {
+		--focus-ring-offset: var(--focus-ring-offset-inset);
 		width: 1rem;
 		height: 1rem;
 		max-width: 1rem;
@@ -304,7 +319,7 @@
 		justify-content: center;
 		overflow: hidden;
 		font-size: var(--fs-xs);
-		line-height: 1;
+		line-height: var(--lh-none);
 	}
 	.glyph-stack[data-expand] {
 		cursor: pointer;
@@ -325,18 +340,24 @@
 		border: 1px solid var(--border-strong);
 		border-radius: var(--r-md);
 		box-shadow: var(--shadow-md);
+		opacity: 0;
+		scale: var(--enter-scale);
+		transition:
+			opacity var(--dur-base) var(--ease-out),
+			scale var(--dur-base) var(--ease-out);
 	}
 	.expand-panel:popover-open {
 		display: grid;
 		grid-template-columns: repeat(2, minmax(var(--glyph-stack-tile, 3rem), 1fr));
 		grid-auto-rows: minmax(var(--glyph-stack-tile, 3rem), 1fr);
 		gap: var(--sp-1);
-		animation: glyph-expand 0.12s var(--ease);
+		opacity: 1;
+		scale: 1;
 	}
-	@keyframes glyph-expand {
-		from {
+	@starting-style {
+		.expand-panel:popover-open {
 			opacity: 0;
-			transform: scale(0.6);
+			scale: var(--enter-scale);
 		}
 	}
 	.tile {
@@ -344,13 +365,16 @@
 		align-items: center;
 		justify-content: center;
 		padding: var(--sp-1);
-		border-radius: var(--r-sm);
+		border-radius: calc(var(--r-md) - var(--sp-1) - 1px);
 		background: var(--surface);
-		transition: background 0.08s var(--ease);
+		transition:
+			background var(--dur-fast) var(--ease),
+			box-shadow var(--dur-fast) var(--ease);
 	}
 	.tile.armed {
 		background: color-mix(in srgb, var(--accent) 18%, var(--surface));
 		box-shadow: inset 0 0 0 2px var(--accent);
+		transition-duration: var(--dur-instant);
 	}
 	.tile-body {
 		display: inline-flex;

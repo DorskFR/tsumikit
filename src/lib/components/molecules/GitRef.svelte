@@ -115,7 +115,7 @@
 		min-width: 0;
 		font-family: var(--font-mono);
 		font-size: var(--fs-xs);
-		line-height: 1.4;
+		line-height: var(--lh-snug);
 		white-space: nowrap;
 	}
 	.chip {
@@ -123,7 +123,7 @@
 		align-items: center;
 		gap: 0.25em;
 		min-width: 0;
-		padding: 0.15rem var(--sp-2);
+		padding: var(--sp-0-5) var(--sp-2);
 		border-radius: var(--r-pill);
 		background: var(--bg-elevated-2);
 		color: var(--text-muted);
@@ -137,14 +137,16 @@
 		color: var(--git-ref-tone);
 		border-color: color-mix(in srgb, var(--git-ref-tone) 40%, transparent);
 		background: color-mix(in srgb, var(--git-ref-tone) 12%, transparent);
-		transition: border-color 0.12s var(--ease);
+		transition: border-color var(--dur-fast) var(--ease);
 	}
-	.pr:hover {
-		border-color: var(--git-ref-tone);
+	@media (hover: hover) and (pointer: fine) {
+		.pr:hover {
+			border-color: var(--git-ref-tone);
+		}
 	}
 	.pr:focus-visible {
-		outline: 2px solid var(--git-ref-tone);
-		outline-offset: 2px;
+		outline: var(--focus-ring-width) solid var(--git-ref-tone);
+		outline-offset: var(--focus-ring-offset);
 	}
 	.text {
 		min-width: 0;

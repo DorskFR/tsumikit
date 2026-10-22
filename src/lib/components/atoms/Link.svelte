@@ -56,6 +56,9 @@
 		text-decoration: underline;
 		font: inherit;
 		text-align: start;
+		transition:
+			color var(--dur-fast) ease,
+			text-decoration-color var(--dur-fast) ease;
 	}
 	.tone-info {
 		color: var(--info);
@@ -70,8 +73,10 @@
 	.underline-none {
 		text-decoration: none;
 	}
-	.underline-hover:hover {
-		text-decoration: underline;
+	@media (hover: hover) and (pointer: fine) {
+		.underline-hover:hover {
+			text-decoration: underline;
+		}
 	}
 	.align-center {
 		text-align: center;

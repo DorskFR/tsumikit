@@ -157,11 +157,11 @@
 		position: absolute;
 		right: -0.35rem;
 		bottom: -0.35rem;
-		border-radius: 50%;
+		border-radius: var(--r-pill);
 		background: var(--bg);
 		color: var(--text-muted);
 		font-size: var(--fs-xs);
-		line-height: 1;
+		line-height: var(--lh-none);
 	}
 	.swatch {
 		display: grid;
@@ -215,19 +215,27 @@
 		gap: var(--sp-1);
 	}
 	.cell {
+		--cell-scale-dur: var(--dur-fast);
 		display: inline-flex;
-		padding: 3px;
+		padding: var(--sp-0-5);
 		border: 2px solid transparent;
 		border-radius: var(--r-md);
 		background: none;
 		cursor: pointer;
+		transition:
+			background-color var(--dur-fast) ease,
+			border-color var(--dur-fast) ease,
+			scale var(--cell-scale-dur) var(--ease-out);
 	}
+	/* Concentric with the cell: outer radius minus border and padding. */
 	.cell .swatch {
 		width: 1.6rem;
 		height: 1.6rem;
+		border-radius: calc(var(--r-md) - var(--sp-1));
 	}
-	.cell:hover {
-		background: var(--bg-elevated-2);
+	.cell:active {
+		--cell-scale-dur: var(--dur-press);
+		scale: var(--press-scale-sm);
 	}
 	.cell.current {
 		border-color: var(--accent);
@@ -238,8 +246,8 @@
 	}
 	.cell:focus-visible,
 	.auto:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 1px;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset-inset);
 	}
 	.auto {
 		display: flex;
@@ -255,16 +263,23 @@
 		color: inherit;
 		text-align: left;
 		cursor: pointer;
+		transition:
+			background-color var(--dur-fast) ease,
+			border-color var(--dur-fast) ease;
 	}
-	.auto:hover {
-		background: var(--bg-elevated-2);
+	@media (hover: hover) and (pointer: fine) {
+		.cell:hover,
+		.auto:hover {
+			background: var(--bg-elevated-2);
+			transition-duration: var(--dur-instant);
+		}
 	}
 	.auto.current {
 		border-color: var(--accent);
 	}
 	.auto-glyph {
 		font-size: var(--fs-md);
-		line-height: 1;
+		line-height: var(--lh-none);
 	}
 	.auto-text {
 		display: flex;

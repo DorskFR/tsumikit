@@ -35,5 +35,5 @@ test("the row's own semantics are applied after the spread, so attrs cannot brea
 test('items without attrs are unchanged: the spread is the only addition', () => {
 	assert.match(normalize(source), /class:danger=\{item\.danger\}/);
 	assert.match(normalize(source), /disabled=\{item\.disabled\}/);
-	assert.match(normalize(source), /onclick=\{\(\) => select\(item, close\)\}/);
+	assert.match(normalize(source), /onclick=\{\(\) => select\(item, key, close\)\}/);
 });

@@ -113,9 +113,9 @@
 	   full width and the scrollbar ends above the controls. */
 	.ig {
 		--ig-h: var(--control-height-default);
-		--ig-pad-x: var(--sp-3);
+		--ig-pad-x: var(--control-px-md);
 		--ig-gap: var(--sp-2);
-		--ig-inset: 2px;
+		--ig-inset: var(--sp-0-5);
 		--ig-radius: var(--r-md);
 		position: relative;
 		display: flex;
@@ -123,12 +123,12 @@
 	}
 	.ig-sm {
 		--ig-h: var(--control-height-compact);
-		--ig-pad-x: var(--sp-2);
+		--ig-pad-x: var(--control-px-sm);
 		--ig-gap: var(--sp-1);
 	}
 	.ig-lg {
 		--ig-h: var(--control-height-large);
-		--ig-pad-x: var(--sp-4);
+		--ig-pad-x: var(--control-px-lg);
 	}
 	.ig-field {
 		width: 100%;
@@ -138,10 +138,10 @@
 	   following the field's; inner corners go square. In the bar they hug the
 	   bottom and side borders, so only the bottom-outer corner is rounded. */
 	.ig-adorn {
-		--ig-fuse-r: calc(var(--ig-radius) - 1px);
+		--ig-fuse-r: calc(var(--ig-radius) - var(--sp-px));
 		position: absolute;
-		top: 1px;
-		bottom: 1px;
+		top: var(--sp-px);
+		bottom: var(--sp-px);
 		z-index: 1;
 		display: flex;
 		align-items: center;
@@ -149,10 +149,10 @@
 		pointer-events: none;
 	}
 	.ig-leading {
-		inset-inline-start: 1px;
+		inset-inline-start: var(--sp-px);
 	}
 	.ig-trailing {
-		inset-inline-end: 1px;
+		inset-inline-end: var(--sp-px);
 	}
 	.ig-adorn > :global(*) {
 		pointer-events: auto;
@@ -197,7 +197,7 @@
 	}
 	.ig-bar .ig-adorn {
 		top: auto;
-		height: calc(var(--ig-h) - 1px);
+		height: calc(var(--ig-h) - var(--sp-px));
 	}
 	.ig-bar .ig-leading > :global(:first-child) {
 		--btn-radius: 0 0 0 var(--ig-fuse-r);
@@ -225,7 +225,7 @@
 		border: 1px solid var(--textarea-border, var(--border-strong));
 		border-top: 0;
 		border-radius: 0 0 var(--ig-radius) var(--ig-radius);
-		transition: border-color 0.12s var(--ease);
+		transition: border-color var(--dur-fast) ease;
 		pointer-events: none;
 	}
 	.ig-bar:has(.ig-field :global(:focus))::before {
@@ -244,7 +244,8 @@
 		pointer-events: none;
 	}
 	.ig.disabled {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
+		cursor: not-allowed;
 	}
 	.ig.disabled .ig-adorn > :global(:disabled) {
 		opacity: 1;

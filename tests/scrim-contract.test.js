@@ -26,7 +26,8 @@ test('Scrim closes on Escape from anywhere in the document and hides below its b
 	assert.match(source, /event\.key !== 'Escape' \|\| event\.defaultPrevented/);
 	assert.match(source, /matchMedia\(`\(max-width: \$\{hideBelow\}\)`\)/);
 	assert.match(source, /{#if !hidden}/);
-	assert.match(source, /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.scrim\s*{[^}]*animation: none;/s);
+	assert.match(source, /@starting-style\s*{\s*\.scrim\s*{\s*opacity: 0;/s);
+	assert.doesNotMatch(source, /prefers-reduced-motion|@keyframes/);
 });
 
 test('Scrim and the resizeHandle action are part of the public API', () => {

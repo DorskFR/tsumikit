@@ -14,6 +14,7 @@
 
 <script lang="ts">
 	import type { Snippet } from 'svelte';
+	import { playSound } from '$lib/sound';
 
 	// Native <input type="radio"> sharing one `name`: the browser handles
 	// single-selection, arrow keys and form participation. `variant="rows"`
@@ -28,6 +29,7 @@
 		action,
 		below,
 		onfocuschange,
+		sound = true,
 		class: klass = ''
 	}: {
 		options: RadioOption[];
@@ -41,6 +43,8 @@
 		/** Fires once each time a different option becomes active — by keyboard
 		 *  focus or by pointer hover — so a consumer can drive a preview pane. */
 		onfocuschange?: (value: string) => void;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		class?: string;
 	} = $props();
 
@@ -53,6 +57,7 @@
 		active = v;
 		onfocuschange?.(v);
 	}
+	const onchange = () => playSound('click', sound);
 </script>
 
 <div
@@ -76,6 +81,7 @@
 					aria-label={o.label}
 					aria-describedby={descId(o)}
 					onfocus={() => activate(o.value)}
+					{onchange}
 				/>
 				{#if o.description}<span class="sr-only" id={descId(o)}>{o.description}</span>{/if}
 				<span class="swatch-chip" aria-hidden="true" style="--swatch: {o.color ?? 'var(--accent)'}"></span>
@@ -92,6 +98,7 @@
 							disabled={o.disabled}
 							aria-describedby={descId(o)}
 							onfocus={() => activate(o.value)}
+							{onchange}
 						/>
 						<span class="dot-ctl" aria-hidden="true"></span>
 						<span class="texts">
@@ -117,6 +124,7 @@
 					disabled={o.disabled}
 					aria-describedby={descId(o)}
 					onfocus={() => activate(o.value)}
+					{onchange}
 				/>
 				<span class="dot-ctl" aria-hidden="true"></span>
 				<span class="texts">
@@ -149,7 +157,7 @@
 	}
 	.radio.disabled,
 	.row.disabled {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
 	}
 	input {
 		position: absolute;
@@ -161,40 +169,47 @@
 	.dot-ctl {
 		position: relative;
 		flex: none;
-		width: 1.15rem;
-		height: 1.15rem;
-		margin-top: 0.1rem;
+		width: var(--chip-sm);
+		height: var(--chip-sm);
+		margin-top: var(--sp-px);
 		border: 1px solid var(--border-strong);
 		border-radius: var(--r-pill);
 		background: var(--bg);
-		transition: border-color 0.12s var(--ease);
+		transition: border-color var(--dur-fast) var(--ease);
 	}
 	.dot-ctl::after {
 		content: '';
 		position: absolute;
-		inset: 50%;
-		width: 0.55rem;
-		height: 0.55rem;
-		margin: -0.275rem 0 0 -0.275rem;
+		inset: 0;
+		width: var(--sp-2);
+		height: var(--sp-2);
+		margin: auto;
 		border-radius: var(--r-pill);
 		background: var(--accent);
-		transform: scale(0);
-		transition: transform 0.1s var(--ease);
+		opacity: 0;
+		scale: 0.5;
+		transition:
+			opacity var(--dur-exit-fast) var(--ease-out),
+			scale var(--dur-exit-fast) var(--ease-out);
 	}
 	input:checked + .dot-ctl {
 		border-color: var(--accent);
 	}
 	input:checked + .dot-ctl::after {
-		transform: scale(1);
+		opacity: 1;
+		scale: 1;
+		transition:
+			opacity var(--dur-spring) var(--ease-spring),
+			scale var(--dur-spring) var(--ease-spring);
 	}
 	input:focus-visible + .dot-ctl {
-		outline: 2px solid var(--accent);
-		outline-offset: 2px;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
 	}
 	.texts {
 		display: flex;
 		flex-direction: column;
-		gap: 1px;
+		gap: var(--sp-px);
 		min-width: 0;
 	}
 	.hint {
@@ -218,8 +233,8 @@
 		border: 1px solid var(--border);
 		border-radius: var(--r-md);
 		transition:
-			border-color 0.12s var(--ease),
-			background-color 0.12s var(--ease);
+			border-color var(--dur-fast) var(--ease),
+			background-color var(--dur-fast) var(--ease);
 	}
 	.row.selected {
 		border-color: var(--accent-dim);
@@ -240,7 +255,7 @@
 		min-width: 0;
 	}
 	.row .label-text {
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 	}
 	.note {
 		font-size: var(--fs-xs);
@@ -287,17 +302,17 @@
 		cursor: pointer;
 	}
 	.swatch.disabled {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
 	}
 	.swatch-chip {
-		width: 1.6rem;
-		height: 1.6rem;
+		width: var(--chip-md);
+		height: var(--chip-md);
 		border-radius: var(--r-pill);
 		background: var(--swatch);
 		border: 2px solid transparent;
 		box-shadow: 0 0 0 1px var(--border-strong);
-		transition: box-shadow 0.12s var(--ease);
+		transition: box-shadow var(--dur-fast) var(--ease);
 	}
 	.swatch input:checked + .swatch-chip {
 		border-color: var(--bg);
@@ -305,6 +320,6 @@
 	}
 	.swatch input:focus-visible + .swatch-chip {
 		outline: var(--focus-ring);
-		outline-offset: 2px;
+		outline-offset: var(--focus-ring-offset);
 	}
 </style>

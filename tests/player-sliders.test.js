@@ -368,13 +368,14 @@ test('CSS contracts: touch-action none, thin track, coarse slab, hidden thumb, r
 	assert.ok(hasDecl(seekCss, '.seek-anchor--thumb', 'inset-inline-start', 'calc(var(--pct) * 1%)'));
 	const flatSeek = normalize(seekCss);
 	assert.match(flatSeek, /@media \(pointer: coarse\) { \.seek { min-height: var\(--touch-target-compact\); } }/);
-	assert.match(flatSeek, /@media \(prefers-reduced-motion: reduce\) { \.seek-track, \.seek-thumb { transition: none; } }/);
-	assert.match(flatSeek, /\.seek:hover \.seek-thumb, \.seek:focus-visible \.seek-thumb, \.seek--dragging \.seek-thumb { opacity: 1;/);
+	assert.doesNotMatch(flatSeek, /prefers-reduced-motion/);
+	assert.match(flatSeek, /\.seek:focus-visible \.seek-thumb, \.seek--dragging \.seek-thumb { opacity: 1;/);
+	assert.match(flatSeek, /@media \(hover: hover\) and \(pointer: fine\) {[^@]*\.seek:not\(\.seek--inert\):hover \.seek-thumb { opacity: 1;/);
 	assert.ok(hasDecl(volCss, '.vol-slab', 'touch-action', 'none'));
 	const flatVol = normalize(volCss);
 	assert.match(flatVol, /@media \(hover: none\) and \(pointer: coarse\) { \.vol--hide-touch \.vol-slab { display: none; } }/);
 	assert.match(flatVol, /@media \(pointer: coarse\) { \.vol-slab { min-height: var\(--touch-target-compact\); }/);
-	assert.match(flatVol, /@media \(prefers-reduced-motion: reduce\) { \.vol-thumb { transition: none; } }/);
+	assert.doesNotMatch(flatVol, /prefers-reduced-motion/);
 	for (const css of [seekCss, volCss, tdSrc.slice(tdSrc.indexOf('<style>'))]) {
 		assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b|rgba?\(/i, 'no raw colours');
 	}

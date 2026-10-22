@@ -13,12 +13,12 @@ const coarseBlock = coarse.slice(0, coarse.indexOf('} }') + 3);
 
 test('FilterInput keeps 16px text on coarse pointers so iOS does not zoom on focus', () => {
 	assert.ok(coarse.length > 0, 'a (pointer: coarse) block exists');
-	assert.match(coarseBlock, /\.fi__input { font-size: max\(16px, var\(--fs-md\)\); }/);
-	assert.match(coarseBlock, /\.fi--sm \.fi__input { font-size: max\(16px, var\(--fs-sm\)\); }/);
+	assert.match(coarseBlock, /\.fi__input { font-size: max\(16px, var\(--control-fs-md\)\); }/);
+	assert.match(coarseBlock, /\.fi--sm \.fi__input { font-size: max\(16px, var\(--control-fs-sm\)\); }/);
 });
 
 test('fine pointers keep the compact 13px sm text and the coarse floor comes after both base rules', () => {
-	const sm = css.indexOf('.fi--sm .fi__input { font-size: var(--fs-sm); }');
+	const sm = css.indexOf('.fi--sm .fi__input { font-size: var(--control-fs-sm); }');
 	const base = css.indexOf('.fi__input { flex: 1;');
 	const floor = css.indexOf('@media (pointer: coarse) {');
 	assert.ok(sm > -1 && base > -1, 'base and sm rules exist');

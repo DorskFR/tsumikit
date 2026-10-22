@@ -31,10 +31,12 @@
 	// Without `panel` the tablist stands alone as a document strip: `closable`
 	// tabs gain a close control, Delete and middle-click close the focused tab,
 	// `leading` decorates each tab and `actions` trails the strip.
+	import { tick } from 'svelte';
 	import type { Snippet } from 'svelte';
 	import type { HTMLAttributes } from 'svelte/elements';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import IconButton from '$lib/components/molecules/IconButton.svelte';
+	import { playSound } from '$lib/sound';
 
 	let {
 		tabs,
@@ -50,6 +52,7 @@
 		style: styleProp = '',
 		panelClass = '',
 		panelPadding = 'md',
+		sound = true,
 		...rest
 	}: Omit<HTMLAttributes<HTMLDivElement>, keyof Own> & Own = $props();
 
@@ -73,6 +76,8 @@
 		style?: string;
 		panelClass?: string;
 		panelPadding?: 'none' | 'sm' | 'md';
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 	};
 
 	// Default to the first selectable tab when no value is supplied.
@@ -97,8 +102,59 @@
 		return t.closable ?? closable;
 	}
 
+	// One indicator slides under the selected tab on translate/scale (never
+	// width/left). It snaps on mount and on reflow, and only animates on a
+	// selection change; until it is placed the selected tab draws its own line.
+	let indicator = $state<HTMLSpanElement | null>(null);
+	let placed = $state(false);
+	let indLeft = 0;
+	let indWidth = 0;
+	function placeIndicator(animate: boolean) {
+		const el = listEl?.querySelector<HTMLElement>('.tab.selected');
+		const ind = indicator;
+		if (!el || !ind) {
+			placed = false;
+			return;
+		}
+		const left = el.offsetLeft;
+		const width = el.offsetWidth;
+		const prevLeft = indLeft;
+		const prevWidth = indWidth;
+		indLeft = left;
+		indWidth = width;
+		ind.style.width = `${width}px`;
+		if (!animate || !placed || width === 0) {
+			ind.style.transition = 'none';
+			ind.style.translate = `${left}px 0`;
+			ind.style.scale = '1 1';
+			ind.getBoundingClientRect();
+			ind.style.transition = '';
+			placed = true;
+			return;
+		}
+		ind.style.transition = 'none';
+		ind.style.translate = `${prevLeft}px 0`;
+		ind.style.scale = `${prevWidth / width} 1`;
+		ind.getBoundingClientRect();
+		ind.style.transition = '';
+		ind.style.translate = `${left}px 0`;
+		ind.style.scale = '1 1';
+	}
+	$effect(() => {
+		value;
+		tabs;
+		tick().then(() => placeIndicator(true));
+	});
+	$effect(() => {
+		if (!listEl || typeof ResizeObserver === 'undefined') return;
+		const ro = new ResizeObserver(() => placeIndicator(false));
+		ro.observe(listEl);
+		return () => ro.disconnect();
+	});
+
 	function select(id: string, focus = false) {
 		if (tabs.find((t) => t.id === id)?.disabled) return;
+		if (value !== id) playSound('click', sound);
 		value = id;
 		queueMicrotask(() => {
 			const el = listEl?.ownerDocument.getElementById(tabId(id));
@@ -163,7 +219,8 @@
 
 <div {...rest} class="tabs {klass}" style={styleProp} data-tsu="Tabs">
 	<div class="strip">
-		<div bind:this={listEl} role="tablist" aria-label={label} tabindex="-1" class="tablist" {onkeydown}>
+		<div bind:this={listEl} role="tablist" aria-label={label} tabindex="-1" class="tablist" class:placed {onkeydown}>
+				<span bind:this={indicator} class="indicator" aria-hidden="true"></span>
 			{#each tabs as t (t.id)}
 				{#if canClose(t)}
 					<!-- A close control cannot nest inside a <button>, so a closable tab is a div. -->
@@ -235,6 +292,7 @@
 		align-items: stretch;
 	}
 	.tablist {
+		position: relative;
 		display: flex;
 		flex: 1 1 auto;
 		min-width: 0;
@@ -244,41 +302,65 @@
 		overflow-y: hidden;
 		scrollbar-width: thin;
 	}
+	.indicator {
+		position: absolute;
+		left: 0;
+		bottom: 0;
+		width: 0;
+		height: 2px;
+		background: var(--accent);
+		transform-origin: left center;
+		pointer-events: none;
+		transition:
+			translate var(--dur-spring) var(--ease-spring),
+			scale var(--dur-spring) var(--ease-spring);
+	}
 	.tab {
 		display: inline-flex;
 		flex: 0 0 auto;
 		white-space: nowrap;
 		align-items: center;
 		gap: var(--sp-2);
-		padding: var(--sp-2) var(--sp-3);
+		min-height: var(--control-md);
+		padding: 0 var(--control-px-md);
 		border: none;
 		background: none;
 		color: var(--text-muted);
-		font-size: var(--fs-sm);
+		font-size: var(--control-fs-md);
 		font-weight: var(--fw-medium);
+		--icon-size: var(--control-icon-md);
 		border-bottom: 2px solid transparent;
 		margin-bottom: -1px;
 		max-width: var(--tab-max-width, none);
 		transition:
-			color 0.12s var(--ease),
-			border-color 0.12s var(--ease);
+			color var(--dur-fast) var(--ease),
+			border-color var(--dur-fast) var(--ease);
 	}
 	.tab.closable {
 		cursor: pointer;
 		padding-inline-end: var(--sp-2);
 		user-select: none;
 	}
-	.tab:hover:not(:disabled, .disabled) {
-		color: var(--text);
+	@media (hover: hover) and (pointer: fine) {
+		.tab:hover:not(:disabled, .disabled) {
+			color: var(--text);
+		}
 	}
 	.tab:disabled,
 	.tab.disabled {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
 	}
 	.tab.selected {
 		color: var(--accent);
+	}
+	.tablist:not(.placed) .tab.selected {
 		border-bottom-color: var(--accent);
+	}
+	/* The list clips its overflow, so the ring sits inside the tab. */
+	.tab:focus-visible {
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset-inset);
 	}
 	.label {
 		min-width: 0;
@@ -303,8 +385,8 @@
 		padding-top: 0;
 	}
 	.tabpanel:focus-visible {
-		outline: 2px solid var(--accent);
-		outline-offset: 2px;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
 		border-radius: var(--r-sm);
 	}
 </style>

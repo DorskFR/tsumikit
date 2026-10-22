@@ -7,6 +7,7 @@
 	import type { Snippet } from 'svelte';
 	import type { HTMLAttributes } from 'svelte/elements';
 	import { describeMediaTime, formatMediaTime, isLiveDuration } from '$lib/media-time';
+	import { playSound } from '$lib/sound';
 
 	type Own = {
 		/** Position in seconds. Updated only on commit, never while dragging. */
@@ -22,6 +23,8 @@
 		disabled?: boolean;
 		size?: 'sm' | 'md';
 		label?: string;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		formatTime?: (seconds: number, ref?: number) => string;
 		/** Fired on every pointer move while scrubbing with the previewed time. */
 		oninput?: (seconds: number) => void;
@@ -44,6 +47,7 @@
 		disabled = false,
 		size = 'md',
 		label = 'Seek',
+		sound = true,
 		formatTime = formatMediaTime,
 		oninput,
 		onchange,
@@ -77,6 +81,7 @@
 					.filter(([a, b]) => b > a)
 	);
 	const valueText = $derived(describeMediaTime(shown, live ? null : duration, formatTime));
+	const discrete = $derived(duration > 0 && duration / step <= 20);
 
 	function fracAt(el: HTMLElement, clientX: number) {
 		const r = el.getBoundingClientRect();
@@ -125,6 +130,7 @@
 		const el = e.currentTarget as HTMLElement;
 		if (pointerId === e.pointerId) {
 			preview = fracAt(el, e.clientX) * duration;
+			if (discrete) playSound('tick', sound);
 			oninput?.(preview);
 			return;
 		}
@@ -182,6 +188,7 @@
 		}
 		if (next === null) return;
 		e.preventDefault();
+		playSound('tick', sound);
 		commit(next);
 	}
 </script>
@@ -233,8 +240,9 @@
 <style>
 	.seek {
 		--seek-track: 3px;
-		--seek-track-active: 5px;
+		--seek-track-grow: 1.6;
 		--seek-thumb: 12px;
+		--seek-halo: 0 0 0 4px color-mix(in srgb, var(--seek-accent) 20%, transparent);
 		--seek-slab: 1.25rem;
 		--seek-accent: var(--slider-accent, var(--accent));
 		position: relative;
@@ -249,7 +257,6 @@
 	}
 	.seek--md {
 		--seek-track: 4px;
-		--seek-track-active: 6px;
 		--seek-thumb: 14px;
 		--seek-slab: 1.5rem;
 	}
@@ -259,8 +266,8 @@
 		}
 	}
 	.seek--inert {
-		cursor: default;
-		opacity: 0.45;
+		cursor: not-allowed;
+		opacity: var(--disabled-opacity);
 	}
 	.seek-track {
 		position: absolute;
@@ -271,19 +278,12 @@
 		border-radius: var(--r-pill);
 		background: var(--bg-elevated-2);
 		overflow: hidden;
-		transition:
-			height 120ms var(--ease),
-			margin-top 120ms var(--ease);
+		transform-origin: center;
+		transition: scale var(--dur-fast) var(--ease);
 	}
-	.seek:hover .seek-track,
 	.seek:focus-visible .seek-track,
 	.seek--dragging .seek-track {
-		height: var(--seek-track-active);
-		margin-top: calc(var(--seek-track-active) / -2);
-	}
-	.seek--inert:hover .seek-track {
-		height: var(--seek-track);
-		margin-top: calc(var(--seek-track) / -2);
+		scale: 1 var(--seek-track-grow);
 	}
 	.seek-buffered,
 	.seek-played {
@@ -319,28 +319,45 @@
 		top: 0;
 		width: var(--seek-thumb);
 		height: var(--seek-thumb);
-		border-radius: 50%;
+		border-radius: var(--r-pill);
 		background: var(--seek-accent);
 		border: 2px solid var(--bg);
 		box-shadow: var(--shadow-sm);
-		transform: translate(-50%, -50%) scale(0.6);
+		transform: translate(-50%, -50%);
+		scale: 0.6;
 		opacity: 0;
 		transition:
-			opacity 120ms var(--ease),
-			transform 120ms var(--ease);
+			opacity var(--dur-fast) var(--ease),
+			scale var(--dur-press) var(--ease-out),
+			box-shadow var(--dur-fast) var(--ease);
 	}
-	.seek:hover .seek-thumb,
 	.seek:focus-visible .seek-thumb,
 	.seek--dragging .seek-thumb {
 		opacity: 1;
-		transform: translate(-50%, -50%) scale(1);
+		scale: 1;
+	}
+	.seek--dragging .seek-thumb {
+		scale: 1.15;
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.seek:not(.seek--inert):hover .seek-track {
+			scale: 1 var(--seek-track-grow);
+		}
+		.seek:not(.seek--inert):hover .seek-thumb {
+			opacity: 1;
+			scale: 1;
+			box-shadow: var(--shadow-sm), var(--seek-halo);
+		}
+		.seek--dragging .seek-thumb {
+			scale: 1.15;
+		}
 	}
 	.seek--inert .seek-thumb {
 		opacity: 0;
 	}
 	.seek:focus-visible .seek-thumb {
 		outline: var(--focus-ring);
-		outline-offset: 2px;
+		outline-offset: var(--focus-ring-offset);
 	}
 	.seek-tip {
 		position: absolute;
@@ -360,11 +377,5 @@
 		font-size: var(--fs-xs);
 		font-variant-numeric: tabular-nums;
 		white-space: nowrap;
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.seek-track,
-		.seek-thumb {
-			transition: none;
-		}
 	}
 </style>

@@ -15,6 +15,7 @@
 		retryLabel = 'Retry',
 		doneLabel = 'No more items',
 		pill = false,
+		sound = true,
 		class: klass = '',
 		...rest
 	}: {
@@ -26,6 +27,8 @@
 		retryLabel?: string;
 		doneLabel?: string;
 		pill?: boolean;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		class?: string;
 		[key: string]: unknown;
 	} = $props();
@@ -44,12 +47,13 @@
 		<Text variant="caption" class="load-more-done">{doneLabel}</Text>
 	{:else if state === 'error'}
 		<Text tone="danger" size="sm" class="load-more-error">{errorLabel}</Text>
-		<Button size="sm" onclick={() => onload?.()}>{retryLabel}</Button>
+		<Button size="sm" {sound} onclick={() => onload?.()}>{retryLabel}</Button>
 	{:else}
 		<Button
 			size="sm"
 			variant={pill ? 'default' : 'ghost'}
 			loading={state === 'loading'}
+			{sound}
 			class={pill ? 'load-more-chip' : ''}
 			onclick={() => onload?.()}
 		>
@@ -67,6 +71,7 @@
 		gap: var(--sp-2);
 		padding: var(--sp-2);
 		min-height: var(--sp-8);
+		flex-shrink: 0;
 	}
 	.load-more-pill {
 		padding: var(--sp-1);

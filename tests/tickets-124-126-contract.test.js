@@ -34,10 +34,10 @@ test('Badge variant typography reads --badge-fw too, keeping its own weight as t
 	assert.equal(rule(badge, '.uppercase')['font-weight'], 'var(--badge-fw, var(--fw-semibold))');
 });
 
-test('Badge numeric squares off with --badge-min-size, unset keeping 1.5em wide and auto tall', () => {
+test('Badge numeric squares off with --badge-min-size, unset keeping 1.5em wide and the chip ladder height', () => {
 	const numeric = rule(badge, '.numeric');
 	assert.equal(numeric['min-width'], 'var(--badge-min-size, 1.5em)');
-	assert.equal(numeric['min-height'], 'var(--badge-min-size, auto)');
+	assert.equal(numeric['min-height'], 'var(--badge-min-size, var(--badge-h))');
 	assert.equal(numeric['justify-content'], 'center');
 });
 
@@ -45,7 +45,7 @@ test('every --badge-* size hook is read with a fallback, so unset renders exactl
 	for (const [prop, fallbacks] of [
 		['--badge-fs', ['var(--fs-xs)']],
 		['--badge-fw', ['var(--fw-medium)', 'var(--fw-normal)', 'var(--fw-semibold)']],
-		['--badge-min-size', ['1.5em', 'auto']]
+		['--badge-min-size', ['1.5em', 'var(--badge-h)']]
 	]) {
 		const reads = [...normalize(badge).matchAll(new RegExp(`var\\(${prop}([^)]*\\)*?)`, 'g'))];
 		assert.ok(reads.length > 0, `${prop} is never read`);
@@ -133,14 +133,14 @@ test('the canonical and variant triggers read the same hooks, each keeping its o
 	const canonical = rule(popover, '.pop-trigger.canonical');
 	assert.equal(canonical.background, 'var(--pop-trigger-bg, var(--surface))');
 	assert.equal(canonical['border-color'], 'var(--pop-trigger-border, var(--border-strong))');
-	assert.equal(canonical['font-size'], 'var(--pop-trigger-size, var(--fs-sm))');
+	assert.equal(canonical['font-size'], 'var(--pop-trigger-size, var(--control-fs-md))');
 
 	const primary = rule(popover, '.pop-trigger.trigger-primary');
 	assert.equal(primary.background, 'var(--pop-trigger-bg, var(--accent))');
 	assert.equal(primary.color, 'var(--pop-trigger-fg, var(--text-on-accent))');
 
-	assert.equal(rule(popover, '.pop-trigger.trigger-sm')['font-size'], 'var(--pop-trigger-size, var(--fs-xs))');
-	assert.equal(rule(popover, '.pop-trigger.trigger-lg')['font-size'], 'var(--pop-trigger-size, var(--fs-base))');
+	assert.equal(rule(popover, '.pop-trigger.trigger-sm')['font-size'], 'var(--pop-trigger-size, var(--control-fs-sm))');
+	assert.equal(rule(popover, '.pop-trigger.trigger-lg')['font-size'], 'var(--pop-trigger-size, var(--control-fs-lg))');
 	assert.equal(rule(popover, '.pop-trigger.trigger-danger').color, 'var(--pop-trigger-fg, var(--danger))');
 });
 
@@ -177,9 +177,9 @@ test('Popover is in the README property table with its trigger hooks and --pop-b
 test('--pop-trigger-pad reads on every padding tier, each keeping its own value', () => {
 	for (const [selector, fallback] of [
 		[':where(.pop-trigger:not(.bare))', 'var(--sp-1)'],
-		['.pop-trigger.canonical', 'var(--sp-2) var(--sp-4)'],
-		['.pop-trigger.trigger-sm', 'var(--sp-1) var(--sp-3)'],
-		['.pop-trigger.trigger-lg', 'var(--sp-3) var(--sp-5)'],
+		['.pop-trigger.canonical', 'var(--sp-2) var(--btn-px-md)'],
+		['.pop-trigger.trigger-sm', 'var(--sp-1) var(--btn-px-sm)'],
+		['.pop-trigger.trigger-lg', 'var(--sp-3) var(--btn-px-lg)'],
 		['.pop-trigger.trigger-control', '0 var(--sp-3)'],
 		['.pop-trigger.trigger-box', '0'],
 		[':where(.pop-trigger.bare)', '0']

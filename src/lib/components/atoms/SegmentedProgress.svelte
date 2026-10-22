@@ -103,7 +103,7 @@
 		>
 			{#each segments as seg, i (i)}
 				<div class="segment tone-{seg.tone ?? 'accent'}" style="flex-grow: {grow(seg)}" title={seg.label}>
-					<div class="bar" style="width: {pct(seg)}%"></div>
+					<div class="bar" style="--p: {pct(seg) / 100}"></div>
 				</div>
 			{/each}
 			{#if remainder > 0}
@@ -124,7 +124,7 @@
 		>
 			{#each segments as seg, i (i)}
 				<div class="segment tone-{seg.tone ?? 'accent'}" style="flex-grow: {grow(seg)}" title={seg.label}>
-					<div class="bar" style="width: {pct(seg)}%"></div>
+					<div class="bar" style="--p: {pct(seg) / 100}"></div>
 				</div>
 			{/each}
 		</div>
@@ -180,9 +180,11 @@
 		border-bottom-right-radius: var(--r-pill);
 	}
 	.bar {
+		width: 100%;
 		height: 100%;
 		background: var(--fill, var(--accent));
-		transition: width 0.2s var(--ease);
+		translate: calc((var(--p, 1) - 1) * 100%) 0;
+		transition: translate var(--dur-base) var(--ease-out);
 	}
 	.tone-success,
 	.tone-ok {
@@ -210,7 +212,6 @@
 		min-width: 0;
 		border-radius: 0;
 		background: transparent;
-		transition: flex-grow 0.2s var(--ease);
 	}
 
 	.segmented-progress-wrap {

@@ -132,7 +132,7 @@
 		width: 3rem;
 		height: 3rem;
 		border-radius: var(--r-lg);
-		font-size: 1.5rem;
+		font-size: var(--fs-xl);
 		color: var(--empty-tone);
 		background: color-mix(in srgb, var(--empty-tone) 14%, transparent);
 		border: 1px solid color-mix(in srgb, var(--empty-tone) 30%, transparent);
@@ -140,7 +140,7 @@
 	.empty-compact .empty-chip {
 		width: 2.25rem;
 		height: 2.25rem;
-		font-size: 1.125rem;
+		font-size: var(--fs-lg);
 	}
 	.empty-inline {
 		flex-direction: row;
@@ -151,7 +151,7 @@
 	.empty-inline .empty-chip {
 		width: auto;
 		height: auto;
-		font-size: 1em;
+		font-size: var(--icon-md);
 		background: none;
 		border: none;
 	}
@@ -171,14 +171,14 @@
 		font-size: var(--fs-md);
 		font-weight: var(--fw-semibold);
 		color: var(--text);
-		line-height: 1.3;
+		line-height: var(--lh-snug);
 	}
 	.empty-desc {
 		margin: 0;
 		max-width: 32ch;
 		font-size: var(--fs-sm);
 		color: var(--text-muted);
-		line-height: 1.5;
+		line-height: var(--lh-normal);
 	}
 	.empty-action {
 		margin-top: var(--sp-1);

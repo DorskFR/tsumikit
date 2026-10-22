@@ -95,7 +95,7 @@
 	.kbd-group {
 		display: inline-flex;
 		align-items: center;
-		gap: 2px;
+		gap: var(--sp-0-5);
 		font-size: var(--fs-xs);
 		color: var(--text-muted);
 		vertical-align: baseline;
@@ -106,7 +106,7 @@
 	.kbd {
 		font-family: var(--font-mono);
 		font-size: inherit;
-		line-height: 1.4;
+		line-height: var(--lh-snug);
 		padding: 0 var(--sp-1);
 		border: 1px solid var(--border-strong);
 		border-bottom-width: 2px;
@@ -124,7 +124,7 @@
 		white-space: nowrap;
 	}
 	.kbd-sep {
-		font-size: 0.85em;
+		font-size: var(--fs-2xs);
 		color: var(--text-faint);
 	}
 </style>

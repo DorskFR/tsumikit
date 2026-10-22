@@ -8,28 +8,33 @@ type Voice = [Wave, number, number, number, number, number];
 
 const PALETTE: Record<SoundName, Voice[]> = {
 	click: [
-		['n', 3200, 0, 0, 0.012, 0.25],
-		['sine', 620, 380, 0, 0.04, 0.18],
+		['n', 3000, 0, 0, 0.012, 0.18],
+		['sine', 620, 380, 0, 0.04, 0.22],
 	],
 	'toggle-on': [
-		['n', 3000, 0, 0, 0.008, 0.3],
-		['triangle', 660, 880, 0.045, 0.05, 0.3],
+		['n', 2600, 0, 0, 0.012, 0.3],
+		['sine', 520, 520, 0, 0.03, 0.14],
+		['triangle', 660, 880, 0.035, 0.05, 0.3],
 	],
 	'toggle-off': [
-		['n', 3000, 0, 0, 0.008, 0.3],
-		['triangle', 880, 620, 0.045, 0.05, 0.3],
+		['n', 2600, 0, 0, 0.012, 0.3],
+		['sine', 520, 520, 0, 0.03, 0.14],
+		['triangle', 880, 620, 0.035, 0.05, 0.3],
 	],
 	open: [['sine', 420, 760, 0, 0.09, 0.25]],
 	close: [['sine', 700, 380, 0, 0.08, 0.25]],
 	success: [
-		['sine', 784, 784, 0, 0.07, 0.25],
-		['sine', 1175, 1175, 0.06, 0.1, 0.22],
+		['sine', 698, 698, 0, 0.055, 0.25],
+		['sine', 1047, 1047, 0.058, 0.085, 0.2],
 	],
 	error: [
-		['triangle', 330, 300, 0, 0.07, 0.28],
-		['triangle', 262, 240, 0.075, 0.1, 0.28],
+		['triangle', 330, 300, 0, 0.065, 0.28],
+		['triangle', 262, 240, 0.06, 0.08, 0.28],
 	],
-	tick: [['n', 5200, 0, 0, 0.006, 0.25]],
+	tick: [
+		['n', 3800, 0, 0, 0.008, 0.3],
+		['sine', 2400, 1900, 0, 0.012, 0.14],
+	],
 };
 
 let ctx: AudioContext | undefined;
@@ -61,7 +66,7 @@ export function play(name: SoundName, volume: number): void {
 		const env = c.createGain();
 		const s = t + at;
 		env.gain.setValueAtTime(0.0001, s);
-		env.gain.exponentialRampToValueAtTime(g, s + 0.003);
+		env.gain.exponentialRampToValueAtTime(g, s + 0.004);
 		env.gain.exponentialRampToValueAtTime(0.0001, s + d);
 		env.connect(out);
 		let src: AudioScheduledSourceNode;

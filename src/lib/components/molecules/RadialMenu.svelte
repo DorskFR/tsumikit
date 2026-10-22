@@ -19,6 +19,7 @@
 	import { menuItemCloses, menuItemGlyphs } from '$lib/components/molecules/menu-item';
 	import { type Bounds, fanLayout, type Point } from '$lib/floating';
 	import { slideSelect } from '$lib/slide-select';
+	import { playSound } from '$lib/sound';
 	import { canonicalTone, type Tone } from '$lib/tone';
 
 	type Own = {
@@ -28,6 +29,8 @@
 		open?: boolean;
 		onopen?: () => void;
 		onclose?: () => void;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		/** Replaces the default FAB content. */
 		trigger?: Snippet<[{ open: boolean }]>;
 		icon?: IconName;
@@ -66,6 +69,7 @@
 		status,
 		class: klass = '',
 		style: styleProp = '',
+		sound = true,
 		...rest
 	}: Omit<HTMLButtonAttributes, keyof Own> & Own = $props();
 
@@ -85,12 +89,16 @@
 	let active = $state(0);
 	let petalPx = 0;
 	let shown = false;
+	// An `open` already true on mount is a sync, not a transition: no sound.
+	let quiet = open;
 	let focusOnOpen = false;
 	let pressedOpen = false;
 	let swallowClick = false;
 	let releasedAt = Number.NEGATIVE_INFINITY;
 
 	const petals = $derived(items.filter((item) => !item.control));
+	// Keep the whole fan inside the default budget: base enter + (n-1) × stagger ≤ 300 ms.
+	const stagger = $derived(`${Math.min(18, petals.length > 1 ? 120 / (petals.length - 1) : 18)}ms`);
 	const ring = $derived(tone === 'neutral' ? 'var(--border-strong)' : `var(--${canonicalTone(tone)})`);
 	const forward = $derived(points.length < 2 || points[points.length - 1].x >= points[0].x);
 
@@ -210,6 +218,8 @@
 		if (!panel || want === shown) return;
 		shown = want;
 		untrack(() => {
+			if (!quiet) playSound(want ? 'open' : 'close', sound);
+			quiet = false;
 			if (want) {
 				show();
 				position();
@@ -332,7 +342,7 @@
 	{#if trigger}
 		{@render trigger({ open })}
 	{:else}
-		<Icon name={open ? closeIcon : icon} size={20} />
+		<span class="radial-face-glyph" aria-hidden="true"><Icon name={open ? closeIcon : icon} /></span>
 		{#if caption}
 			<span class="radial-caption">
 				{#if typeof caption === 'string'}{caption}{:else}{@render caption()}{/if}
@@ -388,7 +398,7 @@
 			</div>
 		{/if}
 	{/if}
-	<div id={menuId} role="menu" aria-label={label} class="radial-menu">
+	<div id={menuId} role="menu" aria-label={label} class="radial-menu" style:--radial-stagger={stagger}>
 		{#if open}
 			{#each petals as item, i (item.id ?? `${i}:${item.label}`)}
 				{@const p = points[i]}
@@ -418,9 +428,9 @@
 						{:else}
 							<span class="radial-glyph" aria-hidden="true">
 								{#if glyphs.leading === 'icon' && item.icon}
-									<Icon name={item.icon} size={16} />
+									<Icon name={item.icon} />
 								{:else if glyphs.leading === 'check'}
-									<Icon name={item.pressed ? 'check' : 'minus'} size={16} />
+									<Icon name={item.pressed ? 'check' : 'minus'} />
 								{/if}
 							</span>
 							<span class="radial-label">{item.label}</span>
@@ -440,7 +450,7 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 1px;
+		gap: var(--sp-px);
 		flex: none;
 		width: var(--radial-fab-size, 3.75rem);
 		height: var(--radial-fab-size, 3.75rem);
@@ -456,18 +466,31 @@
 		touch-action: none;
 		user-select: none;
 		-webkit-touch-callout: none;
+		--radial-scale-dur: var(--dur-fast);
+		transition:
+			background-color var(--dur-fast) var(--ease),
+			border-color var(--dur-fast) var(--ease),
+			scale var(--radial-scale-dur) var(--ease-out);
+	}
+	.radial-fab:active:not(:disabled) {
+		--radial-scale-dur: var(--dur-press);
+		scale: var(--press-scale-sm);
+	}
+	.radial-face-glyph {
+		display: inline-flex;
+		font-size: var(--icon-lg);
 	}
 	.radial-fab:focus-visible {
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset);
 	}
 	.radial-fab:disabled {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
 	}
 	.radial-caption {
 		font-size: var(--fs-xs);
-		line-height: 1;
+		line-height: var(--lh-none);
 		color: var(--text-muted);
 		white-space: nowrap;
 	}
@@ -515,22 +538,31 @@
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		gap: 2px;
+		gap: var(--sp-0-5);
 		width: max(var(--radial-petal-size, 3.5rem), var(--touch-target));
 		height: max(var(--radial-petal-size, 3.5rem), var(--touch-target));
-		padding: 0 2px;
+		padding: 0 var(--sp-0-5);
 		border: 1px solid var(--border-strong);
 		border-radius: 50%;
 		background: var(--bg-elevated);
 		color: var(--text);
 		box-shadow: var(--shadow-md);
 		font-size: var(--fs-xs);
-		line-height: 1.1;
+		line-height: var(--lh-heading);
 		translate: -50% -50%;
 		pointer-events: auto;
 		cursor: pointer;
-		animation: radial-in 0.16s var(--ease) both;
-		animation-delay: calc(var(--radial-i, 0) * 18ms);
+		--radial-scale-dur: var(--dur-fast);
+		transition:
+			background-color var(--dur-fast) var(--ease),
+			border-color var(--dur-fast) var(--ease),
+			scale var(--radial-scale-dur) var(--ease-out);
+		animation: radial-in var(--dur-base) var(--ease-out) backwards;
+		animation-delay: calc(var(--radial-i, 0) * var(--radial-stagger, 18ms));
+	}
+	.radial-petal:active:not(:disabled) {
+		--radial-scale-dur: var(--dur-press);
+		scale: var(--press-scale-sm);
 	}
 	@keyframes radial-in {
 		from {
@@ -540,6 +572,7 @@
 	}
 	.radial-glyph {
 		display: inline-flex;
+		font-size: var(--icon-md);
 		color: var(--text-muted);
 	}
 	.radial-label {
@@ -548,10 +581,15 @@
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
-	.radial-petal:hover:not(:disabled),
 	.radial-petal.armed {
 		background: var(--bg-elevated-2);
 		border-color: var(--accent);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.radial-petal:hover:not(:disabled) {
+			background: var(--bg-elevated-2);
+			border-color: var(--accent);
+		}
 	}
 	.radial-petal:focus-visible {
 		outline: var(--focus-ring);
@@ -568,12 +606,7 @@
 		border-color: var(--danger);
 	}
 	.radial-petal:disabled {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.radial-petal {
-			animation: none;
-		}
 	}
 </style>

@@ -201,6 +201,7 @@
 <style>
 	.icon {
 		flex: none;
+		font-size: var(--icon-size, 1em);
 		width: 1em;
 		height: 1em;
 	}

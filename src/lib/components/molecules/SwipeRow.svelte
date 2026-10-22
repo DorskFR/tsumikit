@@ -27,6 +27,7 @@
 	import type { HTMLAttributes } from 'svelte/elements';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import { canonicalTone } from '$lib/tone';
+	import { playSound } from '$lib/sound';
 
 	type Own = {
 		children: Snippet;
@@ -40,6 +41,8 @@
 		/** Fraction of the row width the content must travel to fire. */
 		threshold?: number;
 		disabled?: boolean;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		class?: string;
 		style?: string;
 	};
@@ -52,6 +55,7 @@
 		trailing,
 		threshold = 0.35,
 		disabled = false,
+		sound = true,
 		class: klass = '',
 		style: styleProp,
 		...rest
@@ -150,7 +154,12 @@
 		const fire = locked === 'x' && armed ? active : undefined;
 		release(el);
 		settle();
-		fire?.onaction();
+		if (fire) run(fire);
+	}
+
+	function run(action: SwipeAction) {
+		playSound('click', sound);
+		action.onaction();
 	}
 
 	function onpointercancel(e: PointerEvent) {
@@ -223,12 +232,12 @@
 	{#if leadingAction || trailingAction}
 		<div class="swiperow-actions" data-part="actions">
 			{#if leadingAction}
-				<button type="button" class="swiperow-sr" data-part="leading-button" {disabled} onclick={() => leadingAction?.onaction()}>
+				<button type="button" class="swiperow-sr" data-part="leading-button" {disabled} onclick={() => leadingAction && run(leadingAction)}>
 					{leadingAction.label}
 				</button>
 			{/if}
 			{#if trailingAction}
-				<button type="button" class="swiperow-sr" data-part="trailing-button" {disabled} onclick={() => trailingAction?.onaction()}>
+				<button type="button" class="swiperow-sr" data-part="trailing-button" {disabled} onclick={() => trailingAction && run(trailingAction)}>
 					{trailingAction.label}
 				</button>
 			{/if}
@@ -276,7 +285,7 @@
 		background: var(--swiperow-tone);
 		color: var(--swiperow-ink);
 		font-size: var(--fs-sm);
-		font-weight: 600;
+		font-weight: var(--fw-semibold);
 		visibility: hidden;
 		pointer-events: none;
 	}
@@ -291,10 +300,10 @@
 		visibility: visible;
 	}
 	.swiperow-pane :global(svg) {
-		transition: transform 120ms var(--ease);
+		transition: scale var(--dur-spring) var(--ease-spring);
 	}
 	.swiperow--armed .swiperow-pane :global(svg) {
-		transform: scale(1.2);
+		scale: 1.2;
 	}
 	.swiperow-content {
 		position: relative;
@@ -303,7 +312,7 @@
 		will-change: transform;
 	}
 	.swiperow--settling .swiperow-content {
-		transition: transform 200ms var(--ease);
+		transition: transform var(--dur-exit-slow) var(--ease-out);
 	}
 	.swiperow--dragging .swiperow-content {
 		cursor: grabbing;
@@ -341,13 +350,7 @@
 		color: var(--swiperow-ink);
 		background: var(--swiperow-tone);
 		border-radius: var(--r-sm);
-		outline: 2px solid var(--accent);
-		outline-offset: 1px;
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.swiperow--settling .swiperow-content,
-		.swiperow-pane :global(svg) {
-			transition: none;
-		}
+		outline: var(--focus-ring);
+		outline-offset: var(--sp-px);
 	}
 </style>

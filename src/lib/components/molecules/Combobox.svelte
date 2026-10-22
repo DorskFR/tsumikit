@@ -7,6 +7,7 @@
 	import { tick, type Snippet } from 'svelte';
 	import type { HTMLAttributes } from 'svelte/elements';
 	import { type AnchorRect, placeAt } from '$lib/floating';
+	import { playSound } from '$lib/sound';
 	import { caretRect, comboboxAction } from './combobox-keyboard.js';
 
 	type FieldEl = HTMLInputElement | HTMLTextAreaElement;
@@ -46,6 +47,8 @@
 		option?: Snippet<[T, { active: boolean; index: number }]>;
 		/** Shown instead of rows when `options` is empty; without it the listbox hides. */
 		empty?: string | Snippet;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		children: Snippet;
 		class?: string;
 		style?: string;
@@ -73,6 +76,7 @@
 		onclose,
 		option,
 		empty,
+		sound = true,
 		children,
 		class: klass = '',
 		style: styleProp = '',
@@ -135,6 +139,13 @@
 		panelEl.style.width = anchor === 'field' ? `${r.width}px` : '';
 		placeAt(r, panelEl, placement, gap);
 	}
+
+	let wasVisible: boolean | null = null;
+	$effect(() => {
+		const v = visible;
+		if (wasVisible !== null && v !== wasVisible) playSound(v ? 'open' : 'close', sound);
+		wasVisible = v;
+	});
 
 	$effect(() => {
 		const p = panelEl;
@@ -264,7 +275,7 @@
 		box-sizing: border-box;
 		display: flex;
 		flex-direction: column;
-		gap: 1px;
+		gap: var(--sp-px);
 		min-width: var(--cb-min-width, 10rem);
 		max-width: calc(100vw - 2 * var(--sp-3));
 		max-height: var(--cb-max-height, min(16rem, 40vh));
@@ -275,6 +286,21 @@
 		border: 1px solid var(--cb-border, var(--border-strong));
 		border-radius: var(--cb-radius, var(--r-md));
 		box-shadow: var(--shadow-md);
+		transform-origin: var(--tsu-origin, top left);
+		opacity: 1;
+		scale: 1;
+		translate: 0;
+		transition:
+			opacity var(--dur-fast) var(--ease-out),
+			scale var(--dur-fast) var(--ease-out),
+			translate var(--dur-fast) var(--ease-out);
+	}
+	@starting-style {
+		.cb-panel:popover-open {
+			opacity: 0;
+			scale: var(--enter-scale);
+			translate: var(--tsu-shift, 0 calc(-1 * var(--shift-sm)));
+		}
 	}
 	.cb-panel.cb-caret {
 		max-width: min(22rem, calc(100vw - 2 * var(--sp-3)));
@@ -287,9 +313,12 @@
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;
+		transition: background-color var(--dur-fast) ease;
 	}
+	/* Highlight lands instantly and fades out: list navigation is high frequency. */
 	.cb-option.active {
 		background: var(--cb-active-bg, var(--bg-elevated-2));
+		transition-duration: var(--dur-instant);
 	}
 	.cb-empty {
 		padding: var(--sp-1) var(--sp-2);

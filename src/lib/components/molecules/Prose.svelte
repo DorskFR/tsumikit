@@ -89,7 +89,7 @@
 		overflow-x: auto;
 		font-family: var(--font-mono);
 		font-size: var(--fs-xs);
-		line-height: 1.5;
+		line-height: var(--lh-normal);
 	}
 	.prose :global(pre code) {
 		padding: 0;

@@ -9,6 +9,7 @@
 	// own <button> + scoped styles rather than specializing the Button atom.
 	import type { Snippet } from 'svelte';
 	import type { HTMLButtonAttributes } from 'svelte/elements';
+	import { playSound } from '$lib/sound';
 
 	let {
 		selected = false,
@@ -22,6 +23,8 @@
 		onfocuschange,
 		onfocus,
 		onpointerenter,
+		onclick,
+		sound = true,
 		'aria-describedby': describedBy,
 		class: klass = '',
 		children,
@@ -41,6 +44,8 @@
 		align?: 'center' | 'start';
 		/** Stretch to fill the container width (full-width list/menu row). */
 		block?: boolean;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		children?: Snippet;
 	} = $props();
 
@@ -68,6 +73,11 @@
 		onpointerenter?.(e);
 		activate();
 	}}
+	onclick={(e) => {
+		if (disabled) return;
+		playSound('click', sound);
+		onclick?.(e);
+	}}
 	class="opt {klass}"
 	class:row
 	class:align-start={align === 'start'}
@@ -83,7 +93,7 @@
 	.opt {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: var(--sp-0-5);
 		padding: var(--sp-2);
 		background: var(--bg);
 		border: 1px solid var(--border-strong);
@@ -92,17 +102,20 @@
 		text-align: left;
 		white-space: normal;
 		user-select: none;
+		--opt-scale-dur: var(--dur-fast);
 		transition:
-			background 0.12s var(--ease),
-			border-color 0.12s var(--ease),
-			color 0.12s var(--ease);
+			background var(--dur-fast) ease,
+			border-color var(--dur-fast) ease,
+			color var(--dur-fast) ease,
+			scale var(--opt-scale-dur) var(--ease-out);
 	}
 	.opt:disabled {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
 	}
-	.opt:hover:not(:disabled):not(.selected) {
-		border-color: var(--border-strong);
+	.opt:active:not(:disabled) {
+		--opt-scale-dur: var(--dur-press);
+		scale: var(--press-scale);
 	}
 	.opt.row {
 		flex-direction: row;
@@ -140,8 +153,13 @@
 		background: color-mix(in srgb, var(--oc) 14%, var(--bg));
 		color: var(--oc);
 	}
-	.opt.selected:hover:not(:disabled) {
-		border-color: var(--oc);
-		background: color-mix(in srgb, var(--oc) 20%, var(--bg));
+	@media (hover: hover) and (pointer: fine) {
+		.opt:hover:not(:disabled):not(.selected) {
+			border-color: var(--border-strong);
+		}
+		.opt.selected:hover:not(:disabled) {
+			border-color: var(--oc);
+			background: color-mix(in srgb, var(--oc) 20%, var(--bg));
+		}
 	}
 </style>

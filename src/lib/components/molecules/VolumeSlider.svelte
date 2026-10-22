@@ -8,6 +8,7 @@
 	import type { HTMLAttributes } from 'svelte/elements';
 	import type { IconName } from '$lib/components/atoms/Icon.svelte';
 	import IconButton from '$lib/components/molecules/IconButton.svelte';
+	import { playSound } from '$lib/sound';
 
 	type Own = {
 		/** Level 0–1. */
@@ -22,6 +23,8 @@
 		label?: string;
 		muteLabel?: string;
 		unmuteLabel?: string;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		oninput?: (value: number) => void;
 		onchange?: (value: number) => void;
 		onmutechange?: (muted: boolean) => void;
@@ -40,6 +43,7 @@
 		label = 'Volume',
 		muteLabel = 'Mute',
 		unmuteLabel = 'Unmute',
+		sound = true,
 		oninput,
 		onchange,
 		onmutechange,
@@ -59,6 +63,7 @@
 		muted ? 'volume-mute' : level === 0 ? 'volume' : level < 0.5 ? 'volume-low' : 'volume-high'
 	);
 	const valueText = $derived(muted ? 'Muted' : `${pct}%`);
+	const discrete = $derived(1 / step <= 20);
 
 	function setMuted(m: boolean) {
 		if (m === muted) return;
@@ -75,7 +80,8 @@
 	}
 
 	function commit(v: number) {
-		onchange?.(apply(v));
+		const next = apply(v);
+		onchange?.(next);
 	}
 
 	function fracAt(el: HTMLElement, e: PointerEvent) {
@@ -117,6 +123,7 @@
 
 	function onpointermove(e: PointerEvent) {
 		if (pointerId !== e.pointerId) return;
+		if (discrete) playSound('tick', sound);
 		apply(fracAt(e.currentTarget as HTMLElement, e));
 	}
 
@@ -167,6 +174,7 @@
 		}
 		if (next === null) return;
 		e.preventDefault();
+		playSound('tick', sound);
 		commit(next);
 	}
 
@@ -176,6 +184,7 @@
 			const d = e.deltaY || e.deltaX;
 			if (!d) return;
 			e.preventDefault();
+			playSound('tick', sound);
 			commit(level + (d < 0 ? step : -step));
 		};
 		el.addEventListener('wheel', onwheel, { passive: false });
@@ -199,6 +208,7 @@
 		box="sm"
 		size={size === 'sm' ? 16 : 18}
 		{disabled}
+		{sound}
 		onclick={() => setMuted(!muted)}
 		data-part="mute"
 	/>
@@ -237,6 +247,7 @@
 		--vol-thumb: 10px;
 		--vol-length: 5rem;
 		--vol-accent: var(--slider-accent, var(--accent));
+		--vol-halo: 0 0 0 4px color-mix(in srgb, var(--vol-accent) 20%, transparent);
 		display: inline-flex;
 		align-items: center;
 		gap: var(--sp-1);
@@ -281,8 +292,8 @@
 		}
 	}
 	.vol-slab[aria-disabled='true'] {
-		cursor: default;
-		opacity: 0.45;
+		cursor: not-allowed;
+		opacity: var(--disabled-opacity);
 	}
 	.vol-slab:focus-visible {
 		outline: var(--focus-ring);
@@ -340,28 +351,37 @@
 		top: 0;
 		width: var(--vol-thumb);
 		height: var(--vol-thumb);
-		border-radius: 50%;
+		border-radius: var(--r-pill);
 		background: var(--vol-accent);
 		border: 2px solid var(--bg);
 		box-shadow: var(--shadow-sm);
-		transform: translate(-50%, -50%) scale(0.6);
+		transform: translate(-50%, -50%);
+		scale: 0.6;
 		opacity: 0;
 		transition:
-			opacity 120ms var(--ease),
-			transform 120ms var(--ease);
+			opacity var(--dur-fast) var(--ease),
+			scale var(--dur-press) var(--ease-out),
+			box-shadow var(--dur-fast) var(--ease);
 	}
-	.vol-slab:hover .vol-thumb,
 	.vol-slab:focus-visible .vol-thumb,
 	.vol--dragging .vol-thumb {
 		opacity: 1;
-		transform: translate(-50%, -50%) scale(1);
+		scale: 1;
+	}
+	.vol--dragging .vol-thumb {
+		scale: 1.15;
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.vol-slab:not([aria-disabled='true']):hover .vol-thumb {
+			opacity: 1;
+			scale: 1;
+			box-shadow: var(--shadow-sm), var(--vol-halo);
+		}
+		.vol--dragging .vol-thumb {
+			scale: 1.15;
+		}
 	}
 	.vol--muted .vol-fill {
 		background: var(--text-faint);
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.vol-thumb {
-			transition: none;
-		}
 	}
 </style>

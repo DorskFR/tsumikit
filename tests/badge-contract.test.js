@@ -41,7 +41,7 @@ test('Badge size adds xs and derives sm/xs font from the --fs-xs token', () => {
 	assert.match(badge, /size\?: 'xs' \| 'sm' \| 'md';/);
 	assert.match(badge, /class:badge-xs=\{size === 'xs'\}/);
 	assert.match(css, /\.badge-sm,\s*\.badge-xs \{\s*font-size: var\(--badge-fs, var\(--fs-xs\)\);/);
-	assert.match(css, /\.badge-xs \{\s*padding: 0\.05rem var\(--sp-2\);/);
+	assert.match(css, /\.badge-xs \{\s*--badge-h: var\(--chip-xs\);/);
 	assert.doesNotMatch(css, /0\.6875rem/);
 });
 
@@ -49,7 +49,7 @@ test('Badge numeric uses tabular digits with a centred minimum width', () => {
 	assert.match(badge, /numeric = false/);
 	assert.match(
 		css,
-		/\.numeric \{\s*font-variant-numeric: tabular-nums;\s*min-width: var\(--badge-min-size, 1\.5em\);\s*min-height: var\(--badge-min-size, auto\);\s*justify-content: center;/
+		/\.numeric \{\s*font-variant-numeric: tabular-nums;\s*min-width: var\(--badge-min-size, 1\.5em\);\s*min-height: var\(--badge-min-size, var\(--badge-h\)\);\s*justify-content: center;/
 	);
 });
 
@@ -66,7 +66,7 @@ test('Badge variant="text" drops the chip chrome', () => {
 	assert.match(badge, /variant = 'chip'/);
 	assert.match(badge, /variant\?: 'chip' \| 'text';/);
 	assert.match(badge, /class:text=\{variant === 'text'\}/);
-	assert.match(css, /\.text \{\s*padding: 0;\s*border-color: transparent;\s*background: none;/);
+	assert.match(css, /\.text \{\s*min-height: 0;\s*padding: 0;\s*border-color: transparent;\s*background: none;/);
 });
 
 test('Badge renders a leading Dot in the badge colour and a registered Icon', () => {
@@ -78,7 +78,7 @@ test('Badge renders a leading Dot in the badge colour and a registered Icon', ()
 });
 
 test('Interactive Badge shows a tone-derived focus ring', () => {
-	assert.match(css, /\.interactive:focus-visible \{\s*outline: 2px solid var\(--badge-tone, var\(--accent\)\);/);
+	assert.match(css, /\.interactive:focus-visible \{\s*outline: var\(--focus-ring-width\) solid var\(--badge-tone, var\(--accent\)\);/);
 });
 
 test('Badge sm/xs font stays on the token scale', () => {

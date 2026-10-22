@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { JSDOM } from 'jsdom';
 import { buildFixture } from './fixtures/build.mjs';
-import { hasDecl, normalize } from './helpers.mjs';
+import { hasDecl } from './helpers.mjs';
 
 const source = await readFile(
 	new URL('../src/lib/components/molecules/SwipeRow.svelte', import.meta.url),
@@ -268,12 +268,11 @@ test('rows without actions are inert', () => {
 	r.destroy();
 });
 
-test('vertical scrolling stays with the browser and reduced motion drops the transitions', () => {
+test('vertical scrolling stays with the browser; the settle reads motion tokens and leaves reduced motion to the reset', () => {
 	assert.ok(hasDecl(css, '.swiperow', 'touch-action', 'pan-y'));
 	assert.ok(hasDecl(css, '.swiperow-sr', 'clip', 'rect(0, 0, 0, 0)'));
-	const flat = normalize(css);
-	const rm = flat.slice(flat.indexOf('@media (prefers-reduced-motion: reduce) {'));
-	assert.match(rm, /\.swiperow--settling \.swiperow-content, \.swiperow-pane :global\(svg\) { transition: none; }/);
+	assert.ok(hasDecl(css, '.swiperow--settling .swiperow-content', 'transition', 'transform var(--dur-exit-slow) var(--ease-out)'));
+	assert.doesNotMatch(css, /prefers-reduced-motion/);
 });
 
 test('the component touches no browser globals at module or init time', () => {

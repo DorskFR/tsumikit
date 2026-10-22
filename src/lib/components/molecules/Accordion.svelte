@@ -37,6 +37,7 @@
 		variant = 'default',
 		size = 'default',
 		onchange,
+		sound = true,
 		class: klass = '',
 		style: styleProp = '',
 		...rest
@@ -52,6 +53,8 @@
 		/** Header/panel density of every item; forwarded to `Disclosure`. */
 		size?: DisclosureSize;
 		onchange?: (id: string, open: boolean) => void;
+		/** Play UI sounds when enabled globally; false silences every item. */
+		sound?: boolean;
 		class?: string;
 		style?: string;
 	};
@@ -105,6 +108,7 @@
 			disabled={item.disabled}
 			{chevron}
 			{size}
+			{sound}
 		>
 			{#snippet header(ctx)}
 				{#if item.summary}

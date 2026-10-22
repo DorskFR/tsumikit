@@ -5,6 +5,7 @@
 	// JS to open the dialog. Emits the chosen files via `onfiles`. Dependency-free.
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import type { IconName } from '$lib/components/atoms/Icon.svelte';
+	import { playSound } from '$lib/sound';
 
 	let {
 		onfiles,
@@ -20,6 +21,7 @@
 		control = false,
 		box,
 		hitArea = 'auto',
+		sound = true,
 		class: klass = ''
 	}: {
 		onfiles: (files: File[]) => void;
@@ -47,6 +49,8 @@
 		box?: 'xs' | 'sm' | 'md' | 'lg';
 		/** Icon-only buttons grow a touch hit slab on coarse pointers; `compact` opts out. */
 		hitArea?: 'auto' | 'compact';
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		class?: string;
 	} = $props();
 
@@ -81,6 +85,7 @@
 		{accept}
 		{multiple}
 		{disabled}
+		onclick={() => playSound('click', sound)}
 		onchange={onchange}
 	/>
 	{#if icon}
@@ -100,41 +105,52 @@
 		align-items: center;
 		justify-content: center;
 		gap: var(--sp-2);
-		padding: var(--sp-2) var(--sp-4);
-		min-height: 2.5rem;
+		padding: var(--sp-2) var(--btn-px-md);
+		min-height: var(--control-height-default);
 		border: 1px solid var(--border-strong);
 		border-radius: var(--r-md);
 		background: var(--surface);
 		color: var(--text);
 		font-weight: var(--fw-medium);
-		font-size: var(--fs-sm);
-		line-height: 1;
+		font-size: var(--control-fs-md);
+		line-height: var(--lh-none);
 		white-space: nowrap;
 		cursor: pointer;
 		user-select: none;
+		--icon-size: var(--control-icon-md);
+		--file-scale-dur: var(--dur-fast);
 		transition:
-			background 0.12s var(--ease),
-			border-color 0.12s var(--ease),
-			opacity 0.12s var(--ease);
+			background var(--dur-fast) ease,
+			border-color var(--dur-fast) ease,
+			color var(--dur-fast) ease,
+			opacity var(--dur-fast) ease,
+			scale var(--file-scale-dur) var(--ease-out);
 	}
-	.file-btn:hover:not(.disabled) {
-		border-color: var(--accent);
+	.file-btn:active:not(.disabled) {
+		--file-scale-dur: var(--dur-press);
+		scale: var(--press-scale);
 	}
-	/* Size variants mirror the Button atom (sm 2rem / md 2.5rem / lg 3rem). */
+	.file-btn.icon-only:active:not(.disabled),
+	.file-btn.box:active:not(.disabled) {
+		scale: var(--press-scale-sm);
+	}
+	/* Size variants mirror the Button atom. */
 	.file-btn.sm {
-		min-height: 2rem;
-		padding: var(--sp-1) var(--sp-3);
-		font-size: var(--fs-xs);
+		min-height: var(--control-height-compact);
+		padding: var(--sp-1) var(--btn-px-sm);
+		font-size: var(--control-fs-sm);
+		--icon-size: var(--control-icon-sm);
 	}
 	.file-btn.lg {
-		min-height: 3rem;
-		padding: var(--sp-3) var(--sp-5);
-		font-size: var(--fs-base);
+		min-height: var(--control-height-large);
+		padding: var(--sp-3) var(--btn-px-lg);
+		font-size: var(--control-fs-lg);
+		--icon-size: var(--control-icon-lg);
 	}
 	.file-btn.control {
 		height: var(--control-height);
 		min-height: var(--control-height);
-		padding: 0 var(--sp-3);
+		padding: 0 var(--control-px-md);
 	}
 	/* icon-only: square it up and drop the label gap. */
 	.file-btn.icon-only {
@@ -162,12 +178,17 @@
 			inset-inline-end: 0;
 		}
 	}
-	/* Emoji glyph is bumped above the text size — at 1em a paperclip is hard to
-	   read, so render it a touch larger for legibility. */
+	/* An emoji reads small next to an SVG glyph of the same size: one icon tier up. */
 	.emoji {
 		display: inline-flex;
-		font-size: 1.35em;
-		line-height: 1;
+		font-size: var(--icon-lg);
+		line-height: var(--lh-none);
+	}
+	.file-btn.sm .emoji {
+		font-size: var(--icon-md);
+	}
+	.file-btn.lg .emoji {
+		font-size: var(--icon-xl);
 	}
 	.file-btn.primary {
 		background: var(--accent);
@@ -175,25 +196,30 @@
 		color: var(--text-on-accent);
 		font-weight: var(--fw-semibold);
 	}
-	.file-btn.primary:hover:not(.disabled) {
-		filter: brightness(1.08);
-	}
 	.file-btn.ghost {
 		background: transparent;
-		border-color: transparent;
-	}
-	.file-btn.ghost:hover:not(.disabled) {
-		background: var(--bg-elevated-2);
 		border-color: transparent;
 	}
 	/* The hidden input keeps focusability (sr-only, not display:none), so mirror
 	   its focus onto the label for a visible ring. */
 	.file-btn:focus-within {
-		outline: 2px solid var(--accent);
-		outline-offset: 2px;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
 	}
 	.file-btn.disabled {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.file-btn:hover:not(.disabled) {
+			border-color: var(--accent);
+		}
+		.file-btn.primary:hover:not(.disabled) {
+			filter: brightness(1.08);
+		}
+		.file-btn.ghost:hover:not(.disabled) {
+			background: var(--bg-elevated-2);
+			border-color: transparent;
+		}
 	}
 </style>

@@ -136,15 +136,17 @@
 
 <style>
 	.input {
+		--input-icon: var(--control-icon-md);
 		width: 100%;
 		min-height: var(--input-size, var(--control-height-default));
-		padding: var(--sp-2) var(--sp-3);
+		padding: var(--sp-2) var(--control-px-md);
+		font-size: var(--control-fs-md);
 		line-height: var(--lh-tight);
 		background: var(--input-bg, var(--bg));
 		border: 1px solid var(--input-border, var(--border-strong));
 		border-radius: var(--input-radius, var(--r-md));
 		color: var(--input-fg, var(--text));
-		transition: border-color 0.12s var(--ease);
+		transition: border-color var(--dur-fast) ease;
 	}
 	.input:focus {
 		outline: none;
@@ -154,21 +156,33 @@
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset);
 	}
+	.input:disabled {
+		opacity: var(--disabled-opacity);
+		cursor: not-allowed;
+	}
 	.input-sm {
 		min-height: var(--input-size, var(--control-height-compact));
-		padding: var(--sp-1) var(--sp-2);
-		font-size: var(--fs-sm);
+		padding: var(--sp-1) var(--control-px-sm);
+		font-size: var(--control-fs-sm);
+		--input-icon: var(--control-icon-sm);
 	}
 	.input-lg {
 		min-height: var(--input-size, var(--control-height-large));
-		padding: var(--sp-3) var(--sp-4);
-		font-size: max(16px, var(--fs-md));
+		padding: var(--sp-3) var(--control-px-lg);
+		font-size: var(--control-fs-lg);
+		--input-icon: var(--control-icon-lg);
 	}
 	/* iOS auto-zooms any field under 16px on focus; on touch the size modifiers
 	   carry their difference through padding and height alone. */
 	@media (pointer: coarse) {
+		.input {
+			font-size: max(16px, var(--control-fs-md));
+		}
 		.input-sm {
-			font-size: max(16px, var(--fs-sm));
+			font-size: max(16px, var(--control-fs-sm));
+		}
+		.input-lg {
+			font-size: max(16px, var(--control-fs-lg));
 		}
 		.input-sm:not(.grouped) {
 			min-height: max(var(--touch-target-compact), var(--input-size, var(--control-height-compact)));
@@ -192,8 +206,8 @@
 	.input[aria-invalid='true']:focus {
 		border-color: var(--danger);
 	}
-	/* Inside an InputGroup the group draws the focus ring and the overlaid
-	   adornments report their widths; the text stays clear of them. */
+	/* Inside an InputGroup the group draws the focus ring, dims the whole group
+	   and the overlaid adornments report their widths; the text stays clear of them. */
 	.input.grouped {
 		width: 100%;
 		border-radius: var(--ig-radius);
@@ -202,6 +216,9 @@
 	}
 	.input.grouped:focus-visible {
 		outline: none;
+	}
+	.input.grouped:disabled {
+		opacity: 1;
 	}
 	.mono {
 		font-family: var(--font-mono);
@@ -216,11 +233,18 @@
 	.input-wrap .input {
 		width: 100%;
 	}
+	/* The wrap dims as one so the icon and the clear button fade with the field. */
+	.input-wrap:has(.input:disabled) {
+		opacity: var(--disabled-opacity);
+	}
+	.input-wrap .input:disabled {
+		opacity: 1;
+	}
 	.has-icon {
-		padding-inline-start: calc(var(--sp-3) + 1em + var(--sp-2));
+		padding-inline-start: calc(var(--control-px-md) + var(--input-icon) + var(--sp-2));
 	}
 	.has-clear {
-		padding-inline-end: calc(var(--sp-3) + 1em + var(--sp-2));
+		padding-inline-end: calc(var(--control-px-md) + var(--input-icon) + var(--sp-2));
 	}
 	.input-icon,
 	.input-clear {
@@ -229,13 +253,21 @@
 		bottom: 0;
 		display: flex;
 		align-items: center;
+		font-size: var(--input-icon, var(--control-icon-md));
 		color: var(--text-faint);
 		pointer-events: none;
 	}
+	.input-wrap:has(.input-sm) {
+		--input-icon: var(--control-icon-sm);
+	}
+	.input-wrap:has(.input-lg) {
+		--input-icon: var(--control-icon-lg);
+	}
 	.input-icon {
-		left: var(--sp-3);
+		left: var(--control-px-md);
 	}
 	.input-clear {
+		--clear-scale-dur: var(--dur-fast);
 		right: var(--sp-2);
 		pointer-events: auto;
 		border: 0;
@@ -243,9 +275,31 @@
 		padding: 0 var(--sp-1);
 		cursor: pointer;
 		border-radius: var(--r-sm);
+		transition:
+			color var(--dur-fast) ease,
+			opacity var(--dur-fast) ease,
+			scale var(--clear-scale-dur) var(--ease-out);
 	}
-	.input-clear:hover,
+	@starting-style {
+		.input-clear {
+			opacity: 0;
+		}
+	}
 	.input-clear:focus-visible {
 		color: var(--text);
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset-inset);
+	}
+	.input-clear:active {
+		--clear-scale-dur: var(--dur-press);
+		scale: var(--press-scale-sm);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.input:hover:not(:disabled, :focus, [aria-invalid='true']) {
+			border-color: var(--text-faint);
+		}
+		.input-clear:hover {
+			color: var(--text);
+		}
 	}
 </style>

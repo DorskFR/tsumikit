@@ -286,11 +286,11 @@ test('exported and documented', () => {
 });
 
 test('adornments fill the field inside its border and follow its outer corners', () => {
-	assert.ok(hasDecl(group, '.ig-adorn', 'top', '1px'));
-	assert.ok(hasDecl(group, '.ig-adorn', 'bottom', '1px'));
-	assert.ok(hasDecl(group, '.ig-adorn', '--ig-fuse-r', 'calc(var(--ig-radius) - 1px)'));
-	assert.ok(hasDecl(group, '.ig-leading', 'inset-inline-start', '1px'));
-	assert.ok(hasDecl(group, '.ig-trailing', 'inset-inline-end', '1px'));
+	assert.ok(hasDecl(group, '.ig-adorn', 'top', 'var(--sp-px)'));
+	assert.ok(hasDecl(group, '.ig-adorn', 'bottom', 'var(--sp-px)'));
+	assert.ok(hasDecl(group, '.ig-adorn', '--ig-fuse-r', 'calc(var(--ig-radius) - var(--sp-px))'));
+	assert.ok(hasDecl(group, '.ig-leading', 'inset-inline-start', 'var(--sp-px)'));
+	assert.ok(hasDecl(group, '.ig-trailing', 'inset-inline-end', 'var(--sp-px)'));
 	const child = '.ig-adorn > :global(*)';
 	assert.ok(hasDecl(group, child, 'align-self', 'stretch'));
 	assert.ok(hasDecl(group, child, '--btn-size', '100%'));
@@ -316,7 +316,7 @@ test('a fixed-box adornment (FileButton box) still stretches square to the slot,
 
 test('in the bar the adornments hug the bottom and side borders, rounding only the bottom-outer corner', () => {
 	assert.ok(hasDecl(group, '.ig-bar .ig-adorn', 'top', 'auto'));
-	assert.ok(hasDecl(group, '.ig-bar .ig-adorn', 'height', 'calc(var(--ig-h) - 1px)'));
+	assert.ok(hasDecl(group, '.ig-bar .ig-adorn', 'height', 'calc(var(--ig-h) - var(--sp-px))'));
 	assert.ok(hasDecl(group, '.ig-bar .ig-leading > :global(:first-child)', 'border-radius', '0 0 0 var(--ig-fuse-r)'));
 	assert.ok(hasDecl(group, '.ig-bar .ig-trailing > :global(:last-child)', 'border-radius', '0 0 var(--ig-fuse-r) 0'));
 	assert.ok(hasDecl(group, '.ig-bar .ig-leading > :global(:first-child .split-main)', '--btn-radius', '0 0 0 var(--ig-fuse-r)'));

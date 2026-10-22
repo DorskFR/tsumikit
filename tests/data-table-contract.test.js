@@ -79,7 +79,8 @@ test('rowActions is a trailing cell with a labelled header, hover-revealed, visi
 	assert.match(component, /const colCount = \$derived\(columns\.length \+ \(rowActions \? 1 : 0\)\)/);
 	assert.match(component, /colspan={colCount}/);
 	assert.match(component, /\.dt-actions\s*{\s*opacity: 0;/);
-	assert.match(component, /tr:hover \.dt-actions,\s*tr:focus-within \.dt-actions\s*{\s*opacity: 1;/);
+	assert.match(component, /tr:focus-within \.dt-actions\s*{\s*opacity: 1;/);
+	assert.match(component, /@media \(hover: hover\) and \(pointer: fine\)\s*{[^@]*tr:hover \.dt-actions\s*{\s*opacity: 1;/s);
 	assert.match(component, /@media \(pointer: coarse\)\s*{\s*\.dt-actions\s*{\s*opacity: 1;/);
 });
 

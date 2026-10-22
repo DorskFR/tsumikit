@@ -39,7 +39,7 @@ test('Menu destructures and forwards every chrome prop to Popover', () => {
 	}
 	assert.match(popoverTag, /bind:open\n/);
 	assert.match(popoverTag, /\{onclose\}/);
-	assert.match(popoverTag, /onopen=\{\(\) => \{\s*queueMicrotask\(\(\) => focusAt\(0\)\);\s*onopen\?\.\(\);\s*\}\}/);
+	assert.match(popoverTag, /onopen=\{\(\) => \{\s*flashed = null;\s*queueMicrotask\(\(\) => focusAt\(0\)\);\s*onopen\?\.\(\);\s*\}\}/);
 });
 
 test('Menu keeps its original props', () => {
@@ -55,7 +55,7 @@ test('SegmentedControl collapseLabels accepts container with a fixed 35rem conta
 		segmented,
 		/@container \(max-width: 35rem\)\s*{\s*\.collapse-container \.seg-item\.has-label \.seg-label\s*{\s*display: none;/
 	);
-	assert.match(segmented, /\.collapse-container \.seg-item\.has-label\s*{\s*gap: 0;\s*padding: 0\.35rem;/);
+	assert.match(segmented, /\.collapse-container \.seg-item\.has-label\s*{\s*gap: 0;\s*padding: 0;\s*width: var\(--seg-item-h\);/);
 	assert.doesNotMatch(segmented, /collapseAt/);
 });
 

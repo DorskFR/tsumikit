@@ -88,16 +88,11 @@
 		border: 0;
 		background: color-mix(in srgb, var(--bg) 45%, transparent);
 		cursor: default;
-		animation: scrim-fade 0.18s var(--ease);
+		transition: opacity var(--dur-base) var(--ease-out);
 	}
-	@keyframes scrim-fade {
-		from {
-			opacity: 0;
-		}
-	}
-	@media (prefers-reduced-motion: reduce) {
+	@starting-style {
 		.scrim {
-			animation: none;
+			opacity: 0;
 		}
 	}
 </style>

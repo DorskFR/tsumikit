@@ -234,14 +234,20 @@
 	.card-tap {
 		cursor: pointer;
 		transition:
-			border-color 0.12s var(--ease),
-			background 0.12s var(--ease);
+			border-color var(--dur-fast) var(--ease),
+			background var(--dur-fast) var(--ease),
+			box-shadow var(--dur-fast) var(--ease),
+			scale var(--dur-fast) var(--ease-out);
 	}
 	.card-tap:active {
 		background: var(--bg-elevated-2);
+		scale: var(--press-scale-lg);
+		transition-duration: var(--dur-press);
 	}
-	.card-tap:hover {
-		border-color: var(--border-strong);
+	@media (hover: hover) and (pointer: fine) {
+		.card-tap:hover {
+			border-color: var(--border-strong);
+		}
 	}
 	.card-max {
 		width: 100%;

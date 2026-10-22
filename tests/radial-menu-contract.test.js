@@ -132,7 +132,8 @@ test('tokens: petals, FAB and overrides with defaults; reduced motion drops the 
 	assert.equal(hasDecl(css, '.radial-fab', '--radial-reach', 'var(--radial-radius, 8.5rem)'), true);
 	assert.match(source, /'--radial-reach', '8\.5rem'/);
 	assert.match(css, /\.radial-petal\.danger \{\s*border-color: var\(--danger\);/);
-	assert.match(css, /@media \(prefers-reduced-motion: reduce\) \{\s*\.radial-petal \{\s*animation: none;/);
+	assert.match(css, /animation: radial-in var\(--dur-base\) var\(--ease-out\) backwards;\s*animation-delay: calc\(var\(--radial-i, 0\) \* var\(--radial-stagger, 18ms\)\);/);
+	assert.doesNotMatch(css, /prefers-reduced-motion/);
 	assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i);
 });
 

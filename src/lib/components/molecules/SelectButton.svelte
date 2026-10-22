@@ -8,6 +8,7 @@
 	import Button from '$lib/components/atoms/Button.svelte';
 	import Icon, { type IconName } from '$lib/components/atoms/Icon.svelte';
 	import Select from '$lib/components/atoms/Select.svelte';
+	import { playSound } from '$lib/sound';
 
 	type Option = { value: string; label: string };
 
@@ -28,6 +29,7 @@
 		grow = false,
 		shrink = true,
 		block = false,
+		sound = true,
 		class: klass = '',
 		...rest
 	}: {
@@ -60,9 +62,16 @@
 		// Shared square box scale (`--box-xs/sm/md/lg`); default is the 2.25rem icon box.
 		box?: 'xs' | 'sm' | 'md' | 'lg';
 		hitArea?: 'auto' | 'compact';
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		class?: string;
 		[key: string]: unknown;
 	} = $props();
+
+	function change(e: Event) {
+		playSound('click', sound);
+		onchange((e.currentTarget as HTMLSelectElement).value);
+	}
 </script>
 
 <!-- The wrapper (owned here, so styled scoped) is the positioning context that
@@ -89,7 +98,7 @@
 		aria-label={label}
 		{title}
 		{value}
-		onchange={(e) => onchange((e.currentTarget as HTMLSelectElement).value)}
+		onchange={change}
 	>
 		{#if groups}
 			{#each groups as g, i (`${i}:${g.label}`)}
@@ -129,14 +138,20 @@
 	.select-button.active {
 		color: var(--accent);
 	}
-	/* The inert face takes no pointer events: mirror ghost hover and the
+	/* The inert face takes no pointer events: mirror ghost hover, press and the
 	   focus ring from the select overlaying it. */
-	.select-button:hover :global(.btn-ghost) {
-		background: var(--bg-elevated-2);
+	.select-button:active :global(.btn-ghost) {
+		--btn-scale-dur: var(--dur-press);
+		scale: var(--press-scale-sm);
 	}
 	.select-button:has(:focus-visible) {
-		outline: 2px solid var(--accent);
-		outline-offset: 2px;
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.select-button:hover :global(.btn-ghost) {
+			background: var(--bg-elevated-2);
+		}
 	}
 	.select-button.row :global(.btn) {
 		justify-content: flex-start;

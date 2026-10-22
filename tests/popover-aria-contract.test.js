@@ -62,6 +62,6 @@ test('closing through close() runs the same toggle path, so onclose fires', () =
 
 test('Menu closes via the handed-down close(), not a DOM walk', () => {
 	assert.match(menu, /\{#snippet children\(\{ close \}: \{ close: \(\) => void \}\)\}/);
-	assert.match(menu, /function select\(item: MenuItem, close: \(\) => void\)\s*{[\s\S]*close\(\);/);
+	assert.match(menu, /function select\(item: MenuItem, key: string, close: \(\) => void\)\s*{[\s\S]*close\(\);/);
 	assert.doesNotMatch(menu.slice(menu.indexOf('function select')), /closest/);
 });

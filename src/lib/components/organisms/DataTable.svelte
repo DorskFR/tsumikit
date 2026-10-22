@@ -254,8 +254,13 @@
 						{:else if col.sortable}
 							<button type="button" class="dt-sort" onclick={() => toggleSort(col)}>
 								<span>{col.label}</span>
-								<span class="dt-arrow" aria-hidden="true" class:active={sortKey === col.key}>
-									{sortKey === col.key ? (sortDir === 'asc' ? '↑' : '↓') : '↕'}
+								<span
+									class="dt-arrow"
+									aria-hidden="true"
+									class:active={sortKey === col.key}
+									class:desc={sortKey === col.key && sortDir === 'desc'}
+								>
+									{sortKey === col.key ? '↑' : '↕'}
 								</span>
 							</button>
 						{:else}
@@ -425,31 +430,47 @@
 		color: inherit;
 		cursor: pointer;
 	}
-	.dt-sort:hover {
-		color: var(--text);
-	}
 	.dt-arrow {
+		display: inline-block;
 		opacity: 0.4;
 		font-size: 0.9em;
+		transition:
+			rotate var(--dur-base) var(--ease-out),
+			opacity var(--dur-fast) var(--ease);
 	}
 	.dt-arrow.active {
 		opacity: 1;
 		color: var(--accent);
+	}
+	.dt-arrow.desc {
+		rotate: 180deg;
 	}
 	tbody tr:last-child td {
 		border-bottom: none;
 	}
 	tr.clickable {
 		cursor: pointer;
-		transition: background 0.12s var(--ease);
+		transition: background var(--dur-fast) var(--ease);
 	}
-	tr.clickable:hover,
 	tr.clickable:focus-visible {
 		background: var(--bg-elevated-2);
-	}
-	tr.clickable:focus-visible {
 		outline: var(--focus-ring);
-		outline-offset: -2px;
+		outline-offset: var(--focus-ring-offset-inset);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.dt-sort:hover {
+			color: var(--text);
+		}
+		tr.clickable:hover {
+			background: var(--bg-elevated-2);
+			transition-duration: var(--dur-instant);
+		}
+		tr:hover .dt-actions {
+			opacity: 1;
+		}
+		.dt-more-btn:hover {
+			background: var(--bg-elevated-2);
+		}
 	}
 	td.truncate {
 		white-space: nowrap;
@@ -487,7 +508,7 @@
 	}
 	.dt-actions {
 		opacity: 0;
-		transition: opacity 0.12s var(--ease);
+		transition: opacity var(--dur-fast) var(--ease);
 	}
 	.dt-actions-inner {
 		display: inline-flex;
@@ -495,13 +516,16 @@
 		gap: var(--sp-1);
 		white-space: nowrap;
 	}
-	tr:hover .dt-actions,
 	tr:focus-within .dt-actions {
 		opacity: 1;
 	}
 	@media (pointer: coarse) {
 		.dt-actions {
 			opacity: 1;
+		}
+		/* The last row's checkbox slab would otherwise add a scroll range. */
+		tbody tr:last-child td :global(.checkbox::before) {
+			inset-block-end: 0;
 		}
 		/* Sort slab: inline-end stays at 0 so it never reaches the next header
 		   cell, and the inline-start reach stays inside the cell's own padding. */
@@ -664,9 +688,8 @@
 		font: inherit;
 		color: var(--accent);
 		cursor: pointer;
-		border-radius: var(--r-md, 6px);
+		border-radius: var(--r-md);
 	}
-	.dt-more-btn:hover,
 	.dt-more-btn:focus-visible {
 		background: var(--bg-elevated-2);
 	}

@@ -326,8 +326,8 @@
 		/* A query container named `sidebar` so nav items collapse to an icon rail
 		   based on the sidebar's own width (see NavItem). */
 		container: sidebar / inline-size;
-		transform: translateX(-100%);
-		transition: transform 0.2s var(--ease);
+		translate: -100% 0;
+		transition: translate var(--dur-exit-slow) var(--ease-drawer);
 	}
 	.shell-sidebar[data-padding='sm'] {
 		--shell-sidebar-pad: var(--sp-2);
@@ -336,8 +336,9 @@
 		--shell-sidebar-pad: 0px;
 	}
 	.shell-sidebar.open {
-		transform: translateX(0);
+		translate: 0 0;
 		box-shadow: var(--shadow-lg);
+		transition-duration: var(--dur-sheet);
 	}
 	.shell-scrim {
 		display: none;
@@ -347,9 +348,20 @@
 		background: rgba(0, 0, 0, 0.5);
 		border: 0;
 		cursor: pointer;
+		opacity: 0;
+		transition:
+			opacity var(--dur-exit) var(--ease-out),
+			display var(--dur-exit) allow-discrete;
 	}
 	.shell-scrim.show {
 		display: block;
+		opacity: 1;
+		transition-duration: var(--dur-base);
+	}
+	@starting-style {
+		.shell-scrim.show {
+			opacity: 0;
+		}
 	}
 
 	/* Resize handle lives only on the desktop persistent column. */
@@ -379,7 +391,8 @@
 		.shell-sidebar {
 			position: relative; /* anchor the absolute resize handle */
 			grid-area: sidebar;
-			transform: none;
+			translate: none;
+			transition: none;
 			z-index: auto;
 			box-shadow: none;
 			border-right: 1px solid var(--border);
@@ -415,18 +428,22 @@
 			transform: translateY(-50%);
 			width: 3px;
 			height: 28px;
-			border-radius: 999px;
+			border-radius: var(--r-pill);
 			background: var(--border-strong);
-			transition: background 0.12s var(--ease);
+			transition: background var(--dur-fast) var(--ease);
 		}
-		.shell-sidebar-resize:hover::after,
 		.shell-sidebar-resize:focus-visible::after,
 		.shell.dragging .shell-sidebar-resize::after {
 			background: var(--accent);
 		}
 		.shell-sidebar-resize:focus-visible {
-			outline: 2px solid var(--accent);
-			outline-offset: -2px;
+			outline: var(--focus-ring);
+			outline-offset: var(--focus-ring-offset-inset);
+		}
+	}
+	@media (min-width: 48rem) and (hover: hover) and (pointer: fine) {
+		.shell-sidebar-resize:hover::after {
+			background: var(--accent);
 		}
 	}
 
@@ -441,12 +458,6 @@
 		}
 		.shell-sidebar-resize {
 			display: none;
-		}
-	}
-
-	@media (prefers-reduced-motion: reduce) {
-		.shell-sidebar {
-			transition: none;
 		}
 	}
 </style>

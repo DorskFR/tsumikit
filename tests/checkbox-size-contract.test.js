@@ -23,16 +23,15 @@ test('Checkbox takes the shared ControlSize union, defaulting to md (TSU-170)', 
 	assert.match(checkbox, /Omit<HTMLInputAttributes, 'size'>/);
 });
 
-test('the box scales through --cb-box and the 1.15rem default is unchanged (TSU-170)', () => {
-	assert.ok(hasDecl(checkbox, '.box', 'width', 'var(--cb-box, 1.15rem)'));
-	assert.ok(hasDecl(checkbox, '.box', 'height', 'var(--cb-box, 1.15rem)'));
-	// No hard-coded 1.15rem anywhere else: the fallback is the single default.
-	assert.equal((checkbox.match(/1\.15rem/g) ?? []).length, 2);
+test('the box scales through --cb-box and the default sits on the 4px chip grid (TSU-170)', () => {
+	assert.ok(hasDecl(checkbox, '.box', 'width', 'var(--cb-box, var(--chip-sm))'));
+	assert.ok(hasDecl(checkbox, '.box', 'height', 'var(--cb-box, var(--chip-sm))'));
+	assert.equal((checkbox.match(/1\.15rem/g) ?? []).length, 0);
 	const sm = rule(checkbox, '.checkbox-sm');
-	assert.equal(sm['--cb-box'], '0.95rem');
+	assert.equal(sm['--cb-box'], 'var(--chip-xs)');
 	assert.equal(sm['font-size'], 'var(--fs-xs)');
 	const lg = rule(checkbox, '.checkbox-lg');
-	assert.equal(lg['--cb-box'], '1.35rem');
+	assert.equal(lg['--cb-box'], 'var(--chip-md)');
 	assert.equal(lg['font-size'], 'var(--fs-base)');
 	assert.ok(hasDecl(checkbox, '.checkbox', 'font-size', 'var(--fs-sm)'));
 });

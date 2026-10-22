@@ -13,6 +13,7 @@
 	import type { HTMLAttributes } from 'svelte/elements';
 	import { formatCount, hasCount } from '$lib/count';
 	import { place } from '$lib/floating';
+	import { playSound } from '$lib/sound';
 	import Toggle from './Toggle.svelte';
 	import { HOVER_CLOSE_GRACE, HOVER_OPEN_DELAY, createHoverIntent, opensOnHover } from './popover-hover.js';
 
@@ -90,6 +91,8 @@
 		/** Class / inline style on the floating panel. */
 		panelClass?: string;
 		panelStyle?: string;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 	};
 
 	let {
@@ -125,6 +128,7 @@
 		style: styleProp = '',
 		panelClass = '',
 		panelStyle = '',
+		sound = true,
 		...rest
 	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
 
@@ -161,6 +165,10 @@
 	let opened = $state(false);
 
 	let shown = false;
+	// An `open` that is already true on mount is a sync, not a transition: no sound.
+	let quiet = open;
+	// Keyboard opens skip the enter animation (`data-instant`).
+	let instant = false;
 
 	$effect(() => {
 		if (!panelEl) return;
@@ -223,12 +231,21 @@
 	}
 
 	function onTriggerKeydown(e: KeyboardEvent) {
-		if (as !== 'a' || href !== undefined || disabled) return;
-		if (e.key === 'Enter' || e.key === ' ') {
+		if (disabled) return;
+		const key = e.key;
+		if (key === 'ArrowDown' && !open) {
 			e.preventDefault();
 			hover.cancel();
-			toggle();
+			instant = true;
+			show();
+			return;
 		}
+		if (key !== 'Enter' && key !== ' ') return;
+		instant = !open;
+		if (as !== 'a' || href !== undefined) return;
+		e.preventDefault();
+		hover.cancel();
+		toggle();
 	}
 
 	const triggerAttrs = $derived(
@@ -252,6 +269,13 @@
 			const firstOpen = !opened;
 			opened = true;
 			open = true;
+			if (panelEl) {
+				if (instant) panelEl.dataset.instant = '';
+				else delete panelEl.dataset.instant;
+			}
+			instant = false;
+			if (!quiet) playSound('open', sound);
+			quiet = false;
 			// On the first open the content snippet mounts this tick; measure the
 			// panel only once it has, so placement accounts for its real size.
 			if (firstOpen) await tick();
@@ -261,8 +285,10 @@
 			onopen?.();
 		} else {
 			open = false;
+			instant = false;
 			removeEventListener('scroll', reposition, true);
 			removeEventListener('resize', reposition);
+			playSound('close', sound);
 			onclose?.();
 		}
 	}
@@ -371,30 +397,69 @@
 		background: var(--pop-trigger-bg, transparent);
 		color: var(--pop-trigger-fg, var(--text));
 		font-size: var(--pop-trigger-size, inherit);
+		--icon-size: var(--control-icon-md);
+		--pop-scale-dur: var(--dur-fast);
 		transition:
-			background 0.12s var(--ease),
-			border-color 0.12s var(--ease);
+			background-color var(--dur-fast) var(--ease),
+			border-color var(--dur-fast) var(--ease),
+			color var(--dur-fast) var(--ease),
+			scale var(--pop-scale-dur) var(--ease-out);
 	}
-	:where(.pop-trigger:not(.bare):hover:not(:disabled)) {
-		background: var(--bg-elevated-2);
+	.pop-trigger:not(.bare, .trigger-toggle):active:not(:disabled, .is-disabled) {
+		--pop-scale-dur: var(--dur-press);
+		scale: var(--press-scale-sm);
+	}
+	.pop-trigger.canonical:active:not(:disabled, .is-disabled) {
+		scale: var(--press-scale);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		:where(.pop-trigger:not(.bare):hover:not(:disabled)) {
+			background: var(--bg-elevated-2);
+		}
+		.pop-trigger.canonical:hover:not(:disabled) {
+			border-color: var(--accent);
+			background: var(--surface);
+		}
+		.pop-trigger.trigger-primary:hover:not(:disabled) {
+			background: var(--accent);
+			border-color: var(--accent);
+			filter: brightness(1.08);
+		}
+		.pop-trigger.trigger-ghost:hover:not(:disabled) {
+			background: var(--bg-elevated-2);
+			border-color: transparent;
+		}
+		.pop-trigger.trigger-danger:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--danger) 14%, transparent);
+			border-color: var(--danger);
+		}
+		.pop-trigger.trigger-tone-accent:hover:not(:disabled),
+		.pop-trigger.trigger-tone-success:hover:not(:disabled),
+		.pop-trigger.trigger-tone-info:hover:not(:disabled),
+		.pop-trigger.trigger-tone-warn:hover:not(:disabled),
+		.pop-trigger.trigger-tone-danger:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--pop-trigger-tone) 14%, transparent);
+			border-color: var(--pop-trigger-tone);
+		}
+		.pop-trigger.trigger-primary.trigger-tone-success:hover:not(:disabled) {
+			background: var(--ok);
+			border-color: var(--ok);
+			filter: brightness(1.08);
+		}
 	}
 	/* Supplying canonical chrome props opts into the same dimensions, variants
 	   and state tones as Button while keeping this one native trigger element. */
 	.pop-trigger.canonical {
 		min-width: 0;
 		min-height: var(--control-height-default);
-		padding: var(--pop-trigger-pad, var(--sp-2) var(--sp-4));
+		padding: var(--pop-trigger-pad, var(--sp-2) var(--btn-px-md));
 		border-color: var(--pop-trigger-border, var(--border-strong));
 		background: var(--pop-trigger-bg, var(--surface));
 		font-weight: var(--fw-medium);
-		font-size: var(--pop-trigger-size, var(--fs-sm));
-		line-height: 1;
+		font-size: var(--pop-trigger-size, var(--control-fs-md));
+		line-height: var(--lh-none);
 		user-select: none;
 		white-space: nowrap;
-	}
-	.pop-trigger.canonical:hover:not(:disabled) {
-		border-color: var(--accent);
-		background: var(--surface);
 	}
 	.pop-trigger.trigger-primary {
 		background: var(--pop-trigger-bg, var(--accent));
@@ -402,37 +467,26 @@
 		color: var(--pop-trigger-fg, var(--text-on-accent));
 		font-weight: var(--fw-semibold);
 	}
-	.pop-trigger.trigger-primary:hover:not(:disabled) {
-		background: var(--accent);
-		border-color: var(--accent);
-		filter: brightness(1.08);
-	}
 	.pop-trigger.trigger-ghost {
 		background: var(--pop-trigger-bg, transparent);
 		border-color: var(--pop-trigger-border, transparent);
-	}
-	.pop-trigger.trigger-ghost:hover:not(:disabled) {
-		background: var(--bg-elevated-2);
-		border-color: transparent;
 	}
 	.pop-trigger.trigger-danger {
 		color: var(--pop-trigger-fg, var(--danger));
 		border-color: var(--pop-trigger-border, color-mix(in srgb, var(--danger) 50%, var(--border)));
 	}
-	.pop-trigger.trigger-danger:hover:not(:disabled) {
-		background: color-mix(in srgb, var(--danger) 14%, transparent);
-		border-color: var(--danger);
-	}
 	.pop-trigger.trigger-sm {
 		height: var(--control-height-compact);
 		min-height: var(--control-height-compact);
-		padding: var(--pop-trigger-pad, var(--sp-1) var(--sp-3));
-		font-size: var(--pop-trigger-size, var(--fs-xs));
+		padding: var(--pop-trigger-pad, var(--sp-1) var(--btn-px-sm));
+		font-size: var(--pop-trigger-size, var(--control-fs-sm));
+		--icon-size: var(--control-icon-sm);
 	}
 	.pop-trigger.trigger-lg {
 		min-height: var(--control-height-large);
-		padding: var(--pop-trigger-pad, var(--sp-3) var(--sp-5));
-		font-size: var(--pop-trigger-size, var(--fs-base));
+		padding: var(--pop-trigger-pad, var(--sp-3) var(--btn-px-lg));
+		font-size: var(--pop-trigger-size, var(--control-fs-lg));
+		--icon-size: var(--control-icon-lg);
 	}
 	.pop-trigger.trigger-control {
 		height: var(--control-height);
@@ -491,27 +545,14 @@
 		color: var(--pop-trigger-fg, var(--pop-trigger-tone));
 		border-color: var(--pop-trigger-border, color-mix(in srgb, var(--pop-trigger-tone) 50%, var(--border)));
 	}
-	.pop-trigger.trigger-tone-accent:hover:not(:disabled),
-	.pop-trigger.trigger-tone-success:hover:not(:disabled),
-	.pop-trigger.trigger-tone-info:hover:not(:disabled),
-	.pop-trigger.trigger-tone-warn:hover:not(:disabled),
-	.pop-trigger.trigger-tone-danger:hover:not(:disabled) {
-		background: color-mix(in srgb, var(--pop-trigger-tone) 14%, transparent);
-		border-color: var(--pop-trigger-tone);
-	}
 	.pop-trigger.trigger-primary.trigger-tone-success {
 		background: var(--pop-trigger-bg, var(--ok));
 		border-color: var(--pop-trigger-border, var(--ok));
 		color: var(--pop-trigger-fg, var(--text-on-success));
 	}
-	.pop-trigger.trigger-primary.trigger-tone-success:hover:not(:disabled) {
-		background: var(--ok);
-		border-color: var(--ok);
-		filter: brightness(1.08);
-	}
 	.pop-trigger:disabled,
 	.pop-trigger.is-disabled {
-		opacity: 0.45;
+		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
 	}
 	.pop-trigger.is-disabled {
@@ -544,7 +585,7 @@
 		font-size: var(--fs-xs);
 		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
-		line-height: 1;
+		line-height: var(--lh-none);
 		white-space: nowrap;
 		pointer-events: none;
 	}
@@ -584,15 +625,30 @@
 		border: 1px solid var(--border-strong);
 		border-radius: var(--r-md);
 		box-shadow: var(--shadow-md);
+		transform-origin: var(--tsu-origin, top left);
+		opacity: 0;
+		scale: var(--enter-scale);
+		transition:
+			opacity var(--dur-exit) var(--ease-out),
+			scale var(--dur-exit) var(--ease-out),
+			translate var(--dur-exit) var(--ease-out),
+			display var(--dur-exit) allow-discrete,
+			overlay var(--dur-exit) allow-discrete;
 	}
-	/* Enter animation (skipped under reduced-motion via the global rule). */
 	.pop-panel:popover-open {
-		animation: pop-in 0.12s var(--ease);
+		opacity: 1;
+		scale: 1;
+		translate: 0;
+		transition-duration: var(--dur-base);
 	}
-	@keyframes pop-in {
-		from {
+	@starting-style {
+		.pop-panel:popover-open {
 			opacity: 0;
-			transform: translateY(-4px);
+			scale: var(--enter-scale);
+			translate: var(--tsu-shift, 0 calc(-1 * var(--shift-sm)));
 		}
+	}
+	.pop-panel[data-instant] {
+		transition-duration: var(--dur-instant);
 	}
 </style>

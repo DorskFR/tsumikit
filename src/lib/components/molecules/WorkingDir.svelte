@@ -122,6 +122,7 @@
 		min-width: 0;
 		min-height: max-content;
 		overflow: hidden;
+		--focus-ring-offset: var(--focus-ring-offset-inset);
 	}
 	.rail.full {
 		flex: none;

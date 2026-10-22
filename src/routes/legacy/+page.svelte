@@ -96,6 +96,7 @@
 		LoadMore,
 		EmojiPicker,
 		ThemePicker,
+		SoundSettings,
 		FontScalePicker,
 		theme,
 		type AccordionItem,
@@ -803,6 +804,7 @@ function greet(name) {
 		<div class="spacer"></div>
 		<Link href="{base}/next" class="hide-sm">New showcase (preview) →</Link>
 		<Link href="{base}/shell" class="hide-sm">AppShell demo →</Link>
+		<SoundSettings size="sm" placement="bottom-end" />
 		<ThemePicker
 			auto
 			autoLabel="Auto"

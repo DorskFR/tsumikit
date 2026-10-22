@@ -151,7 +151,7 @@ test('badges render through Badge: counts cap at 99+, strings verbatim, 0 render
 test('text badges are not clipped by the glyph box and only overlap its 2px outer margin', () => {
 	assert.ok(hasDecl(css, '.tabbar :global(.tabbar-badge)', 'max-width', 'none'));
 	assert.ok(hasDecl(css, '.tabbar :global(.tabbar-badge)', 'left', 'calc(100% - 2px)'));
-	assert.ok(hasDecl(css, '.tabbar :global(.tabbar-badge)', 'padding-inline', '0.3rem'));
+	assert.ok(hasDecl(css, '.tabbar :global(.tabbar-badge)', 'padding-inline', 'var(--sp-1-5)'));
 });
 
 test('as a bar it publishes --tabbar-h on <html> and removes it on unmount', () => {
@@ -168,7 +168,7 @@ test('as a bar it publishes --tabbar-h on <html> and removes it on unmount', () 
 	assert.equal(inline.doc.documentElement.style.getPropertyValue('--tabbar-h'), '');
 });
 
-test('fixed bottom with safe-area padding, 48px targets, tokens and reduced motion', () => {
+test('fixed bottom with safe-area padding, 48px targets, tokens; reduced motion comes from the reset', () => {
 	assert.ok(hasDecl(css, '.bar', 'position', 'fixed'));
 	assert.ok(hasDecl(css, '.bar', 'bottom', '0'));
 	assert.ok(hasDecl(css, '.bar', 'z-index', 'var(--z-nav)'));
@@ -176,7 +176,7 @@ test('fixed bottom with safe-area padding, 48px targets, tokens and reduced moti
 	assert.ok(hasDecl(css, '.tabbar-item', 'min-height', /48px/));
 	assert.ok(hasDecl(css, '.tabbar-item.current', 'color', 'var(--accent)'));
 	assert.ok(hasDecl(css, '.tabbar', 'background', 'var(--bg-elevated)'));
-	assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
+	assert.doesNotMatch(css, /@media \(prefers-reduced-motion: reduce\)/);
 	assert.doesNotMatch(css, /#[0-9a-f]{3,6}\b/i);
 	assert.match(source, /value = \$bindable\(\)/);
 	assert.match(source, /onselect\?: \(id: string, item: TabBarItem\) => void;/);

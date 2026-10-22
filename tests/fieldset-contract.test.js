@@ -36,7 +36,7 @@ test('real fieldset/legend semantics; legend rides the top border', () => {
 	assert.match(component, /\.fieldset\s*{[^}]*position: relative;/);
 	assert.match(
 		component,
-		/\.fieldset-legend\s*{[^}]*position: absolute;[^}]*top: -13px;[^}]*left: 16px;[^}]*padding: 0 8px;[^}]*background: var\(--bg\);/
+		/\.fieldset-legend\s*{[^}]*position: absolute;[^}]*top: -13px;[^}]*left: var\(--sp-4\);[^}]*padding: 0 var\(--sp-2\);[^}]*background: var\(--bg\);/
 	);
 });
 
@@ -70,8 +70,9 @@ test('accepts falls back to dragPayload while the dataTransfer is protected, and
 	assert.match(component, /during dragenter\/dragover the/);
 });
 
-test('reduced-motion disables the transition; no :global', () => {
-	assert.match(component, /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.fieldset\s*{\s*transition: none;/);
+test('reduced motion is handled by reset.css, not a per-component block; no :global', () => {
+	assert.doesNotMatch(component, /prefers-reduced-motion/);
+	assert.match(component, /transition:\s*border-color var\(--dur-fast\) ease,\s*background-color var\(--dur-fast\) ease;/);
 	assert.doesNotMatch(component, /:global/);
 });
 

@@ -5,6 +5,7 @@
 	// `offset` written back). Numbered buttons collapse to prev / "3 / 12" /
 	// next when the container is narrower than 24rem.
 	import Text from '$lib/components/atoms/Text.svelte';
+	import { playSound } from '$lib/sound';
 	import IconButton from './IconButton.svelte';
 
 	let {
@@ -22,6 +23,7 @@
 		shrink = true,
 		block = false,
 		label = 'Pagination',
+		sound = true,
 		class: klass = ''
 	}: {
 		/** 1-based current page. */
@@ -46,6 +48,8 @@
 		/** Full-width block. */
 		block?: boolean;
 		label?: string;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		class?: string;
 	} = $props();
 
@@ -96,6 +100,7 @@
 	function go(p: number) {
 		const next = Math.min(count, Math.max(1, p));
 		if (next === current) return;
+		playSound('click', sound);
 		page = next;
 		if (offsetMode) offset = (next - 1) * (limit as number);
 		onchange?.(next);
@@ -116,6 +121,7 @@
 		label="Previous page"
 		box={size === 'sm' ? 'sm' : 'md'}
 		disabled={current <= 1}
+		sound={false}
 		onclick={() => go(current - 1)}
 	/>
 	<ol class="pages">
@@ -144,6 +150,7 @@
 		label="Next page"
 		box={size === 'sm' ? 'sm' : 'md'}
 		disabled={current >= count}
+		sound={false}
 		onclick={() => go(current + 1)}
 	/>
 	{#if showRange}
@@ -181,21 +188,30 @@
 	.page {
 		min-width: var(--box-md);
 		height: var(--box-md);
-		padding: 0 var(--sp-2);
+		padding: 0 var(--control-px-md);
 		border: 1px solid transparent;
-		border-radius: 999px;
+		border-radius: var(--r-md);
 		background: transparent;
 		color: var(--text-muted);
-		font-size: var(--fs-sm);
+		font-size: var(--control-fs-md);
 		font-variant-numeric: tabular-nums;
 		cursor: pointer;
+		--page-scale-dur: var(--dur-fast);
 		transition:
-			background 0.12s var(--ease),
-			color 0.12s var(--ease);
+			background var(--dur-fast) ease,
+			border-color var(--dur-fast) ease,
+			color var(--dur-fast) ease,
+			scale var(--page-scale-dur) var(--ease-out);
 	}
-	.page:hover {
-		background: var(--bg-elevated-2);
-		color: var(--text);
+	.page:active {
+		--page-scale-dur: var(--dur-press);
+		scale: var(--press-scale);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.page:hover {
+			background: var(--bg-elevated-2);
+			color: var(--text);
+		}
 	}
 	.page.on {
 		background: color-mix(in srgb, var(--accent) 16%, transparent);
@@ -206,7 +222,8 @@
 	.pagination-sm .page {
 		min-width: var(--box-sm);
 		height: var(--box-sm);
-		font-size: var(--fs-xs);
+		padding: 0 var(--control-px-sm);
+		font-size: var(--control-fs-sm);
 	}
 	.ellipsis {
 		display: inline-flex;

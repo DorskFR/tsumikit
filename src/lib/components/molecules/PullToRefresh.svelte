@@ -7,6 +7,7 @@
 	import type { Snippet } from 'svelte';
 	import Icon from '../atoms/Icon.svelte';
 	import Spinner from '../atoms/Spinner.svelte';
+	import { playSound } from '../../sound';
 
 	let {
 		children,
@@ -16,6 +17,7 @@
 		pullLabel = 'Pull to refresh',
 		releaseLabel = 'Release to refresh',
 		disabled = false,
+		sound = true,
 		class: klass = '',
 		...rest
 	}: {
@@ -29,6 +31,8 @@
 		pullLabel?: string;
 		releaseLabel?: string;
 		disabled?: boolean;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		class?: string;
 		[key: string]: unknown;
 	} = $props();
@@ -68,7 +72,9 @@
 			if (dy < SLOP) return;
 			pulling = true;
 		}
+		const wasReady = ready;
 		offset = dy > 0 ? damp(dy) : 0;
+		if (ready && !wasReady) playSound('tick', sound);
 	}
 
 	function onpointerup(e: PointerEvent) {
@@ -125,6 +131,7 @@
 	class:pulling
 	class:pending
 	style:--ptr-offset="{offset}px"
+	style:--ptr-threshold="{threshold}px"
 	style:--ptr-progress={progress}
 	aria-busy={pending || undefined}
 	{onpointerdown}
@@ -156,7 +163,7 @@
 	}
 	.ptr-content {
 		translate: 0 var(--ptr-offset, 0px);
-		transition: translate 200ms var(--ease);
+		transition: translate var(--dur-exit-slow) var(--ease-out);
 	}
 	.pulling .ptr-content {
 		transition: none;
@@ -167,11 +174,13 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		height: var(--ptr-offset, 0px);
-		overflow: hidden;
+		height: var(--ptr-threshold, 72px);
+		translate: 0 calc(var(--ptr-offset, 0px) - 100%);
 		color: var(--text-muted);
 		opacity: var(--ptr-progress, 0);
-		transition: height 200ms var(--ease);
+		transition:
+			translate var(--dur-exit-slow) var(--ease-out),
+			opacity var(--dur-exit-slow) var(--ease-out);
 		pointer-events: none;
 	}
 	.pulling .ptr-indicator {
@@ -179,7 +188,7 @@
 	}
 	.ptr-indicator :global(.ptr-arrow) {
 		rotate: calc(180deg * var(--ptr-progress, 0));
-		transition: rotate 150ms var(--ease);
+		transition: rotate var(--dur-base) var(--ease);
 	}
 	.pending .ptr-indicator {
 		color: var(--accent);
@@ -193,11 +202,6 @@
 		white-space: nowrap;
 	}
 	@media (prefers-reduced-motion: reduce) {
-		.ptr-content,
-		.ptr-indicator,
-		.ptr-indicator :global(.ptr-arrow) {
-			transition: none;
-		}
 		.ptr-indicator :global(.ptr-arrow) {
 			rotate: none;
 		}

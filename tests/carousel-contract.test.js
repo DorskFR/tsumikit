@@ -92,9 +92,9 @@ test('Carousel wires the extracted keyboard and swipe logic', () => {
 	assert.match(source, /touch-action: pan-y;/);
 });
 
-test('Carousel drops the slide transition under reduced motion', () => {
-	assert.match(source, /\.track\s*{[^}]*transition: transform/s);
-	assert.match(source, /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.track,\s*\.dot\s*{\s*transition: none;/s);
+test('Carousel slides the track on translate within the carousel budget', () => {
+	assert.match(source, /\.track\s*{[^}]*transition: translate var\(--dur-sheet\) var\(--ease-in-out\)/s);
+	assert.doesNotMatch(source, /prefers-reduced-motion/);
 });
 
 test('Carousel autoplay is off by default, pauses on hover and focus, and is stoppable', () => {

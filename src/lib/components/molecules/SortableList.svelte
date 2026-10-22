@@ -585,8 +585,8 @@
 		border-radius: var(--r-sm);
 		background: transparent;
 		transition:
-			transform 0.16s var(--ease),
-			box-shadow 0.16s var(--ease);
+			transform var(--dur-base) var(--ease),
+			box-shadow var(--dur-base) var(--ease);
 	}
 	.sortable-sm .sl-lift {
 		min-height: var(--sortable-row-h, 1.875rem);
@@ -637,13 +637,17 @@
 		translate: -50% -50%;
 		background: radial-gradient(circle, currentColor 1px, transparent 1.5px) 0 0 / 5px 5px;
 	}
-	.sl-grip:hover,
+	@media (hover: hover) and (pointer: fine) {
+		.sl-grip:hover {
+			color: var(--accent);
+		}
+	}
 	.sl-grip[aria-pressed='true'] {
 		color: var(--accent);
 	}
 	.sl-grip:focus-visible {
 		outline: var(--focus-ring);
-		outline-offset: -2px;
+		outline-offset: var(--focus-ring-offset-inset);
 	}
 	.handle-row .sl-row:not(.locked) {
 		cursor: grab;
@@ -676,7 +680,7 @@
 	}
 	button.sl-body:focus-visible {
 		outline: var(--focus-ring);
-		outline-offset: -2px;
+		outline-offset: var(--focus-ring-offset-inset);
 		border-radius: var(--r-sm);
 	}
 	.sl-row.selected button.sl-body {
@@ -687,7 +691,7 @@
 		flex: none;
 		display: inline-flex;
 		align-items: center;
-		gap: 2px;
+		gap: var(--sp-0-5);
 	}
 	.sl-live {
 		position: absolute;
@@ -710,11 +714,6 @@
 			position: absolute;
 			inset-block: min(0px, calc((100% - var(--touch-target)) / 2));
 			inset-inline: 0;
-		}
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.sl-lift {
-			transition: none;
 		}
 	}
 </style>

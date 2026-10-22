@@ -21,5 +21,5 @@ test('Button sm/link/inline count text is on the type scale with a smaller pill'
 	const r = rule(button, '.btn-sm .btn-count,\n\t.btn-link .btn-count,\n\t.btn-icon-inline .btn-count');
 	assert.equal(r['font-size'], 'var(--fs-xs)');
 	assert.equal(r['--btn-count-size'], '1rem');
-	assert.equal(r.padding, '0 0.2rem');
+	assert.equal(r.padding, '0 var(--sp-0-5)');
 });

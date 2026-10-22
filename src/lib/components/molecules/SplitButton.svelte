@@ -48,6 +48,8 @@
 		loading?: boolean;
 		/** Handler of the primary action. */
 		onclick?: (e: MouseEvent) => void;
+		/** Play UI sounds when enabled globally; false silences this instance. */
+		sound?: boolean;
 		class?: string;
 		style?: string;
 		/** Content of the primary action. */
@@ -75,6 +77,7 @@
 		type = 'button',
 		loading = false,
 		onclick,
+		sound = true,
 		class: klass = '',
 		style: styleProp = '',
 		children,
@@ -102,6 +105,8 @@
 	class="split {klass}"
 	class:split-primary={variant === 'primary'}
 	class:split-half={caret === 'half'}
+	class:split-sm={size === 'sm'}
+	class:split-lg={size === 'lg'}
 	style={styleProp}
 	style:--split-height={height}
 >
@@ -114,6 +119,7 @@
 			{type}
 			{loading}
 			{disabled}
+			{sound}
 			block
 			{onclick}
 			onkeydown={onPrimaryKeydown}
@@ -139,7 +145,7 @@
 			{onopen}
 			{onclose}
 		>
-			{#snippet trigger()}<Icon name="chevron-down" size={size === 'sm' ? 14 : 16} />{/snippet}
+			{#snippet trigger()}<span class="caret-glyph"><Icon name="chevron-down" /></span>{/snippet}
 		</Menu>
 	</span>
 </div>
@@ -169,13 +175,34 @@
 	.split-half .split-caret {
 		width: calc(var(--split-height) / 2);
 	}
+	.caret-glyph {
+		display: inline-flex;
+		align-items: center;
+		font-size: var(--control-icon-md);
+	}
+	.split-sm .caret-glyph {
+		font-size: var(--control-icon-sm);
+	}
+	.split-lg .caret-glyph {
+		font-size: var(--control-icon-lg);
+	}
+	/* Coarse pointers: the narrow caret keeps a 24px hit box without changing its drawn width. */
+	@media (pointer: coarse) {
+		.split-half .split-caret {
+			min-width: var(--box-xs);
+		}
+	}
 	/* The hovered or focused segment paints above its neighbour, so its
 	   accent border and focus ring are not cut by the overlap. */
-	.split-main:hover,
 	.split-main:focus-within,
-	.split-caret:hover,
 	.split-caret:focus-within {
 		z-index: 1;
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.split-main:hover,
+		.split-caret:hover {
+			z-index: 1;
+		}
 	}
 	/* On a filled primary the borders match the fill; paint the divider in the
 	   on-accent foreground instead. */

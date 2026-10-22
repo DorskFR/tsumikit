@@ -63,12 +63,11 @@ test('Disclosure is a native button over a region panel, no keydown interception
 	assert.match(disclosure, /type DisclosureChevron = 'start' \| 'end' \| false/);
 });
 
-test('the chevron is the kit icon, rotated on open, and still under reduced motion', () => {
+test('the chevron is the kit icon, rotated on open through the rotate property on motion tokens', () => {
 	assert.match(disclosure, /<Icon name="chevron-down" \/>/);
-	assert.ok(hasDecl(disclosure, '.disclosure--open .disclosure__chevron', 'transform', 'rotate(180deg)'));
-	assert.ok(hasDecl(disclosure, '.disclosure__chevron', 'transition', /transform/));
-	const reduced = disclosure.slice(disclosure.indexOf('@media (prefers-reduced-motion: reduce)'));
-	assert.match(normalize(reduced), /\.disclosure__chevron \{ transition: none; \}/);
+	assert.ok(hasDecl(disclosure, '.disclosure--open .disclosure__chevron', 'rotate', '180deg'));
+	assert.ok(hasDecl(disclosure, '.disclosure__chevron', 'transition', 'rotate var(--dur-base) var(--ease-out)'));
+	assert.doesNotMatch(disclosure, /prefers-reduced-motion/);
 });
 
 test('ARIA wiring: button controls the panel, the panel is labelled by the button', () => {

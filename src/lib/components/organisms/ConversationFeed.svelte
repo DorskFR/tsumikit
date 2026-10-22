@@ -143,6 +143,10 @@
 		flex-direction: column;
 		gap: var(--sp-3);
 		padding: var(--sp-3);
+		scroll-padding-block: var(--sp-2);
+	}
+	.feed > * {
+		flex-shrink: 0;
 	}
 	.feed-items {
 		display: flex;

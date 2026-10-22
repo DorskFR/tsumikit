@@ -1,3 +1,7 @@
+<script lang="ts" module>
+	let lastClosed = -Infinity;
+</script>
+
 <script lang="ts">
 	// Lightweight tooltip. Shows on hover (after a short delay) and on keyboard
 	// focus of the trigger; hides on blur / mouseleave / Escape (anywhere). The trigger is
@@ -15,7 +19,7 @@
 	// by `closeDelay` and cancelled when the pointer (or focus) enters the panel,
 	// so users can move in to select/copy text or click a button. Note the
 	// role="tooltip" caveat: `aria-describedby` flattens the panel to its text.
-	import type { Snippet } from 'svelte';
+	import { flushSync, type Snippet } from 'svelte';
 	import { place } from '$lib/floating';
 
 	let {
@@ -53,6 +57,8 @@
 		style?: string;
 	} = $props();
 
+	// A tooltip closed moments ago makes the next one open at once, unanimated.
+	const WARM_MS = 300;
 	const id = `tip-${Math.random().toString(36).slice(2, 8)}`;
 	let wrapEl = $state<HTMLElement | null>(null);
 	let tipEl = $state<HTMLElement | null>(null);
@@ -68,23 +74,32 @@
 		if (e.key === 'Escape') hideNow();
 	}
 
+	let instant = $state(false);
 	function show() {
 		clearTimeout(hideTimer); // pointer came back within the grace period
 		clearTimeout(showTimer);
-		showTimer = setTimeout(() => {
+		const warm = performance.now() - lastClosed < WARM_MS;
+		const reveal = () => {
 			if (!tipEl || tipEl.matches(':popover-open')) return; // re-entry guard
+			instant = warm;
+			flushSync();
 			tipEl.showPopover(); // top layer — displayed before we measure it
 			reposition();
 			addEventListener('scroll', reposition, true);
 			addEventListener('resize', reposition);
 			document.addEventListener('keydown', onEscape);
-		}, delay);
+		};
+		if (warm) reveal();
+		else showTimer = setTimeout(reveal, delay);
 	}
 	function hideNow() {
 		clearTimeout(showTimer);
 		clearTimeout(hideTimer);
 		try {
-			if (tipEl?.matches(':popover-open')) tipEl.hidePopover();
+			if (tipEl?.matches(':popover-open')) {
+				tipEl.hidePopover();
+				lastClosed = performance.now();
+			}
 		} catch {}
 		removeEventListener('scroll', reposition, true);
 		removeEventListener('resize', reposition);
@@ -164,6 +179,7 @@
 	popover="manual"
 	class="tip"
 	class:rich={!!content}
+	data-instant={instant ? '' : undefined}
 	style:width
 	style:max-width={maxWidth}
 	use:panel
@@ -194,9 +210,16 @@
 		border-radius: var(--r-sm);
 		box-shadow: var(--shadow-md);
 		font-size: var(--fs-xs);
-		line-height: 1.4;
+		line-height: var(--lh-snug);
 		white-space: normal;
 		pointer-events: none; /* non-interactive: never steals hover/clicks */
+		transform-origin: var(--tsu-origin, bottom center);
+		opacity: 0;
+		scale: var(--tip-scale);
+		transition:
+			opacity var(--dur-exit-fast) var(--ease-out),
+			display var(--dur-exit-fast) allow-discrete,
+			overlay var(--dur-exit-fast) allow-discrete;
 	}
 	/* Rich panel: interactive + selectable so the user can move the pointer in
 	   to copy an id or click a button (the close grace period allows the trip). */
@@ -207,14 +230,22 @@
 		padding: var(--sp-2);
 		border-radius: var(--r-md);
 	}
-	/* Fade/scale in when shown (skipped under reduced-motion via the global rule). */
 	.tip:popover-open {
-		animation: tip-in 0.12s var(--ease);
+		opacity: 1;
+		scale: 1;
+		transition:
+			opacity var(--dur-fast) var(--ease-out),
+			scale var(--dur-fast) var(--ease-out),
+			display var(--dur-fast) allow-discrete,
+			overlay var(--dur-fast) allow-discrete;
 	}
-	@keyframes tip-in {
-		from {
+	@starting-style {
+		.tip:popover-open {
 			opacity: 0;
-			transform: scale(0.96);
+			scale: var(--tip-scale);
 		}
+	}
+	.tip[data-instant] {
+		transition-duration: var(--dur-instant);
 	}
 </style>

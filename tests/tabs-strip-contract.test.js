@@ -66,7 +66,7 @@ test('closing the selected tab hands selection (and keyboard focus) to a neighbo
 test('arrow, Home and End navigation is untouched by the strip mode', () => {
 	assert.match(src, /if \(e\.key === 'ArrowRight'\) next = step\(i, 1\); else if \(e\.key === 'ArrowLeft'\) next = step\(i, -1\); else if \(e\.key === 'Home'\)/);
 	assert.match(src, /else if \(e\.key === 'End'\)/);
-	assert.match(src, /role="tablist" aria-label=\{label\} tabindex="-1" class="tablist" \{onkeydown\}/);
+	assert.match(src, /role="tablist" aria-label=\{label\} tabindex="-1" class="tablist" class:placed \{onkeydown\}/);
 });
 
 test('the strip row keeps the tablist scrolling and continues the rule under the actions', () => {
