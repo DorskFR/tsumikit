@@ -155,6 +155,7 @@ export const palettes = (tokensCss, themesCss) => {
  * @param {Palette} p @param {number} [margin] added to every floor
  */
 export const breaches = (p, margin = 0) => {
+	/** @type {string[]} */
 	const out = [];
 	/** @param {string} name @param {string} fg @param {string} bg @param {number} floor */
 	const check = (name, fg, bg, floor) => {
