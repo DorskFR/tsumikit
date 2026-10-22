@@ -87,14 +87,14 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		transition: opacity var(--dur-base) ease;
+		transition: opacity var(--dur-fast) ease;
 	}
 	.check {
 		opacity: 0;
 		scale: 0.6;
 		transition:
-			opacity var(--dur-base) ease,
-			scale var(--dur-base) var(--ease-out);
+			opacity var(--dur-fast) ease,
+			scale var(--dur-fast) var(--ease-out);
 	}
 	.copied .copy {
 		opacity: 0;

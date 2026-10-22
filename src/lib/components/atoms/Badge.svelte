@@ -290,9 +290,9 @@
 		opacity: 0.55;
 		text-decoration: line-through;
 		transition:
-			opacity var(--dur-base) var(--ease),
-			color var(--dur-base) var(--ease),
-			text-decoration-color var(--dur-base) var(--ease);
+			opacity var(--dur-fast) var(--ease),
+			color var(--dur-fast) var(--ease),
+			text-decoration-color var(--dur-fast) var(--ease);
 	}
 	.removed .action {
 		text-decoration: none;
