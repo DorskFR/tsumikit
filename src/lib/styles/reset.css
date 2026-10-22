@@ -51,8 +51,10 @@ a {
 	color: var(--link);
 	text-decoration: none;
 }
-a:hover {
-	text-decoration: underline;
+@media (hover: hover) and (pointer: fine) {
+	a:hover {
+		text-decoration: underline;
+	}
 }
 
 button {
