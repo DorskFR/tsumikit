@@ -25,7 +25,7 @@
 	<GlyphStack stack="always">
 		<Icon name="git-branch" size={12} />
 		<Icon name="lock" size={12} />
-		<Dot status="stale" label="Stale" />
+		<Dot status="stale" />
 	</GlyphStack>
 	<Text size="xs" tone="muted">children</Text>
 </Cluster>

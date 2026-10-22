@@ -9,6 +9,7 @@
 	// observed and the longest candidate that fits is shown (mode `path`
 	// abbreviates fish-style). `copyable` copies the full text on click.
 	import { copyToClipboard } from '$lib/clipboard';
+	import { untrack } from 'svelte';
 	import { pathCandidates, truncate, type TruncateMode } from '$lib/truncate';
 	import Tooltip from './Tooltip.svelte';
 
@@ -72,15 +73,18 @@
 	let probe = $state<HTMLSpanElement | null>(null);
 	let avail = $state(Number.POSITIVE_INFINITY);
 	let chPx = $state(8);
+	let cap = $state(Number.POSITIVE_INFINITY);
 
 	$effect(() => {
 		if (!fit || !rail) return;
 		const el = rail;
 		const measure = () => {
-			avail = el.clientWidth;
+			const w = el.clientWidth;
+			if (w > avail) cap = Number.POSITIVE_INFINITY;
+			avail = w;
 			if (probe) chPx = probe.getBoundingClientRect().width / 10 || chPx;
 		};
-		measure();
+		untrack(measure);
 		const ro = new ResizeObserver(measure);
 		ro.observe(el);
 		return () => ro.disconnect();
@@ -88,13 +92,24 @@
 
 	const shown = $derived.by(() => {
 		if (fit) {
-			const budget = Math.max(0, avail - 1);
+			const budget = Math.max(0, Math.min(avail - 1, cap));
 			return candidates.find((c) => [...c].length * chPx <= budget) ?? candidates[candidates.length - 1];
 		}
 		if (max === undefined) return text;
 		return truncate(text, { max, mode, ...pathOpts });
 	});
 	const isTruncated = $derived(shown !== text);
+
+	// The per-character estimate can undershoot (glyph fallbacks, late fonts): cap the budget below the spilling candidate.
+	$effect(() => {
+		if (!fit || !rail || shown === candidates[candidates.length - 1]) return;
+		const el = rail;
+		const id = requestAnimationFrame(() => {
+			const over = el.scrollWidth - el.clientWidth;
+			if (over > 0) cap = Math.min(untrack(() => cap), [...shown].length * chPx - over);
+		});
+		return () => cancelAnimationFrame(id);
+	});
 
 	let status = $state('');
 	let timer: ReturnType<typeof setTimeout> | undefined;
@@ -172,6 +187,9 @@
 		min-width: 0;
 		max-width: 100%;
 		overflow: hidden;
+	}
+	.rail .trunc:focus-visible {
+		outline-offset: var(--focus-ring-offset-inset);
 	}
 	.grow {
 		flex: 1 1 0;

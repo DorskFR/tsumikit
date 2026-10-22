@@ -32,7 +32,7 @@
 	>
 		{#snippet row(i)}
 			<Text size="sm" truncate grow>{i.title}</Text>
-			<Text size="xs" tone="muted" mono nowrap>{i.service}</Text>
+			<Text size="xs" tone="muted" mono truncate measure="45%">{i.service}</Text>
 		{/snippet}
 		{#snippet trailing(i)}
 			<Badge size="xs" tone={i.active ? 'accent' : severityTone[i.severity]}>{i.active ? 'working' : i.severity}</Badge>

@@ -21,7 +21,7 @@
 </Stack>
 <Stack gap="var(--sp-1)">
 	<Text size="xs" mono tone="muted">wrap={'{false}'}, scrolls instead</Text>
-	<div style="overflow-x: auto">
+	<div style="display: flex; overflow-x: auto">
 		<Cluster wrap={false} gap="var(--sp-1)">
 			{#each labels as label (label)}<Badge>{label}</Badge>{/each}
 		</Cluster>

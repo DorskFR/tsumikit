@@ -68,6 +68,10 @@
 		text-align: start;
 		cursor: pointer;
 	}
+	.mail:focus-visible {
+		outline: var(--focus-ring);
+		outline-offset: var(--focus-ring-offset-inset);
+	}
 	.mail.active {
 		background: color-mix(in srgb, var(--accent) 14%, transparent);
 	}

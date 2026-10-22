@@ -7,7 +7,7 @@
 </script>
 
 <script lang="ts">
-	import { Container, Stack, Text } from '@dorsk/tsumikit';
+	import { Container, Text } from '@dorsk/tsumikit';
 </script>
 
 {#each ['var(--sp-1)', 'var(--sp-4)', 'var(--sp-8)'] as gutter (gutter)}
@@ -18,12 +18,10 @@
 	</div>
 {/each}
 <div class="parent">
-	<Container size="32rem">
-		<Stack gap="var(--sp-2)">
-			<Text weight="semibold">Night Drive · Kaleido</Text>
-			<div class="bleed">Full-bleed cover art</div>
-			<Text size="sm" tone="muted">Captions stay inside the gutter.</Text>
-		</Stack>
+	<Container size="32rem" class="ct-flow">
+		<Text weight="semibold">Night Drive · Kaleido</Text>
+		<div class="bleed">Full-bleed cover art</div>
+		<Text size="sm" tone="muted">Captions stay inside the gutter.</Text>
 	</Container>
 </div>
 
@@ -36,6 +34,10 @@
 	:global(.ct-gutter) {
 		background: linear-gradient(var(--bg-elevated), var(--bg-elevated)) content-box,
 			color-mix(in srgb, var(--accent) 22%, transparent);
+	}
+	:global(.ct-flow) {
+		display: grid;
+		gap: var(--sp-2);
 	}
 	.bleed {
 		margin-inline: calc(-1 * var(--container-gutter));
