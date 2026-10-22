@@ -40,7 +40,8 @@
     "./styles/themes.css": "./dist/styles/themes.css",
     "./styles/reset.css": "./dist/styles/reset.css",
     "./styles/utilities.css": "./dist/styles/utilities.css",
-    "./styles/syntax.css": "./dist/styles/syntax.css"
+    "./styles/syntax.css": "./dist/styles/syntax.css",
+    "./looks/*.css": "./dist/looks/*.css"
   },
   "publishConfig": {
     "access": "public",

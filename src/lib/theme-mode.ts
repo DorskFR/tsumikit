@@ -12,6 +12,8 @@ export interface ThemePreference {
 	light: string;
 	/** Last dark theme the user picked. */
 	dark: string;
+	/** Structural look; absent means the default look. */
+	look?: string;
 }
 
 /** The picker value that means "follow the system". Never a theme id. */
@@ -74,4 +76,34 @@ export function preferenceFrom(
 /** The picker's current value: `auto`, or the pinned slot's theme id. */
 export function pickerValue(pref: ThemePreference): string {
 	return pref.mode === 'auto' ? AUTO_THEME : pref.mode === 'dark' ? pref.dark : pref.light;
+}
+
+export type LookStatus = 'stable' | 'experimental';
+
+/** Structural looks, an axis independent of the theme. Each non-default look
+ *  ships as `@dorsk/tsumikit/looks/<id>.css`, scoped to `:root[data-look="<id>"]`. */
+export const LOOKS = [
+	{ id: 'default', label: 'Polished', status: 'stable' },
+	{ id: 'depth', label: 'Depth', status: 'stable' },
+	{ id: 'tactile', label: 'Tactile', status: 'stable' },
+	{ id: 'editorial', label: 'Editorial', status: 'experimental' },
+] as const satisfies readonly { id: string; label: string; status: LookStatus }[];
+
+export type LookId = (typeof LOOKS)[number]['id'];
+
+export const DEFAULT_LOOK: LookId = 'default';
+
+export function parseLook(v: unknown): LookId {
+	return LOOKS.find((l) => l.id === v)?.id ?? DEFAULT_LOOK;
+}
+
+/** Inline script that paints `data-theme`, `data-mode` and `data-look` from the
+ *  persisted blob before first paint. `themes` resolves a legacy lone theme id. */
+export function themePrepaint(
+	key: string,
+	themes: readonly { id: string; mode: ThemeSlot }[],
+): string {
+	const looks = LOOKS.filter((l) => l.id !== DEFAULT_LOOK).map((l) => l.id);
+	const modes = Object.fromEntries(themes.map((t) => [t.id, t.mode]));
+	return `(function(){try{var d=document.documentElement,s=localStorage.getItem(${JSON.stringify(key)});if(!s)return;var b,t,m;try{b=JSON.parse(s)}catch(e){}if(b&&typeof b==='object'){m=b.mode==='auto'?(matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'):b.mode==='light'?'light':'dark';t=b[m];if(${JSON.stringify(looks)}.indexOf(b.look)>=0)d.setAttribute('data-look',b.look)}else{var k=${JSON.stringify(modes)};if(!Object.prototype.hasOwnProperty.call(k,s))return;t=s;m=k[s]}if(typeof t==='string'&&t)d.setAttribute('data-theme',t);d.setAttribute('data-mode',m)}catch(e){}})();`;
 }
