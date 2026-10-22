@@ -314,12 +314,30 @@
 		height: 1rem;
 		max-width: 1rem;
 		max-height: 1rem;
+		min-width: 0;
+		min-height: 0;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		overflow: hidden;
 		font-size: var(--fs-xs);
 		line-height: var(--lh-none);
+	}
+	/* Controls with a minimum box (e.g. a `box="xs"` IconButton) shrink to the cell instead of clipping. */
+	.stacked > .cell > :global(*) {
+		min-width: 0;
+		min-height: 0;
+		max-width: 1rem;
+		max-height: 1rem;
+	}
+	/* A labelled Dot folds to its disc; the label stays in the accessibility tree. */
+	.stacked :global(.dot-row > :not(.dot)) {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		overflow: hidden;
+		clip-path: inset(50%);
+		white-space: nowrap;
 	}
 	.stacked > :global(*) :global(:focus-visible),
 	.stacked > :global(:focus-visible) {

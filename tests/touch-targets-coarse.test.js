@@ -35,8 +35,7 @@ function fine(/** @type {string} */ src) {
 
 for (const [name, src, sel] of /** @type {const} */ ([
 	['Checkbox', checkbox, '.checkbox'],
-	['Button link', button, '.btn-link:not(.hit-compact)'],
-	['DataTable sort', table, '.dt-sort']
+	['Button link', button, '.btn-link:not(.hit-compact)']
 ])) {
 	test(`${name}: coarse pointers get a --touch-slab with no inline-end overflow`, () => {
 		const block = coarse(src);
@@ -73,11 +72,12 @@ test('Button link honours hitArea="compact" and leaves the sm text-button rule u
 	assert.ok(!/\.btn-sm[^{]*,\s*\.btn-link/.test(block), 'sm and link slabs are separate rules');
 });
 
-test('DataTable: the sort slab stays inside the header cell (padding >= the slab reach for a >= 40px-wide button)', () => {
-	// --touch-slab is min(-8px, …): a sort button wider than the compact target
-	// reaches exactly 8px past its inline start, which the th padding absorbs.
-	assert.equal(rule(normalize(table), 'th, td').padding, 'var(--sp-2) var(--sp-3)');
-	assert.equal(rule(normalize(table), '.dt.sm th, .dt.sm td').padding, 'var(--sp-1) var(--sp-2)');
-	const sp = (/** @type {string} */ v) => Number(v) * 16;
-	assert.ok(sp('0.75') >= 8 && sp('0.5') >= 8, 'both paddings cover the 8px reach at 16px root');
+test('DataTable: the whole-cell sort overlay reaches the compact target vertically, never sideways', () => {
+	const block = coarse(table);
+	assert.notEqual(rule(block, '.dt-sort').position, 'relative', 'the overlay resolves against the th');
+	assert.ok(!block.includes('.dt-sort::before'));
+	const after = rule(block, '.dt-sort::after');
+	assert.equal(after['inset-block'], 'min(0px, calc((100% - var(--touch-target-compact)) / 2))');
+	assert.equal(after['inset-inline'], undefined);
+	assert.equal(rule(fine(table), '.dt-sort::after').inset, '0');
 });

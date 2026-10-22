@@ -280,6 +280,7 @@
 	.card-warn,
 	.card-danger,
 	.card-info,
+	.card-accent,
 	.card-attention {
 		border-color: color-mix(in srgb, var(--card-tone) 55%, var(--surface-edge));
 		background: color-mix(in srgb, var(--card-tone) 8%, var(--surface-fill));
