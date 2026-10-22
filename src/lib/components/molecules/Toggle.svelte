@@ -63,7 +63,7 @@
 	class:on={pressed}
 	aria-pressed={pressed}
 >
-	{@render children?.()}
+	<span class="label">{@render children?.()}</span>
 </button>
 
 <style>
@@ -106,9 +106,19 @@
 		font-size: var(--control-fs-md);
 		--icon-size: var(--control-icon-md);
 	}
+	.label {
+		display: contents;
+	}
 	.toggle.grow {
 		flex: 1 1 0;
 		min-width: 0;
+	}
+	.toggle.grow .label {
+		display: block;
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		text-align: center;
 	}
 	.toggle.no-shrink {
 		flex: none;

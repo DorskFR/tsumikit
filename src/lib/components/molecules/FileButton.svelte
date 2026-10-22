@@ -93,7 +93,7 @@
 	{:else if emoji}
 		<span class="emoji" aria-hidden="true">{emoji}</span>
 	{/if}
-	<span class:sr-only={onlyIcon}>{label}</span>
+	<span class="text" class:sr-only={onlyIcon}>{label}</span>
 </label>
 
 <style>
@@ -114,6 +114,7 @@
 		font-weight: var(--fw-medium);
 		font-size: var(--control-fs-md);
 		line-height: var(--lh-none);
+		max-width: 100%;
 		white-space: nowrap;
 		cursor: pointer;
 		user-select: none;
@@ -179,6 +180,11 @@
 		}
 	}
 	/* An emoji reads small next to an SVG glyph of the same size: one icon tier up. */
+	.text:not(.sr-only) {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
 	.emoji {
 		display: inline-flex;
 		font-size: var(--icon-lg);

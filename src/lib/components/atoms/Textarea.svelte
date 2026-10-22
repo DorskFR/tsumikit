@@ -23,7 +23,7 @@
 	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
 	import { getInputGroupContext } from '$lib/input-group-context';
 
-	type Props = HTMLTextareaAttributes & {
+	type Props = Omit<HTMLTextareaAttributes, 'onsubmit'> & {
 		mono?: boolean;
 		autoresize?: boolean;
 		size?: ControlSize;

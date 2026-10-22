@@ -60,7 +60,7 @@
 	{variant}
 	{box}
 	{hitArea}
-	class="copy-btn {klass}"
+	class="copy-btn {labelShown && box !== undefined ? 'copy-labelled' : ''} {klass}"
 	sound={false}
 	onclick={copy}
 	aria-label={copied ? copiedLabel : label}
@@ -78,6 +78,10 @@
 	/* Both glyphs share one grid cell so the swap never changes the width. The
 	   check springs in (the kit's one bounce: a rare confirmation); the copy
 	   glyph fades out fast and back in over the base duration on revert. */
+	:global(.copy-btn.btn-box.copy-labelled) {
+		width: auto;
+		padding-inline: var(--sp-2);
+	}
 	.glyphs {
 		display: inline-grid;
 		place-items: center;

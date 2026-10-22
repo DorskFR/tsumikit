@@ -100,8 +100,9 @@
 		background: var(--divider-color);
 	}
 	.divider-label {
+		min-width: 0;
 		color: var(--text-muted);
 		font-size: var(--fs-sm);
-		white-space: nowrap;
+		text-align: center;
 	}
 </style>

@@ -12,7 +12,7 @@
 
 	// `size` shadows the native char-width attribute (unused in token-sized
 	// layouts) to expose a height preset instead.
-	type Props = Omit<HTMLInputAttributes, 'size'> & {
+	type Props = Omit<HTMLInputAttributes, 'size' | 'onsubmit'> & {
 		mono?: boolean;
 		size?: ControlSize;
 		/** Fill the available width of a flex/Cluster row (flex: 1) instead of

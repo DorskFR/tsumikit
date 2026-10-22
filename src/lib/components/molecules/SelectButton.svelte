@@ -30,6 +30,7 @@
 		shrink = true,
 		block = false,
 		sound = true,
+		disabled = false,
 		class: klass = '',
 		...rest
 	}: {
@@ -64,6 +65,7 @@
 		hitArea?: 'auto' | 'compact';
 		/** Play UI sounds when enabled globally; false silences this instance. */
 		sound?: boolean;
+		disabled?: boolean;
 		class?: string;
 		[key: string]: unknown;
 	} = $props();
@@ -81,6 +83,7 @@
 	class="select-button {klass}"
 	class:row={variant === 'row'}
 	class:active
+	class:disabled
 	data-tsu="SelectButton"
 	{...rest}
 	class:grow={grow}
@@ -98,6 +101,7 @@
 		aria-label={label}
 		{title}
 		{value}
+		{disabled}
 		onchange={change}
 	>
 		{#if groups}
@@ -138,18 +142,25 @@
 	.select-button.active {
 		color: var(--accent);
 	}
+	.select-button.disabled {
+		opacity: var(--disabled-opacity);
+		cursor: not-allowed;
+	}
 	/* The inert face takes no pointer events: mirror ghost hover, press and the
 	   focus ring from the select overlaying it. */
 	.select-button:active :global(.btn-ghost) {
 		--btn-scale-dur: var(--dur-press);
 		scale: var(--press-scale-sm);
 	}
+	.select-button.disabled:active :global(.btn-ghost) {
+		scale: none;
+	}
 	.select-button:has(:focus-visible) {
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset);
 	}
 	@media (hover: hover) and (pointer: fine) {
-		.select-button:hover :global(.btn-ghost) {
+		.select-button:not(.disabled):hover :global(.btn-ghost) {
 			background: var(--bg-elevated-2);
 		}
 	}

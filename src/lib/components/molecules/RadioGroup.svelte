@@ -219,6 +219,7 @@
 
 	.rows {
 		gap: var(--sp-1);
+		min-width: 0;
 	}
 	.row-wrap {
 		min-width: 0;
@@ -250,8 +251,9 @@
 	}
 	.label-line {
 		display: flex;
+		flex-wrap: wrap;
 		align-items: baseline;
-		gap: var(--sp-2);
+		gap: var(--sp-px) var(--sp-2);
 		min-width: 0;
 	}
 	.row .label-text {
@@ -260,7 +262,6 @@
 	.note {
 		font-size: var(--fs-xs);
 		color: var(--text-faint);
-		white-space: nowrap;
 	}
 	.description {
 		font-size: var(--fs-xs);
