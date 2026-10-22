@@ -145,5 +145,5 @@ export function searchText(e: DemoEntry): string {
 
 /** Resolve a `seeAlso` entry (name or id) to a section id. */
 export function resolveRef(ref: string): string {
-	return byName.get(ref)?.id ?? ref;
+	return byName.get(ref)?.id ?? catalogId(ref);
 }
