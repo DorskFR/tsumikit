@@ -7,7 +7,7 @@ import * as esbuild from 'esbuild';
 import sveltePlugin from 'esbuild-svelte';
 import { JSDOM } from 'jsdom';
 import { hasDecl, normalize } from './helpers.mjs';
-import { readDemo } from './helpers/demo-source.js';
+import { demoed, readDemo } from './helpers/demo-source.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 /** @param {string} p */
@@ -151,10 +151,10 @@ test('height follows the Button size tiers and the control contract', () => {
 	assert.equal(render({ control: true }).root.style.getPropertyValue('--split-height'), 'var(--control-height)');
 });
 
-test('it is exported, documented and demoed', () => {
+test('it is exported, documented and demoed', async () => {
 	assert.match(index, /export \{ default as SplitButton \} from '\.\/components\/molecules\/SplitButton\.svelte';/);
 	assert.match(readme, /### SplitButton/);
-	assert.match(page, /<section class="section" id="split-button">/);
+	assert.ok(await demoed('SplitButton'));
 	assert.match(page, /<SplitButton[^>]*menuDisabled/);
 });
 

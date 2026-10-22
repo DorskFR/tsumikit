@@ -4,7 +4,7 @@ import test from 'node:test';
 import { JSDOM } from 'jsdom';
 import { buildFixture } from './fixtures/build.mjs';
 import { hasDecl } from './helpers.mjs';
-import { readDemo } from './helpers/demo-source.js';
+import { demoed, readDemo } from './helpers/demo-source.js';
 
 const read = (/** @type {string} */ p) => readFile(new URL(`../src/lib/${p}`, import.meta.url), 'utf8');
 const [feed, panel, status, bubble, composer, index, readme, page] = await Promise.all([
@@ -73,13 +73,13 @@ function render(/** @type {Record<string, unknown>} */ props = {}) {
 	};
 }
 
-test('new pieces are exported', () => {
+test('new pieces are exported and demoed', async () => {
 	assert.match(index, /default as StatusBar } from '\.\/components\/molecules\/StatusBar\.svelte'/);
 	assert.match(index, /default as ConversationFeed } from '\.\/components\/organisms\/ConversationFeed\.svelte'/);
 	assert.match(index, /default as ConversationPanel } from '\.\/components\/organisms\/ConversationPanel\.svelte'/);
 	assert.match(index, /escapeHtml,\s+type Highlight,\s+type RenderMarkdownOptions,\s+renderMarkdown,\s+stripAnsi,\s+} from '\.\/markdown'/);
 	assert.match(readme, /### ConversationPanel, ConversationFeed, StatusBar/);
-	assert.match(page, /<section class="section" id="conversation">/);
+	for (const name of ['StatusBar', 'ConversationFeed', 'ConversationPanel']) assert.ok(await demoed(name), name);
 });
 
 test('ConversationFeed: generic props, fills its parent, 80px stick threshold, scrollToBottom exported', () => {

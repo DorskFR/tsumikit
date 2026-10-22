@@ -311,6 +311,9 @@
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
+	.stacked .navbar-label {
+		max-width: 100%;
+	}
 	.navbar-badge {
 		position: absolute;
 		top: -0.35rem;

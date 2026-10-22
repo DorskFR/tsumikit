@@ -74,6 +74,8 @@
 	.status-label {
 		flex: 1;
 		min-width: 0;
+		padding-block: calc(var(--focus-ring-width) + var(--focus-ring-offset));
+		margin-block: calc(-1 * (var(--focus-ring-width) + var(--focus-ring-offset)));
 		overflow: hidden;
 		text-overflow: ellipsis;
 		white-space: nowrap;

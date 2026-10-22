@@ -77,8 +77,8 @@ so there is nothing to keep in sync. The anchor is `#<section>--<title-kebab>`
 2. `02-Variants`: variants, tones and sizes as a compact labelled grid.
 3. `03-States`: disabled, loading, error, empty, long content and overflow.
 4. Composition with sibling components where natural.
-5. Keep the legacy page's prop-matrix rigour (tone matrices, overflow fixtures) as a final
-   `NN-Matrix.svelte` when it is worth keeping as a regression fixture.
+5. Prop matrices (tones, overflow fixtures) go in a final `NN-Matrix.svelte` when worth keeping
+   as a regression fixture.
 
 Labels describe intent; prop names go in the caption. Every component in `src/lib/index.ts` needs
 a `meta.ts` and at least two examples (`tests/demo-coverage.test.js`).
@@ -88,5 +88,5 @@ a `meta.ts` and at least two examples (`tests/demo-coverage.test.js`).
 `src/demo/framework/` owns the shell: `DemoShell` (AppShell, filter, scrollspy, hash redirects),
 `DemoNav`, `DemoToolbar` (theme and font scale pickers, an `extras` snippet slot for global
 controls), `DemoSection`, `Example`, `registry.ts` (the globs), `highlight.ts`, `catalog.ts`
-(the full component list used for not-yet-migrated stubs and legacy anchor redirects).
-Family lanes never edit it.
+(families and their labels), `hash.ts` (redirects for anchors of the former single-page
+showcase, e.g. `#form-atoms` → `#input`). Family lanes never edit it.

@@ -180,5 +180,9 @@
 		-webkit-line-clamp: var(--clamp);
 		line-clamp: var(--clamp);
 		overflow: hidden;
+		padding: calc(var(--focus-ring-width) + var(--focus-ring-offset));
+		padding-block-end: 0;
+		margin: calc(-1 * (var(--focus-ring-width) + var(--focus-ring-offset)));
+		margin-block-end: 0;
 	}
 </style>

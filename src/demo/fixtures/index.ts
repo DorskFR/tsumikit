@@ -166,7 +166,7 @@ export const messages: Message[] = [
 	{
 		id: 4,
 		role: 'assistant',
-		text: 'Links are scheme-checked: [docs](https://dorskfr.github.io/tsumikit) works, `[x](javascript:alert(1))` stays text.\n\n```ts\nconst html = renderMarkdown(text);\n```',
+		text: 'Links are scheme-checked: [docs](https://dorskfr.github.io/tsumikit) works, `[x](javascript:alert(1))` stays text.\n\n```ts\nconst html = renderMarkdown(md);\n```',
 		at: minutes(2),
 		ms: 980,
 	},

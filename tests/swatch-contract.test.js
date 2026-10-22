@@ -4,7 +4,7 @@ import test from 'node:test';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { compile, preprocess } from 'svelte/compiler';
 import { hasDecl, normalize } from './helpers.mjs';
-import { readDemo } from './helpers/demo-source.js';
+import { demoed, readDemo } from './helpers/demo-source.js';
 
 /** @param {string} p */
 const read = (p) => readFile(new URL(p, import.meta.url), 'utf8');
@@ -17,10 +17,10 @@ const [swatch, index, readme, page] = await Promise.all([
 const css = swatch.slice(swatch.indexOf('<style>'));
 const flat = normalize(swatch);
 
-test('Swatch is exported, documented and demoed', () => {
+test('Swatch is exported, documented and demoed', async () => {
 	assert.match(index, /export \{ default as Swatch \} from '\.\/components\/atoms\/Swatch\.svelte';/);
 	assert.match(readme, /Swatch \(colour chip:/);
-	assert.match(page, /<section class="section" id="swatch">/);
+	assert.ok(await demoed('Swatch'));
 	assert.match(page, /<Swatch[^>]*interactive[^>]*aria-pressed|<Swatch\s[^>]*interactive/);
 });
 

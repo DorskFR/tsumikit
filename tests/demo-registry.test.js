@@ -6,7 +6,7 @@ import test from 'node:test';
 import * as esbuild from 'esbuild';
 import sveltePlugin from 'esbuild-svelte';
 import { JSDOM } from 'jsdom';
-import { FAMILIES, catalogId } from '../src/demo/framework/catalog';
+import { FAMILIES } from '../src/demo/framework/catalog';
 import { LEGACY_IDS, resolveHash } from '../src/demo/framework/hash';
 import { highlight } from '../src/demo/framework/highlight';
 import { exampleOrder, exampleSlug, kebab, stripModuleScript } from '../src/demo/framework/snippet';
@@ -39,7 +39,7 @@ test('kebab ids and example slugs', () => {
 	assert.equal(kebab('NavBar'), 'nav-bar');
 	assert.equal(kebab('Button'), 'button');
 	assert.equal(kebab('ThemeTokens'), 'theme-tokens');
-	assert.equal(catalogId('AppShell'), 'app-shell');
+	assert.equal(kebab('AppShell'), 'app-shell');
 	assert.equal(exampleSlug('03-States.svelte'), 'states');
 	assert.equal(exampleSlug('10-LongContent.svelte'), 'long-content');
 	assert.equal(exampleOrder('03-States.svelte'), 3);
@@ -54,10 +54,12 @@ test('stripModuleScript removes exactly the module script block', () => {
 	assert.equal(stripModuleScript(plain), plain);
 });
 
-test('legacy anchors resolve to new section ids', () => {
+test('anchors of the former single-page showcase resolve to section ids', () => {
 	assert.equal(resolveHash('#form-atoms'), 'input');
 	assert.equal(resolveHash('player-sliders'), 'seek-slider');
 	assert.equal(resolveHash('#button'), 'button');
+	assert.equal(resolveHash('#g-forms'), 'input');
+	assert.equal(resolveHash('#conversation'), 'conversation-panel');
 	assert.equal(resolveHash(''), '');
 	for (const target of Object.values(LEGACY_IDS)) assert.match(target, /^[a-z-]+$/);
 });
@@ -95,7 +97,7 @@ test('every demo directory has a meta.ts with a description and well-named examp
 });
 
 test('section ids are unique across families', () => {
-	const ids = dirs.map((d) => catalogId(d.name));
+	const ids = dirs.map((d) => kebab(d.name));
 	assert.equal(new Set(ids).size, ids.length);
 });
 
@@ -116,9 +118,9 @@ async function buildFramework() {
 import { meta } from '../atoms/Button/meta.ts';
 import { exampleSlug, stripModuleScript } from './snippet.ts';
 ${imports}
-const button = { id: 'button', name: 'Button', family: 'atoms', meta, legacyId: 'button', stub: false, examples: [${examples}] };
-const scrim = { id: 'scrim', name: 'Scrim', family: 'atoms', meta: { description: '' }, legacyId: null, stub: true, examples: [] };
-const appShell = { id: 'app-shell', name: 'AppShell', family: 'layouts', meta: { description: '' }, legacyId: null, stub: true, examples: [] };
+const button = { id: 'button', name: 'Button', family: 'atoms', meta, examples: [${examples}] };
+const scrim = { id: 'scrim', name: 'Scrim', family: 'atoms', meta: { description: '' }, examples: [] };
+const appShell = { id: 'app-shell', name: 'AppShell', family: 'layouts', meta: { description: '' }, examples: [] };
 export const entries = [button, scrim, appShell];
 export const byName = new Map(entries.map((e) => [e.name, e]));
 export const groups = [{ family: 'atoms', entries: [button, scrim] }, { family: 'layouts', entries: [appShell] }];
@@ -215,15 +217,15 @@ test('DemoSection renders the Button examples with anchors, previews and verbati
 	assert.equal(section.querySelectorAll('.example__preview--stack').length, cards.length);
 });
 
-test('a stub section links to the legacy page or the shell page', () => {
+test('a section without examples renders no migration notice or legacy link', () => {
 	const d = dom();
 	const { mount, flushSync, DemoSection, entries } = d.window.__fixture;
-	mount(DemoSection, { target: d.window.document.body, props: { entry: { ...entries[0], stub: true, examples: [] } } });
-	mount(DemoSection, { target: d.window.document.body, props: { entry: entries[2] } });
+	mount(DemoSection, { target: d.window.document.body, props: { entry: entries[1] } });
 	flushSync();
 	const doc = d.window.document;
-	assert.equal(doc.querySelector('#button a[href="/legacy#button"]')?.textContent, 'legacy showcase');
-	assert.equal(doc.querySelector('#app-shell a[href="/shell"]')?.textContent, 'AppShell page');
+	assert.ok(doc.getElementById('scrim'));
+	assert.equal(doc.querySelector('[data-tsu="Callout"]'), null);
+	assert.equal(doc.querySelector('a[href*="legacy"]'), null);
 	assert.equal(doc.querySelectorAll('.example').length, 0);
 });
 
@@ -249,7 +251,7 @@ test('DemoShell: AppShell nav grouped by family, filter hides sections, toolbar 
 	assert.ok(toolbar, 'toolbar in the header');
 	assert.ok(toolbar.querySelector('[data-tsu="ThemePicker"]'), 'theme picker');
 	assert.ok(toolbar.querySelector('[data-tsu="FontScalePicker"]'), 'font scale picker');
-	assert.ok(toolbar.querySelector('a[href="/legacy"]'));
+	assert.equal(toolbar.querySelector('a[href*="legacy"]'), null);
 	assert.ok(toolbar.querySelector('a[href="/shell"]'));
 	assert.ok(toolbar.querySelector('a[href="https://github.com/DorskFR/tsumikit"]'));
 	assert.match(toolbar.textContent, /v\d+\.\d+\.\d+/);

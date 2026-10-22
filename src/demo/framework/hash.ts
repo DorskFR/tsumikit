@@ -1,4 +1,4 @@
-/** Legacy showcase anchors → the first section that now covers them. */
+/** Anchors of the former single-page showcase → the first section that now covers them. */
 export const LEGACY_IDS: Record<string, string> = {
 	'layout-primitives': 'stack',
 	'form-atoms': 'input',
@@ -9,6 +9,14 @@ export const LEGACY_IDS: Record<string, string> = {
 	conversation: 'conversation-panel',
 	toasts: 'toaster',
 	'popover-menu': 'popover',
+	'g-foundations': 'typography',
+	'g-forms': 'input',
+	'g-data': 'badge',
+	'g-feedback': 'empty-state',
+	'g-layout': 'stack',
+	'g-navigation': 'tabs',
+	'g-overlays': 'popover',
+	'g-actions': 'button',
 };
 
 export function resolveHash(hash: string): string {
@@ -20,7 +28,7 @@ export function resolveHash(hash: string): string {
  * The browser resolves a deep link before hydration lays the sections out, and
  * `content-visibility` placeholders above the target resize as they render
  * (WebKit has no scroll anchoring), so keep the target aimed until layout
- * settles or the user takes over. A legacy id is rewritten in the URL first.
+ * settles or the user takes over. A former anchor is rewritten in the URL first.
  */
 export function aimAtHash(settleMs = 2000): void {
 	const raw = location.hash.slice(1);

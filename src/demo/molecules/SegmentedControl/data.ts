@@ -16,3 +16,11 @@ export const scopeModes: SegmentOption[] = [
 	{ value: 'album', label: 'By album', icon: 'grid' },
 	{ value: 'artist', label: 'By artist', icon: 'list' },
 ];
+
+export const queueFilters: SegmentOption[] = [
+	{ value: 'all', label: 'All', count: 1234 },
+	{ value: 'queued', label: 'Queued', count: 3 },
+	{ value: 'downloading', label: 'Downloading' },
+	{ value: 'failed', label: 'Failed', count: 12 },
+	{ value: 'completed', label: 'Completed' },
+];

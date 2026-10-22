@@ -6,13 +6,11 @@ import { buildFixture } from './fixtures/build.mjs';
 import { hasDecl } from './helpers.mjs';
 
 const read = (/** @type {string} */ p) => readFile(new URL(p, import.meta.url), 'utf8');
-const [feedBundle, glyphSource, legacy] = await Promise.all([
+const [feedBundle, glyphSource] = await Promise.all([
 	buildFixture('mount-conversation.svelte.js'),
 	read('../src/lib/components/molecules/GlyphStack.svelte'),
-	read('../src/routes/legacy/+page.svelte'),
 ]);
 const glyphCss = glyphSource.slice(glyphSource.indexOf('<style>'));
-const legacyCss = legacy.slice(legacy.indexOf('<style>'));
 
 function renderFeed() {
 	const dom = new JSDOM('<!doctype html><html style="font-size:16px"><body></body></html>', {
@@ -84,10 +82,4 @@ test('GlyphStack: folded cells draw focus rings inset and an expandable stack is
 		'controls inside 1rem cells ring inset, so the cell overflow never cuts it',
 	);
 	assert.ok(hasDecl(glyphCss, '.glyph-stack[data-expand] > .cell', 'pointer-events', 'none'));
-});
-
-test('Legacy demo sidebar links ring inset and gate hover to fine pointers', () => {
-	assert.ok(hasDecl(legacyCss, '.nav-link:focus-visible', 'outline-offset', 'var(--focus-ring-offset-inset)'));
-	assert.doesNotMatch(legacyCss, /\n\t\.nav-link:hover \{/, 'no ungated hover rule at the top level');
-	assert.match(legacyCss, /@media \(hover: hover\) and \(pointer: fine\) \{\s*\.nav-link:hover \{/);
 });

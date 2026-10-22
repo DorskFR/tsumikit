@@ -101,8 +101,15 @@
 		font-family: var(--font-mono);
 		color: var(--text-muted);
 	}
+	.cb-name {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+	}
 	.cb-body {
 		display: flex;
+		align-items: flex-start;
 		overflow: auto;
 		-webkit-overflow-scrolling: touch;
 	}

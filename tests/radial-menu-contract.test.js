@@ -8,7 +8,7 @@ import { fanAngles, fanLayout } from '../src/lib/floating.ts';
 import { slideSelect } from '../src/lib/slide-select.ts';
 import { buildFixture } from './fixtures/build.mjs';
 import { hasDecl, normalize } from './helpers.mjs';
-import { readDemo } from './helpers/demo-source.js';
+import { demoed, readDemo } from './helpers/demo-source.js';
 
 const read = (/** @type {string} */ p) => readFile(new URL(p, import.meta.url), 'utf8');
 const [source, index, readme, page] = await Promise.all([
@@ -85,12 +85,12 @@ function render(props = {}, at = { left: 170, top: 700 }) {
 	return { win, doc, fab, panel, petals, labels, focused, text, settle, key, fire, center, point, unmount: () => unmount(app) };
 }
 
-test('RadialMenu is exported, documented and demoed in a bottom bar and a page corner', () => {
+test('RadialMenu is exported, documented and demoed in a bottom bar and a page corner', async () => {
 	assert.match(normalize(index), /export \{ default as RadialMenu, type RadialArc, \} from '\.\/components\/molecules\/RadialMenu\.svelte';/);
 	assert.match(readme, /### RadialMenu/);
 	assert.match(readme, /\| `RadialMenu` \| `--radial-radius`, `--radial-petal-size`, `--radial-fab-size` \|/);
-	assert.match(page, /<section class="section" id="radial-menu">/);
-	assert.match(page, /\{ id: 'radial-menu', label: 'RadialMenu'/);
+	assert.ok(await demoed('RadialMenu'));
+	assert.match(page, /<div class="corner">\s*<RadialMenu\b/);
 	assert.equal([...page.matchAll(/<RadialMenu\b/g)].length >= 2, true, 'bar and corner demos');
 	assert.match(page, /\{#snippet status\(\)\}/);
 });

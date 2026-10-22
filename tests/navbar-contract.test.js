@@ -4,7 +4,7 @@ import test from 'node:test';
 import { JSDOM } from 'jsdom';
 import { buildFixture } from './fixtures/build.mjs';
 import { hasDecl } from './helpers.mjs';
-import { readDemo } from './helpers/demo-source.js';
+import { demoed, readDemo } from './helpers/demo-source.js';
 
 const source = await readFile(
 	new URL('../src/lib/components/layouts/NavBar.svelte', import.meta.url),
@@ -246,16 +246,15 @@ test('maxWidth centres the row through a custom property', () => {
 	assert.match(source, /margin-inline: auto;/);
 });
 
-test('NavBar is exported and documented', () => {
+test('NavBar is exported and demoed', async () => {
 	assert.match(
 		index,
 		/export \{ default as NavBar, type NavBarItem \} from '\.\/components\/layouts\/NavBar\.svelte';/
 	);
-	assert.match(docs, /\{ id: 'navbar', label: 'NavBar', keywords: '[^']*safe area[^']*' \}/);
-	assert.match(docs, /<section class="section" id="navbar">/);
-	assert.match(docs, /<NavBar items=\{navBarItems\} label="Demo sections" maxWidth="32rem" \/>/);
-	assert.match(docs, /<NavBar items=\{navBarItems\} orientation="inline"/);
-	assert.match(docs, /<NavBar\s+items=\{navBarViews\}\s+bind:value=\{navBarView\}[^>]*variant="floating"/);
+	assert.ok(await demoed('NavBar'));
+	assert.match(docs, /orientation: 'inline', variant: 'flush'/);
+	assert.match(docs, /variant: 'floating', maxWidth: '24rem'/);
+	assert.match(docs, /<NavBar\s+\{items\}\s+bind:value=\{view\}[^>]*variant="floating"/);
 	assert.match(docs, /\{#snippet center\(\)\}/);
 });
 

@@ -82,8 +82,9 @@ test('the strip row keeps the tablist scrolling and continues the rule under the
 });
 
 test('demo and README cover the closable strip', () => {
-	assert.match(docs, /<Tabs tabs=\{docTabs\} bind:value=\{docTabValue\} label="Open documents" closable onclose=\{closeDoc\}/);
+	assert.match(docs, /<Tabs tabs=\{docs\} bind:value label="Open documents" closable onclose=\{/);
 	assert.match(docs, /\{#snippet leading\(t\)\}\s*<Dot status=/);
+	assert.match(docs, /<Tabs \{tabs\} bind:value=\{strip\} label="Strip only" \/>/);
 	assert.match(docs, /\{#snippet actions\(\)\}/);
 	assert.match(docs, /\{ id: 'pinned', label: 'Pinned', closable: false \}/);
 	assert.match(readme, /omit `panel` for a strip-only tablist/);

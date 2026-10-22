@@ -59,3 +59,10 @@ test('tone token --callout-tone maps to semantic colours', () => {
 		assert.match(component, new RegExp(`\\.callout-${t}\\)\\s*{\\s*--callout-tone: var\\(--${t}\\);`));
 	}
 });
+
+test('tone selectors outrank the base .card.callout tone', () => {
+	assert.match(component, /:global\(\.card\.callout\) \{\s*--callout-tone: var\(--text-muted\);/);
+	for (const [tone, token] of [['ok', 'ok'], ['warn', 'warn'], ['danger', 'danger'], ['info', 'info'], ['accent', 'accent']]) {
+		assert.match(component, new RegExp(`:global\\(\\.card\\.callout-${tone}\\) \\{\\s*--callout-tone: var\\(--${token}\\);`));
+	}
+});

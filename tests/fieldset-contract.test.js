@@ -79,9 +79,9 @@ test('reduced motion is handled by reset.css, not a per-component block; no :glo
 test('demo: two droppable pools with a draggable card and a keyboard path', () => {
 	assert.match(page, /<Fieldset\s+legend=/);
 	assert.match(page, /droppable\s+accepts=/);
-	assert.match(page, /dragPayload=\{poolDrag\}/);
-	assert.match(page, /poolDrag = item;/);
-	assert.match(page, /ondragend=\{\(\) => \(poolDrag = ''\)\}/);
+	assert.match(page, /dragPayload=\{dragging\}/);
+	assert.match(page, /dragging = node;/);
+	assert.match(page, /ondragend=\{\(\) => \(dragging = ''\)\}/);
 	assert.match(page, /draggable="true"/);
-	assert.match(page, /movePool\(item, id === 'a' \? 'b' : 'a'\)/);
+	assert.match(page, /move\(node, id === 'standby' \? 'active' : 'standby'\)/);
 });

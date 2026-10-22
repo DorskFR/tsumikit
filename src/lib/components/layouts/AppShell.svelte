@@ -289,6 +289,7 @@
 	}
 	.shell-menu-btn {
 		display: inline-flex;
+		flex: none;
 		align-items: center;
 	}
 	.shell-main {

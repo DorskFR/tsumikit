@@ -1,6 +1,6 @@
 import type { Component } from 'svelte';
-import { CATALOG, catalogId, FAMILIES, type Family } from './catalog';
-import { exampleOrder, exampleSlug, stripModuleScript } from './snippet';
+import { FAMILIES, type Family } from './catalog';
+import { exampleOrder, exampleSlug, kebab, stripModuleScript } from './snippet';
 
 export type ExampleLayout = 'row' | 'stack' | 'grid' | 'center' | 'frame';
 
@@ -40,9 +40,6 @@ export type DemoEntry = {
 	family: Family;
 	meta: ComponentMeta;
 	examples: DemoExample[];
-	/** Legacy section id when the component has no demo directory yet. */
-	legacyId: string | null;
-	stub: boolean;
 };
 
 type ExampleModule = { default: Component; meta?: ExampleMeta };
@@ -72,13 +69,11 @@ function build(): DemoEntry[] {
 		if (!at) continue;
 		const meta = mod.meta;
 		byDir.set(key(at.family, at.dir), {
-			id: catalogId(at.dir),
+			id: kebab(at.dir),
 			name: meta.name ?? at.dir,
 			family: at.family,
 			meta,
 			examples: [],
-			legacyId: CATALOG[at.family]?.[at.dir] ?? null,
-			stub: false,
 		});
 	}
 
@@ -99,22 +94,6 @@ function build(): DemoEntry[] {
 			component: mod.default,
 			source: stripModuleScript(exampleSources[path] ?? ''),
 		});
-	}
-
-	for (const family of FAMILIES) {
-		for (const [name, legacyId] of Object.entries(CATALOG[family])) {
-			const k = key(family, name);
-			if (byDir.has(k)) continue;
-			byDir.set(k, {
-				id: catalogId(name),
-				name,
-				family,
-				meta: { description: '' },
-				examples: [],
-				legacyId,
-				stub: true,
-			});
-		}
 	}
 
 	const entries = [...byDir.values()];
@@ -145,5 +124,5 @@ export function searchText(e: DemoEntry): string {
 
 /** Resolve a `seeAlso` entry (name or id) to a section id. */
 export function resolveRef(ref: string): string {
-	return byName.get(ref)?.id ?? catalogId(ref);
+	return byName.get(ref)?.id ?? kebab(ref);
 }

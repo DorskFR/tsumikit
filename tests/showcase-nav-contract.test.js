@@ -6,36 +6,19 @@ import { readDemo } from './helpers/demo-source.js';
 const page = await readDemo();
 const reset = await readFile(new URL('../src/lib/styles/reset.css', import.meta.url), 'utf8');
 
-const script = page.slice(0, page.indexOf('</script>'));
-const navIds = [...script.matchAll(/\{ id: '([a-z-]+)', label: '[^']*', keywords:/g)].map((m) => m[1]);
-const sectionIds = [...page.matchAll(/<section class="section" id="([a-z-]+)">/g)].map((m) => m[1]);
-
-test('every showcase section has a nav entry, in the same order', () => {
-	assert.ok(sectionIds.length >= 40);
-	assert.deepEqual(navIds, sectionIds);
+test('nav entries and sections render from the same registry entries, in the same order', () => {
+	assert.match(page, /\{#each entries as entry \(entry\.id\)\}\s*<DemoSection \{entry\}/);
+	assert.match(page, /<section id=\{entry\.id\} class="demo-section" data-demo-section/);
+	assert.match(page, /export const groups[^=]*= FAMILIES\.map\(\(family\) => \(\{\s*family,\s*entries: entries\.filter/);
 });
 
-test('sections are wrapped in labelled thematic groups', () => {
-	const groups = [...page.matchAll(/<section class="group" id="g-([a-z-]+)" aria-labelledby="gh-\1">/g)].map(
-		(m) => m[1]
-	);
-	assert.deepEqual(groups, [
-		'foundations',
-		'layout',
-		'actions',
-		'forms',
-		'navigation',
-		'data',
-		'feedback',
-		'overlays'
-	]);
-	const navGroups = [...script.matchAll(/id: '([a-z-]+)',\n\t\t\tlabel: '/g)].map((m) => m[1]);
-	assert.deepEqual(navGroups, groups);
+test('the sidebar groups entries by family in labelled nav sections', () => {
+	assert.match(page, /export const FAMILIES = \['foundations', 'atoms', 'molecules', 'organisms', 'layouts'\] as const;/);
+	assert.match(page, /<NavSection label=\{FAMILY_LABEL\[group\.family\]\}>/);
 });
 
 test('the sidebar links every entry and tracks the active section', () => {
-	assert.match(page, /href="#\{item\.id\}"/);
-	assert.match(page, /class:active=\{active === item\.id\}/);
+	assert.match(page, /href="#\{entry\.id\}"\s*active=\{active === entry\.id\}/);
 });
 
 test('the scroll-spy marks the last section past the line, not the one filling a band', () => {

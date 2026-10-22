@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { readDemo } from './helpers/demo-source.js';
+import { demoed, readDemo } from './helpers/demo-source.js';
 
 const source = await readFile(
 	new URL('../src/lib/components/atoms/Divider.svelte', import.meta.url),
@@ -56,10 +56,9 @@ test('a label splits the rule with pseudo-element halves', () => {
 	assert.match(source, /\.vertical\.labelled::before,\s*\.vertical\.labelled::after/);
 });
 
-test('Divider is exported and showcased', () => {
+test('Divider is exported and showcased', async () => {
 	assert.match(index, /export \{ default as Divider \} from '\.\/components\/atoms\/Divider\.svelte';/);
-	assert.match(docs, /id: 'divider', label: 'Divider'/);
-	assert.match(docs, /<section class="section" id="divider">/);
+	assert.ok(await demoed('Divider'));
 	assert.match(docs, /<Divider orientation="vertical"/);
 });
 

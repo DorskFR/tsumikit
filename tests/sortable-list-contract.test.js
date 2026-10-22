@@ -13,7 +13,7 @@ import {
 } from '../src/lib/components/molecules/sortable-list-order.js';
 import { buildFixture } from './fixtures/build.mjs';
 import { hasDecl } from './helpers.mjs';
-import { readDemo } from './helpers/demo-source.js';
+import { demoed, readDemo } from './helpers/demo-source.js';
 
 /** @param {string} p */
 const read = (p) => readFile(new URL(p, import.meta.url), 'utf8');
@@ -328,11 +328,11 @@ test('styles: token-driven, touch-ready grip, reduced motion', () => {
 	assert.doesNotMatch(source, /draggable=|ondragstart/);
 });
 
-test('it is exported, documented and demoed', () => {
+test('it is exported, documented and demoed', async () => {
 	assert.match(index, /default as SortableList,/);
 	assert.match(index, /from '\.\/components\/molecules\/SortableList\.svelte';/);
 	assert.match(readme, /### SortableList/);
 	assert.match(readme, /\| `SortableList` \| `--sortable-row-h` \|/);
-	assert.match(page, /<section class="section" id="sortable-list">/);
+	assert.ok(await demoed('SortableList'));
 	assert.match(page, /<SortableList[\s\S]*?numbered/);
 });

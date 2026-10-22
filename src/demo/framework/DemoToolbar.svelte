@@ -14,7 +14,6 @@
 
 <Toolbar label="Showcase settings" density="compact" class="demo-toolbar">
 	<Link href="{base}/shell" class="cq-hide">AppShell</Link>
-	<Link href="{base}/legacy" class="cq-hide" tone="muted">Legacy</Link>
 	{@render extras?.()}
 	<FontScalePicker box="sm" />
 	<ThemePicker

@@ -105,7 +105,7 @@ test('the overlay occupies the input box without taking it out of the flow', () 
 	assert.equal(hasDecl(source, '.fi__display', 'overflow', 'hidden'), true);
 	assert.equal(hasDecl(source, '.fi__field', 'position', 'relative'), true);
 	assert.equal(hasDecl(source, '.fi__field', 'flex', '1'), true);
-	assert.equal(hasDecl(source, '.fi__field', 'min-width', '0'), true);
+	assert.equal(hasDecl(source, '.fi__field', 'min-width', 'min(100%, 6rem)'), true);
 	assert.equal(hasDecl(source, '.fi__input--masked', 'color', 'transparent'), true);
 	// The mask must win over `.fi__input { color: var(--text) }`, same specificity.
 	assert.ok(source.indexOf('.fi__input--masked') > source.indexOf('.fi__input {'));
