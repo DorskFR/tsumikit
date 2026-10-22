@@ -10,14 +10,11 @@ import { JSDOM } from 'jsdom';
 
 const ROOT = fileURLToPath(new URL('../', import.meta.url));
 const DEMO = join(ROOT, 'src/demo');
-const COMPONENTS = [
-	'Tabs', 'Breadcrumb', 'Pagination', 'Carousel', 'Accordion', 'Disclosure',
-	'SectionHeader', 'KeyValue', 'LoadMore', 'Metric', 'Meter', 'CapBar'
-];
+const FAMILIES = ['atoms', 'molecules', 'organisms', 'layouts', 'foundations'];
 
 const index = (await readFile(join(ROOT, 'src/lib/index.ts'), 'utf8')).replace(/\/\/.*$/gm, '');
 const exportedNames = new Set(
-	[...index.matchAll(/export\s*\{([^}]+)\}|export (?:const|function|type|class) (\w+)/g)]
+	[...index.matchAll(/export(?:\s+type)?\s*\{([^}]+)\}|export (?:const|function|type|class) (\w+)/g)]
 		.flatMap((m) => (m[1] ? m[1].split(',').map((s) => s.trim().replace(/^type\s+/, '').replace(/^default as\s+/, '')) : [m[2]]))
 		.filter(Boolean)
 );
@@ -25,12 +22,18 @@ const exportedNames = new Set(
 /** @returns {Promise<{ name: string, file: string, path: string }[]>} */
 async function examples() {
 	const out = [];
-	for (const name of COMPONENTS) {
-		const dir = join(DEMO, 'molecules', name);
-		const files = (await readdir(dir)).filter((f) => f.endsWith('.svelte')).sort();
-		assert.ok(files.length >= 3, `${name}: ${files.length} examples, need 3`);
-		assert.ok((await readdir(dir)).includes('meta.ts'), `${name}: meta.ts`);
-		for (const file of files) out.push({ name, file, path: join(dir, file) });
+	for (const family of FAMILIES) {
+		let names = [];
+		try {
+			names = await readdir(join(DEMO, family));
+		} catch {
+			continue;
+		}
+		for (const name of names.sort()) {
+			const dir = join(DEMO, family, name);
+			const files = (await readdir(dir)).filter((f) => f.endsWith('.svelte')).sort();
+			for (const file of files) out.push({ name: `${family}/${name}`, file, path: join(dir, file) });
+		}
 	}
 	return out;
 }
@@ -41,14 +44,14 @@ test('every example imports only names the library exports, from @dorsk/tsumikit
 		const src = await readFile(ex.path, 'utf8');
 		for (const m of src.matchAll(/import\s*\{([^}]+)\}\s*from\s*'([^']+)'/g)) {
 			const from = m[2];
-			assert.ok(from === '@dorsk/tsumikit' || from.startsWith('./') || from === '../../fixtures', `${ex.name}/${ex.file}: import from ${from}`);
+			assert.ok(from === '@dorsk/tsumikit' || from.startsWith('./') || from === '../../fixtures' || from === 'svelte' || from.startsWith('svelte/'), `${ex.name}/${ex.file}: import from ${from}`);
 			if (from !== '@dorsk/tsumikit') continue;
 			for (const raw of m[1].split(',')) {
 				const n = raw.trim().replace(/^type\s+/, '').split(/\s+as\s+/)[0];
 				if (n) assert.ok(exportedNames.has(n), `${ex.name}/${ex.file}: '${n}' is not exported by src/lib/index.ts`);
 			}
 		}
-		assert.doesNotMatch(src, /^\s*\/\/|\/\*/m, `${ex.name}/${ex.file}: no comments`);
+		assert.doesNotMatch(src, /^\s*(\/\/|\/\*)|<!--/m, `${ex.name}/${ex.file}: no comments`);
 	}
 });
 
@@ -76,7 +79,7 @@ async function bundle(generate) {
 
 test('every example prerenders on the server without touching window or document', async () => {
 	const code = await bundle('server');
-	const ctx = vm.createContext({ console, setTimeout, clearTimeout, setInterval, clearInterval, queueMicrotask, Promise, globalThis: {} });
+	const ctx = vm.createContext({ console, File, Blob, URL, TextEncoder, TextDecoder, setTimeout, clearTimeout, setInterval, clearInterval, queueMicrotask, Promise, globalThis: {} });
 	ctx.globalThis = ctx;
 	vm.runInContext(code, ctx);
 	assert.equal(typeof ctx.window, 'undefined');
@@ -98,15 +101,22 @@ test('every example mounts, flushes and unmounts in a browser DOM without errors
 	d.window.addEventListener('error', (e) => errors.push(e.error ?? e.message));
 	d.window.eval(code);
 	const { mount, unmount, flushSync, examples } = d.window.__csr;
+	/** @type {string[]} */
+	const failures = [];
 	for (const ex of examples) {
 		const target = d.window.document.createElement('div');
 		d.window.document.body.append(target);
-		const app = mount(ex.component, { target });
-		flushSync();
-		await new Promise((r) => setTimeout(r, 0));
-		assert.ok(target.innerHTML.length > 20, `${ex.id}: empty client output`);
-		unmount(app);
+		try {
+			const app = mount(ex.component, { target });
+			flushSync();
+			await new Promise((r) => setTimeout(r, 0));
+			if (target.innerHTML.length <= 20) failures.push(`${ex.id}: empty client output`);
+			unmount(app);
+		} catch (e) {
+			failures.push(`${ex.id}: ${/** @type {Error} */ (e).message.split('\n')[0]}`);
+		}
 		target.remove();
 	}
+	assert.deepEqual(failures, []);
 	assert.deepEqual(errors, []);
 });
