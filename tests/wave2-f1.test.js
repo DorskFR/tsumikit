@@ -101,7 +101,7 @@ function render(props = {}, { clipboard = true } = {}) {
 
 const settle = () => new Promise((r) => setTimeout(r, 0));
 /** jsdom arrays live in another realm: compare by value. */
-const same = (/** @type {unknown} */ actual, /** @type {unknown} */ expected, /** @type {string} */ [msg] = []) =>
+const same = (/** @type {unknown} */ actual, /** @type {unknown} */ expected, /** @type {string} */ msg = '') =>
 	assert.equal(JSON.stringify(actual), JSON.stringify(expected), msg);
 
 test('nothing plays on mount', () => {

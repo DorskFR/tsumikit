@@ -3,6 +3,7 @@
 	import EmojiPicker from '$lib/components/molecules/EmojiPicker.svelte';
 
 	let { which = 'combobox', sound = true, open = false }: { which?: 'combobox' | 'emoji'; sound?: boolean; open?: boolean } = $props();
+	// svelte-ignore state_referenced_locally
 	let cbOpen = $state(open);
 	(globalThis as any).__f3 = { setOpen: (v: boolean) => (cbOpen = v) };
 </script>

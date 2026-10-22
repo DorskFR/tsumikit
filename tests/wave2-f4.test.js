@@ -150,7 +150,7 @@ test('ConfirmModal forwards sound to Modal and never plays twice', () => {
 	buttons.find((b) => b.textContent?.trim() === 'Cancel')?.click();
 	r.flush();
 	// The Cancel Button's own `click` comes from Button; the dialog adds exactly one `close`.
-	assert.deepEqual(r.names().filter((n) => n !== 'click'), ['open', 'close']);
+	assert.deepEqual(r.names().filter((/** @type {string} */ n) => n !== 'click'), ['open', 'close']);
 	r.destroy();
 });
 
@@ -239,7 +239,7 @@ test('floating: placeAt publishes the resolved side, a trigger-facing origin and
 	Object.defineProperty(w.document.documentElement, 'clientWidth', { value: 1000 });
 	Object.defineProperty(w.document.documentElement, 'clientHeight', { value: 800 });
 	const el = w.document.createElement('div');
-	el.getBoundingClientRect = () => ({ width: 200, height: 100, top: 0, left: 0, right: 200, bottom: 100 });
+	el.getBoundingClientRect = () => /** @type {DOMRect} */ ({ width: 200, height: 100, top: 0, left: 0, right: 200, bottom: 100, x: 0, y: 0, toJSON: () => ({}) });
 	w.document.body.appendChild(el);
 	globalThis.document = w.document;
 	try {
@@ -251,7 +251,7 @@ test('floating: placeAt publishes the resolved side, a trigger-facing origin and
 		assert.match(floating, /top: '0 var\(--shift-sm\)'/);
 		assert.ok(code.length);
 	} finally {
-		delete globalThis.document;
+		Reflect.deleteProperty(globalThis, 'document');
 	}
 });
 

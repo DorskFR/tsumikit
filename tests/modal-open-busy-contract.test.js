@@ -13,9 +13,9 @@ test('Modal keeps mount-to-open by default and follows a bound `open` when provi
 	assert.match(source, /onclose\?: \(\) => void;/);
 	assert.match(source, /const controlled = \$derived\(open !== undefined\);/);
 	assert.match(source, /if \(!controlled\) {\s*dialogEl\.showModal\(\);\s*return;\s*}/s);
-	assert.match(source, /if \(open && !dialogEl\.open\) dialogEl\.showModal\(\);/);
+	assert.match(source, /if \(open && !dialogEl\.open\) {\s*dialogEl\.showModal\(\);\s*if \(synced\) playSound\('open', sound\);\s*}/);
 	assert.match(source, /else if \(!open && dialogEl\.open\) dialogEl\.close\(\);/);
-	assert.match(source, /function requestClose\(\) {\s*if \(busy\) return;\s*if \(controlled\) open = false;\s*onclose\?\.\(\);/s);
+	assert.match(source, /function requestClose\(\) {\s*if \(busy\) return;\s*if \(controlled\) open = false;\s*else playSound\('close', sound\);\s*onclose\?\.\(\);/s);
 	assert.match(source, /onclose={\(\) => {\s*if \(controlled\) open = false;/s);
 });
 
@@ -36,7 +36,8 @@ test('Modal tone paints a title glyph and a 3px top border; footer is right-alig
 	assert.match(source, /import { canonicalTone, type Tone } from '\$lib\/tone';/);
 	assert.match(source, /class:sheet-toned={t !== 'neutral'}/);
 	assert.match(source, /style:--modal-tone={t === 'neutral' \? undefined : `var\(--\${t}\)`}/);
-	assert.match(source, /<Icon name=\{TONE_ICON\[t\]\} size=\{18\} \/>/);
+	assert.match(source, /<span class="sheet-tone-icon"><Icon name=\{TONE_ICON\[t\]\} \/><\/span>/);
+	assert.match(source, /\.sheet-tone-icon\s*{[^}]*font-size: var\(--icon-lg\);/);
 	assert.match(source, /\.sheet-toned\s*{\s*border-top: 3px solid var\(--modal-tone\);/s);
 	assert.match(source, /\.sheet-foot\s*{[^}]*justify-content: flex-end;[^}]*gap: var\(--sp-2\);/s);
 });

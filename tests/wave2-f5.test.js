@@ -12,6 +12,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const read = (/** @type {string} */ p) => readFile(new URL(`../src/lib/components/${p}`, import.meta.url), 'utf8');
 const css = (/** @type {string} */ src) => src.slice(src.indexOf('<style>'));
 
+/** @type {Record<string, string>} */
 const files = {
 	Slider: await read('atoms/Slider.svelte'),
 	Gauge: await read('atoms/Gauge.svelte'),
@@ -78,6 +79,7 @@ function render(/** @type {Record<string, unknown>} */ props = {}) {
 	win.__sounds = [];
 	win.eval(bundle);
 	const { mount, flushSync, Fixture } = win.__fixture;
+	/** @type {string[]} */
 	const fired = [];
 	mount(Fixture, { target: win.document.body, props: { fired, ...props } });
 	flushSync();
@@ -93,7 +95,7 @@ function render(/** @type {Record<string, unknown>} */ props = {}) {
 		);
 		flushSync();
 	};
-	const sounds = () => JSON.parse(JSON.stringify(win.__sounds.splice(0)));
+	const sounds = /** @type {() => [string, boolean][]} */ (() => JSON.parse(JSON.stringify(win.__sounds.splice(0))));
 	return { win, doc, q, key, pointer, sounds, fired, flush: flushSync };
 }
 

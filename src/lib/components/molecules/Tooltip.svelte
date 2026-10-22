@@ -19,7 +19,7 @@
 	// by `closeDelay` and cancelled when the pointer (or focus) enters the panel,
 	// so users can move in to select/copy text or click a button. Note the
 	// role="tooltip" caveat: `aria-describedby` flattens the panel to its text.
-	import type { Snippet } from 'svelte';
+	import { flushSync, type Snippet } from 'svelte';
 	import { place } from '$lib/floating';
 
 	let {
@@ -74,14 +74,15 @@
 		if (e.key === 'Escape') hideNow();
 	}
 
+	let instant = $state(false);
 	function show() {
 		clearTimeout(hideTimer); // pointer came back within the grace period
 		clearTimeout(showTimer);
 		const warm = performance.now() - lastClosed < WARM_MS;
 		const reveal = () => {
 			if (!tipEl || tipEl.matches(':popover-open')) return; // re-entry guard
-			if (warm) tipEl.dataset.instant = '';
-			else delete tipEl.dataset.instant;
+			instant = warm;
+			flushSync();
 			tipEl.showPopover(); // top layer — displayed before we measure it
 			reposition();
 			addEventListener('scroll', reposition, true);
@@ -178,6 +179,7 @@
 	popover="manual"
 	class="tip"
 	class:rich={!!content}
+	data-instant={instant ? '' : undefined}
 	style:width
 	style:max-width={maxWidth}
 	use:panel

@@ -12,6 +12,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const read = (/** @type {string} */ p) => readFile(new URL(`../src/lib/components/${p}`, import.meta.url), 'utf8');
 const css = (/** @type {string} */ src) => src.slice(src.indexOf('<style>'));
 
+/** @type {Record<string, string>} */
 const files = {
 	Checkbox: await read('atoms/Checkbox.svelte'),
 	Switch: await read('atoms/Switch.svelte'),
@@ -68,7 +69,7 @@ function render(/** @type {Record<string, unknown>} */ props = {}) {
 		/** @type {HTMLElement} */ (el).click();
 		flushSync();
 	};
-	const sounds = () => JSON.parse(JSON.stringify(win.__sounds.splice(0)));
+	const sounds = /** @type {() => [string, boolean][]} */ (() => JSON.parse(JSON.stringify(win.__sounds.splice(0))));
 	return { doc, click, sounds, flush: flushSync };
 }
 
@@ -122,9 +123,9 @@ test('each control plays its mapped sound once per interaction, by the new state
 
 test('sound={false} passes allow=false to every hook', () => {
 	const r = render({ silent: true });
-	r.click(r.doc.querySelector('[data-probe="cb"]'));
-	r.click(r.doc.querySelector('[data-probe="sw"]'));
-	r.click(r.doc.querySelector('[data-probe="tg"]'));
+	r.click(/** @type {Element} */ (r.doc.querySelector('[data-probe="cb"]')));
+	r.click(/** @type {Element} */ (r.doc.querySelector('[data-probe="sw"]')));
+	r.click(/** @type {Element} */ (r.doc.querySelector('[data-probe="tg"]')));
 	r.click(r.doc.querySelectorAll('[data-tsu="RadioGroup"] input')[1]);
 	r.click(r.doc.querySelectorAll('[data-tsu="SegmentedControl"] .seg-item')[1]);
 	r.click(r.doc.querySelectorAll('[data-tsu="Tabs"] .tab')[1]);

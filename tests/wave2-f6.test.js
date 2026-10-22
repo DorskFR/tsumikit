@@ -12,6 +12,7 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const read = (/** @type {string} */ p) => readFile(new URL(`../src/lib/components/${p}`, import.meta.url), 'utf8');
 const css = (/** @type {string} */ src) => src.slice(src.indexOf('<style>'));
 
+/** @type {Record<string, string>} */
 const files = {
 	Icon: await read('atoms/Icon.svelte'),
 	Card: await read('atoms/Card.svelte'),
@@ -74,7 +75,7 @@ function render(/** @type {Record<string, unknown>} */ props = {}) {
 		/** @type {HTMLElement} */ (el).click();
 		flushSync();
 	};
-	const sounds = () => JSON.parse(JSON.stringify(win.__sounds.splice(0)));
+	const sounds = /** @type {() => [string, boolean][]} */ (() => JSON.parse(JSON.stringify(win.__sounds.splice(0))));
 	return { doc, click, sounds };
 }
 

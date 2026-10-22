@@ -34,10 +34,10 @@ test('Badge variant typography reads --badge-fw too, keeping its own weight as t
 	assert.equal(rule(badge, '.uppercase')['font-weight'], 'var(--badge-fw, var(--fw-semibold))');
 });
 
-test('Badge numeric squares off with --badge-min-size, unset keeping 1.5em wide and auto tall', () => {
+test('Badge numeric squares off with --badge-min-size, unset keeping 1.5em wide and the chip ladder height', () => {
 	const numeric = rule(badge, '.numeric');
 	assert.equal(numeric['min-width'], 'var(--badge-min-size, 1.5em)');
-	assert.equal(numeric['min-height'], 'var(--badge-min-size, auto)');
+	assert.equal(numeric['min-height'], 'var(--badge-min-size, var(--badge-h))');
 	assert.equal(numeric['justify-content'], 'center');
 });
 
@@ -45,7 +45,7 @@ test('every --badge-* size hook is read with a fallback, so unset renders exactl
 	for (const [prop, fallbacks] of [
 		['--badge-fs', ['var(--fs-xs)']],
 		['--badge-fw', ['var(--fw-medium)', 'var(--fw-normal)', 'var(--fw-semibold)']],
-		['--badge-min-size', ['1.5em', 'auto']]
+		['--badge-min-size', ['1.5em', 'var(--badge-h)']]
 	]) {
 		const reads = [...normalize(badge).matchAll(new RegExp(`var\\(${prop}([^)]*\\)*?)`, 'g'))];
 		assert.ok(reads.length > 0, `${prop} is never read`);
