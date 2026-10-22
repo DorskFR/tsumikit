@@ -122,7 +122,8 @@
 		cursor: pointer;
 		user-select: none;
 		--icon-size: var(--control-icon-md);
-		--file-scale-dur: var(--dur-fast);
+		--file-scale-dur: var(--dur-release);
+		--file-scale-ease: var(--ease-spring-bounce);
 		transition:
 			background var(--dur-fast) ease,
 			border-color var(--dur-fast) ease,
@@ -130,10 +131,11 @@
 			color var(--dur-fast) ease,
 			opacity var(--dur-fast) ease,
 			translate var(--dur-fast) var(--ease-out),
-			scale var(--file-scale-dur) var(--ease-out);
+			scale var(--file-scale-dur) var(--file-scale-ease);
 	}
 	.file-btn:active:not(.disabled) {
 		--file-scale-dur: var(--dur-press);
+		--file-scale-ease: var(--ease-out);
 		scale: var(--press-scale);
 	}
 	.file-btn.icon-only:active:not(.disabled),

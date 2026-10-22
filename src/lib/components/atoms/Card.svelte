@@ -96,6 +96,45 @@
 	const framed = $derived(!!(header || footer || title));
 	const native = $derived(as === 'button' || as === 'a');
 
+	let el = $state<HTMLElement>();
+	const lit = $derived(tap || interactive);
+
+	// The spotlight follows the pointer itself unless the app already runs trackPointer().
+	$effect(() => {
+		const node = el;
+		if (!node || !lit) return;
+		let frame = 0;
+		let x = 0;
+		let y = 0;
+		const flush = () => {
+			frame = 0;
+			const r = node.getBoundingClientRect();
+			node.style.setProperty('--pointer-x', `${x - r.left}px`);
+			node.style.setProperty('--pointer-y', `${y - r.top}px`);
+		};
+		const move = (e: PointerEvent) => {
+			if (e.pointerType !== 'mouse') return;
+			x = e.clientX;
+			y = e.clientY;
+			if (!frame) frame = requestAnimationFrame(flush);
+		};
+		const enter = (e: PointerEvent) => {
+			if (e.pointerType !== 'mouse' || globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+			if (getComputedStyle(node).getPropertyValue('--card-fx').trim() !== 'spotlight') return;
+			move(e);
+			node.addEventListener('pointermove', move, { passive: true });
+		};
+		const leave = () => node.removeEventListener('pointermove', move);
+		node.addEventListener('pointerenter', enter, { passive: true });
+		node.addEventListener('pointerleave', leave, { passive: true });
+		return () => {
+			leave();
+			node.removeEventListener('pointerenter', enter);
+			node.removeEventListener('pointerleave', leave);
+			if (frame) cancelAnimationFrame(frame);
+		};
+	});
+
 	const NESTED = 'button,a,input,select,textarea,[role=button],[contenteditable],[contenteditable=true]';
 	function fromNested(e: Event): boolean {
 		const target = e.target as Element | null;
@@ -118,6 +157,7 @@
 
 <svelte:element
 	this={as}
+	bind:this={el}
 	data-tsu="Card"
 	class="card {klass}"
 	class:pad-none={padding === 'none'}
@@ -168,6 +208,7 @@
 	{:else}
 		{@render children?.()}
 	{/if}
+	{#if lit}<span class="card-fx" aria-hidden="true"></span>{/if}
 </svelte:element>
 
 <style>
@@ -252,7 +293,108 @@
 			border-color: var(--surface-edge-strong);
 			translate: 0 calc(-1 * var(--hover-lift));
 			--card-shadow-rest: var(--surface-shadow-hover);
+			--card-glow: 100%;
+			--card-lit: 1;
+			--card-fade: var(--dur-fast);
+			--card-spin: var(--card-orbit-spin);
 		}
+	}
+	.card-tap:focus-visible {
+		--card-glow: 100%;
+		--card-lit: 1;
+		--card-fade: var(--dur-fast);
+		--card-spin: var(--card-orbit-spin);
+	}
+
+	@media (hover: hover) and (pointer: fine) {
+		.card-tap:hover > .card-fx {
+			--card-orbit: 360deg;
+		}
+	}
+	.card-tap:focus-visible > .card-fx {
+		--card-orbit: 360deg;
+	}
+
+	/* Hover light for tappable cards: a wash on the surface plus a ring on the edge. */
+	.card-tap {
+		position: relative;
+	}
+	.card-fx {
+		position: absolute;
+		inset: calc(-1 * var(--edge-width));
+		padding: 1.5px;
+		border-radius: inherit;
+		pointer-events: none;
+		opacity: var(--card-lit, 0);
+		mask:
+			linear-gradient(var(--text), var(--text)) content-box exclude,
+			linear-gradient(var(--text), var(--text));
+		transition:
+			opacity var(--card-fade, var(--dur-exit)) ease,
+			--card-orbit var(--card-spin, var(--dur-instant)) var(--ease-out);
+	}
+	.card-tap:not(:global([data-fx-card='none']) *),
+	:global(:is([data-fx-card='spotlight'], [data-fx-card='orbit'])) .card-tap:not(:global(:is([data-fx-card='spotlight'], [data-fx-card='orbit']) [data-fx-card='none']) *) {
+		transition:
+			border-color var(--dur-fast) var(--ease),
+			background var(--dur-fast) var(--ease),
+			box-shadow var(--dur-fast) var(--ease),
+			translate var(--dur-fast) var(--ease-out),
+			scale var(--dur-fast) var(--ease-out),
+			--card-glow var(--card-fade, var(--dur-exit)) ease;
+	}
+
+	/* Spotlight: a soft light follows the pointer and lights the nearest edge. */
+	.card-tap:not(:global([data-fx-card]:not([data-fx-card='spotlight'])) *),
+	:global([data-fx-card='spotlight']) .card-tap:not(:global([data-fx-card='spotlight'] [data-fx-card]:not([data-fx-card='spotlight'])) *) {
+		--card-fx: spotlight;
+		background-image: radial-gradient(
+			circle 11rem at var(--card-spot-x) var(--card-spot-y),
+			color-mix(in srgb, var(--accent) calc(var(--card-glow) * 0.2), transparent),
+			transparent 70%
+		);
+		--card-spot-x: var(--pointer-x, 50%);
+		--card-spot-y: var(--pointer-y, 33%);
+		& .card-fx {
+			background: radial-gradient(
+				circle 7rem at calc(var(--card-spot-x) + var(--edge-width)) calc(var(--card-spot-y) + var(--edge-width)),
+				var(--accent) 15%,
+				transparent
+			);
+		}
+	}
+
+	/* Border orbit: on hover-enter a comet makes exactly one revolution of the edge, then rests. */
+	:global([data-fx-card='orbit']) .card-tap:not(:global([data-fx-card='orbit'] [data-fx-card]:not([data-fx-card='orbit'])) *) {
+		--card-fx: orbit;
+		background-image: linear-gradient(
+			160deg,
+			color-mix(in srgb, var(--accent) calc(var(--card-glow) * 0.09), transparent),
+			transparent 55%
+		);
+		--card-orbit-spin: calc(var(--dur-slow) * 4);
+		& .card-fx {
+			background:
+				conic-gradient(
+					from var(--card-orbit),
+					transparent 0 62%,
+					color-mix(in srgb, var(--accent) 40%, transparent) 80%,
+					var(--accent) 92%,
+					color-mix(in srgb, var(--text) 85%, var(--accent)) 96%,
+					transparent 100%
+				),
+				linear-gradient(color-mix(in srgb, var(--accent) 22%, transparent), color-mix(in srgb, var(--accent) 22%, transparent));
+		}
+	}
+	@property --card-glow {
+		syntax: '<percentage>';
+		inherits: false;
+		initial-value: 0%;
+	}
+	@property --card-orbit {
+		syntax: '<angle>';
+		inherits: false;
+		initial-value: 0deg;
 	}
 	.card-max {
 		width: 100%;

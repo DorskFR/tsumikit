@@ -1,0 +1,545 @@
+/* Editorial (experimental): display type, rules instead of boxes, ink-wipe buttons,
+   hard offset shadows, solid tone blocks. Every color comes from the active theme;
+   ink on a tone fill is black or white picked from the fill's lightness. */
+
+:root[data-look="editorial"] {
+  --ed-font-display:
+    "Iowan Old Style", "New York", ui-serif, "Noto Serif Display", "Noto Serif",
+    Charter, Georgia, serif;
+  --ed-rule: 3px;
+  --ed-rule-heavy: 6px;
+  --ed-hard: var(--text);
+  --ed-dur-settle: 150ms;
+
+  --fs-xl: calc(1.5rem * var(--fs-scale));
+  --fs-2xl: calc(2rem * var(--fs-scale));
+  --fs-3xl: calc(3rem * var(--fs-scale));
+
+  --r-sm: 2px;
+  --r-md: 3px;
+  --r-lg: 4px;
+
+  --shadow-sm: 0 1px 0 color-mix(in oklab, var(--text) 22%, transparent);
+  --shadow-md: 4px 4px 0 var(--ed-hard);
+  --shadow-lg: 8px 8px 0 var(--ed-hard);
+
+  --focus-ring-width: 3px;
+  --focus-ring: 3px solid var(--accent);
+
+  --surface-shadow: inset 0 var(--ed-rule) 0 0 var(--text);
+  --raised-fill: var(--bg-elevated);
+  --raised-edge: var(--text);
+  --raised-shadow: 5px 5px 0 var(--accent);
+  --overlay-fill: var(--bg-elevated);
+  --overlay-edge: var(--text);
+  --overlay-shadow: 8px 8px 0 var(--accent);
+  --control-edge: var(--text);
+  --control-edge-hover: var(--text);
+  --track-fill: var(--bg-elevated-2);
+  --track-edge: var(--border-strong);
+  --thumb-fill: var(--text);
+  --thumb-shadow: 0 0 0 0 transparent;
+  --btn-fill: transparent;
+  --btn-edge: var(--text);
+  --btn-primary-shadow-hover: 4px 4px 0 var(--ed-hard);
+  --hover-lift: 2px;
+  --focus-glow: 0 0 0 4px color-mix(in oklab, var(--accent) 28%, transparent);
+  --press-scale: 0.97;
+}
+
+@property --ed-wipe {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: transparent;
+}
+
+:root[data-look="editorial"] body {
+  font-feature-settings: "kern", "liga", "tnum";
+}
+
+:root[data-look="editorial"] :is(.btn, .badge, .card, .metric-chip, .role-pill) {
+  --ed-ink: color(from var(--ed-tone, var(--text)) srgb-linear clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1));
+}
+
+/* ---------- Display type ---------- */
+:root[data-look="editorial"] :is(.sh-title, .sheet-title) {
+  font-family: var(--ed-font-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+:root[data-look="editorial"] .section-header .sh-count {
+  font-family: var(--ed-font-display);
+}
+
+/* ---------- Buttons: ink wipes up on hover ---------- */
+:root[data-look="editorial"] .btn {
+  --ed-btn-ink: var(--text);
+  --ed-tone: var(--ed-btn-fill, var(--btn-tone, var(--text)));
+  border-width: 2px;
+  background-color: transparent;
+  background-image: linear-gradient(var(--ed-wipe), var(--ed-wipe));
+  background-repeat: no-repeat;
+  background-position: 0 100%;
+  background-size: 100% 0%;
+  font-weight: var(--fw-semibold);
+  transition:
+    background-size var(--dur-fast) var(--ease-out),
+    --ed-wipe var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease-out),
+    translate var(--ed-dur-settle) var(--ease-spring),
+    scale var(--ed-dur-settle) var(--ease-spring),
+    opacity var(--dur-fast) var(--ease);
+}
+:root[data-look="editorial"] .btn-ghost {
+  --ed-btn-ink: var(--bg-elevated-2);
+  border-color: transparent;
+  background-position: 0 0;
+  background-size: 0% 100%;
+}
+:root[data-look="editorial"] :is(.btn-primary, .btn-danger, .btn-tone-accent, .btn-tone-success, .btn-tone-info, .btn-tone-warn, .btn-tone-danger):not(.btn-ghost, .btn-link) {
+  --ed-btn-fill: var(--btn-tone, var(--accent));
+  --ed-btn-on: var(--ed-ink);
+  border-color: var(--ed-btn-fill);
+  background-color: var(--ed-btn-fill);
+  background-image: none;
+  color: var(--ed-btn-on);
+  font-weight: var(--fw-bold);
+}
+:root[data-look="editorial"] :is(.btn-primary, .btn-tone-accent):not(.btn-ghost, .btn-link) {
+  --ed-btn-fill: var(--accent);
+  --ed-btn-on: var(--text-on-accent);
+}
+:root[data-look="editorial"] .btn-danger:not(.btn-ghost, .btn-link) {
+  --ed-btn-fill: var(--danger);
+}
+:root[data-look="editorial"] .btn-ghost:is(.btn-tone-accent, .btn-tone-success, .btn-tone-info, .btn-tone-warn, .btn-tone-danger) {
+  --ed-btn-ink: var(--btn-tone);
+  --ed-btn-on: var(--ed-ink);
+}
+:root[data-look="editorial"] .btn-link {
+  border: 0;
+  border-radius: 0;
+  background-image: none;
+  text-decoration: underline 1px;
+  text-underline-offset: 0.2em;
+  transition:
+    text-decoration-thickness var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease);
+}
+:root[data-look="editorial"] :is(.btn-icon-inline, .btn-icon:not(.btn-primary)) {
+  border-color: transparent;
+}
+:root[data-look="editorial"] .btn .btn-shortcut {
+  color: inherit;
+  opacity: 0.7;
+}
+:root[data-look="editorial"] .btn:active:not(:disabled, [aria-disabled="true"], .loading, .btn-link) {
+  translate: 0 0;
+  box-shadow: none;
+  transition-duration: var(--dur-press);
+}
+
+/* ---------- Floating surfaces ---------- */
+:root[data-look="editorial"] :is(.pop-panel, .modal .sheet) {
+  border-width: 2px;
+}
+:root[data-look="editorial"] .modal .sheet-head {
+  border-bottom: 0;
+  box-shadow: inset 0 calc(-1 * var(--ed-rule)) 0 0 var(--text);
+}
+:root[data-look="editorial"] .menu-item {
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-repeat: no-repeat;
+  background-size: 0% 100%;
+  transition:
+    background-size var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease);
+}
+
+/* ---------- Cards: a rule, not a box ---------- */
+:root[data-look="editorial"] .card {
+  --ed-rule-c: var(--text);
+  --ed-rule-w: var(--ed-rule);
+  border-color: transparent;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: inset 0 var(--ed-rule-w) 0 0 var(--ed-rule-c);
+  padding-top: calc(var(--card-pad) + var(--ed-rule-w));
+  padding-inline: 0;
+}
+:root[data-look="editorial"] .card.card-framed {
+  padding: 0;
+}
+:root[data-look="editorial"] .card.card-framed > :is(.card-head, .card-body, .card-foot) {
+  padding-inline: 0;
+}
+:root[data-look="editorial"] .card.card-framed > .card-head {
+  padding-top: calc(var(--card-pad) + var(--ed-rule-w));
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+:root[data-look="editorial"] :is(.card.surface-raised, .card.surface-sunken, .card.border-dashed, .card.card-stacked) {
+  border-radius: var(--r-md);
+  box-shadow: none;
+  padding-inline: var(--card-pad);
+}
+:root[data-look="editorial"] .card.card-framed:is(.surface-raised, .surface-sunken, .border-dashed, .card-stacked) > :is(.card-head, .card-body, .card-foot) {
+  padding-inline: var(--card-pad);
+}
+:root[data-look="editorial"] .card.surface-raised {
+  background: var(--bg-elevated);
+}
+:root[data-look="editorial"] .card.card-stacked {
+  background: var(--bg-elevated);
+}
+:root[data-look="editorial"] .card.surface-sunken {
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+}
+:root[data-look="editorial"] .card.border-dashed {
+  border: 2px dashed var(--border-strong);
+}
+:root[data-look="editorial"] .card.card-stacked {
+  box-shadow:
+    5px 5px 0 0 var(--accent),
+    10px 10px 0 0 var(--text);
+}
+:root[data-look="editorial"] .card.card-stacked::before,
+:root[data-look="editorial"] .card.card-stacked::after {
+  display: none;
+}
+:root[data-look="editorial"] .card-tap {
+  transition:
+    box-shadow var(--dur-fast) var(--ease-out),
+    scale var(--ed-dur-settle) var(--ease-spring);
+}
+:root[data-look="editorial"] .card-tap:active {
+  background: transparent;
+  scale: 0.99;
+  transition-duration: var(--dur-press);
+}
+
+/* toned cards & callouts: solid blocks; tokens re-pointed so children inherit */
+:root[data-look="editorial"] :is(.card-accent, .card-ok, .card-warn, .card-danger, .card-info):not(.toast) {
+  --ed-fill: var(--c-accent);
+  --ed-tone: var(--ed-fill);
+  --ed-on: var(--text-on-accent);
+  --text: var(--ed-on);
+  --text-muted: var(--ed-on);
+  --text-faint: var(--ed-on);
+  --border-strong: var(--ed-on);
+  --accent: var(--ed-on);
+  border-color: transparent;
+  border-radius: var(--r-md);
+  background: var(--ed-fill);
+  color: var(--ed-on);
+  box-shadow: none;
+  padding-inline: var(--card-pad);
+}
+:root[data-look="editorial"] .card-ok:not(.toast) {
+  --ed-fill: var(--ok);
+  --ed-on: var(--ed-ink);
+}
+:root[data-look="editorial"] .card-warn:not(.toast) {
+  --ed-fill: var(--warn);
+  --ed-on: var(--ed-ink);
+}
+:root[data-look="editorial"] .card-danger:not(.toast) {
+  --ed-fill: var(--danger);
+  --ed-on: var(--ed-ink);
+}
+:root[data-look="editorial"] .card-info:not(.toast) {
+  --ed-fill: var(--info);
+  --ed-on: var(--ed-ink);
+}
+:root[data-look="editorial"] .card.card-framed:is(.card-accent, .card-ok, .card-warn, .card-danger, .card-info) > :is(.card-head, .card-body, .card-foot) {
+  padding-inline: var(--card-pad);
+}
+:root[data-look="editorial"] .card.callout {
+  padding: var(--sp-4);
+}
+:root[data-look="editorial"] .card.callout.callout-neutral {
+  --ed-on: var(--bg);
+  --text: var(--ed-on);
+  --text-muted: var(--ed-on);
+  border-color: transparent;
+  border-radius: var(--r-md);
+  background: var(--c-text, currentColor);
+  color: var(--ed-on);
+  box-shadow: none;
+}
+:root[data-look="editorial"] .card.callout :is(.callout-icon, .callout-body) {
+  color: inherit;
+}
+:root[data-look="editorial"] .card.callout .callout-title {
+  font-weight: var(--fw-bold);
+}
+:root[data-look="editorial"] .card.callout .btn:not(.btn-primary) {
+  --ed-btn-ink: var(--text);
+  border-color: var(--text);
+  color: inherit;
+}
+
+/* ---------- Metrics: big numerals on a tone rule ---------- */
+:root[data-look="editorial"] .card.metric {
+  --ed-rule-c: var(--metric-tone, var(--text));
+  --ed-rule-w: var(--ed-rule-heavy);
+  padding-bottom: 0;
+}
+:root[data-look="editorial"] .metric-label {
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.1em;
+  color: var(--text);
+}
+:root[data-look="editorial"] .metric-chip {
+  --ed-tone: var(--metric-tone, var(--text));
+  border-color: transparent;
+  border-radius: var(--r-xs);
+  background: var(--metric-tone, var(--text));
+  color: var(--ed-ink);
+}
+:root[data-look="editorial"] .metric:not(.metric-sm, .metric-inline) .metric-num {
+  font-size: calc(var(--fs-2xl) * 1.5);
+}
+:root[data-look="editorial"] .metric-num {
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.1;
+}
+
+/* ---------- Badges ---------- */
+:root[data-look="editorial"] .badge {
+  --badge-radius: var(--r-xs);
+  font-weight: var(--fw-bold);
+}
+:root[data-look="editorial"] .badge.toned:not(.text) {
+  --ed-tone: var(--badge-tone);
+  border-color: transparent;
+  background: var(--badge-tone);
+  color: var(--ed-ink);
+}
+:root[data-look="editorial"] .badge.toned:not(.text) .dot {
+  background: currentColor;
+  box-shadow: none;
+}
+
+/* ---------- Form controls: underlined fields ---------- */
+:root[data-look="editorial"] :is(.input, .select, .textarea, .rich-select .rs-trigger) {
+  border-color: transparent;
+  border-radius: var(--r-xs) var(--r-xs) 0 0;
+  box-shadow: inset 0 -2px 0 0 var(--text);
+  transition:
+    box-shadow var(--dur-fast) var(--ease-out),
+    background-color var(--dur-fast) var(--ease);
+}
+:root[data-look="editorial"] :is(.input, .select, .textarea, .rich-select .rs-trigger):focus,
+:root[data-look="editorial"] .rich-select .rs-trigger[aria-expanded="true"] {
+  box-shadow: inset 0 -4px 0 0 var(--accent);
+}
+:root[data-look="editorial"] :is(.input, .select, .textarea)[aria-invalid="true"] {
+  box-shadow: inset 0 -4px 0 0 var(--danger);
+}
+:root[data-look="editorial"] .field .label {
+  font-size: var(--fs-xs);
+  font-weight: var(--fw-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text);
+}
+:root[data-look="editorial"] :is(.checkbox .box, .radio .dot-ctl) {
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--text);
+}
+:root[data-look="editorial"] .checkbox .box {
+  border-radius: var(--r-xs);
+}
+:root[data-look="editorial"] .checkbox input:is(:checked, :indeterminate) + .box {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: none;
+}
+:root[data-look="editorial"] .radio input:checked + .dot-ctl {
+  border-color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent);
+}
+:root[data-look="editorial"] .switch {
+  border-color: var(--text);
+  border-radius: var(--r-md);
+  background: transparent;
+  box-shadow: inset 0 0 0 1px var(--text);
+}
+:root[data-look="editorial"] .switch .knob {
+  border-radius: var(--r-xs);
+  background: var(--text);
+}
+:root[data-look="editorial"] .switch.on {
+  border-color: var(--accent);
+  background: var(--accent);
+  box-shadow: none;
+}
+:root[data-look="editorial"] .switch.on .knob {
+  background: var(--text-on-accent);
+}
+
+/* segmented control: an ink block slides under the selection; the label turns once it lands */
+:root[data-look="editorial"] .seg {
+  border: 2px solid var(--text);
+  background: transparent;
+}
+:root[data-look="editorial"] .seg .seg-item {
+  font-weight: var(--fw-semibold);
+}
+:root[data-look="editorial"] .seg .seg-item.selected {
+  color: var(--bg);
+}
+:root[data-look="editorial"] .seg:not(.placed) .seg-item.selected,
+:root[data-look="editorial"] .seg.placed .seg-thumb ~ .seg-item.selected {
+  background: var(--text);
+}
+:root[data-look="editorial"] .seg.placed .seg-thumb ~ .seg-item.selected {
+  transition:
+    background 0s linear var(--dur-spring),
+    color 0s linear var(--dur-spring);
+}
+
+/* ---------- Tabs, tables, accordions: heavy top rules ---------- */
+:root[data-look="editorial"] .tablist {
+  border-bottom-color: var(--border-strong);
+}
+:root[data-look="editorial"] .tablist .indicator {
+  height: 4px;
+}
+:root[data-look="editorial"] .tab {
+  font-weight: var(--fw-semibold);
+}
+:root[data-look="editorial"] :is(.dt-scroll, .accordion) {
+  border-color: transparent;
+  border-radius: 0;
+  box-shadow: inset 0 var(--ed-rule) 0 0 var(--text);
+  padding-top: var(--ed-rule);
+}
+:root[data-look="editorial"] .dt {
+  background: transparent;
+}
+:root[data-look="editorial"] .dt th {
+  background: transparent;
+  color: var(--text);
+  font-weight: var(--fw-bold);
+  letter-spacing: 0.08em;
+  border-bottom: 1px solid var(--text);
+}
+:root[data-look="editorial"] .accordion > .acc-item {
+  border-bottom: 1px solid var(--border-strong);
+}
+:root[data-look="editorial"] .disclosure__button {
+  border-radius: 0;
+  font-size: var(--fs-lg);
+  font-weight: var(--fw-bold);
+}
+
+/* ---------- Chat, progress, kbd ---------- */
+:root[data-look="editorial"] .bubble {
+  border-color: transparent;
+  border-inline-start: 4px solid var(--role);
+  border-radius: 0 var(--r-md) var(--r-md) 0;
+  background: var(--bg-elevated-2);
+}
+:root[data-look="editorial"] .bubble .role-pill {
+  --ed-tone: var(--role);
+  border-color: transparent;
+  background: var(--role);
+  color: var(--ed-ink);
+}
+:root[data-look="editorial"] :is(.progress, .progress .bar) {
+  border-radius: 0;
+}
+:root[data-look="editorial"] .kbd {
+  border-color: var(--text-muted);
+  border-bottom-width: 2px;
+  background: transparent;
+  color: var(--text);
+}
+
+/* ---------- Focus ---------- */
+:root[data-look="editorial"] :is(.btn, .pop-trigger, .tab, .seg-item, .switch, .disclosure__button, .card-tap):focus-visible {
+  animation: ed-focus var(--ed-dur-settle) var(--ease-out);
+}
+@keyframes ed-focus {
+  from {
+    box-shadow: 0 0 0 10px color-mix(in oklab, var(--accent) 35%, transparent);
+  }
+}
+
+/* ---------- Hover (fine pointers only) ---------- */
+@media (hover: hover) and (pointer: fine) {
+  :root[data-look="editorial"] .btn:hover:not(:disabled, [aria-disabled="true"]) {
+    border-color: var(--ed-btn-ink);
+    background-color: transparent;
+    background-size: 100% 100%;
+    color: var(--bg);
+    --ed-wipe: var(--ed-btn-ink);
+  }
+  :root[data-look="editorial"] .btn-ghost:hover:not(:disabled, [aria-disabled="true"]) {
+    border-color: transparent;
+    color: var(--text);
+  }
+  :root[data-look="editorial"] .btn-ghost:is(.btn-tone-accent, .btn-tone-success, .btn-tone-info, .btn-tone-warn, .btn-tone-danger):hover:not(:disabled, [aria-disabled="true"]) {
+    color: var(--ed-btn-on);
+  }
+  :root[data-look="editorial"] .btn-ghost.btn-tone-accent:hover:not(:disabled, [aria-disabled="true"]) {
+    color: var(--text-on-accent);
+  }
+  :root[data-look="editorial"] :is(.btn-primary, .btn-danger, .btn-tone-accent, .btn-tone-success, .btn-tone-info, .btn-tone-warn, .btn-tone-danger):not(.btn-ghost, .btn-link):hover:not(:disabled, [aria-disabled="true"]) {
+    border-color: var(--ed-btn-fill);
+    background-color: var(--ed-btn-fill);
+    color: var(--ed-btn-on);
+    filter: none;
+    box-shadow: 4px 4px 0 var(--ed-hard);
+  }
+  :root[data-look="editorial"] .btn-link:hover:not(:disabled, [aria-disabled="true"]) {
+    text-decoration-thickness: 3px;
+    color: var(--btn-tone, var(--accent));
+  }
+  :root[data-look="editorial"] .card.callout .btn:not(.btn-primary):hover:not(:disabled) {
+    color: var(--ed-fill, var(--bg));
+  }
+  :root[data-look="editorial"] .menu-item:hover:not(:disabled) {
+    background-color: transparent;
+    background-size: 100% 100%;
+    color: var(--text-on-accent);
+  }
+  :root[data-look="editorial"] .card-tap:hover {
+    --ed-rule-c: var(--accent);
+    --ed-rule-w: var(--ed-rule-heavy);
+    background: radial-gradient(
+      18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%),
+      color-mix(in oklab, var(--accent) 16%, transparent),
+      transparent 70%
+    );
+  }
+  :root[data-look="editorial"] :is(.input, .select, .textarea, .rich-select .rs-trigger):hover:not(:disabled, :focus, [aria-invalid="true"]) {
+    background-color: var(--bg-elevated);
+    box-shadow: inset 0 -3px 0 0 var(--text);
+  }
+  :root[data-look="editorial"] .seg .seg-item:hover:not(:disabled, .selected) {
+    background: var(--bg-elevated-2);
+    color: var(--text);
+  }
+  :root[data-look="editorial"] .dt tr.clickable:hover td:first-child {
+    box-shadow: inset 4px 0 0 var(--accent);
+  }
+  :root[data-look="editorial"] .disclosure__button:hover:not(:disabled) {
+    background: transparent;
+    color: var(--accent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-look="editorial"] :is(.btn, .card-tap) {
+    translate: none !important;
+    scale: none !important;
+  }
+  :root[data-look="editorial"] :focus-visible {
+    animation: none !important;
+  }
+}

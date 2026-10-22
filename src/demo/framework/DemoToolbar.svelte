@@ -1,6 +1,15 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { Badge, FontScalePicker, IconButton, Link, ThemePicker, Toolbar } from '@dorsk/tsumikit';
+	import {
+		Badge,
+		FontScalePicker,
+		IconButton,
+		Link,
+		LookPicker,
+		MotionSettings,
+		ThemePicker,
+		Toolbar
+	} from '@dorsk/tsumikit';
 	import { base } from '$app/paths';
 	import pkg from '../../../package.json';
 
@@ -15,7 +24,9 @@
 <Toolbar label="Showcase settings" density="compact" class="demo-toolbar">
 	<Link href="{base}/shell" class="cq-hide">AppShell</Link>
 	{@render extras?.()}
+	<MotionSettings size="sm" />
 	<FontScalePicker box="sm" />
+	<LookPicker size="sm" control label="Look" class="cq-hide" />
 	<ThemePicker
 		box="sm"
 		auto

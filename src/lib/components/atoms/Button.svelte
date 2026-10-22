@@ -57,8 +57,20 @@
 		// moving layout; `compact` opts out in dense tables.
 		hitArea?: 'auto' | 'compact';
 		// Async/busy state: shows a spinner, blocks clicks, sets aria-busy. Stays
-		// disabled-equivalent while true (so a double-submit can't fire).
-		loading?: boolean;
+		// disabled-equivalent while true (so a double-submit can't fire). `'done'`
+		// is the settled state after a busy run: clickable again, a check beside
+		// the label (with `loadingStyle="morph"` the label springs back in).
+		loading?: boolean | 'done';
+		// How a busy button shows it: an inline spinner before the label, the label
+		// morphing into a centred spinner at constant width, or a progress fill
+		// pouring in from the left (driven by `progress`).
+		loadingStyle?: 'spinner' | 'morph' | 'fill';
+		// 0–1 for `loadingStyle="fill"`; omit for an indeterminate idle fill.
+		progress?: number;
+		// Text beside the check in the `'done'` state; defaults to the children.
+		// With `morph`, keep the children constant and set this instead so both
+		// stacked labels size the button and its width never changes.
+		doneLabel?: string;
 		// Corner count indicator (unread, selected, pending). Hidden at 0/undefined;
 		// shows `${countMax}+` past the cap while the accessible name carries the
 		// exact number. Tint via `--btn-count-bg` / `--btn-count-fg`.
@@ -100,6 +112,9 @@
 		collapseLabel = 'never',
 		hitArea = 'auto',
 		loading = false,
+		loadingStyle = 'spinner',
+		progress,
+		doneLabel,
 		count,
 		countMax = 99,
 		layout = 'inline',
@@ -120,7 +135,10 @@
 	// A link-flavoured Button is a real <a>; native `disabled`/`type` don't apply,
 	// so an inactive link drops `href` (no focus, no keyboard activation).
 	const tag = $derived(href !== undefined || as === 'a' ? 'a' : 'button');
-	const inactive = $derived(disabled || loading);
+	const busy = $derived(loading === true);
+	const done = $derived(loading === 'done');
+	const layered = $derived(loadingStyle !== 'spinner');
+	const inactive = $derived(disabled || busy);
 	const elementAttrs = $derived(
 		tag === 'a'
 			? inactive
@@ -174,7 +192,7 @@
 	{...rest}
 	{...elementAttrs}
 	aria-label={ariaLabel}
-	aria-busy={loading || undefined}
+	aria-busy={busy || undefined}
 	aria-pressed={pressed ?? rest['aria-pressed']}
 	aria-keyshortcuts={rest['aria-keyshortcuts'] ?? keyHint}
 	{title}
@@ -198,6 +216,7 @@
 	class:btn-collapse-container={collapseLabel === 'container'}
 	class:hit-compact={hitArea === 'compact'}
 	style:--btn-box={box ? `var(--box-${box})` : undefined}
+	style:--btn-progress={loadingStyle === 'fill' && progress !== undefined ? Math.min(1, Math.max(0, progress)) : undefined}
 	class:btn-tone-accent={t === 'accent'}
 	class:btn-tone-success={t === 'ok'}
 	class:btn-tone-info={t === 'info'}
@@ -205,13 +224,17 @@
 	class:btn-tone-danger={t === 'danger'}
 	class:btn-icon-inline={iconInline}
 	class:hover-danger={hoverDanger}
-	class:loading
+	class:loading={busy}
+	class:btn-done={done}
+	class:btn-morph={loadingStyle === 'morph'}
+	class:btn-fill={loadingStyle === 'fill'}
 	class:btn-counted={counted}
 	class:btn-stacked={stacked}
 	class:btn-hinted={keyHint !== undefined}
 	onclick={handleClick}
 >
-	{#if loading}<span class="btn-spinner" aria-hidden="true"></span>{/if}
+	{#if loadingStyle === 'fill'}<span class="btn-fill-bar" aria-hidden="true"></span>{/if}
+	{#if busy && !layered}<span class="btn-spinner" aria-hidden="true"></span>{:else if done && !layered}<span class="btn-check" aria-hidden="true"><Icon name="check" /></span>{/if}
 	{#if glyph !== undefined}
 		<span class="btn-glyph" aria-hidden="true">
 			{#if typeof glyph !== 'string'}{@render glyph()}{:else if isIconName(glyph)}<Icon name={glyph} />{:else}{glyph}{/if}
@@ -219,6 +242,16 @@
 	{/if}
 	{#if stacked}
 		<span class="btn-stack-label">{@render children?.()}</span>
+	{:else if layered}
+		<span class="btn-layers">
+			<span class="btn-layer btn-layer-label">{@render children?.()}</span>
+			{#if loadingStyle === 'morph'}
+				<span class="btn-layer btn-layer-spin" aria-hidden="true"></span>
+				<span class="btn-layer btn-layer-done" aria-hidden="true"><Icon name="check" />{#if doneLabel !== undefined}{doneLabel}{:else}{@render children?.()}{/if}</span>
+			{:else}
+				<span class="btn-layer btn-layer-ink" aria-hidden="true">{@render children?.()}</span>
+			{/if}
+		</span>
 	{:else}
 		{@render children?.()}
 	{/if}
@@ -253,15 +286,17 @@
 		font-size: var(--control-fs-md);
 		line-height: var(--lh-none);
 		--icon-size: var(--control-icon-md);
-		--btn-scale-dur: var(--dur-fast);
+		--btn-scale-dur: var(--dur-release);
+		--btn-scale-ease: var(--ease-spring-bounce);
 		transition:
 			background var(--dur-fast) ease,
 			border-color var(--dur-fast) ease,
 			box-shadow var(--dur-fast) ease,
 			color var(--dur-fast) ease,
 			opacity var(--dur-fast) ease,
+			filter var(--dur-fast) ease,
 			translate var(--dur-fast) var(--ease-out),
-			scale var(--btn-scale-dur) var(--ease-out);
+			scale var(--btn-scale-dur) var(--btn-scale-ease);
 		user-select: none;
 		white-space: normal;
 		overflow-wrap: break-word;
@@ -273,9 +308,10 @@
 	.btn:focus-visible:not(.btn-link, .btn-icon-inline, [aria-pressed='true']) {
 		box-shadow: var(--btn-shadow-rest), var(--focus-glow);
 	}
-	/* Press: scale in over --dur-press, release over --dur-fast. */
+	/* Press: scale in over --dur-press, spring back over --dur-release. */
 	.btn:active:not(:disabled, [aria-disabled='true'], .loading, .btn-link) {
 		--btn-scale-dur: var(--dur-press);
+		--btn-scale-ease: var(--ease-out);
 		scale: var(--press-scale);
 	}
 	.btn-icon:active:not(:disabled, [aria-disabled='true'], .loading),
@@ -807,6 +843,264 @@
 		}
 		.btn-icon-inline.hover-danger:hover:not(:disabled) {
 			color: var(--danger);
+		}
+	}
+	/* Loading styles. `morph`: label, spinner and done check stack in one grid
+	   cell so the width never changes. `fill`: a progress bar under the label,
+	   the label recoloured where the bar has passed. */
+	.btn-check {
+		display: inline-flex;
+		flex: none;
+		--icon-size: 0.9em;
+	}
+	.btn-layers {
+		position: relative;
+		display: grid;
+		place-items: center;
+		min-width: 0;
+	}
+	.btn-layer {
+		grid-area: 1 / 1;
+		display: inline-flex;
+		align-items: center;
+		gap: var(--sp-2);
+		white-space: nowrap;
+		font-variant-numeric: tabular-nums;
+		transition:
+			opacity var(--dur-base) var(--ease-out),
+			scale var(--dur-base) var(--ease-out),
+			translate var(--dur-base) var(--ease-out);
+	}
+	.btn-layer-spin {
+		width: 1em;
+		height: 1em;
+		border-radius: var(--r-pill);
+		mask: radial-gradient(farthest-side, transparent calc(100% - 2px), #000 calc(100% - 1.5px));
+		background: conic-gradient(from 0deg, transparent 0 30%, currentColor);
+		opacity: 0;
+		scale: 0.4;
+	}
+	.btn-layer-done {
+		opacity: 0;
+		translate: 0 0.5em;
+		--icon-size: 0.9em;
+	}
+	.btn-morph.loading .btn-layer-label,
+	.btn-morph.btn-done .btn-layer-label {
+		opacity: 0;
+		scale: 0.85;
+	}
+	.btn-morph.loading .btn-layer-spin {
+		opacity: 1;
+		scale: 1;
+		animation: btn-spin 0.9s linear infinite;
+	}
+	.btn-morph.btn-done .btn-layer-done {
+		opacity: 1;
+		translate: none;
+		transition-timing-function: var(--ease-spring-bounce);
+		transition-duration: var(--dur-spring);
+	}
+	.btn-fill {
+		position: relative;
+		isolation: isolate;
+		overflow: hidden;
+		--btn-progress-fill: var(--accent);
+		--btn-progress-fg: var(--text-on-accent);
+	}
+	.btn-fill.btn-primary {
+		--btn-progress-fill: color-mix(in srgb, var(--text-on-accent) 22%, transparent);
+		--btn-progress-fg: currentColor;
+	}
+	.btn-fill-bar {
+		position: absolute;
+		inset: 0;
+		z-index: 0;
+		background: var(--btn-progress-fill);
+		scale: var(--btn-progress, 0) 1;
+		transform-origin: left;
+		transition: scale var(--dur-slow) var(--ease-out);
+		pointer-events: none;
+	}
+	.btn-fill .btn-layers {
+		z-index: 1;
+	}
+	.btn-layer-ink {
+		position: absolute;
+		inset: 0;
+		justify-content: center;
+		color: var(--btn-progress-fg);
+		clip-path: inset(0 calc((1 - var(--btn-progress, 0)) * 100%) 0 0);
+		transition: clip-path var(--dur-slow) var(--ease-out);
+	}
+	.btn-fill:not(.loading, .btn-done) .btn-fill-bar,
+	.btn-fill:not(.loading, .btn-done) .btn-layer-ink {
+		transition-duration: var(--dur-fast);
+	}
+
+	/* Ambient hover: an effect chosen by `data-fx-hover` on the nearest ancestor
+	   that sets it (`smoke` when none does, `none` turns it off). Two layers under
+	   the content run their loop only while hovered; keyboard focus holds a still
+	   frame. Boxless buttons and a corner count (clipped by overflow) opt out. */
+	.btn {
+		--fx-ink: color-mix(in srgb, var(--btn-tone, var(--accent)) 26%, transparent);
+		--fx-ember: color-mix(in srgb, var(--warn) 55%, var(--accent));
+		--fx-a1: color-mix(in srgb, var(--accent) 34%, transparent);
+		--fx-a2: color-mix(in srgb, var(--info) 30%, transparent);
+		--fx-a3: color-mix(in srgb, var(--ok) 30%, transparent);
+	}
+	.btn-danger {
+		--fx-ink: color-mix(in srgb, var(--danger) 26%, transparent);
+	}
+	.btn-primary {
+		--fx-ink: color-mix(in srgb, var(--text-on-accent) 16%, transparent);
+		--fx-ember: color-mix(in srgb, var(--warn) 70%, var(--text-on-accent));
+		--fx-a1: color-mix(in srgb, var(--text-on-accent) 18%, transparent);
+		--fx-a2: color-mix(in srgb, var(--info) 45%, transparent);
+		--fx-a3: color-mix(in srgb, var(--ok) 40%, transparent);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover]:not([data-fx-hover='none'])) *) {
+			position: relative;
+			isolation: isolate;
+			overflow: hidden;
+		}
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover]:not([data-fx-hover='none'])) *)::before,
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover]:not([data-fx-hover='none'])) *)::after {
+			content: '';
+			position: absolute;
+			inset: 0;
+			z-index: -1;
+			pointer-events: none;
+			opacity: 0;
+			transition: opacity var(--dur-fast) ease;
+		}
+		.btn:hover:not(:disabled)::before,
+		.btn:hover:not(:disabled)::after,
+		.btn:focus-visible::before,
+		.btn:focus-visible::after {
+			opacity: 1;
+		}
+
+		/* smoke: two soft puffs drift up and across the fill */
+		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))::before,
+		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))::after {
+			inset: -60% -30%;
+			background:
+				radial-gradient(40% 55% at 30% 60%, var(--fx-ink), transparent 70%),
+				radial-gradient(35% 45% at 70% 40%, var(--fx-ink), transparent 70%);
+			translate: 0 15%;
+			animation: fx-smoke 7s var(--ease-in-out) infinite alternate;
+		}
+		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))::after {
+			background:
+				radial-gradient(30% 40% at 55% 70%, var(--fx-ink), transparent 70%),
+				radial-gradient(25% 35% at 20% 30%, var(--fx-ink), transparent 70%);
+			translate: 0 -10%;
+			animation: fx-smoke-b 9s var(--ease-in-out) infinite alternate;
+		}
+
+		/* ember: a warm glow breathes at the bottom edge, sparks rise; press sinks 1px */
+		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *)) {
+			--press-scale: var(--press-scale-lg);
+		}
+		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *)):active:not(:disabled, [aria-disabled='true'], .loading, .btn-link) {
+			translate: 0 calc(var(--shift-xs) / 2 - var(--hover-lift));
+			--btn-shadow-rest: none;
+		}
+		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *))::before {
+			background: radial-gradient(70% 90% at 50% 115%, color-mix(in srgb, var(--fx-ember) 55%, transparent), transparent 70%);
+			transform-origin: 50% 100%;
+			animation: fx-ember 2.4s var(--ease-in-out) infinite;
+		}
+		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *))::after {
+			inset: 0 0 -100% 0;
+			background:
+				radial-gradient(circle at 18% 62%, var(--fx-ember) 0 1px, transparent 1.6px),
+				radial-gradient(circle at 36% 88%, var(--fx-ember) 0 1.3px, transparent 1.9px),
+				radial-gradient(circle at 52% 70%, var(--fx-ember) 0 0.9px, transparent 1.5px),
+				radial-gradient(circle at 70% 94%, var(--fx-ember) 0 1.2px, transparent 1.8px),
+				radial-gradient(circle at 84% 58%, var(--fx-ember) 0 1px, transparent 1.6px),
+				radial-gradient(circle at 92% 80%, var(--fx-ember) 0 0.8px, transparent 1.4px);
+			animation: fx-sparks 3.2s linear infinite;
+		}
+
+		/* aurora: accent, info and success flow through the fill in two crossing layers */
+		.btn:where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *))::before,
+		.btn:where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *))::after {
+			inset: 0 auto 0 0;
+			width: 300%;
+			background: linear-gradient(90deg, var(--fx-a1), var(--fx-a2), var(--fx-a3), var(--fx-a1));
+			background-size: 33.3334% 100%;
+			mask-image: radial-gradient(120% 110% at 50% -10%, #000 40%, transparent 100%);
+			translate: -33.3334% 0;
+			animation: fx-aurora 7s linear infinite;
+		}
+		.btn:where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *))::after {
+			background: linear-gradient(90deg, var(--fx-a3), var(--fx-a1), var(--fx-a2), var(--fx-a3));
+			background-size: 33.3334% 100%;
+			mask-image: radial-gradient(120% 110% at 50% 110%, #000 30%, transparent 100%);
+			translate: -66.6667% 0;
+			animation: fx-aurora-back 11s linear infinite;
+		}
+		.btn:not(:hover)::before,
+		.btn:not(:hover)::after,
+		.btn:disabled::before,
+		.btn:disabled::after {
+			animation-play-state: paused;
+		}
+	}
+	@keyframes fx-smoke {
+		from {
+			translate: -14% 22%;
+			rotate: -4deg;
+		}
+		to {
+			translate: 12% -20%;
+			rotate: 5deg;
+		}
+	}
+	@keyframes fx-smoke-b {
+		from {
+			translate: 10% 18%;
+			rotate: 3deg;
+		}
+		to {
+			translate: -12% -22%;
+			rotate: -5deg;
+		}
+	}
+	@keyframes fx-ember {
+		0%,
+		100% {
+			scale: 1 1;
+		}
+		50% {
+			scale: 1.12 1.25;
+		}
+	}
+	@keyframes fx-sparks {
+		from {
+			translate: 0 0;
+		}
+		to {
+			translate: 0 -100%;
+		}
+	}
+	@keyframes fx-aurora {
+		from {
+			translate: -33.3334% 0;
+		}
+		to {
+			translate: 0 0;
+		}
+	}
+	@keyframes fx-aurora-back {
+		from {
+			translate: -33.3334% 0;
+		}
+		to {
+			translate: -66.6667% 0;
 		}
 	}
 </style>

@@ -185,7 +185,7 @@ test('toggle marks spring in and fade out faster; motion reads tokens only', () 
 		assert.doesNotMatch(style, /cubic-bezier/, `${name} has an easing literal`);
 		assert.doesNotMatch(style, /transition:\s*all/, name);
 		assert.doesNotMatch(style, /prefers-reduced-motion/, `${name} keeps a per-component reduce block`);
-		assert.doesNotMatch(style, /@keyframes/, `${name} keeps keyframes`);
+		if (!['Checkbox', 'Switch'].includes(name)) assert.doesNotMatch(style, /@keyframes/, `${name} keeps keyframes`);
 		assert.doesNotMatch(style, /transition:[^;]*\b(width|height|margin|padding|top|left)\b/, `${name} transitions layout`);
 	}
 });
@@ -203,7 +203,8 @@ test('polish: ladder heights, focus tokens, disabled token, no literal px/rem sp
 		assert.doesNotMatch(style, /opacity: 0\.45/, `${name} disabled literal`);
 		assert.doesNotMatch(style, /line-height: (0?\.[0-9]+|[1-9][0-9.]*)(rem)?;/, `${name} line-height literal`);
 		assert.doesNotMatch(style, /(padding|gap|margin)[^;]*: [^;]*\b0\.(05|1|15|2|3|35|4)rem/, `${name} off-scale spacing`);
-		assert.doesNotMatch(style, /border-radius: [1-9]/, `${name} radius literal`);
+		const corners = style.replace(/border-radius: (\d+% ){3}\d+%;/g, '');
+		assert.doesNotMatch(corners, /border-radius: [1-9]/, `${name} radius literal`);
 	}
 	for (const sel of ['.tab', '.seg-item', '.tabbar-item', '.open']) {
 		const src = sel === '.open' ? files.AttachmentList : sel === '.tabbar-item' ? files.TabBar : sel === '.tab' ? files.Tabs : files.SegmentedControl;

@@ -234,7 +234,7 @@
 	.ig-bar:has(.ig-field :global([aria-invalid='true']))::before {
 		border-color: var(--danger);
 	}
-	.ig:has(:focus-visible)::after {
+	.ig:has(:global(:focus-visible))::after {
 		content: '';
 		position: absolute;
 		inset: 0;

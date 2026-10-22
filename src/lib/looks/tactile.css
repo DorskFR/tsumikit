@@ -1,0 +1,871 @@
+/* Soft tactile: rounder, tinted surfaces instead of borders, real press depth, springy motion.
+   Structure only: every color derives from the active theme's tokens. */
+
+:root[data-look="tactile"] {
+  --r-xs: 4px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 20px;
+
+  --font-rounded: ui-rounded, "SF Pro Rounded", "Nunito", "Quicksand", "Varela Round", var(--font-sans);
+
+  --focus-ring-width: 3px;
+  --focus-ring: 3px solid var(--accent);
+  --focus-ring-offset: 1px;
+
+  --press-scale: 0.97;
+  --press-scale-sm: 0.94;
+  --press-scale-lg: 0.99;
+
+  /* Dark: shadows are the page background pushed darker; highlights are the text color. */
+  --look-ink: oklch(from var(--bg) calc(l * 0.3) c h);
+  --look-tint: var(--text);
+  --look-hi: color-mix(in oklab, var(--look-tint) 7%, transparent);
+  --look-hi-soft: color-mix(in oklab, var(--look-tint) 5%, transparent);
+  --look-drop: color-mix(in oklab, var(--look-ink) 50%, transparent);
+  --look-well: color-mix(in oklab, var(--bg) 85%, var(--look-ink));
+  --look-well-shadow:
+    inset 0 2px 4px color-mix(in oklab, var(--look-ink) 45%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, var(--look-tint) 4%, transparent);
+  --look-field-ring: inset 0 0 0 1px var(--border-strong);
+  --look-track-shadow: inset 0 1px 2px color-mix(in oklab, var(--look-ink) 40%, transparent);
+  --look-elev-1:
+    inset 0 1px 0 var(--look-hi-soft),
+    0 1px 2px color-mix(in oklab, var(--look-ink) 30%, transparent),
+    0 10px 28px -14px color-mix(in oklab, var(--look-ink) 65%, transparent);
+  --look-elev-2:
+    inset 0 1px 0 var(--look-hi),
+    0 2px 4px color-mix(in oklab, var(--look-ink) 28%, transparent),
+    0 18px 40px -16px color-mix(in oklab, var(--look-ink) 75%, transparent);
+  --look-spot: color-mix(in oklab, var(--accent) 9%, transparent);
+  --look-knob-c: var(--text);
+  --look-knob-edge: var(--text-faint);
+  --look-knob: radial-gradient(
+    circle at 50% 30%,
+    var(--look-knob-c) 0%,
+    color-mix(in oklab, var(--look-knob-c) 92%, var(--look-knob-edge)) 60%,
+    color-mix(in oklab, var(--look-knob-c) 80%, var(--look-knob-edge)) 100%
+  );
+  --look-knob-shadow:
+    0 1px 0 color-mix(in oklab, var(--look-knob-c) 50%, transparent) inset,
+    0 2px 0 color-mix(in oklab, var(--look-ink) 35%, transparent),
+    0 3px 8px color-mix(in oklab, var(--look-ink) 45%, transparent);
+  --look-lip: 3px;
+  --look-lip-pct: 50%;
+  --look-lip-ink: var(--look-ink);
+  --look-pastel: 12%;
+  --look-hairline: color-mix(in oklab, var(--text) 6%, transparent);
+
+  --shadow-sm: 0 1px 2px color-mix(in oklab, var(--look-ink) 35%, transparent);
+  --shadow-md:
+    0 2px 4px color-mix(in oklab, var(--look-ink) 25%, transparent),
+    0 14px 32px -10px color-mix(in oklab, var(--look-ink) 60%, transparent);
+  --shadow-lg:
+    0 4px 10px color-mix(in oklab, var(--look-ink) 30%, transparent),
+    0 28px 64px -16px color-mix(in oklab, var(--look-ink) 70%, transparent);
+
+  --surface-fill: var(--bg-elevated);
+  --surface-edge: var(--look-hairline);
+  --surface-edge-strong: var(--look-hairline);
+  --surface-shadow: var(--look-elev-1);
+  --surface-shadow-hover: var(--look-elev-2);
+  --raised-fill: var(--surface);
+  --raised-edge: transparent;
+  --raised-shadow: var(--look-elev-2), 0 0 0 1px color-mix(in oklab, var(--text) 5%, transparent);
+  --overlay-edge: transparent;
+  --overlay-shadow: var(--look-elev-2), var(--shadow-lg);
+  --control-fill: var(--look-well);
+  --control-edge: transparent;
+  --control-edge-hover: transparent;
+  --control-shadow: var(--look-well-shadow), var(--look-field-ring);
+  --track-fill: var(--look-well);
+  --track-edge: transparent;
+  --thumb-fill: var(--look-knob);
+  --thumb-shadow: var(--look-knob-shadow);
+  --btn-edge: transparent;
+  --btn-primary-edge: transparent;
+  --hover-lift: 1px;
+  --focus-glow: 0 0 0 6px color-mix(in oklab, var(--accent) 18%, transparent);
+}
+
+/* Light: shadows are the text color, highlights the elevated background. */
+:root[data-look="tactile"][data-mode="light"] {
+  --look-ink: var(--text);
+  --look-tint: var(--bg-elevated);
+  --look-hi: color-mix(in oklab, var(--look-tint) 85%, transparent);
+  --look-hi-soft: color-mix(in oklab, var(--look-tint) 60%, transparent);
+  --look-drop: color-mix(in oklab, var(--look-ink) 20%, transparent);
+  --look-well: color-mix(in oklab, var(--bg-elevated-2) 55%, var(--bg-elevated));
+  --look-well-shadow:
+    inset 0 2px 3px color-mix(in oklab, var(--look-ink) 12%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, var(--look-tint) 70%, transparent);
+  --look-field-ring: inset 0 0 0 1px var(--border-strong);
+  --look-track-shadow: inset 0 1px 1.5px color-mix(in oklab, var(--look-ink) 16%, transparent);
+  --look-elev-1:
+    0 1px 2px color-mix(in oklab, var(--look-ink) 6%, transparent),
+    0 10px 26px -14px color-mix(in oklab, var(--look-ink) 22%, transparent);
+  --look-elev-2:
+    0 2px 4px color-mix(in oklab, var(--look-ink) 7%, transparent),
+    0 18px 40px -16px color-mix(in oklab, var(--look-ink) 30%, transparent);
+  --look-spot: color-mix(in oklab, var(--accent) 10%, transparent);
+  --look-knob-c: var(--bg-elevated);
+  --look-knob-edge: var(--border-strong);
+  --look-knob-shadow:
+    0 1px 0 color-mix(in oklab, var(--look-knob-c) 90%, transparent) inset,
+    0 2px 0 color-mix(in oklab, var(--look-ink) 18%, transparent),
+    0 3px 8px color-mix(in oklab, var(--look-ink) 25%, transparent);
+  --look-lip-pct: 72%;
+  --look-lip-ink: var(--text-faint);
+  --look-pastel: 9%;
+
+  --shadow-sm: 0 1px 2px color-mix(in oklab, var(--look-ink) 10%, transparent);
+  --shadow-md:
+    0 2px 4px color-mix(in oklab, var(--look-ink) 6%, transparent),
+    0 14px 32px -12px color-mix(in oklab, var(--look-ink) 25%, transparent);
+  --shadow-lg:
+    0 4px 10px color-mix(in oklab, var(--look-ink) 8%, transparent),
+    0 28px 64px -18px color-mix(in oklab, var(--look-ink) 35%, transparent);
+}
+
+/* ---------- Type ---------- */
+
+:root[data-look="tactile"] :is(.heading, .callout-title, .sheet-title, .metric-num) {
+  font-family: var(--font-rounded);
+  letter-spacing: -0.012em;
+}
+:root[data-look="tactile"] .heading {
+  font-weight: var(--fw-bold);
+}
+:root[data-look="tactile"] .metric-value {
+  font-family: var(--font-rounded);
+}
+:root[data-look="tactile"] .metric-num {
+  font-weight: var(--fw-bold);
+}
+:root[data-look="tactile"] .metric-label {
+  font-family: var(--font-sans);
+  letter-spacing: 0.04em;
+}
+
+/* ---------- Buttons ---------- */
+
+:root[data-look="tactile"] :is(.btn:not(.btn-link, .btn-icon-inline, .btn-ghost), .pop-trigger.canonical:not(.trigger-ghost), .pop-trigger.trigger-primary) {
+  --look-face: var(--surface);
+  --look-lip-c: color-mix(in oklab, var(--look-face) var(--look-lip-pct), var(--look-lip-ink));
+  border-color: transparent;
+  border-radius: var(--btn-radius, var(--pop-trigger-radius, var(--r-pill)));
+  background: var(--btn-bg, var(--pop-trigger-bg, linear-gradient(to bottom, color-mix(in oklab, var(--look-face) 94%, var(--look-tint)), var(--look-face))));
+  box-shadow:
+    inset 0 1px 0 var(--look-hi),
+    0 var(--look-lip) 0 var(--look-lip-c),
+    0 calc(var(--look-lip) + 2px) 8px -3px var(--look-drop);
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease),
+    opacity var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease-spring-bounce),
+    translate var(--dur-fast) var(--ease-spring-bounce),
+    scale var(--dur-fast) var(--ease-spring-bounce);
+}
+:root[data-look="tactile"] :is(.btn-primary, .pop-trigger.trigger-primary):not(.btn-link, .btn-ghost) {
+  --look-face: var(--accent);
+  background: var(--btn-bg, var(--pop-trigger-bg, var(--look-face)));
+  --look-lip-c: color-mix(in oklab, var(--accent) 62%, var(--look-ink));
+  --look-hi: color-mix(in oklab, var(--look-tint) 30%, transparent);
+}
+:root[data-look="tactile"] .btn-primary.btn-tone-success {
+  --look-face: var(--ok);
+  --look-lip-c: color-mix(in oklab, var(--ok) 60%, var(--look-ink));
+}
+:root[data-look="tactile"] .btn-primary:is(.btn-tone-accent, .btn-tone-info, .btn-tone-warn, .btn-tone-danger) {
+  --look-face: color-mix(in oklab, var(--btn-tone) 35%, var(--accent));
+}
+:root[data-look="tactile"] :is(.btn-danger, .pop-trigger.trigger-danger):not(.btn-ghost, .btn-link) {
+  --look-tone: var(--danger);
+}
+:root[data-look="tactile"] :is(.btn-tone-accent, .btn-tone-success, .btn-tone-info, .btn-tone-warn, .btn-tone-danger):not(.btn-primary, .btn-ghost, .btn-link) {
+  --look-tone: var(--btn-tone);
+}
+:root[data-look="tactile"] :is(.btn, .pop-trigger):not(.btn-primary, .trigger-primary, .btn-ghost, .trigger-ghost, .btn-link)[class*="tone"],
+:root[data-look="tactile"] :is(.btn-danger, .trigger-danger):not(.btn-ghost, .trigger-ghost, .btn-link) {
+  --look-face: color-mix(in oklab, var(--look-tone, var(--danger)) var(--look-pastel), var(--bg-elevated));
+  --look-lip-c: color-mix(in oklab, var(--look-tone, var(--danger)) 22%, var(--look-well));
+  color: color-mix(in oklab, var(--look-tone, var(--danger)) 70%, var(--text));
+}
+
+:root[data-look="tactile"] :is(.btn-ghost, .pop-trigger.trigger-ghost) {
+  border-color: transparent;
+  border-radius: var(--btn-radius, var(--pop-trigger-radius, var(--r-pill)));
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    color var(--dur-fast) var(--ease),
+    scale var(--dur-fast) var(--ease-spring-bounce);
+}
+:root[data-look="tactile"] .btn-ghost.btn-danger {
+  color: color-mix(in oklab, var(--danger) 70%, var(--text));
+}
+
+:root[data-look="tactile"] .split-main {
+  --btn-radius: var(--r-pill) var(--r-xs) var(--r-xs) var(--r-pill);
+}
+:root[data-look="tactile"] .split-caret {
+  --pop-trigger-radius: var(--r-xs) var(--r-pill) var(--r-pill) var(--r-xs);
+}
+
+:root[data-look="tactile"] .btn-shortcut {
+  left: var(--sp-4);
+}
+
+:root[data-look="tactile"] :is(.btn, .pop-trigger):is(:disabled, [aria-disabled="true"], .is-disabled):not(.btn-link, .btn-ghost, .trigger-ghost) {
+  box-shadow: none;
+}
+
+/* Press: depth collapse, fast in, springy out. */
+:root[data-look="tactile"] :is(.btn:not(.btn-link, .btn-icon-inline, .btn-ghost), .pop-trigger.canonical:not(.trigger-ghost), .pop-trigger.trigger-primary):active:not(:disabled, [aria-disabled="true"], .loading, .is-disabled) {
+  scale: 1;
+  translate: 0 calc(var(--look-lip) - 1px);
+  box-shadow:
+    inset 0 1px 0 var(--look-hi),
+    0 1px 0 var(--look-lip-c),
+    0 1px 2px var(--look-drop);
+  transition-duration: var(--dur-press);
+  transition-timing-function: var(--ease-out);
+}
+:root[data-look="tactile"] :is(.btn-ghost, .pop-trigger.trigger-ghost, .btn-icon-inline):active:not(:disabled, [aria-disabled="true"], .loading) {
+  scale: var(--press-scale-sm);
+  transition-duration: var(--dur-press);
+  transition-timing-function: var(--ease-out);
+}
+
+/* ---------- Text fields ---------- */
+
+:root[data-look="tactile"] :is(.input, .select:not(.ghost, .embedded), .textarea, .rich-select .rs-trigger, .rich-select > button) {
+  border-color: transparent;
+  border-radius: var(--r-md);
+  background: var(--look-well);
+  box-shadow: var(--look-well-shadow), var(--look-field-ring);
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease-spring);
+}
+:root[data-look="tactile"] :is(.input, .select:not(.ghost, .embedded), .textarea):focus,
+:root[data-look="tactile"] .rich-select :is(.rs-trigger:focus-visible, .is-open .rs-trigger),
+:root[data-look="tactile"] .rich-select.is-open .rs-trigger {
+  border-color: transparent;
+  box-shadow:
+    var(--look-well-shadow),
+    0 0 0 2px var(--accent),
+    var(--focus-glow);
+}
+:root[data-look="tactile"] :is(.input, .select, .textarea):focus-visible {
+  outline: none;
+}
+:root[data-look="tactile"] :is(.input, .select, .textarea)[aria-invalid="true"] {
+  border-color: transparent;
+  background: color-mix(in oklab, var(--danger) 10%, var(--look-well));
+  box-shadow: var(--look-well-shadow), 0 0 0 1.5px color-mix(in oklab, var(--danger) 75%, transparent);
+}
+:root[data-look="tactile"] :is(.input, .select, .textarea)[aria-invalid="true"]:focus {
+  box-shadow:
+    var(--look-well-shadow),
+    0 0 0 2px var(--danger),
+    0 0 0 6px color-mix(in oklab, var(--danger) 18%, transparent);
+}
+:root[data-look="tactile"] .ig-bar::before {
+  border: 0;
+  background: var(--look-well);
+}
+
+/* ---------- Checkbox / radio ---------- */
+
+:root[data-look="tactile"] .checkbox .box,
+:root[data-look="tactile"] .dot-ctl {
+  border-color: transparent;
+  background: linear-gradient(to bottom, color-mix(in oklab, var(--surface) 90%, var(--look-tint)), var(--surface));
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--border-strong) 55%, transparent),
+    inset 0 1px 0 var(--look-hi),
+    0 2px 0 color-mix(in oklab, var(--surface) var(--look-lip-pct), var(--look-lip-ink));
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease),
+    translate var(--dur-spring) var(--ease-spring-bounce),
+    scale var(--dur-spring) var(--ease-spring-bounce);
+}
+:root[data-look="tactile"] .checkbox .box {
+  border-radius: 7px;
+}
+:root[data-look="tactile"] .checkbox input:is(:checked, :indeterminate) + .box,
+:root[data-look="tactile"] .radio input:checked + .dot-ctl {
+  background: linear-gradient(to bottom, color-mix(in oklab, var(--accent) 88%, var(--look-tint)), var(--accent));
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--look-tint) 30%, transparent),
+    0 2px 0 color-mix(in oklab, var(--accent) 60%, var(--look-ink));
+}
+:root[data-look="tactile"] .radio input:checked + .dot-ctl::after {
+  background: var(--look-knob);
+  box-shadow: 0 1px 1px color-mix(in oklab, var(--look-ink) 30%, transparent);
+  width: 0.5rem;
+  height: 0.5rem;
+}
+:root[data-look="tactile"] .checkbox:active:not(:has(input:disabled)) .box,
+:root[data-look="tactile"] .radio:active:not(.disabled) .dot-ctl {
+  scale: 1;
+  translate: 0 1px;
+  box-shadow: inset 0 1px 2px color-mix(in oklab, var(--look-ink) 25%, transparent);
+  transition-duration: var(--dur-press);
+  transition-timing-function: var(--ease-out);
+}
+:root[data-look="tactile"] .row {
+  border-color: transparent;
+  border-radius: var(--r-lg);
+  background: var(--bg-elevated-2);
+}
+:root[data-look="tactile"] .row.selected {
+  border-color: transparent;
+  background: color-mix(in oklab, var(--accent) 12%, var(--bg-elevated));
+}
+
+/* ---------- Switch ---------- */
+
+:root[data-look="tactile"] .switch {
+  --sw-h: 1.625rem;
+  --sw-w: 2.875rem;
+  border-color: transparent;
+  background: var(--look-well);
+  box-shadow: var(--look-well-shadow), inset 0 0 0 1px color-mix(in oklab, var(--border-strong) 45%, transparent);
+  transition:
+    background-color var(--dur-spring) var(--ease),
+    box-shadow var(--dur-spring) var(--ease);
+}
+:root[data-look="tactile"] .switch.on {
+  background: var(--accent);
+  box-shadow: inset 0 2px 4px color-mix(in oklab, var(--accent) 55%, var(--look-ink));
+}
+:root[data-look="tactile"] .switch .knob,
+:root[data-look="tactile"] .switch.on .knob {
+  background: var(--look-knob);
+  box-shadow: var(--look-knob-shadow);
+  transition:
+    translate var(--dur-spring) var(--ease-spring-bounce),
+    scale var(--dur-fast) var(--ease-spring-bounce);
+}
+:root[data-look="tactile"] .switch:active:not(:disabled) .knob {
+  scale: 1.18 0.92;
+  transition-duration: var(--dur-press);
+}
+
+/* ---------- Slider ---------- */
+
+:root[data-look="tactile"] .slider {
+  --thumb: 1.5rem;
+  --track: 0.5rem;
+  --halo: 0 0 0 6px color-mix(in oklab, var(--slider-accent, var(--accent)) 22%, transparent);
+}
+:root[data-look="tactile"] .slider input[type="range"] {
+  height: 1.75rem;
+}
+:root[data-look="tactile"] .slider input[type="range"]::-webkit-slider-runnable-track {
+  background: linear-gradient(to right, var(--slider-accent, var(--accent)) var(--pct), var(--look-well) var(--pct));
+  box-shadow: var(--look-track-shadow);
+}
+:root[data-look="tactile"] .slider input[type="range"]::-moz-range-track {
+  background: var(--look-well);
+}
+:root[data-look="tactile"] .slider input[type="range"]::-webkit-slider-thumb {
+  border: 0;
+  background: var(--look-knob);
+  box-shadow: var(--look-knob-shadow);
+  transition:
+    scale var(--dur-fast) var(--ease-spring-bounce),
+    box-shadow var(--dur-fast) var(--ease);
+}
+:root[data-look="tactile"] .slider input[type="range"]::-moz-range-thumb {
+  border: 0;
+  background: var(--look-knob);
+  box-shadow: var(--look-knob-shadow);
+}
+:root[data-look="tactile"] .slider input[type="range"]:not(:disabled):active::-webkit-slider-thumb {
+  scale: 1.1;
+  box-shadow: var(--look-knob-shadow), var(--halo);
+}
+
+/* ---------- Segmented control ---------- */
+
+:root[data-look="tactile"] .seg {
+  border-color: transparent;
+  background: var(--look-well);
+  box-shadow: var(--look-well-shadow), var(--look-field-ring);
+}
+:root[data-look="tactile"] .seg-thumb,
+:root[data-look="tactile"] .seg-item.selected {
+  background: linear-gradient(to bottom, color-mix(in oklab, var(--surface) 92%, var(--look-tint)), var(--surface));
+  box-shadow:
+    inset 0 1px 0 var(--look-hi),
+    0 2px 0 color-mix(in oklab, var(--surface) var(--look-lip-pct), var(--look-lip-ink)),
+    0 3px 6px -2px var(--look-drop);
+}
+:root[data-look="tactile"] .seg-thumb {
+  transition:
+    translate var(--dur-spring) var(--ease-spring-bounce),
+    scale var(--dur-spring) var(--ease-spring-bounce);
+}
+:root[data-look="tactile"] .seg.placed .seg-item.selected {
+  background: transparent;
+  box-shadow: none;
+}
+
+/* ---------- Tabs ---------- */
+
+:root[data-look="tactile"] .tablist,
+:root[data-look="tactile"] .strip .actions {
+  border-bottom: 0;
+}
+:root[data-look="tactile"] .tablist {
+  gap: var(--sp-1);
+  padding-bottom: var(--sp-1);
+}
+:root[data-look="tactile"] .tab {
+  border-bottom: 0;
+  margin-bottom: 0;
+  border-radius: var(--r-pill);
+  transition:
+    color var(--dur-fast) var(--ease),
+    background-color var(--dur-fast) var(--ease),
+    scale var(--dur-fast) var(--ease-spring-bounce);
+}
+:root[data-look="tactile"] .tab.selected {
+  color: var(--text);
+  background: color-mix(in oklab, var(--accent) 14%, transparent);
+}
+:root[data-look="tactile"] .indicator {
+  height: 3px;
+  border-radius: var(--r-pill);
+}
+:root[data-look="tactile"] .tab:active:not(:disabled, .disabled) {
+  scale: var(--press-scale);
+  transition-duration: var(--dur-press);
+}
+
+/* ---------- Badges, dots, kbd ---------- */
+
+:root[data-look="tactile"] .badge:not(.text) {
+  border-color: transparent;
+  background: var(--badge-bg, color-mix(in oklab, var(--text) 8%, transparent));
+  font-weight: var(--badge-fw, var(--fw-semibold));
+}
+:root[data-look="tactile"] .tab .badge:not(.text) {
+  font-weight: var(--badge-fw, var(--fw-medium));
+}
+:root[data-look="tactile"] .badge:not(.text, .role-pill) {
+  color: var(--badge-fg, color-mix(in oklab, var(--text-muted) 60%, var(--text)));
+}
+:root[data-look="tactile"] .bubble .role-pill {
+  color: color-mix(in oklab, var(--role) 70%, var(--text));
+}
+:root[data-look="tactile"] .badge.toned:not(.text, .active) {
+  background: var(--badge-bg, color-mix(in oklab, var(--badge-tone) var(--look-pastel), transparent));
+  color: var(--badge-fg, color-mix(in oklab, var(--badge-tone) 70%, var(--text)));
+}
+:root[data-look="tactile"] .badge.active,
+:root[data-look="tactile"] .tab.selected .badge.toned:not(.text) {
+  background: var(--badge-tone, var(--accent));
+  color: var(--text-on-accent);
+}
+
+:root[data-look="tactile"] .dot.glow {
+  box-shadow: 0 0 0 3px color-mix(in oklab, var(--dot-color) 25%, transparent);
+}
+
+:root[data-look="tactile"] .kbd {
+  border: 0;
+  border-radius: 6px;
+  padding: 0 0.4em;
+  color: var(--text);
+  background: linear-gradient(to bottom, color-mix(in oklab, var(--surface) 90%, var(--look-tint)), var(--surface));
+  box-shadow:
+    inset 0 0 0 1px color-mix(in oklab, var(--border) 60%, transparent),
+    inset 0 1px 0 var(--look-hi),
+    0 2px 0 color-mix(in oklab, var(--surface) var(--look-lip-pct), var(--look-lip-ink));
+}
+
+/* ---------- Cards & surfaces ---------- */
+
+:root[data-look="tactile"] .card {
+  --look-card-bg: var(--bg-elevated);
+  border-color: transparent;
+  border-radius: var(--r-lg);
+  background: var(--look-card-bg);
+  box-shadow: var(--look-elev-1);
+}
+:root[data-look="tactile"] .card.surface-raised {
+  --look-card-bg: var(--surface);
+  box-shadow: var(--look-elev-2);
+}
+:root[data-look="tactile"] .card.surface-sunken {
+  --look-card-bg: var(--look-well);
+  box-shadow: var(--look-well-shadow);
+}
+:root[data-look="tactile"] .card:is(.card-ok, .card-warn, .card-danger, .card-info, .card-accent) {
+  --look-card-bg: color-mix(in oklab, var(--card-tone) 10%, var(--bg-elevated));
+  --text-faint: color-mix(in oklab, var(--c-text-faint) 75%, var(--text));
+  border-color: transparent;
+}
+:root[data-look="tactile"] :is(.card:is(.card-ok, .card-warn, .card-danger, .card-info, .card-accent), .bubble) .tone-muted {
+  color: color-mix(in oklab, var(--text-muted) 55%, var(--text));
+}
+:root[data-look="tactile"] .card.card-attention {
+  --look-card-bg: var(--attention-bg);
+}
+:root[data-look="tactile"] .card.border-dashed {
+  border: 2px dashed color-mix(in oklab, var(--border-strong) 70%, transparent);
+  background: transparent;
+  box-shadow: none;
+}
+:root[data-look="tactile"] .card-head {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+:root[data-look="tactile"] .card-foot {
+  border-top: 0;
+  background: color-mix(in oklab, var(--text) 3.5%, transparent);
+  border-radius: 0 0 var(--r-lg) var(--r-lg);
+}
+:root[data-look="tactile"] .card-stacked::before,
+:root[data-look="tactile"] .card-stacked::after {
+  border: 0;
+  box-shadow: var(--look-elev-1);
+}
+:root[data-look="tactile"] .card-stacked::before {
+  background: color-mix(in oklab, var(--bg-elevated) 55%, var(--bg-elevated-2));
+}
+:root[data-look="tactile"] .card-stacked::after {
+  background: var(--bg-elevated-2);
+}
+
+:root[data-look="tactile"] .card-tap {
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease),
+    translate var(--dur-fast) var(--ease-spring-bounce),
+    scale var(--dur-fast) var(--ease-spring-bounce);
+}
+:root[data-look="tactile"] .card-tap:active {
+  background: var(--look-card-bg);
+  scale: var(--press-scale-lg);
+  translate: 0 1px;
+  box-shadow: inset 0 1px 0 var(--look-hi), 0 1px 2px var(--look-drop);
+  transition-duration: var(--dur-press);
+  transition-timing-function: var(--ease-out);
+}
+
+:root[data-look="tactile"] .metric-chip {
+  border: 0;
+  border-radius: var(--r-pill);
+  width: 2rem;
+  height: 2rem;
+  background: color-mix(in oklab, var(--metric-tone) 20%, transparent);
+}
+
+/* ---------- Callouts ---------- */
+
+:root[data-look="tactile"] .card.callout {
+  --look-card-bg: color-mix(in oklab, var(--card-tone, var(--text-muted)) 14%, var(--bg-elevated));
+  box-shadow: none;
+  padding: var(--sp-3) var(--sp-4);
+}
+:root[data-look="tactile"] .card.callout:not(.callout-ok, .callout-warn, .callout-danger, .callout-info, .callout-accent) {
+  --look-card-bg: var(--bg-elevated-2);
+}
+:root[data-look="tactile"] .callout-icon {
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  min-height: 0;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-md);
+  color: var(--card-tone, var(--text-muted));
+  background: color-mix(in oklab, var(--card-tone, var(--text-muted)) 22%, transparent);
+}
+
+/* ---------- Table ---------- */
+
+:root[data-look="tactile"] .dt-scroll {
+  border: 0;
+  border-radius: var(--r-lg);
+  background: var(--bg-elevated);
+  box-shadow: var(--look-elev-1);
+}
+:root[data-look="tactile"] .dt {
+  background: transparent;
+}
+:root[data-look="tactile"] .dt :is(th, td) {
+  border-bottom: 1px solid var(--look-hairline);
+}
+:root[data-look="tactile"] .dt tbody tr:last-child td {
+  border-bottom: 0;
+}
+:root[data-look="tactile"] .dt th {
+  background: color-mix(in oklab, var(--text) 4%, transparent);
+  border-bottom: 0;
+}
+:root[data-look="tactile"] .dt tr.clickable {
+  transition: background-color var(--dur-fast) var(--ease);
+}
+:root[data-look="tactile"] [data-stacked] :is(tbody, tfoot) tr {
+  border-bottom: 1px solid var(--look-hairline);
+}
+
+/* ---------- Accordion ---------- */
+
+:root[data-look="tactile"] .accordion:not(.accordion--plain) {
+  display: grid;
+  gap: var(--sp-2);
+  border: 0;
+  border-radius: 0;
+  overflow: visible;
+}
+:root[data-look="tactile"] .accordion:not(.accordion--plain) > .acc-item {
+  border: 0;
+  border-radius: var(--r-lg);
+  background: var(--bg-elevated);
+  box-shadow: var(--look-elev-1);
+  overflow: hidden;
+}
+:root[data-look="tactile"] .disclosure__button {
+  border-radius: inherit;
+}
+:root[data-look="tactile"] .disclosure__chevron {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: var(--r-pill);
+  background: color-mix(in oklab, var(--text) 7%, transparent);
+}
+
+/* ---------- Progress, gauge ---------- */
+
+:root[data-look="tactile"] .progress {
+  height: 0.625rem;
+  background: var(--look-well);
+  box-shadow: var(--look-track-shadow);
+}
+:root[data-look="tactile"] .progress.size-sm {
+  height: 0.375rem;
+}
+:root[data-look="tactile"] .progress .bar {
+  box-shadow:
+    inset 0 1px 0 color-mix(in oklab, var(--look-tint) 30%, transparent),
+    inset 0 -1px 0 color-mix(in oklab, var(--look-ink) 15%, transparent);
+}
+:root[data-look="tactile"] .gauge[data-tsu="Gauge"] {
+  border: 0;
+  background: var(--look-well);
+  box-shadow: var(--look-track-shadow);
+}
+
+/* ---------- Menus, popovers, rich select ---------- */
+
+:root[data-look="tactile"] .pop-panel {
+  border: 0;
+  border-radius: 18px;
+  background: var(--surface);
+  box-shadow: var(--raised-shadow);
+  padding: var(--sp-1);
+}
+:root[data-look="tactile"] .menu-item,
+:root[data-look="tactile"] .rs-row,
+:root[data-look="tactile"] .rs-option {
+  border-radius: var(--r-md);
+}
+:root[data-look="tactile"] .menu-item {
+  transition:
+    background-color var(--dur-fast) var(--ease),
+    translate var(--dur-fast) var(--ease-spring-bounce);
+}
+:root[data-look="tactile"] .rs-footer {
+  border-top: 0;
+}
+:root[data-look="tactile"] .fake-menu {
+  border-radius: 18px;
+}
+
+/* ---------- Modal & toast ---------- */
+
+:root[data-look="tactile"] .sheet {
+  border: 0;
+  border-radius: 28px 28px 0 0;
+  box-shadow: var(--overlay-shadow);
+}
+:root[data-look="tactile"] :is(.sheet-head, .sheet-foot) {
+  border: 0;
+}
+:root[data-look="tactile"] .sheet-foot {
+  background: color-mix(in oklab, var(--text) 3.5%, transparent);
+}
+:root[data-look="tactile"] .sheet-toned {
+  border-top: 0;
+  box-shadow: inset 0 4px 0 var(--modal-tone), var(--shadow-lg);
+}
+@media (min-width: 40rem) {
+  :root[data-look="tactile"] .sheet {
+    border-radius: 28px;
+  }
+}
+:root[data-look="tactile"] .toaster .card.toast {
+  --look-card-bg: var(--surface);
+  border-radius: var(--r-pill);
+  padding-inline: var(--sp-5);
+  box-shadow: var(--overlay-shadow);
+}
+
+/* ---------- Section headers ---------- */
+
+:root[data-look="tactile"] .sh-divider > .sh-row {
+  border-bottom: 0;
+}
+:root[data-look="tactile"] .sh-rule {
+  background: transparent;
+}
+
+/* ---------- Chat ---------- */
+
+:root[data-look="tactile"] .bubble {
+  border: 0;
+  border-radius: 20px;
+  background: color-mix(in oklab, var(--role) 8%, var(--bg-elevated));
+  box-shadow: var(--look-elev-1);
+}
+:root[data-look="tactile"] .bubble.align-end {
+  border-end-end-radius: 6px;
+}
+:root[data-look="tactile"] .bubble.align-start {
+  border-end-start-radius: 6px;
+}
+:root[data-look="tactile"] .composer .textarea {
+  border-radius: 22px;
+}
+:root[data-look="tactile"] .composer .ig {
+  --ig-radius: 22px;
+}
+
+/* ---------- Hover micro-interactions (fine pointers only) ---------- */
+
+@media (hover: hover) and (pointer: fine) {
+  :root[data-look="tactile"] :is(.btn:not(.btn-link, .btn-icon-inline, .btn-ghost), .pop-trigger.canonical:not(.trigger-ghost), .pop-trigger.trigger-primary):hover:not(:disabled, [aria-disabled="true"], .loading, .is-disabled, :active) {
+    translate: 0 calc(-1 * var(--hover-lift));
+    background: var(--btn-bg, var(--pop-trigger-bg, linear-gradient(to bottom, color-mix(in oklab, var(--look-face) 86%, var(--look-tint)), color-mix(in oklab, var(--look-face) 94%, var(--look-tint)))));
+    box-shadow:
+      inset 0 1px 0 var(--look-hi),
+      0 calc(var(--look-lip) + 1px) 0 var(--look-lip-c),
+      0 calc(var(--look-lip) + 5px) 12px -4px var(--look-drop);
+  }
+  :root[data-look="tactile"] :is(.btn-ghost, .pop-trigger.trigger-ghost):hover:not(:disabled, [aria-disabled="true"]) {
+    background: color-mix(in oklab, var(--text) 8%, transparent);
+  }
+  :root[data-look="tactile"] .btn .icon,
+  :root[data-look="tactile"] .pop-trigger .icon {
+    transition:
+      translate var(--dur-fast) var(--ease-spring-bounce),
+      rotate var(--dur-fast) var(--ease-spring-bounce);
+  }
+  :root[data-look="tactile"] .btn:hover:not(:disabled, .loading) > .icon:first-child,
+  :root[data-look="tactile"] .pop-trigger:hover > .icon:first-child {
+    translate: 0 -1px;
+    rotate: -8deg;
+  }
+  :root[data-look="tactile"] .pop-trigger:hover .caret-glyph .icon {
+    translate: 0 2px;
+  }
+
+  /* Pointer spotlight: --pointer-x/--pointer-y come from trackPointer(); without it the spot rests above the card. */
+  :root[data-look="tactile"] .card-tap:hover,
+  :root[data-look="tactile"] .card.metric:hover {
+    background:
+      radial-gradient(circle 14rem at var(--pointer-x, 50%) var(--pointer-y, -40%), var(--look-spot), transparent 70%),
+      var(--look-card-bg);
+  }
+  :root[data-look="tactile"] .card-tap:hover:not(:active) {
+    translate: 0 -2px;
+    box-shadow: var(--look-elev-2);
+  }
+
+  :root[data-look="tactile"] .tab:hover:not(:disabled, .disabled, .selected) {
+    background: color-mix(in oklab, var(--text) 7%, transparent);
+  }
+  :root[data-look="tactile"] .badge.interactive:hover:not(.active) {
+    color: var(--text);
+  }
+  :root[data-look="tactile"] .seg-item:hover:not(:disabled):not(.selected) {
+    background: color-mix(in oklab, var(--text) 6%, transparent);
+  }
+  :root[data-look="tactile"] .menu-item:hover:not([inert]) {
+    background: color-mix(in oklab, var(--accent) 14%, transparent);
+    translate: 2px 0;
+  }
+  :root[data-look="tactile"] .rs-row[data-active] {
+    background: color-mix(in oklab, var(--accent) 12%, transparent);
+  }
+  :root[data-look="tactile"] .disclosure__button:hover {
+    background: color-mix(in oklab, var(--text) 4%, transparent);
+  }
+  :root[data-look="tactile"] .disclosure__chevron {
+    transition:
+      rotate var(--dur-base) var(--ease-spring-bounce),
+      background-color var(--dur-fast) var(--ease);
+  }
+  :root[data-look="tactile"] .disclosure__button:hover .disclosure__chevron {
+    background: color-mix(in oklab, var(--accent) 18%, transparent);
+    color: var(--accent);
+  }
+  :root[data-look="tactile"] :is(.input, .select:not(.ghost, .embedded), .textarea):hover:not(:disabled, :focus, [aria-invalid="true"]) {
+    border-color: transparent;
+    background: color-mix(in oklab, var(--text) 3%, var(--look-well));
+  }
+  :root[data-look="tactile"] .checkbox:hover .box,
+  :root[data-look="tactile"] .radio:hover:not(.disabled) .dot-ctl {
+    translate: 0 -1px;
+  }
+  :root[data-look="tactile"] .switch:hover:not(:disabled) .knob {
+    scale: 1.06;
+  }
+  :root[data-look="tactile"] .slider input[type="range"]:not(:disabled):hover::-webkit-slider-thumb {
+    box-shadow: var(--look-knob-shadow), var(--halo);
+  }
+  :root[data-look="tactile"] .dt tr.clickable:hover td {
+    background: color-mix(in oklab, var(--accent) 6%, transparent);
+  }
+}
+
+/* ---------- Focus bloom ---------- */
+
+:root[data-look="tactile"] :is(.btn, .pop-trigger, .tab, .seg-item, .switch, .card-tap):focus-visible {
+  animation: tsu-tactile-bloom var(--dur-fast) var(--ease-out);
+}
+@keyframes tsu-tactile-bloom {
+  from {
+    outline-offset: 7px;
+    outline-color: transparent;
+  }
+}
+
+/* ---------- Reduced motion ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-look="tactile"] :is(.btn, .pop-trigger, .card-tap, .tab, .menu-item, .checkbox .box, .dot-ctl, .icon) {
+    translate: none !important;
+    scale: none !important;
+    rotate: none !important;
+  }
+  :root[data-look="tactile"] .knob {
+    scale: none !important;
+  }
+  :root[data-look="tactile"] :is(.knob, .seg-thumb) {
+    transition-property: background-color, box-shadow;
+  }
+  :root[data-look="tactile"] :focus-visible {
+    animation: none;
+  }
+}

@@ -2,12 +2,16 @@ import { browser } from '$lib/env';
 import {
 	AUTO_THEME,
 	chooseTheme,
+	DEFAULT_LOOK,
 	DEFAULT_THEME_PREFERENCE,
+	type LookId,
+	parseLook,
 	preferenceFrom,
 	resolveTheme,
 	type SlotOf,
 	type ThemeChoice,
 	type ThemePreference,
+	themePrepaint,
 } from '$lib/theme-mode';
 import { readStorage, writeStorage } from './storage';
 
@@ -18,7 +22,8 @@ import { readStorage, writeStorage } from './storage';
 // light/dark sections.
 //
 // `tsumikit-theme` holds a {mode,light,dark} blob; a bare theme id there is a
-// legacy value and migrates through `preferenceFrom`.
+// legacy value and migrates through `preferenceFrom`. The blob also carries
+// `look` when it is not the default.
 const KEY = 'tsumikit-theme';
 const SCHEME_QUERY = '(prefers-color-scheme: dark)';
 
@@ -78,6 +83,9 @@ export const THEMES = [
 	{ id: 'espresso', label: 'Espresso', icon: '◉', themeColor: '#463a31', mode: 'dark' },
 	{ id: 'zenburn', label: 'Zenburn', icon: 'Z', themeColor: '#3f3f3f', mode: 'dark' },
 ] as const;
+
+/** Pre-paint script for the built-in themes; inline it in <head>. */
+export const THEME_PREPAINT = themePrepaint(KEY, THEMES);
 
 export type Mode = (typeof THEMES)[number]['id'];
 export type ThemeMode = (typeof THEMES)[number]['mode'];
@@ -162,13 +170,18 @@ class Theme {
 			const parsed: unknown = JSON.parse(this.saved);
 			if (parsed && typeof parsed === 'object') blob = parsed as Partial<ThemePreference>;
 		} catch {}
-		return preferenceFrom(
+		const pref = preferenceFrom(
 			blob
 				? { themeMode: blob.mode, lightTheme: blob.light, darkTheme: blob.dark }
 				: { theme: this.saved },
 			this.slotOf,
 			seed,
 		);
+		return withLook(pref, blob?.look);
+	}
+	/** The active structural look; `default` when none is set. */
+	get look(): LookId {
+		return parseLook(this.pref.look);
 	}
 	private paint() {
 		this.current = this.resolved;
@@ -181,7 +194,11 @@ class Theme {
 	}
 	private apply() {
 		if (!browser) return;
-		document.documentElement.setAttribute('data-theme', this.current);
+		const root = document.documentElement;
+		root.setAttribute('data-theme', this.current);
+		root.setAttribute('data-mode', this.option.mode);
+		if (this.look === DEFAULT_LOOK) root.removeAttribute('data-look');
+		else root.setAttribute('data-look', this.look);
 		const color = this.option.themeColor;
 		if (color)
 			document
@@ -216,13 +233,26 @@ class Theme {
 		this.persist();
 		return this.pref;
 	}
+	/** Pick a look; unknown ids fall back to the default look. */
+	setLook(look: string): ThemePreference {
+		this.pref = withLook(this.pref, look);
+		this.apply();
+		this.persist();
+		return this.pref;
+	}
 	/** Replay a preference an app persisted itself, without echoing it back
-	 *  through `onchange`. */
+	 *  through `onchange`. A preference without `look` keeps the current one. */
 	hydrate(pref: ThemePreference) {
-		this.pref = pref;
-		this.saved = JSON.stringify(pref);
+		this.pref = withLook(pref, 'look' in pref ? pref.look : this.pref.look);
+		this.saved = JSON.stringify(this.pref);
 		this.paint();
 	}
+}
+
+function withLook(pref: ThemePreference, look: unknown): ThemePreference {
+	const { look: _, ...rest } = pref;
+	const id = parseLook(look);
+	return id === DEFAULT_LOOK ? rest : { ...rest, look: id };
 }
 
 export const theme = new Theme();

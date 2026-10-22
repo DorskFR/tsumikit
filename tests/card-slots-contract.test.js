@@ -17,7 +17,7 @@ test('default rendering is untouched: no frame classes and children render bare'
 	assert.match(card, /const framed = \$derived\(!!\(header \|\| footer \|\| title\)\)/);
 	assert.match(card, /class:card-framed={framed}/);
 	assert.match(card, /class:card-gap={!framed && gap !== undefined}/);
-	assert.match(card, /{:else}\s*{@render children\?\.\(\)}\s*{\/if}\s*<\/svelte:element>/);
+	assert.match(card, /{:else}\s*{@render children\?\.\(\)}\s*{\/if}\s*{#if lit}<span class="card-fx" aria-hidden="true"><\/span>{\/if}\s*<\/svelte:element>/);
 	assert.match(card, /\.card\s*{\s*--card-pad: var\(--sp-4\);[^}]*padding: var\(--card-pad\);/s);
 	assert.match(card, /\.pad-sm\s*{\s*--card-pad: var\(--sp-2\);\s*padding: var\(--sp-2\);/);
 	assert.match(card, /\.pad-lg\s*{\s*--card-pad: var\(--sp-6\);\s*padding: var\(--sp-6\);/);

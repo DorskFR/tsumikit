@@ -36,11 +36,13 @@
 
 	const field = getFieldContext();
 	const isInvalid = $derived(invalid || !!field?.invalid);
+	let armed = $state(false);
 
 	function toggle(e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }) {
 		onclick?.(e);
 		if (e.defaultPrevented) return;
 		checked = !checked;
+		armed = true;
 		playSound(checked ? 'toggle-on' : 'toggle-off', sound);
 	}
 </script>
@@ -53,6 +55,7 @@
 		class="switch {klass}"
 		class:on={checked}
 		class:switch-sm={size === 'sm'}
+		class:armed
 		role="switch"
 		aria-checked={checked}
 		id={id ?? field?.id}
@@ -78,6 +81,8 @@
 	/* Track and knob sit on the 4px grid: md 24 / sm 20 tall, knob = track minus
 	   border and padding, travel = track width minus the knob and insets. */
 	.switch {
+		position: relative;
+		isolation: isolate;
 		--sw-h: var(--chip-md);
 		--sw-w: 2.75rem;
 		--sw-inset: calc(var(--sp-0-5) + 1px);
@@ -97,6 +102,7 @@
 			border-color var(--dur-fast) var(--ease);
 	}
 	.switch .knob {
+		position: relative;
 		width: var(--sw-knob);
 		height: var(--sw-knob);
 		border-radius: var(--r-pill);
@@ -121,6 +127,135 @@
 	.switch:active:not(:disabled) .knob {
 		scale: calc(1 + (var(--press-scale) - var(--press-scale-sm)) * 2.4) 1;
 		transition-duration: var(--dur-press);
+	}
+	/* Effects follow the closest data-fx-switch ancestor; squash is the default. */
+	.switch:not(:global([data-fx-switch]:not([data-fx-switch='squash'])) *),
+	:global([data-fx-switch='squash']) .switch:not(:global([data-fx-switch='squash'] [data-fx-switch]:not([data-fx-switch='squash'])) *) {
+		&.armed.on .knob {
+			animation: sw-squash-on var(--dur-spring) var(--ease-out);
+		}
+		&.armed:not(.on) .knob {
+			animation: sw-squash-off var(--dur-spring) var(--ease-out);
+		}
+	}
+	/* On and off use separate names so the animation restarts on every toggle. */
+	@keyframes sw-squash-on {
+		35% {
+			scale: 1.4 0.8;
+		}
+		70% {
+			scale: 0.86 1.1;
+		}
+	}
+	@keyframes sw-squash-off {
+		35% {
+			scale: 1.4 0.8;
+		}
+		70% {
+			scale: 0.86 1.1;
+		}
+	}
+
+	/* A streak trails the knob in flight; a soft accent halo glows while on. */
+	:global([data-fx-switch='glow']) .switch:not(:global([data-fx-switch='glow'] [data-fx-switch]:not([data-fx-switch='glow'])) *) {
+		&::after {
+			content: '';
+			position: absolute;
+			inset: -40% -18%;
+			z-index: -1;
+			pointer-events: none;
+			background: radial-gradient(closest-side, color-mix(in srgb, var(--accent) 45%, transparent), transparent);
+			opacity: 0;
+			transition: opacity var(--dur-slow) var(--ease);
+		}
+		&.on::after {
+			opacity: 1;
+		}
+		& .knob::before {
+			content: '';
+			position: absolute;
+			top: 18%;
+			bottom: 18%;
+			width: 170%;
+			z-index: -1;
+			pointer-events: none;
+			border-radius: var(--r-pill);
+			opacity: 0;
+		}
+		&.on .knob::before {
+			right: 40%;
+			transform-origin: right center;
+			background: linear-gradient(to left, color-mix(in srgb, var(--text-on-accent) 75%, transparent), transparent);
+		}
+		&:not(.on) .knob::before {
+			left: 40%;
+			transform-origin: left center;
+			background: linear-gradient(to right, color-mix(in srgb, var(--accent) 80%, transparent), transparent);
+		}
+		&.armed.on .knob::before {
+			animation: sw-trail-on var(--dur-spring) var(--ease-out);
+		}
+		&.armed:not(.on) .knob::before {
+			animation: sw-trail-off var(--dur-spring) var(--ease-out);
+		}
+	}
+	@keyframes sw-trail-on {
+		0%,
+		100% {
+			opacity: 0;
+			scale: 0.2 1;
+		}
+		30% {
+			opacity: 1;
+			scale: 1;
+		}
+	}
+	@keyframes sw-trail-off {
+		0%,
+		100% {
+			opacity: 0;
+			scale: 0.2 1;
+		}
+		30% {
+			opacity: 1;
+			scale: 1;
+		}
+	}
+
+	/* Calm: an unhurried glide with no overshoot; a small accent pip settles into the knob once on. */
+	:global([data-fx-switch='calm']) .switch:not(:global([data-fx-switch='calm'] [data-fx-switch]:not([data-fx-switch='calm'])) *) {
+		transition:
+			background var(--dur-slow) var(--ease),
+			border-color var(--dur-slow) var(--ease);
+		& .knob {
+			transform-origin: center;
+			transition:
+				translate var(--dur-slow) var(--ease-in-out),
+				scale var(--dur-fast) var(--ease-out),
+				background var(--dur-slow) var(--ease);
+		}
+		&:active:not(:disabled) .knob {
+			scale: var(--press-scale-sm);
+		}
+		& .knob::after {
+			content: '';
+			position: absolute;
+			inset: 32%;
+			border-radius: var(--r-pill);
+			background: var(--accent);
+			opacity: 0;
+			scale: 0.4;
+			transition:
+				opacity var(--dur-exit-fast) var(--ease-out),
+				scale var(--dur-exit-fast) var(--ease-out);
+		}
+		&.on .knob::after {
+			opacity: 1;
+			scale: 1;
+			transition:
+				opacity var(--dur-base) var(--ease) var(--dur-fast),
+				scale var(--dur-base) var(--ease-out) var(--dur-fast);
+		}
 	}
 	.switch:focus-visible {
 		outline: var(--focus-ring);

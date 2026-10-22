@@ -2,8 +2,10 @@
 	import type { HTMLAttributes } from 'svelte/elements';
 	// Shimmering placeholder bar(s) standing in for content that is still
 	// loading. Decorative only — the surrounding region should carry aria-busy.
-	// Bars are tinted from --text so they read on any surface; the sweep is
-	// viewport-anchored so every bar on screen shimmers in sync.
+	// Bars are tinted from --text so they read on any surface. `shimmer` is a
+	// viewport-anchored sweep so every bar on screen shimmers in sync; `sheen`
+	// runs one light across each bar; `pulse` breathes in opacity, each bar a
+	// beat behind the previous one (`--skeleton-phase` offsets the whole set).
 	type Own = {
 		width?: string;
 		height?: string;
@@ -12,6 +14,7 @@
 		/** Round avatar placeholder — width follows height. */
 		circle?: boolean;
 		radius?: string;
+		variant?: 'shimmer' | 'sheen' | 'pulse';
 		class?: string;
 	};
 	let {
@@ -20,6 +23,7 @@
 		lines = 1,
 		circle = false,
 		radius = 'var(--r-sm)',
+		variant = 'shimmer',
 		class: klass = '',
 		...rest
 	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
@@ -29,13 +33,14 @@
 	const count = $derived(Math.max(1, Math.floor(lines)));
 </script>
 
-<span class="skeleton {klass}" data-tsu="Skeleton" aria-hidden="true" style:width={w} {...rest}>
+<span class="skeleton v-{variant} {klass}" data-tsu="Skeleton" aria-hidden="true" style:width={w} {...rest}>
 	{#each { length: count } as _, i (i)}
 		<span
 			class="skeleton-bar"
 			style:height
 			style:border-radius={r}
 			style:width={count > 1 && i === count - 1 ? '60%' : undefined}
+			style:--i={i}
 		></span>
 	{/each}
 </span>
@@ -70,6 +75,52 @@
 		.skeleton-bar {
 			animation: none;
 			background: var(--sk-base);
+		}
+	}
+	.v-sheen .skeleton-bar,
+	.v-pulse .skeleton-bar {
+		background: var(--sk-base);
+	}
+	.v-sheen .skeleton-bar {
+		position: relative;
+		overflow: hidden;
+		animation: none;
+	}
+	.v-sheen .skeleton-bar::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		width: 45%;
+		background: linear-gradient(100deg, transparent 20%, var(--sk-hi) 50%, transparent 80%);
+		transform: translateX(-100%);
+		animation: tsu-skeleton-sheen 2s var(--ease-in-out) infinite;
+	}
+	@keyframes tsu-skeleton-sheen {
+		70%,
+		100% {
+			transform: translateX(260%);
+		}
+	}
+	.v-pulse .skeleton-bar {
+		animation: tsu-skeleton-pulse 1.6s var(--ease-in-out) infinite;
+		animation-delay: calc(0.13s * (var(--i, 0) + var(--skeleton-phase, 0)));
+	}
+	@keyframes tsu-skeleton-pulse {
+		0%,
+		100% {
+			opacity: 1;
+		}
+		50% {
+			opacity: 0.45;
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.v-pulse .skeleton-bar {
+			animation: none;
+		}
+		.v-sheen .skeleton-bar::after {
+			animation: none;
+			transform: translateX(60%);
 		}
 	}
 </style>

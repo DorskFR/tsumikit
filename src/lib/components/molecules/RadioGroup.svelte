@@ -203,6 +203,67 @@
 			opacity var(--dur-spring) var(--ease-spring),
 			scale var(--dur-spring) var(--ease-spring);
 	}
+	/* Effects follow the closest data-fx-radio ancestor; spring is the default. */
+	.radio-group:not(:global([data-fx-radio]:not([data-fx-radio='spring'])) *),
+	:global([data-fx-radio='spring']) .radio-group:not(:global([data-fx-radio='spring'] [data-fx-radio]:not([data-fx-radio='spring'])) *) {
+		& .dot-ctl::after {
+			inset: 22%;
+			width: auto;
+			height: auto;
+			margin: 0;
+			opacity: 1;
+			scale: 0;
+			transition: scale var(--dur-exit-fast) var(--ease-out);
+		}
+		& input:checked + .dot-ctl::after {
+			scale: 1;
+			transition: scale var(--dur-spring) var(--ease-spring-bounce);
+		}
+	}
+
+	/* Accent rises like liquid with a wobbling surface, then the pip drops in. */
+	:global([data-fx-radio='liquid']) .radio-group:not(:global([data-fx-radio='liquid'] [data-fx-radio]:not([data-fx-radio='liquid'])) *) {
+		& .dot-ctl {
+			overflow: hidden;
+		}
+		& .dot-ctl::before {
+			content: '';
+			position: absolute;
+			left: -50%;
+			top: 0;
+			width: 200%;
+			height: 200%;
+			border-radius: 42% 46% 40% 44%;
+			background: var(--accent);
+			translate: 0 50%;
+			pointer-events: none;
+			transition:
+				translate var(--dur-exit) var(--ease-in-out),
+				rotate var(--dur-exit) var(--ease-in-out);
+		}
+		& input:checked + .dot-ctl::before {
+			translate: 0 -30%;
+			rotate: 150deg;
+			transition:
+				translate var(--dur-slow) var(--ease-out),
+				rotate var(--dur-slow) var(--ease-out);
+		}
+		& .dot-ctl::after {
+			inset: 30%;
+			width: auto;
+			height: auto;
+			margin: 0;
+			background: var(--text-on-accent);
+			opacity: 1;
+			scale: 0;
+			transition: scale var(--dur-exit-fast) var(--ease-out);
+		}
+		& input:checked + .dot-ctl::after {
+			scale: 1;
+			transition: scale var(--dur-exit) var(--ease-spring-bounce) var(--dur-fast);
+		}
+	}
+
 	input:focus-visible + .dot-ctl {
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset);
