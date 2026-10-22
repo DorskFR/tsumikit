@@ -94,6 +94,7 @@ test('every example mounts, flushes and unmounts in a browser DOM without errors
 	const d = new JSDOM('<!doctype html><html><body></body></html>', { runScripts: 'outside-only', pretendToBeVisual: true, url: 'http://localhost/' });
 	d.window.matchMedia = /** @type {any} */ (() => ({ matches: false, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {} }));
 	d.window.Element.prototype.scrollIntoView = () => {};
+	d.window.Element.prototype.scrollTo = () => {};
 	d.window.Element.prototype.setPointerCapture = () => {};
 	d.window.ResizeObserver = class { observe() {} unobserve() {} disconnect() {} };
 	/** @type {unknown[]} */
