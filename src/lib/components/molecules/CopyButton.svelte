@@ -205,19 +205,21 @@
 			display: block;
 			width: 1em;
 			height: 1em;
+			opacity: 0;
+			transition: opacity var(--dur-exit-fast) ease var(--dur-instant);
+		}
+		&.copied .tick {
+			opacity: 1;
+			transition-duration: var(--dur-fast);
 		}
 		& .tick path {
 			stroke-dasharray: 1;
 			stroke-dashoffset: 1;
-			transition-property: opacity, stroke-dashoffset;
-			transition-duration: var(--dur-exit-fast), var(--dur-instant);
-			transition-delay: var(--dur-instant), var(--dur-exit-fast);
+			transition: stroke-dashoffset var(--dur-instant) ease var(--dur-exit-fast);
 		}
 		&.copied .tick path {
 			stroke-dashoffset: 0;
-			transition-duration: var(--dur-fast), var(--dur-slow);
-			transition-delay: var(--dur-instant), calc(var(--dur-fast) / 2);
-			transition-timing-function: ease, var(--ease-out);
+			transition: stroke-dashoffset var(--dur-slow) var(--ease-out) calc(var(--dur-fast) / 2);
 		}
 		& .copy {
 			transition-property: opacity, scale;

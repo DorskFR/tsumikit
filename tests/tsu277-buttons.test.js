@@ -94,7 +94,7 @@ test('morph stacks label, spinner and done check in one grid cell; fill drives a
 	assert.match(style, /\.btn-layers \{\s*position: relative;\s*display: grid;\s*place-items: center;/);
 	assert.match(style, /\.btn-layer \{\s*grid-area: 1 \/ 1;/);
 	assert.match(style, /\.btn-fill-bar \{[^}]*scale: var\(--btn-progress, 0\) 1;\s*transform-origin: left;\s*transition: scale var\(--dur-slow\) var\(--ease-out\);/);
-	assert.match(style, /\.btn-layer-ink \{\s*color: var\(--btn-progress-fg\);\s*clip-path: inset\(0 calc\(\(1 - var\(--btn-progress, 0\)\) \* 100%\) 0 0\);/);
+	assert.match(style, /\.btn-layer-ink \{\s*position: absolute;\s*inset: 0;\s*justify-content: center;\s*color: var\(--btn-progress-fg\);\s*clip-path: inset\(0 calc\(\(1 - var\(--btn-progress, 0\)\) \* 100%\) 0 0\);/);
 	assert.match(style, /\.btn-fill\.btn-primary \{\s*--btn-progress-fill: color-mix\(in srgb, var\(--text-on-accent\) 22%, transparent\);/);
 	assert.doesNotMatch(style.slice(style.indexOf('/* Loading styles')), /transition:[^;]*\b(width|height|top|left|margin|padding|transform)\b/);
 });

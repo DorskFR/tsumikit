@@ -83,4 +83,11 @@
 	:global(.demo-section__see-also) {
 		margin-top: calc(-1 * var(--sp-2));
 	}
+	@media (pointer: coarse) {
+		:global(.demo-section__see-also > a) {
+			display: inline-flex;
+			align-items: center;
+			min-height: 24px;
+		}
+	}
 </style>

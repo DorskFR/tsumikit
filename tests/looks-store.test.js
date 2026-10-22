@@ -162,6 +162,7 @@ test('LookPicker lists the looks, badges experimental ones and drives the store'
 		['Polished', 'Depth', 'Tactile', 'Editorial']
 	);
 	assert.match(radios()[3].textContent ?? '', /beta/);
+	assert.equal(radios()[3].querySelector('.look > .name + .tag')?.textContent, 'beta');
 	assert.equal(radios()[0].getAttribute('aria-checked'), 'true');
 	/** @type {HTMLElement} */ (radios()[1]).click();
 	r.flushSync();

@@ -40,8 +40,10 @@
 </script>
 
 {#snippet option(o: SegmentOption)}
-	<span>{o.label}</span>
-	{#if experimentalLabel && tagged.has(o.value)}<span class="tag">{experimentalLabel}</span>{/if}
+	<span class="look">
+		<span class="name">{o.label}</span>
+		{#if experimentalLabel && tagged.has(o.value)}<span class="tag">{experimentalLabel}</span>{/if}
+	</span>
 {/snippet}
 
 <SegmentedControl
@@ -62,7 +64,19 @@
 />
 
 <style>
+	.look {
+		display: inline-flex;
+		align-items: center;
+		gap: var(--sp-1);
+		min-width: 0;
+	}
+	:global(.seg-block) .name {
+		min-width: 0;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
 	.tag {
+		flex: none;
 		padding: 0 var(--sp-1);
 		border: 1px solid currentColor;
 		border-radius: var(--r-pill);

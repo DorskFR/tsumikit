@@ -926,6 +926,9 @@
 		z-index: 1;
 	}
 	.btn-layer-ink {
+		position: absolute;
+		inset: 0;
+		justify-content: center;
 		color: var(--btn-progress-fg);
 		clip-path: inset(0 calc((1 - var(--btn-progress, 0)) * 100%) 0 0);
 		transition: clip-path var(--dur-slow) var(--ease-out);
