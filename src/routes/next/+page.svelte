@@ -1,10 +1,14 @@
 <script lang="ts">
-	import { SoundSettings } from '@dorsk/tsumikit';
-	import DemoShell from '../../demo/framework/DemoShell.svelte';
+	import { Link } from '@dorsk/tsumikit';
+	import { base } from '$app/paths';
+
+	$effect(() => {
+		location.replace(`${base}/${location.hash}`);
+	});
 </script>
 
-<DemoShell>
-	{#snippet toolbar()}
-		<SoundSettings size="sm" />
-	{/snippet}
-</DemoShell>
+<svelte:head>
+	<meta name="robots" content="noindex" />
+</svelte:head>
+
+<p>The showcase moved to <Link href="{base}/">{base}/</Link>.</p>

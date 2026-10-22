@@ -198,7 +198,7 @@ test('a Toggle-shaped trigger needs no canonical chrome: pill + --pop-box: auto 
 });
 
 test('the showcase sits a pill trigger in a row of Toggles', () => {
-	assert.match(normalize(showcase), /<Toggle pill pressed=\{toggleA\}[\s\S]*?<Popover label="Filters" pill style="--pop-box: auto;/);
+	assert.match(normalize(showcase), /<Toggle pill pressed=\{failing\}[\s\S]*?<Popover label="More filters" pill style="--pop-box: auto;/);
 });
 
 test('triggerClass no longer claims a consumer scoped stylesheet reaches the trigger', () => {

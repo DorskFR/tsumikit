@@ -1,8 +1,6 @@
 <script lang="ts">
-	import { Badge, Callout, Cluster, Heading, Link, Text } from '@dorsk/tsumikit';
-	import { base } from '$app/paths';
+	import { Badge, Cluster, Heading, Link, Text } from '@dorsk/tsumikit';
 	import Example from './Example.svelte';
-	import { SHELL_ONLY } from './catalog';
 	import { type DemoEntry, resolveRef } from './registry';
 
 	let { entry, hidden = false }: { entry: DemoEntry; hidden?: boolean } = $props();
@@ -24,21 +22,9 @@
 			{/each}
 		</Cluster>
 	{/if}
-	{#if entry.stub}
-		<Callout tone="info" title="Not migrated yet">
-			{#if entry.legacyId}
-				Shown on the <Link href="{base}/legacy#{entry.legacyId}">legacy showcase</Link>.
-			{:else if SHELL_ONLY.has(entry.name)}
-				Shown on the <Link href="{base}/shell">AppShell page</Link>.
-			{:else}
-				No example exists for this component yet.
-			{/if}
-		</Callout>
-	{:else}
-		{#each entry.examples as example (example.id)}
-			<Example {example} />
-		{/each}
-	{/if}
+	{#each entry.examples as example (example.id)}
+		<Example {example} />
+	{/each}
 </section>
 
 <style>

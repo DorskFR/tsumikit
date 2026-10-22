@@ -7,7 +7,7 @@ let observers = [];
 
 function setup(hash = '#rich-select') {
 	const dom = new JSDOM('<!doctype html><body><section id="rich-select"></section></body>', {
-		url: `http://localhost/next${hash}`,
+		url: `http://localhost/${hash}`,
 	});
 	const w = dom.window;
 	let aims = 0;
@@ -70,7 +70,7 @@ test('aimAtHash stops re-aiming on the first pointer input', () => {
 	assert.equal(aims(), 1);
 });
 
-test('aimAtHash rewrites a legacy anchor before aiming', () => {
+test('aimAtHash rewrites a former anchor before aiming', () => {
 	const { w } = setup('#toasts');
 	aimAtHash(10);
 	assert.equal(w.location.hash, '#toaster');

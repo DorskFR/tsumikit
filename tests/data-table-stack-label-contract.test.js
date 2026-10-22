@@ -103,5 +103,5 @@ test('README and demo page document both stack modes and the header snippet', ()
 	assert.match(readme, /`headerSnippets\[key\]`/);
 	assert.match(page, /stackLabel: false/);
 	assert.match(page, /headerSnippets={{ pick: pickAll }}/);
-	assert.match(page, /columns={stackCols}/);
+	assert.match(page, /responsive="stack"/);
 });

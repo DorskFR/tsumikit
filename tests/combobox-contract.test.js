@@ -9,7 +9,7 @@ import {
 	nextComboboxIndex,
 } from '../src/lib/components/molecules/combobox-keyboard.js';
 import { buildFixture } from './fixtures/build.mjs';
-import { readDemo } from './helpers/demo-source.js';
+import { demoed, readDemo } from './helpers/demo-source.js';
 
 const read = (/** @type {string} */ p) => readFile(new URL(p, import.meta.url), 'utf8');
 const [source, floating, index, readme, page] = await Promise.all([
@@ -95,13 +95,12 @@ test('Combobox source contract: anchor, top-layer listbox, active-descendant wir
 	assert.match(floating, /placeAt\(trigger\.getBoundingClientRect\(\), floating, placement, gap\)/);
 });
 
-test('Combobox is exported, documented and demoed', () => {
+test('Combobox is exported, documented and demoed', async () => {
 	assert.match(index, /export \{ default as Combobox \} from '\.\/components\/molecules\/Combobox\.svelte';/);
 	assert.match(index, /findTrigger,\n\tnextComboboxIndex,\n\} from '\.\/components\/molecules\/combobox-keyboard\.js';/);
 	assert.match(readme, /Combobox \(suggestion listbox/);
 	assert.match(readme, /\| `Combobox` \| `--cb-bg`/);
-	assert.match(page, /<section class="section" id="combobox">/);
-	assert.match(page, /id: 'combobox', label: 'Combobox'/);
+	assert.ok(await demoed('Combobox'));
 	assert.match(page, /<Combobox[\s\S]*anchor="caret"/);
 });
 

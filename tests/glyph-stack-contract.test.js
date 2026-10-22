@@ -6,7 +6,7 @@ import { JSDOM } from 'jsdom';
 import { compile, preprocess } from 'svelte/compiler';
 import { buildFixture } from './fixtures/build.mjs';
 import { hasDecl, normalize } from './helpers.mjs';
-import { readDemo } from './helpers/demo-source.js';
+import { demoed, readDemo } from './helpers/demo-source.js';
 
 const read = (/** @type {string} */ p) => readFile(new URL(p, import.meta.url), 'utf8');
 const [source, index, readme, page] = await Promise.all([
@@ -56,15 +56,14 @@ function render(props = {}) {
 	return { doc, root, observers, resize, unmount: () => unmount(app) };
 }
 
-test('GlyphStack is exported, documented and demoed with inline, stacked and resizable forms', () => {
+test('GlyphStack is exported, documented and demoed with inline, stacked and resizable forms', async () => {
 	assert.match(normalize(index), /export \{ default as GlyphStack, type GlyphStackItem, \} from '\.\/components\/molecules\/GlyphStack\.svelte';/);
 	assert.match(readme, /### GlyphStack/);
 	assert.match(readme, /`stack` never \| always \| auto/);
-	assert.match(page, /<section class="section" id="glyph-stack">/);
-	assert.match(page, /<GlyphStack stack="never" items=\{glyphs\} \/>/);
-	assert.match(page, /<GlyphStack stack="always" items=\{glyphs\} \/>/);
-	assert.match(page, /<div class="cq glyph-resize">/);
-	assert.match(page, /\.glyph-resize \{[^}]*resize: horizontal;/);
+	assert.ok(await demoed('GlyphStack'));
+	assert.match(page, /<GlyphStack stack="never"/);
+	assert.match(page, /<GlyphStack stack="always" items=/);
+	assert.match(page, /resizable: true[\s\S]*?<GlyphStack stackBelow=/);
 });
 
 test('GlyphStack prop surface: items or children, stack mode, stackBelow, container, class passthrough', () => {

@@ -1,5 +1,10 @@
 <script lang="ts">
-	import Legacy from './legacy/+page.svelte';
+	import { SoundSettings } from '@dorsk/tsumikit';
+	import DemoShell from '../demo/framework/DemoShell.svelte';
 </script>
 
-<Legacy />
+<DemoShell>
+	{#snippet toolbar()}
+		<SoundSettings size="sm" />
+	{/snippet}
+</DemoShell>

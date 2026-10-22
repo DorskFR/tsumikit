@@ -158,11 +158,11 @@ test('reduced motion shows its hint while on; sizes map to the panel density', (
 	assert.ok(!r.q('.panel-sm'));
 });
 
-test('SoundSettings is exported and catalogued, with prop surface', async () => {
+test('SoundSettings is exported and demoed, with prop surface', async () => {
 	const index = await read('../src/lib/index.ts');
 	assert.match(index, /export { default as SoundSettings } from '\.\/components\/molecules\/SoundSettings\.svelte';/);
-	const catalog = await read('../src/demo/framework/catalog.ts');
-	assert.match(catalog, /SoundSettings: null,/);
+	const meta = await read('../src/demo/molecules/SoundSettings/meta.ts');
+	assert.match(meta, /export const meta/);
 	const source = await read('../src/lib/components/molecules/SoundSettings.svelte');
 	assert.match(source, /size\?: 'sm' \| 'md';/);
 	assert.match(source, /class\?: string;/);

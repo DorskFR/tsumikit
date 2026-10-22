@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { clampSlide, nextSlideForKey, stepSlide, swipeStep } from '../src/lib/components/molecules/carousel-keyboard.js';
-import { readDemo } from './helpers/demo-source.js';
+import { demoed, readDemo } from './helpers/demo-source.js';
 
 const source = await readFile(
 	new URL('../src/lib/components/molecules/Carousel.svelte', import.meta.url),
@@ -106,9 +106,8 @@ test('Carousel autoplay is off by default, pauses on hover and focus, and is sto
 	assert.match(source, /clearInterval\(id\)/);
 });
 
-test('Carousel is exported and documented', () => {
+test('Carousel is exported and demoed', async () => {
 	assert.match(index, /export { default as Carousel } from '\.\/components\/molecules\/Carousel\.svelte';/);
-	assert.match(docs, /{ id: 'carousel', label: 'Carousel', keywords: '[^']*swipe[^']*' }/);
-	assert.match(docs, /<section class="section" id="carousel">/);
-	assert.match(docs, /<Carousel slides={demoSlides} bind:index={slideIndex}/);
+	assert.ok(await demoed('Carousel'));
+	assert.match(docs, /<Carousel[^>]*bind:index\b/);
 });

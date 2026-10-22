@@ -38,7 +38,6 @@
 					href="#{entry.id}"
 					active={active === entry.id}
 					badge={entry.examples.length || undefined}
-					class={entry.stub ? 'demo-nav__stub' : ''}
 				/>
 			{/each}
 		</NavSection>
@@ -55,9 +54,6 @@
 	}
 	.demo-nav :global(.demo-nav__filter) {
 		width: 100%;
-	}
-	.demo-nav :global(.demo-nav__stub) {
-		opacity: 0.6;
 	}
 	.demo-nav :global(.demo-nav__empty) {
 		padding: var(--sp-2);

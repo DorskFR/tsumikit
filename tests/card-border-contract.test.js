@@ -31,5 +31,5 @@ test('stacked back layers follow the same border style', () => {
 
 test('the showcase demos the dashed and borderless variants', () => {
 	assert.match(page, /<Card border="dashed"/);
-	assert.match(page, /<Card border="none"/);
+	assert.match(page, /const borders = \['solid', 'dashed', 'none'\] as const;[\s\S]*?<Card \{border\}/);
 });

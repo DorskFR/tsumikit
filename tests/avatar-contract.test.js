@@ -6,7 +6,7 @@ import { artworkHue } from '../src/lib/artwork.ts';
 import { avatarHue, avatarInitial } from '../src/lib/avatar.ts';
 import { buildFixture } from './fixtures/build.mjs';
 import { hasDecl } from './helpers.mjs';
-import { readDemo } from './helpers/demo-source.js';
+import { demoed, readDemo } from './helpers/demo-source.js';
 
 const read = (/** @type {string} */ p) => readFile(new URL(p, import.meta.url), 'utf8');
 const [source, index, readme, page, tokens, themes] = await Promise.all([
@@ -197,9 +197,8 @@ test('status snippet renders in the corner slot only when given', () => {
 	assert.equal(render({ name: 'n' }).el.querySelector('.status'), null);
 });
 
-test('Avatar is documented and demoed', () => {
+test('Avatar is documented and demoed', async () => {
 	assert.match(readme, /Avatar \(/);
 	assert.match(readme, /### Avatar/);
-	assert.match(page, /<section class="section" id="avatar">/);
-	assert.match(page, /id: 'avatar', label: 'Avatar'/);
+	assert.ok(await demoed('Avatar'));
 });
