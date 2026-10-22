@@ -12,7 +12,7 @@ export const overviewColumns: Column<Service>[] = [
 	{ key: 'name', label: 'Service', width: '34%', truncate: true },
 	{ key: 'role', label: 'Role', hideBelow: 'sm' },
 	{ key: 'region', label: 'Region', hideBelow: 'md', nowrap: true },
-	{ key: 'cpu', label: 'CPU', align: 'right', get: (s) => `${s.cpu}%` },
+	{ key: 'cpu', label: 'CPU', align: 'right', hideBelow: 'sm', get: (s) => `${s.cpu}%` },
 	{ key: 'status', label: 'Status', width: '6.5rem' },
 ];
 

@@ -467,6 +467,7 @@
 	.fi__bar {
 		--fi-icon: var(--control-icon-md);
 		display: flex;
+		flex-wrap: wrap;
 		align-items: center;
 		gap: var(--sp-2);
 		padding: 0 var(--control-px-md);
@@ -522,7 +523,7 @@
 		position: relative;
 		display: flex;
 		flex: 1;
-		min-width: 0;
+		min-width: min(100%, 6rem);
 	}
 	.fi__display {
 		position: absolute;

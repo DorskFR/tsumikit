@@ -53,5 +53,6 @@
 		align-items: baseline;
 		gap: var(--sp-2);
 		min-width: 0;
+		overflow-wrap: anywhere;
 	}
 </style>

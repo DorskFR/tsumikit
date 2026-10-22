@@ -97,14 +97,20 @@
 		{#if showChips && (chips.length || text)}
 			<div class="fsb__chips">
 				{#each chips as f (f.span[0])}
-					<Badge tone="info" removable onremove={() => remove(f.span)}>
+					<Badge
+						tone="info"
+						truncate
+						title="{labelFor(f.field)} {operatorById(f.op)?.label} {f.values.join(', ') || '∅'}"
+						removable
+						onremove={() => remove(f.span)}
+					>
 						<span class="fsb__chip-field">{labelFor(f.field)}</span>
 						<span class="fsb__chip-op">{operatorById(f.op)?.label}</span>
 						<span class="fsb__chip-val">{f.values.join(', ') || '∅'}</span>
 					</Badge>
 				{/each}
 				{#if text}
-					<Badge tone="neutral">
+					<Badge tone="neutral" truncate title="text {text}">
 						<span class="fsb__chip-op">text</span>
 						<span class="fsb__chip-val">{text}</span>
 					</Badge>
