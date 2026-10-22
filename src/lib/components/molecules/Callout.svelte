@@ -90,19 +90,19 @@
 		gap: var(--sp-3);
 		padding: var(--sp-3);
 	}
-	:global(.callout-ok) {
+	:global(.card.callout-ok) {
 		--callout-tone: var(--ok);
 	}
-	:global(.callout-warn) {
+	:global(.card.callout-warn) {
 		--callout-tone: var(--warn);
 	}
-	:global(.callout-danger) {
+	:global(.card.callout-danger) {
 		--callout-tone: var(--danger);
 	}
-	:global(.callout-info) {
+	:global(.card.callout-info) {
 		--callout-tone: var(--info);
 	}
-	:global(.callout-accent) {
+	:global(.card.callout-accent) {
 		--callout-tone: var(--accent);
 	}
 
