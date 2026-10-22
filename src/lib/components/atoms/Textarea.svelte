@@ -211,6 +211,7 @@
 			bind:value
 			use:autoresizeAction={typeof value === 'string' ? value : ''}
 			{...rest}
+			placeholder={rest.placeholder ?? (field ? ' ' : undefined)}
 			onkeydown={onsubmit || onkeydown ? handleKeydown : undefined}
 			id={id ?? field?.id}
 			aria-describedby={ariaDescribedby ?? field?.describedBy}
@@ -230,6 +231,7 @@
 			style:max-height={maxHeight}
 			bind:value
 			{...rest}
+			placeholder={rest.placeholder ?? (field ? ' ' : undefined)}
 			onkeydown={onsubmit || onkeydown ? handleKeydown : undefined}
 			id={id ?? field?.id}
 			aria-describedby={ariaDescribedby ?? field?.describedBy}
@@ -334,6 +336,36 @@
 	.textarea[aria-invalid='true'],
 	.textarea[aria-invalid='true']:focus {
 		border-color: var(--danger);
+	}
+	.textarea {
+		--focus-tint: var(--accent);
+	}
+	.textarea[aria-invalid='true'] {
+		--focus-tint: var(--danger);
+	}
+	/* Focus bloom: a soft halo swells just past the field, then settles to a quieter glow. */
+	.textarea:not(.grouped):focus:not(:global([data-fx-focus='none']) *),
+	:global(:is([data-fx-focus='bloom'], [data-fx-focus='label'])) .textarea:not(.grouped):focus:not(:global(:is([data-fx-focus='bloom'], [data-fx-focus='label']) [data-fx-focus='none']) *) {
+		outline: none;
+		box-shadow:
+			var(--control-shadow),
+			0 0 0 3px color-mix(in srgb, var(--focus-tint) 18%, transparent),
+			0 0 16px 2px color-mix(in srgb, var(--focus-tint) 24%, transparent);
+		animation: focus-bloom var(--dur-fast) var(--ease-out);
+	}
+	@keyframes focus-bloom {
+		0% {
+			box-shadow:
+				var(--control-shadow),
+				0 0 0 0 transparent,
+				0 0 0 0 transparent;
+		}
+		45% {
+			box-shadow:
+				var(--control-shadow),
+				0 0 0 4px color-mix(in srgb, var(--focus-tint) 26%, transparent),
+				0 0 20px 4px color-mix(in srgb, var(--focus-tint) 32%, transparent);
+		}
 	}
 	/* Inside an InputGroup the group draws the focus ring and the overlaid
 	   adornments report their widths; the text stays clear of them. */

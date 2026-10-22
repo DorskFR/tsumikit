@@ -267,6 +267,7 @@
 
   --dur-instant: 0ms;
   --dur-press: 100ms;
+  --dur-release: 150ms;
   --dur-fast: 120ms;
   --dur-base: 180ms;
   --dur-slow: 240ms;

@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'Variants',
-		caption: 'variant icon, arc, dots, orbit, pulse, bars, grid, clock and bounce; clock and bounce read best at 20px and up.',
+		caption: 'variant icon, arc, dots, orbit, pulse, bars, grid, clock, bounce, comet, breath, morph and sweep; clock and bounce read best at 20px and up.',
 		layout: 'stack'
 	};
 </script>
@@ -9,7 +9,7 @@
 <script lang="ts">
 	import { Cluster, Spinner, Stack, Text } from '@dorsk/tsumikit';
 
-	const variants = ['icon', 'arc', 'dots', 'orbit', 'pulse', 'bars', 'grid', 'clock', 'bounce'] as const;
+	const variants = ['icon', 'arc', 'dots', 'orbit', 'pulse', 'bars', 'grid', 'clock', 'bounce', 'comet', 'breath', 'morph', 'sweep'] as const;
 </script>
 
 <Cluster gap="var(--sp-5)">

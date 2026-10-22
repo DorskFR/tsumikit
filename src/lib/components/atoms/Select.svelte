@@ -279,6 +279,36 @@
 	.select[aria-invalid='true']:focus {
 		border-color: var(--danger);
 	}
+	.select {
+		--focus-tint: var(--accent);
+	}
+	.select[aria-invalid='true'] {
+		--focus-tint: var(--danger);
+	}
+	/* Focus bloom: a soft halo swells just past the field, then settles to a quieter glow. */
+	.select:not(.ghost, .embedded):focus:not(:global([data-fx-focus='none']) *),
+	:global(:is([data-fx-focus='bloom'], [data-fx-focus='label'])) .select:not(.ghost, .embedded):focus:not(:global(:is([data-fx-focus='bloom'], [data-fx-focus='label']) [data-fx-focus='none']) *) {
+		outline: none;
+		box-shadow:
+			var(--control-shadow),
+			0 0 0 3px color-mix(in srgb, var(--focus-tint) 18%, transparent),
+			0 0 16px 2px color-mix(in srgb, var(--focus-tint) 24%, transparent);
+		animation: focus-bloom var(--dur-fast) var(--ease-out);
+	}
+	@keyframes focus-bloom {
+		0% {
+			box-shadow:
+				var(--control-shadow),
+				0 0 0 0 transparent,
+				0 0 0 0 transparent;
+		}
+		45% {
+			box-shadow:
+				var(--control-shadow),
+				0 0 0 4px color-mix(in srgb, var(--focus-tint) 26%, transparent),
+				0 0 20px 4px color-mix(in srgb, var(--focus-tint) 32%, transparent);
+		}
+	}
 	.select:disabled {
 		cursor: not-allowed;
 	}

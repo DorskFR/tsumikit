@@ -43,6 +43,7 @@ const expected = {
 	'--ease-spring-bounce': 'cubic-bezier(0.34, 1.36, 0.64, 1)',
 	'--dur-instant': '0ms',
 	'--dur-press': '100ms',
+	'--dur-release': '150ms',
 	'--dur-fast': '120ms',
 	'--dur-base': '180ms',
 	'--dur-slow': '240ms',

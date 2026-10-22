@@ -22,7 +22,11 @@ const VARIANTS = /** @type {const} */ ({
 	bars: { count: 4, wrap: true },
 	grid: { count: 9, wrap: true },
 	clock: { count: 0, wrap: false },
-	bounce: { count: 2, wrap: false }
+	bounce: { count: 2, wrap: false },
+	comet: { count: 1, wrap: false },
+	breath: { count: 5, wrap: true },
+	morph: { count: 0, wrap: false },
+	sweep: { count: 0, wrap: false }
 });
 
 /** @param {Record<string, unknown>} props */
@@ -45,7 +49,7 @@ test('Spinner exposes variant defaulting to icon and keeps the Icon markup for i
 	assert.match(spinner, /variant\?: SpinnerVariant;/);
 	assert.match(
 		spinner,
-		/export type SpinnerVariant =\s*\| 'icon'\s*\| 'arc'\s*\| 'dots'\s*\| 'orbit'\s*\| 'pulse'\s*\| 'bars'\s*\| 'grid'\s*\| 'clock'\s*\| 'bounce';/
+		/export type SpinnerVariant =\s*\| 'icon'\s*\| 'arc'\s*\| 'dots'\s*\| 'orbit'\s*\| 'pulse'\s*\| 'bars'\s*\| 'grid'\s*\| 'clock'\s*\| 'bounce'\s*\| 'comet'\s*\| 'breath'\s*\| 'morph'\s*\| 'sweep';/
 	);
 	assert.match(spinner, /<Icon name="loader" spin \{size\} \{label\} data-tsu="Spinner" class=\{klass\} style=\{styleProp\} \{\.\.\.rest\} \/>/);
 });
@@ -109,13 +113,13 @@ test('variant box is 1em, currentColor, with a --spinner-speed multiplier and a 
 	assert.ok(hasDecl(spinnerCss, '.spinner', '--t', 'calc(1s * var(--spinner-speed, 1))'));
 	assert.ok(hasDecl(spinnerCss, '.in', 'position', 'absolute'));
 	assert.doesNotMatch(spinnerCss, /var\(--(accent|text|c-)/, 'draws in currentColor only');
-	assert.equal((spinnerCss.match(/background: currentColor;/g) ?? []).length, 10);
+	assert.equal((spinnerCss.match(/background: currentColor;/g) ?? []).length, 14);
 	assert.equal((spinnerCss.match(/solid currentColor;/g) ?? []).length, 3);
 	assert.match(spinnerCss, /@property --tsu-spin-arc\s*{\s*syntax: '<angle>';\s*inherits: false;\s*initial-value: 100deg;/);
 });
 
 test('every variant has keyframes and a static pose under reduced motion', () => {
-	for (const k of ['arc', 'rot', 'dot', 'orbit', 'core', 'ripple', 'bar', 'cell', 'hand-m', 'hand-h', 'ball', 'shadow']) {
+	for (const k of ['arc', 'rot', 'dot', 'orbit', 'core', 'ripple', 'bar', 'cell', 'hand-m', 'hand-h', 'ball', 'shadow', 'comet', 'sweep', 'morph', 'breath']) {
 		assert.match(spinnerCss, new RegExp(`@keyframes tsu-spin-${k}\\s*{`), `tsu-spin-${k}`);
 	}
 	assert.match(normalize(spinnerCss), /\.v-arc::after { --tsu-spin-arc: 100deg;/);

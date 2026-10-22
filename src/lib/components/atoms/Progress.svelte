@@ -10,6 +10,9 @@
 	//   gradient       — accent→teal fill (storage meter / library-health bars).
 	//   striped        — diagonal stripes; animated while in-flight (unpacking).
 	//   indeterminate  — explicit "scanning"/"importing" mode without a percentage.
+	//   variant        — `liquid`: two soft pulses flow through the track while
+	//                    indeterminate; `stripes`: a diagonal shimmer drifts over
+	//                    the fill.
 	let {
 		value,
 		max = 100,
@@ -22,6 +25,7 @@
 		shrink = true,
 		block = false,
 		indeterminate: indeterminateProp = false,
+		variant = 'default',
 		markers = [],
 		toneAt,
 		color,
@@ -51,6 +55,7 @@
 		striped?: boolean;
 		// Force indeterminate mode even when a `value` is supplied.
 		indeterminate?: boolean;
+		variant?: 'default' | 'liquid' | 'stripes';
 		/** Thin vertical lines at `at / max` (caps, thresholds). */
 		markers?: { at: number; label?: string; tone?: Tone }[];
 		/** Percent thresholds that auto-pick warn/danger; an explicit `tone` other
@@ -80,7 +85,7 @@
 {#snippet track()}
 <div
 	data-tsu="Progress"
-	class="progress tone-{toneClass} size-{size} {klass}"
+	class="progress tone-{toneClass} size-{size} v-{variant} {klass}"
 	class:grow={grow}
 	class:no-shrink={!shrink}
 	class:block={block}
@@ -270,6 +275,74 @@
 		.progress.indeterminate .bar {
 			width: 100%;
 			opacity: 0.35;
+		}
+	}
+	.progress.v-liquid.indeterminate .bar {
+		animation: none;
+		opacity: 0;
+	}
+	.progress.v-liquid.indeterminate::before,
+	.progress.v-liquid.indeterminate::after {
+		content: '';
+		position: absolute;
+		inset: 0;
+		width: 55%;
+		border-radius: inherit;
+		background: linear-gradient(90deg, transparent, var(--fill, var(--accent)) 35% 65%, transparent);
+		transform: translateX(-100%);
+		animation: tsu-progress-liquid 1.7s var(--ease-drawer) infinite;
+	}
+	.progress.v-liquid.indeterminate::after {
+		width: 35%;
+		opacity: 0.55;
+		animation: tsu-progress-liquid-2 1.7s var(--ease-in-out) -0.7s infinite;
+	}
+	@keyframes tsu-progress-liquid {
+		to {
+			transform: translateX(282%);
+		}
+	}
+	@keyframes tsu-progress-liquid-2 {
+		to {
+			transform: translateX(386%);
+		}
+	}
+	.progress.v-stripes .bar {
+		position: relative;
+		overflow: hidden;
+	}
+	.progress.v-stripes .bar::after {
+		content: '';
+		position: absolute;
+		inset: 0 -1.5rem 0 0;
+		background: repeating-linear-gradient(
+			135deg,
+			transparent 0 0.5rem,
+			color-mix(in srgb, var(--text-on-accent) 28%, transparent) 0.5rem 1rem
+		);
+		animation: tsu-progress-stripes 0.7s linear infinite;
+	}
+	@keyframes tsu-progress-stripes {
+		from {
+			transform: translateX(-1.4142rem);
+		}
+		to {
+			transform: translateX(0);
+		}
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.progress.v-liquid.indeterminate {
+			background: color-mix(in srgb, var(--fill, var(--accent)) 35%, transparent);
+		}
+		.progress.v-liquid.indeterminate::before,
+		.progress.v-liquid.indeterminate::after {
+			display: none;
+		}
+		.progress.v-liquid.indeterminate .bar {
+			display: none;
+		}
+		.progress.v-stripes .bar::after {
+			animation: none;
 		}
 	}
 </style>

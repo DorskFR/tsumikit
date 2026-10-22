@@ -77,9 +77,70 @@
 		.underline-hover:hover {
 			text-decoration: underline;
 		}
+		.link:hover {
+			--link-on: 0%;
+			--link-draw: 100%;
+			--link-mark: color-mix(in srgb, currentColor 30%, transparent);
+			--link-deco: transparent;
+			--link-in: var(--dur-press);
+			--link-grow: var(--dur-fast);
+			--link-hold: var(--dur-instant);
+		}
 	}
 	.align-center {
 		text-align: center;
+	}
+
+	/* Hover, focus and press only raise these; each variant decides what they paint. */
+	.link:is(:focus-visible, :active) {
+		--link-on: 0%;
+		--link-draw: 100%;
+		--link-mark: color-mix(in srgb, currentColor 30%, transparent);
+		--link-deco: transparent;
+		--link-in: var(--dur-press);
+		--link-grow: var(--dur-fast);
+		--link-hold: var(--dur-instant);
+	}
+
+	/* Sweep line: the underline fills in from the left and leaves to the right. */
+	.link:not(.underline-none):not(:global([data-fx-link]:not([data-fx-link='sweep'])) *),
+	:global([data-fx-link='sweep']) .link:not(.underline-none):not(:global([data-fx-link='sweep'] [data-fx-link]:not([data-fx-link='sweep'])) *) {
+		--link-base: 0%;
+		text-decoration: none;
+		background-image:
+			linear-gradient(currentColor, currentColor),
+			linear-gradient(color-mix(in srgb, currentColor 30%, transparent), color-mix(in srgb, currentColor 30%, transparent));
+		background-repeat: no-repeat;
+		background-position: var(--link-on, 100%) 100%, 0 100%;
+		background-size: var(--link-draw, 0%) 1.5px, var(--link-base) 1px;
+		transition:
+			color var(--dur-fast) ease,
+			background-size var(--dur-fast) var(--ease-out);
+		&.underline-always {
+			--link-base: 100%;
+		}
+	}
+
+	/* Highlighter: a marker swipes in behind the words and fades on leave. */
+	:global([data-fx-link='highlight']) .link:not(.underline-none):not(:global([data-fx-link='highlight'] [data-fx-link]:not([data-fx-link='highlight'])) *) {
+		margin-inline: -0.18em;
+		padding-inline: 0.18em;
+		border-radius: 0.2em 0.35em 0.25em 0.4em;
+		background-image: linear-gradient(100deg, var(--link-mark), color-mix(in srgb, var(--link-mark) 70%, transparent));
+		background-repeat: no-repeat;
+		background-size: var(--link-draw, 0%) 100%;
+		text-decoration-color: var(--link-deco, color-mix(in srgb, currentColor 45%, transparent));
+		text-underline-offset: 0.2em;
+		transition:
+			color var(--dur-fast) ease,
+			text-decoration-color var(--dur-fast) ease,
+			--link-mark var(--link-in, var(--dur-exit)) ease,
+			background-size var(--link-grow, var(--dur-instant)) var(--ease-out) var(--link-hold, var(--dur-exit));
+	}
+	@property --link-mark {
+		syntax: '<color>';
+		inherits: false;
+		initial-value: transparent;
 	}
 	@media (pointer: coarse) {
 		.link {

@@ -59,7 +59,7 @@
 
 <div class="field {klass}" class:field-grow={grow} class:field-no-shrink={!shrink} class:field-inline={layout === 'inline'} data-tsu="Field">
 	{#if label}
-		<label class="label" for={forId} style:width={labelWidth}>{label}</label>
+		<label class="label" for={forId} style:width={labelWidth}><span class="label-text">{label}</span></label>
 	{/if}
 	{@render children?.()}
 	{#if hint}
@@ -102,5 +102,63 @@
 	.error {
 		font-size: var(--fs-xs);
 		color: var(--danger);
+	}
+
+	/* Spring label: over a md text field the label rests inside the control and
+	   springs into its top edge on focus or once filled. */
+	:global([data-fx-focus='label']) .field:not(.field-inline):not(:global([data-fx-focus='label'] [data-fx-focus]:not([data-fx-focus='label'])) *):has(> .label + :global(input.input:not(.input-sm, .input-lg, .grouped)), > .label + :global(.textarea-wrap:not(.grouped) > .textarea:not(.textarea-sm, .textarea-lg))) {
+		--float-h: 3.25rem;
+		display: grid;
+		grid-template-columns: minmax(0, 1fr);
+		& > .label {
+			grid-area: 1 / 1;
+			z-index: 1;
+			display: flex;
+			align-items: center;
+			align-self: start;
+			justify-self: start;
+			max-width: 100%;
+			height: var(--float-h);
+			padding-inline: calc(var(--control-px-md) + var(--edge-width));
+			font-size: var(--control-fs-md);
+			pointer-events: none;
+		}
+		& .label-text {
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			line-height: var(--lh-none);
+			transform-origin: left center;
+			transition-property: translate, scale, color;
+			transition-duration: var(--dur-spring), var(--dur-spring), var(--dur-fast);
+			transition-timing-function: var(--ease-spring-bounce), var(--ease-spring-bounce), ease;
+		}
+		& > :global(:is(.input, .textarea-wrap)) {
+			grid-area: 1 / 1;
+		}
+		& :global(:is(.input, .textarea)) {
+			min-height: var(--float-h);
+			padding-top: 1.35rem;
+			padding-bottom: 0.4rem;
+		}
+		& :global(:is(.input, .textarea):not(:focus)::placeholder) {
+			color: transparent;
+		}
+		& :global(:is(.input, .textarea):focus) {
+			animation: none;
+			box-shadow:
+				var(--control-shadow),
+				inset 0 -1px 0 var(--focus-tint);
+		}
+		&:has(:global(:is(.input, .textarea):is(:focus, :not(:placeholder-shown), :autofill))) .label-text {
+			translate: 0 -0.7rem;
+			scale: 0.78;
+		}
+		&:has(:global(:is(.input, .textarea):focus)) > .label {
+			color: var(--accent);
+		}
+		&:has(:global([aria-invalid='true'])) > .label {
+			color: var(--danger);
+		}
 	}
 </style>

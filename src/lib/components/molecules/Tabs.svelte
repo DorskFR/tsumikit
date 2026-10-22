@@ -123,13 +123,31 @@
 		indLeft = left;
 		indWidth = width;
 		ind.style.width = `${width}px`;
-		if (!animate || !placed || width === 0) {
+		const fx = getComputedStyle(ind).getPropertyValue('--tabs-fx').trim();
+		const still = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
+		if (!animate || !placed || width === 0 || still) {
 			ind.style.transition = 'none';
 			ind.style.translate = `${left}px 0`;
 			ind.style.scale = '1 1';
 			ind.getBoundingClientRect();
 			ind.style.transition = '';
 			placed = true;
+			return;
+		}
+		if (fx === 'stretch' && typeof ind.animate === 'function') {
+			const lo = Math.min(prevLeft, left);
+			const hi = Math.max(prevLeft + prevWidth, left + width);
+			const ease = (name: string) => getComputedStyle(ind).getPropertyValue(name).trim() || 'ease-out';
+			ind.style.translate = `${left}px 0`;
+			ind.style.scale = '1 1';
+			ind.animate(
+				[
+					{ translate: `${prevLeft}px 0`, scale: `${prevWidth / width} 1`, easing: ease('--ease-out') },
+					{ translate: `${lo}px 0`, scale: `${(hi - lo) / width} 1`, offset: 0.4, easing: ease('--ease-spring') },
+					{ translate: `${left}px 0`, scale: '1 1' }
+				],
+				{ duration: 280 }
+			);
 			return;
 		}
 		ind.style.transition = 'none';
@@ -152,6 +170,14 @@
 		return () => ro.disconnect();
 	});
 
+	function inkFrom(e: MouseEvent) {
+		const el = e.currentTarget as HTMLElement;
+		const r = el.getBoundingClientRect();
+		const pointer = e.detail > 0;
+		el.style.setProperty('--ink-x', pointer ? `${e.clientX - r.left}px` : '50%');
+		el.style.setProperty('--ink-y', pointer ? `${e.clientY - r.top}px` : '50%');
+	}
+
 	function select(id: string, focus = false) {
 		if (tabs.find((t) => t.id === id)?.disabled) return;
 		if (value !== id) playSound('click', sound);
@@ -161,7 +187,11 @@
 			// The list scrolls when it is too narrow, so keyboard selection has to
 			// bring the tab back into view or it moves somewhere unseen.
 			el?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
-			if (focus) el?.focus();
+			if (focus) {
+				el?.style.removeProperty('--ink-x');
+				el?.style.removeProperty('--ink-y');
+				el?.focus();
+			}
 		});
 	}
 	// Step to the next non-disabled tab in a direction, wrapping around.
@@ -236,7 +266,10 @@
 						class="tab closable"
 						class:selected={value === t.id}
 						class:disabled={t.disabled}
-						onclick={() => select(t.id)}
+						onclick={(e) => {
+							inkFrom(e);
+							select(t.id);
+						}}
 						onauxclick={(e) => onauxclick(e, t.id)}
 					>
 						{@render body(t)}
@@ -268,7 +301,10 @@
 						tabindex={stop?.id === t.id ? 0 : -1}
 						class="tab"
 						class:selected={value === t.id}
-						onclick={() => select(t.id)}
+						onclick={(e) => {
+							inkFrom(e);
+							select(t.id);
+						}}
 					>
 						{@render body(t)}
 					</button>
@@ -388,5 +424,122 @@
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset);
 		border-radius: var(--r-sm);
+	}
+
+	/* Sliding pill: a raised pill glides behind the selected tab with a slight overshoot. */
+	.tabs:not(:global([data-fx-tabs]:not([data-fx-tabs='pill'])) *),
+	:global([data-fx-tabs='pill']) .tabs:not(:global([data-fx-tabs='pill'] [data-fx-tabs]:not([data-fx-tabs='pill'])) *) {
+		--tabs-fx: pill;
+		& .tablist {
+			isolation: isolate;
+			flex: 0 1 auto;
+			padding: 3px;
+			border-bottom: 0;
+			border-radius: var(--r-pill);
+			background: var(--surface-fill-2);
+			box-shadow: inset 0 0 0 var(--edge-width) var(--surface-edge);
+		}
+		& .actions {
+			border-bottom: 0;
+		}
+		& .tab {
+			min-height: calc(var(--control-md) - 6px);
+			margin-bottom: 0;
+			border-bottom: 0;
+			border-radius: var(--r-pill);
+		}
+		& .tab.selected {
+			color: var(--text);
+		}
+		& .tablist:not(.placed) .tab.selected {
+			background: var(--surface);
+		}
+		& .tab.selected:focus-visible {
+			outline: none;
+		}
+		& .indicator {
+			top: 3px;
+			bottom: 3px;
+			z-index: -1;
+			height: auto;
+			border-radius: var(--r-pill);
+			background: var(--surface);
+			box-shadow:
+				0 0 0 var(--edge-width) color-mix(in srgb, var(--accent) 35%, var(--surface-edge)),
+				0 1px 3px color-mix(in srgb, var(--text) 14%, transparent);
+			transition-timing-function: var(--ease-spring-bounce);
+		}
+		& .tablist:has(.tab.selected:focus-visible) .indicator {
+			box-shadow:
+				0 0 0 2px var(--accent),
+				0 1px 3px color-mix(in srgb, var(--text) 14%, transparent);
+		}
+	}
+	/* Stretch line: the script stretches the line across both tabs, then lets the tail catch up. */
+	:global([data-fx-tabs='stretch']) .tabs:not(:global([data-fx-tabs='stretch'] [data-fx-tabs]:not([data-fx-tabs='stretch'])) *) {
+		--tabs-fx: stretch;
+	}
+	/* Ink blot: a tint spreads from the click point and a short mark springs in under the label. */
+	:global([data-fx-tabs='ink']) .tabs:not(:global([data-fx-tabs='ink'] [data-fx-tabs]:not([data-fx-tabs='ink'])) *) {
+		--tabs-fx: ink;
+		& .indicator {
+			display: none;
+		}
+		& .tab {
+			position: relative;
+			isolation: isolate;
+			overflow: hidden;
+			border-radius: var(--r-md) var(--r-md) 0 0;
+		}
+		& .tab::before,
+		& .tab::after {
+			content: '';
+			position: absolute;
+			pointer-events: none;
+		}
+		& .tab::before {
+			left: var(--ink-x, 50%);
+			top: var(--ink-y, 50%);
+			z-index: -1;
+			width: 260%;
+			aspect-ratio: 1;
+			translate: -50% -50%;
+			border-radius: var(--r-pill);
+			background: radial-gradient(
+				circle closest-side,
+				color-mix(in srgb, var(--accent) 22%, transparent) 0 55%,
+				color-mix(in srgb, var(--accent) 14%, transparent) 80%,
+				transparent
+			);
+			scale: 0;
+			opacity: 0;
+			transition-property: opacity, scale;
+			transition-duration: var(--dur-exit), var(--dur-instant);
+			transition-delay: var(--dur-instant), var(--dur-exit);
+			transition-timing-function: ease;
+		}
+		& .tab.selected::before {
+			scale: 1;
+			opacity: 1;
+			transition-duration: var(--dur-fast), var(--dur-slow);
+			transition-delay: var(--dur-instant);
+			transition-timing-function: ease, var(--ease-out);
+		}
+		& .tab::after {
+			inset: auto 30% 4px;
+			height: 2px;
+			border-radius: var(--r-xs);
+			background: var(--accent);
+			opacity: 0;
+			scale: 0.2 1;
+			transition-property: opacity, scale;
+			transition-duration: var(--dur-exit-fast);
+		}
+		& .tab.selected::after {
+			opacity: 1;
+			scale: 1 1;
+			transition-duration: var(--dur-fast), var(--dur-spring);
+			transition-timing-function: ease, var(--ease-spring-bounce);
+		}
 	}
 </style>

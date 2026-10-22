@@ -73,8 +73,8 @@ function kick(): void {
 	idle(step);
 }
 
-function setup(): void {
-	io = new IntersectionObserver(
+function setup(): IntersectionObserver {
+	const observer = new IntersectionObserver(
 		(records) => {
 			for (const r of records) {
 				if (!r.isIntersecting) continue;
@@ -86,6 +86,7 @@ function setup(): void {
 		},
 		{ rootMargin: '150% 0px' },
 	);
+	io = observer;
 	addEventListener('focusin', (e) => {
 		const el = e.target instanceof Element && e.target.closest('[data-demo-section]');
 		if (el) wake(el.id);
@@ -97,6 +98,7 @@ function setup(): void {
 		}, 300);
 	if (document.readyState === 'complete') start();
 	else addEventListener('load', start, { once: true });
+	return observer;
 }
 
 export function startsLive(id: string): boolean {
@@ -109,9 +111,9 @@ export function startsLive(id: string): boolean {
 }
 
 export function defer(el: HTMLElement, wake: () => void): () => void {
-	if (!io) setup();
+	const observer = io ?? setup();
 	pending.set(el.id, { el, wake });
-	io!.observe(el);
+	observer.observe(el);
 	return () => {
 		pending.delete(el.id);
 		soon.delete(el.id);

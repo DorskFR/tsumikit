@@ -14,6 +14,9 @@ export const meta: ComponentMeta = {
 		'loading',
 		'count',
 		'hotbar',
+		'hover',
+		'morph',
+		'fill',
 	],
 	seeAlso: ['IconButton', 'CopyButton', 'SplitButton', 'Toggle'],
 };

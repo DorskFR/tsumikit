@@ -205,7 +205,7 @@ test('hover rules only run on hover-capable fine pointers', () => {
 	}
 });
 
-test('press feedback: scale from the press tokens, press-in at --dur-press, no motion when disabled', () => {
+test('press feedback: scale from the press tokens, press-in at --dur-press on --ease-out, spring release from tokens, no motion when disabled', () => {
 	const button = styleOf('atoms/Button.svelte');
 	const press = button.match(/\.btn:active:not\(([^)]*)\)\s*{([^}]*)}/s);
 	assert.ok(press);
@@ -214,8 +214,10 @@ test('press feedback: scale from the press tokens, press-in at --dur-press, no m
 	assert.match(press[1], /\.btn-link/);
 	assert.match(press[2], /scale: var\(--press-scale\);/);
 	assert.match(press[2], /--btn-scale-dur: var\(--dur-press\);/);
+	assert.match(press[2], /--btn-scale-ease: var\(--ease-out\);/);
 	assert.match(button, /\.btn-icon:active:not\([^)]*\),[\s\S]*?{\s*scale: var\(--press-scale-sm\);/);
-	assert.match(button, /scale var\(--btn-scale-dur\) var\(--ease-out\)/);
+	assert.match(button, /--btn-scale-dur: var\(--dur-release\);\s*--btn-scale-ease: var\(--ease-spring-bounce\);/);
+	assert.match(button, /scale var\(--btn-scale-dur\) var\(--btn-scale-ease\)/);
 	for (const [f, sel, token] of [
 		['molecules/FileButton.svelte', '.file-btn:active:not(.disabled)', '--press-scale'],
 		['molecules/OptionButton.svelte', '.opt:active:not(:disabled)', '--press-scale'],

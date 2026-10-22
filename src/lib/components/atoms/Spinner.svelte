@@ -8,7 +8,11 @@
 		| 'bars'
 		| 'grid'
 		| 'clock'
-		| 'bounce';
+		| 'bounce'
+		| 'comet'
+		| 'breath'
+		| 'morph'
+		| 'sweep';
 
 	// Inner spans per variant; `.in` wraps the flex/grid ones in an absolute
 	// layer so the root keeps the same inline baseline as the others.
@@ -20,7 +24,11 @@
 		bars: { count: 4, wrap: true },
 		grid: { count: 9, wrap: true },
 		clock: { count: 0, wrap: false },
-		bounce: { count: 2, wrap: false }
+		bounce: { count: 2, wrap: false },
+		comet: { count: 1, wrap: false },
+		breath: { count: 5, wrap: true },
+		morph: { count: 0, wrap: false },
+		sweep: { count: 0, wrap: false }
 	};
 </script>
 
@@ -29,7 +37,7 @@
 	// other variants are pure-CSS pictograms drawn in currentColor inside a 1em
 	// box. Every variant's base style is a meaningful static pose, which is what
 	// shows under prefers-reduced-motion. `--spinner-speed` scales the tempo.
-	// `clock` and `bounce` read best at 20px and up.
+	// `clock` and `bounce` read best at 20px and up; `breath` is 2.5em wide.
 	import Icon from './Icon.svelte';
 
 	let {
@@ -81,6 +89,11 @@
 		syntax: '<angle>';
 		inherits: false;
 		initial-value: 100deg;
+	}
+	@property --tsu-spin-sweep {
+		syntax: '<angle>';
+		inherits: false;
+		initial-value: 0deg;
 	}
 
 	.spinner {
@@ -469,6 +482,142 @@
 		50% {
 			transform: scaleX(0.5);
 			opacity: 0.12;
+		}
+	}
+
+	.v-comet::before,
+	.v-comet > span,
+	.v-sweep::before {
+		content: '';
+		position: absolute;
+		inset: 0;
+		border-radius: 50%;
+		-webkit-mask: radial-gradient(
+			farthest-side,
+			transparent calc(100% - var(--sw)),
+			#000 calc(100% - var(--sw) + 0.5px)
+		);
+		mask: radial-gradient(
+			farthest-side,
+			transparent calc(100% - var(--sw)),
+			#000 calc(100% - var(--sw) + 0.5px)
+		);
+	}
+	.v-comet::before {
+		background: currentColor;
+		opacity: 0.1;
+	}
+	.v-comet > span {
+		background: conic-gradient(from 0deg, transparent 0 35%, currentColor 100%);
+		animation: tsu-spin-comet calc(var(--t) * 1.1) linear infinite;
+	}
+	.v-comet > span::after {
+		content: '';
+		position: absolute;
+		top: 0;
+		left: 50%;
+		width: var(--sw);
+		height: var(--sw);
+		border-radius: 50%;
+		background: currentColor;
+		box-shadow: 0 0 0.25em 0.04em currentColor;
+		transform: translateX(-50%);
+	}
+	@keyframes tsu-spin-comet {
+		to {
+			transform: rotate(360deg);
+		}
+	}
+
+	.v-sweep::before {
+		background: conic-gradient(
+			from var(--tsu-spin-sweep),
+			color-mix(in srgb, currentColor 18%, transparent),
+			currentColor 50%,
+			color-mix(in srgb, currentColor 18%, transparent)
+		);
+		animation: tsu-spin-sweep calc(var(--t) * 1.4) linear infinite;
+	}
+	@keyframes tsu-spin-sweep {
+		to {
+			--tsu-spin-sweep: 360deg;
+		}
+	}
+
+	.v-morph::before {
+		content: '';
+		position: absolute;
+		inset: 0.08em;
+		border-radius: 50%;
+		background: currentColor;
+		animation: tsu-spin-morph calc(var(--t) * 2.4) cubic-bezier(0.77, 0, 0.175, 1) infinite;
+	}
+	@keyframes tsu-spin-morph {
+		0% {
+			border-radius: 50%;
+			transform: rotate(0deg) scale(1);
+		}
+		25% {
+			border-radius: 24%;
+			transform: rotate(90deg) scale(0.92);
+		}
+		50% {
+			border-radius: 50%;
+			transform: rotate(180deg) scale(1);
+		}
+		75% {
+			border-radius: 24%;
+			transform: rotate(270deg) scale(0.92);
+		}
+		100% {
+			border-radius: 50%;
+			transform: rotate(360deg) scale(1);
+		}
+	}
+
+	.v-breath {
+		width: 2.5em;
+	}
+	.v-breath .in {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+	}
+	.v-breath .in span {
+		width: 0.34em;
+		height: 0.34em;
+		border-radius: 50%;
+		background: currentColor;
+		animation: tsu-spin-breath calc(var(--t) * 1.3) cubic-bezier(0.77, 0, 0.175, 1) infinite;
+	}
+	.v-breath .in span:nth-child(1) {
+		opacity: 1;
+		animation-delay: calc(var(--t) * -0.52);
+	}
+	.v-breath .in span:nth-child(2) {
+		opacity: 0.75;
+		animation-delay: calc(var(--t) * -0.39);
+	}
+	.v-breath .in span:nth-child(3) {
+		opacity: 0.55;
+		animation-delay: calc(var(--t) * -0.26);
+	}
+	.v-breath .in span:nth-child(4) {
+		opacity: 0.4;
+		animation-delay: calc(var(--t) * -0.13);
+	}
+	.v-breath .in span:nth-child(5) {
+		opacity: 0.28;
+	}
+	@keyframes tsu-spin-breath {
+		0%,
+		100% {
+			opacity: 0.3;
+			transform: scale(0.6);
+		}
+		40% {
+			opacity: 1;
+			transform: scale(1);
 		}
 	}
 

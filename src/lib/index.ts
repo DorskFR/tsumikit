@@ -42,6 +42,7 @@ export { default as Switch } from './components/atoms/Switch.svelte';
 // ---- atoms ----
 export { default as Text } from './components/atoms/Text.svelte';
 export { default as Textarea } from './components/atoms/Textarea.svelte';
+export { default as Thinking } from './components/atoms/Thinking.svelte';
 export { default as TimeDisplay } from './components/atoms/TimeDisplay.svelte';
 // ---- layouts ----
 export { default as AppShell } from './components/layouts/AppShell.svelte';
@@ -126,6 +127,7 @@ export {
 	type KeyValueTone,
 } from './components/molecules/KeyValue.svelte';
 export { default as LoadMore } from './components/molecules/LoadMore.svelte';
+export { default as LookPicker } from './components/molecules/LookPicker.svelte';
 export { default as Menu, type MenuItem } from './components/molecules/Menu.svelte';
 export { default as Meter } from './components/molecules/Meter.svelte';
 export {
@@ -135,6 +137,7 @@ export {
 	type MetricSegment,
 } from './components/molecules/Metric.svelte';
 export { default as Modal } from './components/molecules/Modal.svelte';
+export { default as MotionSettings } from './components/molecules/MotionSettings.svelte';
 export { default as OptionButton } from './components/molecules/OptionButton.svelte';
 export { default as Pagination } from './components/molecules/Pagination.svelte';
 export { default as Popover } from './components/molecules/Popover.svelte';
@@ -198,6 +201,19 @@ export {
 	warnUnlabelled,
 } from './field-context';
 export {
+	DEFAULT_FX,
+	FX,
+	FX_FAMILIES,
+	type FxFamily,
+	type FxSettings,
+	type FxVariant,
+	fxAttr,
+	fxDiff,
+	fxPrepaint,
+	isFxVariant,
+	parseFx,
+} from './fx';
+export {
 	escapeHtml,
 	type Highlight,
 	type RenderMarkdownOptions,
@@ -205,6 +221,7 @@ export {
 	stripAnsi,
 } from './markdown';
 export { describeMediaTime, formatMediaTime, isLiveDuration } from './media-time';
+export { trackPointer } from './pointer';
 // ---- query core (headless: schema / parser / AST / suggest / compilers) ----
 export * as filterQuery from './query';
 export {
@@ -252,9 +269,10 @@ export { type OptionSection, sectionOptions } from './select-options';
 export type { ControlSize } from './size';
 export { playSound, type SoundMuted, type SoundName } from './sound';
 export { fontScale, SCALE_LEVELS, type ScaleLevel } from './stores/fontscale.svelte';
+export { FX_PREPAINT, fx } from './stores/fx.svelte';
 // ---- stores / actions ----
 export { sound } from './stores/sound.svelte';
-export { type Mode, THEMES, theme } from './stores/theme.svelte';
+export { type Mode, THEME_PREPAINT, THEMES, theme } from './stores/theme.svelte';
 export {
 	type Toast,
 	type ToastAction,
@@ -266,7 +284,12 @@ export {
 export {
 	AUTO_THEME,
 	chooseTheme,
+	DEFAULT_LOOK,
 	DEFAULT_THEME_PREFERENCE,
+	LOOKS,
+	type LookId,
+	type LookStatus,
+	parseLook,
 	pickerValue,
 	preferenceFrom,
 	resolveTheme,
@@ -274,6 +297,7 @@ export {
 	type ThemeChoice,
 	type ThemePreference,
 	type ThemeSlot,
+	themePrepaint,
 } from './theme-mode';
 export {
 	formatTimestamp,
