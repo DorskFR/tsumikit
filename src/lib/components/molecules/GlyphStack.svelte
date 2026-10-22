@@ -321,8 +321,16 @@
 		font-size: var(--fs-xs);
 		line-height: var(--lh-none);
 	}
+	.stacked > :global(*) :global(:focus-visible),
+	.stacked > :global(:focus-visible) {
+		outline-offset: var(--focus-ring-offset-inset);
+	}
 	.glyph-stack[data-expand] {
 		cursor: pointer;
+	}
+	/* An expandable stack is one target: presses land on the stack, not on 1rem cells. */
+	.glyph-stack[data-expand] > .cell {
+		pointer-events: none;
 	}
 	.glyph-stack[data-expand='slide'] {
 		touch-action: none;

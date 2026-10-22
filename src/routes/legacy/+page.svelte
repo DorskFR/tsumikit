@@ -3713,9 +3713,14 @@ function greet(name) {
 		text-decoration: none;
 		line-height: 1.4;
 	}
-	.nav-link:hover {
-		background: var(--bg-elevated);
-		color: var(--text);
+	.nav-link:focus-visible {
+		outline-offset: var(--focus-ring-offset-inset);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.nav-link:hover {
+			background: var(--bg-elevated);
+			color: var(--text);
+		}
 	}
 	.nav-link.active {
 		background: var(--bg-elevated);

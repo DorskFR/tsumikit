@@ -93,6 +93,7 @@ export const CATALOG: Record<Family, Record<string, string | null>> = {
 		PullToRefresh: 'pull-to-refresh',
 		RadialMenu: 'radial-menu',
 		RadioGroup: 'checkbox-radio',
+		RichSelect: null,
 		SectionHeader: 'section-header',
 		SeekSlider: 'player-sliders',
 		SegmentedControl: 'segmented-control',
