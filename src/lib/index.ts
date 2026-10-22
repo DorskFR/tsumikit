@@ -148,6 +148,10 @@ export {
 	default as RadioGroup,
 	type RadioOption,
 } from './components/molecules/RadioGroup.svelte';
+export {
+	default as RichSelect,
+	type RichSelectOptionContext,
+} from './components/molecules/RichSelect.svelte';
 export { default as SectionHeader } from './components/molecules/SectionHeader.svelte';
 export { default as SeekSlider } from './components/molecules/SeekSlider.svelte';
 export {
