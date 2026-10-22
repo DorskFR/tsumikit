@@ -213,7 +213,7 @@
 		line-height: var(--lh-none);
 	}
 	.toned {
-		color: var(--badge-fg, var(--badge-tone));
+		color: var(--badge-fg, color-mix(in oklab, var(--badge-tone) 75%, var(--text)));
 		border-color: var(--badge-border, color-mix(in srgb, var(--badge-tone) 40%, transparent));
 		background: var(--badge-bg, color-mix(in srgb, var(--badge-tone) 12%, transparent));
 	}
@@ -310,15 +310,12 @@
 		font: inherit;
 		line-height: var(--lh-none);
 		cursor: pointer;
-		opacity: 0.6;
 		transition:
-			opacity var(--dur-fast) var(--ease),
 			background var(--dur-fast) var(--ease),
 			scale var(--dur-fast) var(--ease-out);
 	}
 	@media (hover: hover) and (pointer: fine) {
 		.action:hover {
-			opacity: 1;
 			background: color-mix(in srgb, currentColor 12%, transparent);
 			transition-duration: var(--dur-instant);
 		}

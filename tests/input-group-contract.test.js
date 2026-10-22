@@ -157,9 +157,9 @@ test('Tab order is leading → field → trailing', () => {
 });
 
 test('the group draws the focus ring around the whole unit; the grouped field yields its own', () => {
-	assert.match(group, /\.ig:has\(:focus-visible\)::after\s*{[^}]*outline: var\(--focus-ring\);/s);
-	assert.ok(hasDecl(group, '.ig:has(:focus-visible)::after', 'inset', '0'));
-	assert.ok(hasDecl(group, '.ig:has(:focus-visible)::after', 'border-radius', 'var(--ig-radius)'));
+	assert.match(group, /\.ig:has\(:global\(:focus-visible\)\)::after\s*{[^}]*outline: var\(--focus-ring\);/s);
+	assert.ok(hasDecl(group, '.ig:has(:global(:focus-visible))::after', 'inset', '0'));
+	assert.ok(hasDecl(group, '.ig:has(:global(:focus-visible))::after', 'border-radius', 'var(--ig-radius)'));
 	assert.ok(hasDecl(textarea, '.textarea.grouped:focus-visible', 'outline', 'none'));
 	assert.ok(hasDecl(input, '.input.grouped:focus-visible', 'outline', 'none'));
 	assert.ok(hasDecl(textarea, '.textarea:focus-visible', 'outline', 'var(--focus-ring)'));

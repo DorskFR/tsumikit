@@ -19,10 +19,10 @@
   --c-bg-elev-2: #1f232c;
   --c-surface: #21262f;
   --c-border: #2c323d;
-  --c-border-strong: #68707e;
+  --c-border-strong: #757d8b;
   --c-text: #e6e9ef;
   --c-text-muted: #9aa3b2;
-  --c-text-faint: #848c9e;
+  --c-text-faint: #929bad;
 
   --c-accent: #5ad6a0;
   --c-accent-ink: #04130c;
@@ -307,7 +307,7 @@
   --control-edge-hover: var(--text-faint);
   --control-shadow: 0 0 0 0 transparent;
   --track-fill: var(--bg-elevated-2);
-  --track-edge: var(--border);
+  --track-edge: var(--control-edge);
   --thumb-fill: var(--bg);
   --thumb-shadow: var(--shadow-sm);
   --btn-fill: var(--surface);

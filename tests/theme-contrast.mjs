@@ -68,6 +68,9 @@ export const fromOklch = (L, C, H) => {
 /** Backgrounds text and controls sit on. */
 export const SURFACES = ['bg', 'bg-elev', 'surface'];
 
+/** Sunken wells (default badges, tracks, inset cards): every text colour still reads on it. */
+export const SUNKEN = 'bg-elev-2';
+
 /** Minimum contrast against every SURFACES entry (WCAG 1.4.3 text, 1.4.11 control boundaries). */
 export const FLOORS = {
 	text: 7,
@@ -84,19 +87,42 @@ export const FLOORS = {
 	'border-strong': 3
 };
 
+export const TEXT_FLOOR = 4.5;
+
+export const TONES = ['accent', 'blue', 'amber', 'red', 'green', 'violet', 'gold', 'teal'];
+
+/** Card tone wash (`color-mix(<tone> 8%, <surface>)`) that captions sit on. */
+export const CARD_TINT = 0.08;
+
+/** Toned badge fill and its ink: `color-mix(<tone> 12%, transparent)` under `color-mix(in oklab, <tone>, <text> BADGE_INK)`. */
+export const BADGE_TINT = 0.12;
+export const BADGE_INK = 0.25;
+
 /** Ink drawn on a filled accent (primary buttons, selected rows). */
 export const INK_FLOOR = 4.5;
 
 /** @typedef {Record<string, string>} Palette `--c-*` hex values, prefix stripped, plus `md-code-bg`. */
 
-/** `color-mix(in srgb, <blue> w, <bg>)`. @param {string} blue @param {string} bg @param {number} w */
-export const mixBlue = (blue, bg, w) =>
+/** `color-mix(in srgb, <fg> w, <bg>)`. @param {string} fg @param {string} bg @param {number} w */
+export const mixSrgb = (fg, bg, w) =>
 	`#${[1, 3, 5]
 		.map((i) => {
-			const [f, b] = [blue, bg].map((h) => Number.parseInt(h.slice(i, i + 2), 16));
+			const [f, b] = [fg, bg].map((h) => Number.parseInt(h.slice(i, i + 2), 16));
 			return Math.round(f * w + b * (1 - w)).toString(16).padStart(2, '0');
 		})
 		.join('')}`;
+
+/** `color-mix(in oklab, <a> w, <b>)`. @param {string} a @param {string} b @param {number} w */
+export const mixOklab = (a, b, w) => {
+	/** @param {[number, number, number]} c */
+	const lab = ([L, C, H]) => [L, C * Math.cos((H * Math.PI) / 180), C * Math.sin((H * Math.PI) / 180)];
+	const [x, y] = [a, b].map((h) => lab(oklch(h)));
+	const [L, A, B] = x.map((v, i) => v * w + y[i] * (1 - w));
+	return fromOklch(L, Math.hypot(A, B), ((Math.atan2(B, A) * 180) / Math.PI + 360) % 360);
+};
+
+/** Text colour of a toned badge. @param {Palette} p @param {string} tone */
+export const badgeInk = (p, tone) => mixOklab(p[tone], p.text, 1 - BADGE_INK);
 
 /**
  * Palette per theme id; `dark` is tokens.css :root. `md-code-bg` is resolved from the block's
@@ -119,22 +145,33 @@ export const palettes = (tokensCss, themesCss) => {
 	for (const [id, body] of Object.entries(bodies)) {
 		const p = pick(body);
 		codeMix[id] = weight(body);
-		out[id] = { ...p, 'md-code-bg': mixBlue(p.blue, p.bg, codeMix[id]) };
+		out[id] = { ...p, 'md-code-bg': mixSrgb(p.blue, p.bg, codeMix[id]) };
 	}
 	return { palettes: out, codeMix };
 };
 
-/** Every contrast-floor breach in one palette, as `token/surface=ratio<floor` strings. @param {Palette} p */
-export const breaches = (p) => {
+/**
+ * Every contrast-floor breach in one palette, as `token/surface=ratio<floor` strings.
+ * @param {Palette} p @param {number} [margin] added to every floor
+ */
+export const breaches = (p, margin = 0) => {
 	const out = [];
-	for (const [tok, floor] of Object.entries(FLOORS))
+	/** @param {string} name @param {string} fg @param {string} bg @param {number} floor */
+	const check = (name, fg, bg, floor) => {
+		const r = contrast(fg, bg);
+		if (r < floor + margin) out.push(`${name}=${r.toFixed(2)}<${floor}`);
+	};
+	for (const [tok, floor] of Object.entries(FLOORS)) for (const s of SURFACES) check(`${tok}/${s}`, p[tok], p[s], floor);
+	for (const tok of ['text', 'text-muted', 'text-faint', ...TONES]) check(`${tok}/${SUNKEN}`, p[tok], p[SUNKEN], TEXT_FLOOR);
+	check(`border-strong/${SUNKEN}`, p['border-strong'], p[SUNKEN], FLOORS['border-strong']);
+	for (const t of TONES) {
 		for (const s of SURFACES) {
-			const r = contrast(p[tok], p[s]);
-			if (r < floor) out.push(`${tok}/${s}=${r.toFixed(2)}<${floor}`);
+			check(`text-faint/${t}-card@${s}`, p['text-faint'], mixSrgb(p[t], p[s], CARD_TINT), TEXT_FLOOR);
+			check(`border-strong/${t}-card@${s}`, p['border-strong'], mixSrgb(p[t], p[s], CARD_TINT), FLOORS['border-strong']);
 		}
-	const code = contrast(p.blue, p['md-code-bg']);
-	if (code < FLOORS.blue) out.push(`blue/md-code-bg=${code.toFixed(2)}<${FLOORS.blue}`);
-	const ink = contrast(p['accent-ink'], p.accent);
-	if (ink < INK_FLOOR) out.push(`accent-ink/accent=${ink.toFixed(2)}<${INK_FLOOR}`);
+		for (const s of [...SURFACES, SUNKEN]) check(`${t}-badge@${s}`, badgeInk(p, t), mixSrgb(p[t], p[s], BADGE_TINT), TEXT_FLOOR);
+	}
+	check('blue/md-code-bg', p.blue, p['md-code-bg'], FLOORS.blue);
+	check('accent-ink/accent', p['accent-ink'], p.accent, INK_FLOOR);
 	return out;
 };

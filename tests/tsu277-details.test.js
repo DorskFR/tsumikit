@@ -178,6 +178,8 @@ test('copy keeps both words in one cell so the label swap never changes the widt
 	assert.ok(host.querySelector('.glyphs .sparks'));
 	assert.equal(host.querySelector('[data-tsu="CopyButton"]')?.getAttribute('aria-label'), 'Copy');
 	assert.match(css.CopyButton, /\.word(\.svelte-\w+)? \{\s*grid-area: 1 \/ 1;/);
+	assert.match(src.CopyButton, /& \.tick \{\s*display: block;\s*width: 1em;\s*height: 1em;\s*opacity: 0;/);
+	assert.match(src.CopyButton, /&\.copied \.tick \{\s*opacity: 1;/);
 });
 
 test('a Field label can float: text wrapped in a span, the control gets a blank placeholder', () => {
@@ -192,6 +194,8 @@ test('a Field label can float: text wrapped in a span, the control gets a blank 
 	assert.equal((src.Textarea.match(/placeholder=\{rest\.placeholder \?\? \(field \? ' ' : undefined\)\}/g) ?? []).length, 2);
 	assert.match(css.Field, /:not\(:focus\)::placeholder \{\s*color: transparent;/);
 	assert.match(css.Field, /:is\(:focus, :not\(:placeholder-shown\), :autofill\)/);
+	assert.match(src.Field, /--float-h: 3\.25rem;\s*position: relative;\s*& > \.label \{\s*position: absolute;/);
+	assert.doesNotMatch(src.Field, /grid-area/);
 	const loose = dom.window.document.createElement('div');
 	dom.window.document.body.append(loose);
 	f.mount(f.Input, { target: loose, props: { 'aria-label': 'Free' } });
