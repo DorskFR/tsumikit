@@ -13,8 +13,8 @@
 </script>
 
 <Cluster align="flex-start">
-	<Textarea disabled rows={2} value="Archived incidents cannot be edited." aria-label="Disabled" />
-	<Textarea readonly rows={2} value="Generated on 2026-10-21 by the release bot." aria-label="Readonly" />
+	<Textarea disabled rows={2} value="Archived and locked." aria-label="Disabled" />
+	<Textarea readonly rows={2} value="Generated 2026-10-21." aria-label="Readonly" />
 </Cluster>
 <div style="max-width: 28rem">
 	<Field label="Incident summary" error="Summaries need at least 20 characters.">

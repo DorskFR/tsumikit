@@ -199,6 +199,7 @@
 	.select-wrap.w-auto {
 		display: inline-block;
 		width: auto;
+		max-width: 100%;
 	}
 	.select-wrap.select-grow {
 		flex: 1 1 0;
@@ -253,6 +254,8 @@
 	}
 	.select.w-auto {
 		width: auto;
+		max-width: 100%;
+		text-overflow: ellipsis;
 	}
 	.select.embedded {
 		background: var(--select-bg, var(--bg-elevated-2));

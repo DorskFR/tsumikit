@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'States',
-		caption: 'disabled, multiple with accept filtering, hitArea="compact" in a dense row, and a long label (buttons never wrap) clipped by a narrow box.',
+		caption: 'disabled, multiple with accept filtering, hitArea="compact" in a dense row, and a long label (buttons never wrap) truncating in a narrow box.',
 		layout: 'stack'
 	};
 </script>
@@ -29,6 +29,5 @@
 <style>
 	.narrow {
 		max-width: 12rem;
-		overflow: hidden;
 	}
 </style>

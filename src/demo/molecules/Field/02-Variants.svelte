@@ -21,10 +21,10 @@
 	</Field>
 </Cluster>
 <div class="inline">
-	<Field label="Service" layout="inline" labelWidth="8rem">
+	<Field label="Service" layout="inline" labelWidth="6rem">
 		<Input value="api-gateway" mono grow />
 	</Field>
-	<Field label="Runtime" layout="inline" labelWidth="8rem" hint="Node 26 is the default.">
+	<Field label="Runtime" layout="inline" labelWidth="6rem" hint="Node 26 is the default.">
 		<Select
 			value="node26"
 			options={[
@@ -34,7 +34,7 @@
 			]}
 		/>
 	</Field>
-	<Field label="Auto deploy" layout="inline" labelWidth="8rem">
+	<Field label="Auto deploy" layout="inline" labelWidth="6rem">
 		<Switch checked={autoDeploy} label="Deploy on push" onclick={() => (autoDeploy = !autoDeploy)} />
 	</Field>
 </div>

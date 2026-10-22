@@ -73,6 +73,7 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp-1);
+		min-width: 0;
 	}
 	.field-grow {
 		flex: 1 1 0;

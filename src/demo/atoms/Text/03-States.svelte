@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'Long content and overflow',
-		caption: 'truncate clips to one line, wrap="anywhere" breaks long tokens, wrap="balance" evens the lines, measure caps the line length, nowrap refuses to break.',
+		caption: 'truncate clips to one line, wrap="anywhere" breaks long tokens, wrap="balance" evens the lines, measure caps the line length, nowrap keeps a phrase on one line.',
 		layout: 'stack'
 	};
 </script>
@@ -17,16 +17,7 @@
 	<Text wrap="anywhere" mono size="sm" block>{path}</Text>
 	<Text wrap="balance" size="lg" weight="semibold" block>Balanced wrapping keeps a two-line title from leaving a single orphan word on its own.</Text>
 	<Text as="p" measure="40ch">A paragraph capped at forty characters per line stays readable however wide the panel grows around it.</Text>
-	<div class="clip">
-		<Text nowrap>No-wrap text overflows its box rather than breaking, so the parent decides whether to clip or scroll.</Text>
-	</div>
+	<Text as="p" size="sm">
+		Last deploy finished <Text nowrap weight="medium">12 minutes ago</Text> and the rollout reached <Text nowrap weight="medium">3 of 4 regions</Text> before the pause; the figures stay on one line while the sentence wraps around them.
+	</Text>
 </Stack>
-
-<style>
-	.clip {
-		overflow: auto;
-		border: 1px dashed var(--border);
-		border-radius: var(--r-sm);
-		padding: var(--sp-1) var(--sp-2);
-	}
-</style>

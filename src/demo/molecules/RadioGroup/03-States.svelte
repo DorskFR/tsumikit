@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'States',
-		caption: 'a disabled option in each variant, no selection yet, and long labels and descriptions wrapping inside a narrow column.',
+		caption: 'a disabled option in each variant, no selection yet, and a long label and note wrapping inside a narrow column while the description truncates.',
 		layout: 'grid'
 	};
 </script>

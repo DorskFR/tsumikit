@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'States',
-		caption: 'disabled on and off, struck for a muted-but-on filter, sound={false}, and a long label (chips never wrap) clipped by a narrow row.',
+		caption: 'disabled on and off, struck for a muted-but-on filter, sound={false}, and a long label (chips never wrap) truncating in a narrow row.',
 		layout: 'stack'
 	};
 </script>
@@ -26,6 +26,5 @@
 	.narrow {
 		display: flex;
 		max-width: 12rem;
-		overflow: hidden;
 	}
 </style>
