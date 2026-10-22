@@ -17,13 +17,36 @@ export function resolveHash(hash: string): string {
 }
 
 /**
- * The browser resolves a deep link before hydration lays the sections out, so
- * re-aim once; a legacy id is rewritten in the URL first.
+ * The browser resolves a deep link before hydration lays the sections out, and
+ * `content-visibility` placeholders above the target resize as they render
+ * (WebKit has no scroll anchoring), so keep the target aimed until layout
+ * settles or the user takes over. A legacy id is rewritten in the URL first.
  */
-export function aimAtHash(): void {
+export function aimAtHash(settleMs = 2000): void {
 	const raw = location.hash.slice(1);
 	if (!raw) return;
 	const id = resolveHash(raw);
 	if (id !== raw) history.replaceState(null, '', `#${id}`);
-	requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView());
+	let aimedY = Number.NaN;
+	const aim = () => {
+		document.getElementById(id)?.scrollIntoView();
+		aimedY = scrollY;
+	};
+	requestAnimationFrame(aim);
+	if (typeof ResizeObserver === 'undefined') return;
+	const ro = new ResizeObserver(() =>
+		requestAnimationFrame(() => {
+			if (Math.abs(scrollY - aimedY) > 1) stop();
+			else aim();
+		}),
+	);
+	const inputs = ['pointerdown', 'touchstart', 'keydown', 'wheel'] as const;
+	const stop = () => {
+		ro.disconnect();
+		clearTimeout(timer);
+		for (const e of inputs) removeEventListener(e, stop, true);
+	};
+	const timer = setTimeout(stop, settleMs);
+	for (const e of inputs) addEventListener(e, stop, { capture: true, passive: true });
+	ro.observe(document.body);
 }

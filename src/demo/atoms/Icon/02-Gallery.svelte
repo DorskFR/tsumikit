@@ -49,8 +49,10 @@
 		min-width: 0;
 		text-align: center;
 	}
-	.cell:hover {
-		background: var(--bg-elevated);
+	@media (hover: hover) and (pointer: fine) {
+		.cell:hover {
+			background: var(--bg-elevated);
+		}
 	}
 	.cell:focus-visible {
 		outline: 2px solid var(--accent);

@@ -58,8 +58,10 @@
 		color: inherit;
 		text-decoration: none;
 	}
-	.example__title a:hover {
-		text-decoration: underline;
+	@media (hover: hover) and (pointer: fine) {
+		.example__title a:hover {
+			text-decoration: underline;
+		}
 	}
 	.example__preview {
 		--example-h: auto;

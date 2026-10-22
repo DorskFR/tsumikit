@@ -61,8 +61,10 @@
 		color: inherit;
 		text-decoration: none;
 	}
-	.demo-section__head a:hover {
-		text-decoration: underline;
+	@media (hover: hover) and (pointer: fine) {
+		.demo-section__head a:hover {
+			text-decoration: underline;
+		}
 	}
 	:global(.demo-section__see-also) {
 		margin-top: calc(-1 * var(--sp-2));
