@@ -10,8 +10,8 @@
   --font-rounded: ui-rounded, "SF Pro Rounded", "Nunito", "Quicksand", "Varela Round", var(--font-sans);
 
   --focus-ring-width: 3px;
-  --focus-ring: 3px solid color-mix(in oklab, var(--accent) 80%, transparent);
-  --focus-ring-offset: 2px;
+  --focus-ring: 3px solid var(--accent);
+  --focus-ring-offset: 1px;
 
   --press-scale: 0.97;
   --press-scale-sm: 0.94;
@@ -27,7 +27,7 @@
   --look-well-shadow:
     inset 0 2px 4px color-mix(in oklab, var(--look-ink) 45%, transparent),
     inset 0 -1px 0 color-mix(in oklab, var(--look-tint) 4%, transparent);
-  --look-field-ring: inset 0 0 0 1px color-mix(in oklab, var(--border-strong) 90%, transparent);
+  --look-field-ring: inset 0 0 0 1px var(--border-strong);
   --look-track-shadow: inset 0 1px 2px color-mix(in oklab, var(--look-ink) 40%, transparent);
   --look-elev-1:
     inset 0 1px 0 var(--look-hi-soft),
@@ -53,7 +53,7 @@
   --look-lip: 3px;
   --look-lip-pct: 50%;
   --look-lip-ink: var(--look-ink);
-  --look-pastel: 18%;
+  --look-pastel: 12%;
   --look-hairline: color-mix(in oklab, var(--text) 6%, transparent);
 
   --shadow-sm: 0 1px 2px color-mix(in oklab, var(--look-ink) 35%, transparent);
@@ -95,7 +95,7 @@
   --look-hi: color-mix(in oklab, var(--look-tint) 85%, transparent);
   --look-hi-soft: color-mix(in oklab, var(--look-tint) 60%, transparent);
   --look-drop: color-mix(in oklab, var(--look-ink) 20%, transparent);
-  --look-well: var(--bg-elevated-2);
+  --look-well: color-mix(in oklab, var(--bg-elevated-2) 55%, var(--bg-elevated));
   --look-well-shadow:
     inset 0 2px 3px color-mix(in oklab, var(--look-ink) 12%, transparent),
     inset 0 -1px 0 color-mix(in oklab, var(--look-tint) 70%, transparent);
@@ -116,7 +116,7 @@
     0 3px 8px color-mix(in oklab, var(--look-ink) 25%, transparent);
   --look-lip-pct: 72%;
   --look-lip-ink: var(--text-faint);
-  --look-pastel: 12%;
+  --look-pastel: 9%;
 
   --shadow-sm: 0 1px 2px color-mix(in oklab, var(--look-ink) 10%, transparent);
   --shadow-md:
@@ -169,6 +169,7 @@
 }
 :root[data-look="tactile"] :is(.btn-primary, .pop-trigger.trigger-primary):not(.btn-link, .btn-ghost) {
   --look-face: var(--accent);
+  background: var(--btn-bg, var(--pop-trigger-bg, var(--look-face)));
   --look-lip-c: color-mix(in oklab, var(--accent) 62%, var(--look-ink));
   --look-hi: color-mix(in oklab, var(--look-tint) 30%, transparent);
 }
@@ -189,7 +190,7 @@
 :root[data-look="tactile"] :is(.btn-danger, .trigger-danger):not(.btn-ghost, .trigger-ghost, .btn-link) {
   --look-face: color-mix(in oklab, var(--look-tone, var(--danger)) var(--look-pastel), var(--bg-elevated));
   --look-lip-c: color-mix(in oklab, var(--look-tone, var(--danger)) 22%, var(--look-well));
-  color: var(--look-tone, var(--danger));
+  color: color-mix(in oklab, var(--look-tone, var(--danger)) 70%, var(--text));
 }
 
 :root[data-look="tactile"] :is(.btn-ghost, .pop-trigger.trigger-ghost) {
@@ -201,7 +202,7 @@
     scale var(--dur-fast) var(--ease-spring-bounce);
 }
 :root[data-look="tactile"] .btn-ghost.btn-danger {
-  color: var(--danger);
+  color: color-mix(in oklab, var(--danger) 70%, var(--text));
 }
 
 :root[data-look="tactile"] .split-main {
@@ -394,7 +395,7 @@
 :root[data-look="tactile"] .seg {
   border-color: transparent;
   background: var(--look-well);
-  box-shadow: var(--look-well-shadow);
+  box-shadow: var(--look-well-shadow), var(--look-field-ring);
 }
 :root[data-look="tactile"] .seg-thumb,
 :root[data-look="tactile"] .seg-item.selected {
@@ -456,11 +457,20 @@
   background: var(--badge-bg, color-mix(in oklab, var(--text) 8%, transparent));
   font-weight: var(--badge-fw, var(--fw-semibold));
 }
-:root[data-look="tactile"] .badge.toned:not(.text) {
-  background: var(--badge-bg, color-mix(in oklab, var(--badge-tone) var(--look-pastel), transparent));
+:root[data-look="tactile"] .badge:not(.text, .role-pill) {
+  color: var(--badge-fg, color-mix(in oklab, var(--text-muted) 60%, var(--text)));
 }
-:root[data-look="tactile"] .badge.active {
+:root[data-look="tactile"] .bubble .role-pill {
+  color: color-mix(in oklab, var(--role) 70%, var(--text));
+}
+:root[data-look="tactile"] .badge.toned:not(.text, .active) {
+  background: var(--badge-bg, color-mix(in oklab, var(--badge-tone) var(--look-pastel), transparent));
+  color: var(--badge-fg, color-mix(in oklab, var(--badge-tone) 70%, var(--text)));
+}
+:root[data-look="tactile"] .badge.active,
+:root[data-look="tactile"] .tab.selected .badge.toned:not(.text) {
   background: var(--badge-tone, var(--accent));
+  color: var(--text-on-accent);
 }
 
 :root[data-look="tactile"] .dot.glow {
@@ -471,6 +481,7 @@
   border: 0;
   border-radius: 6px;
   padding: 0 0.4em;
+  color: var(--text);
   background: linear-gradient(to bottom, color-mix(in oklab, var(--surface) 90%, var(--look-tint)), var(--surface));
   box-shadow:
     inset 0 0 0 1px color-mix(in oklab, var(--border) 60%, transparent),
@@ -496,8 +507,11 @@
   box-shadow: var(--look-well-shadow);
 }
 :root[data-look="tactile"] .card:is(.card-ok, .card-warn, .card-danger, .card-info, .card-accent) {
-  --look-card-bg: color-mix(in oklab, var(--card-tone) 14%, var(--bg-elevated));
+  --look-card-bg: color-mix(in oklab, var(--card-tone) 10%, var(--bg-elevated));
   border-color: transparent;
+}
+:root[data-look="tactile"] :is(.card:is(.card-ok, .card-warn, .card-danger, .card-info, .card-accent), .bubble) .tone-muted {
+  color: color-mix(in oklab, var(--text-muted) 55%, var(--text));
 }
 :root[data-look="tactile"] .card.card-attention {
   --look-card-bg: var(--attention-bg);
@@ -720,7 +734,7 @@
 :root[data-look="tactile"] .bubble {
   border: 0;
   border-radius: 20px;
-  background: color-mix(in oklab, var(--role) 13%, var(--bg-elevated));
+  background: color-mix(in oklab, var(--role) 8%, var(--bg-elevated));
   box-shadow: var(--look-elev-1);
 }
 :root[data-look="tactile"] .bubble.align-end {
@@ -767,7 +781,7 @@
 
   /* Pointer spotlight: --pointer-x/--pointer-y come from trackPointer(); without it the spot rests above the card. */
   :root[data-look="tactile"] .card-tap:hover,
-  :root[data-look="tactile"] .card.metric {
+  :root[data-look="tactile"] .card.metric:hover {
     background:
       radial-gradient(circle 14rem at var(--pointer-x, 50%) var(--pointer-y, -40%), var(--look-spot), transparent 70%),
       var(--look-card-bg);
@@ -779,6 +793,9 @@
 
   :root[data-look="tactile"] .tab:hover:not(:disabled, .disabled, .selected) {
     background: color-mix(in oklab, var(--text) 7%, transparent);
+  }
+  :root[data-look="tactile"] .badge.interactive:hover:not(.active) {
+    color: var(--text);
   }
   :root[data-look="tactile"] .seg-item:hover:not(:disabled):not(.selected) {
     background: color-mix(in oklab, var(--text) 6%, transparent);
@@ -824,8 +841,6 @@
 /* ---------- Focus bloom ---------- */
 
 :root[data-look="tactile"] :is(.btn, .pop-trigger, .tab, .seg-item, .switch, .card-tap):focus-visible {
-  outline: var(--focus-ring);
-  outline-offset: var(--focus-ring-offset);
   animation: tsu-tactile-bloom var(--dur-fast) var(--ease-out);
 }
 @keyframes tsu-tactile-bloom {
