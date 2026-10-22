@@ -106,9 +106,10 @@
 		flex: none;
 		width: var(--cb-box, var(--chip-sm));
 		height: var(--cb-box, var(--chip-sm));
-		border: 1px solid var(--border-strong);
+		border: var(--edge-width) solid var(--control-edge);
 		border-radius: var(--r-sm);
-		background: var(--bg);
+		background: var(--control-fill);
+		box-shadow: var(--control-shadow);
 		transition:
 			background var(--dur-fast) var(--ease),
 			border-color var(--dur-fast) var(--ease),
@@ -158,6 +159,7 @@
 	input:focus-visible + .box {
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset);
+		box-shadow: var(--control-shadow), var(--focus-glow);
 	}
 	input[aria-invalid='true']:not(:checked):not(:indeterminate) + .box {
 		border-color: var(--danger);

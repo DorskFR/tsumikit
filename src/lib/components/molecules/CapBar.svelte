@@ -284,7 +284,7 @@
 		inset: 0 0 0 var(--cap);
 		border-radius: 0 var(--r-pill) var(--r-pill) 0;
 		background: var(--bg);
-		box-shadow: inset 0 0 0 1px var(--border);
+		box-shadow: inset 0 0 0 var(--edge-width) var(--track-edge);
 		pointer-events: none;
 	}
 	.fill-clip {
@@ -363,7 +363,7 @@
 		left: clamp(0%, var(--cap), 100%);
 		translate: calc(-1 * clamp(0%, var(--cap), 100%)) 0;
 		padding: var(--sp-px) var(--sp-1);
-		border: 1px solid var(--border-strong);
+		border: var(--edge-width) solid var(--raised-edge);
 		border-radius: var(--r-sm);
 		background: var(--bg-elevated-2);
 		box-shadow: var(--shadow-sm);

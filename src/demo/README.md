@@ -90,3 +90,7 @@ a `meta.ts` and at least two examples (`tests/demo-coverage.test.js`).
 controls), `DemoSection`, `Example`, `registry.ts` (the globs), `highlight.ts`, `catalog.ts`
 (families and their labels), `hash.ts` (redirects for anchors of the former single-page
 showcase, e.g. `#form-atoms` → `#input`). Family lanes never edit it.
+
+## Lazy sections
+
+Every section is prerendered in full. On the client a section mounts its live examples on demand: the deep-linked one first, then those on screen, near the viewport, and the rest at idle. A mounted section carries `data-demo-live`. Load `/?eager` to mount everything up front (the visual detector and motion checks use it).

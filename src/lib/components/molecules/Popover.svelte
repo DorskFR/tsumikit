@@ -392,7 +392,7 @@
 		min-height: var(--pop-box, var(--box-sm));
 		min-width: var(--pop-box, var(--box-sm));
 		padding: var(--pop-trigger-pad, var(--sp-1));
-		border: 1px solid var(--pop-trigger-border, transparent);
+		border: var(--edge-width) solid var(--pop-trigger-border, transparent);
 		border-radius: var(--pop-trigger-radius, var(--r-md));
 		background: var(--pop-trigger-bg, transparent);
 		color: var(--pop-trigger-fg, var(--text));
@@ -403,6 +403,8 @@
 			background-color var(--dur-fast) var(--ease),
 			border-color var(--dur-fast) var(--ease),
 			color var(--dur-fast) var(--ease),
+			box-shadow var(--dur-fast) var(--ease),
+			translate var(--dur-fast) var(--ease),
 			scale var(--pop-scale-dur) var(--ease-out);
 	}
 	.pop-trigger:not(.bare, .trigger-toggle):active:not(:disabled, .is-disabled) {
@@ -418,11 +420,14 @@
 		}
 		.pop-trigger.canonical:hover:not(:disabled) {
 			border-color: var(--accent);
-			background: var(--surface);
+			background: var(--btn-fill);
+			box-shadow: var(--btn-shadow-hover);
+			translate: 0 calc(-1 * var(--hover-lift));
 		}
 		.pop-trigger.trigger-primary:hover:not(:disabled) {
-			background: var(--accent);
-			border-color: var(--accent);
+			background: var(--btn-primary-fill);
+			border-color: var(--btn-primary-edge);
+			box-shadow: var(--btn-primary-shadow-hover);
 			filter: brightness(1.08);
 		}
 		.pop-trigger.trigger-ghost:hover:not(:disabled) {
@@ -453,8 +458,9 @@
 		min-width: 0;
 		min-height: var(--control-height-default);
 		padding: var(--pop-trigger-pad, var(--sp-2) var(--btn-px-md));
-		border-color: var(--pop-trigger-border, var(--border-strong));
-		background: var(--pop-trigger-bg, var(--surface));
+		border-color: var(--pop-trigger-border, var(--btn-edge));
+		background: var(--pop-trigger-bg, var(--btn-fill));
+		box-shadow: var(--btn-shadow);
 		font-weight: var(--fw-medium);
 		font-size: var(--pop-trigger-size, var(--control-fs-md));
 		line-height: var(--lh-none);
@@ -462,8 +468,9 @@
 		white-space: nowrap;
 	}
 	.pop-trigger.trigger-primary {
-		background: var(--pop-trigger-bg, var(--accent));
-		border-color: var(--pop-trigger-border, var(--accent));
+		background: var(--pop-trigger-bg, var(--btn-primary-fill));
+		border-color: var(--pop-trigger-border, var(--btn-primary-edge));
+		box-shadow: var(--btn-primary-shadow);
 		color: var(--pop-trigger-fg, var(--text-on-accent));
 		font-weight: var(--fw-semibold);
 	}
@@ -620,11 +627,11 @@
 		min-width: 10rem;
 		max-width: min(22rem, calc(100vw - 2 * var(--sp-3)));
 		padding: var(--sp-1);
-		background: var(--bg-elevated);
+		background: var(--raised-fill);
 		color: var(--text);
-		border: 1px solid var(--border-strong);
+		border: var(--edge-width) solid var(--raised-edge);
 		border-radius: var(--r-md);
-		box-shadow: var(--shadow-md);
+		box-shadow: var(--raised-shadow);
 		transform-origin: var(--tsu-origin, top left);
 		opacity: 0;
 		scale: var(--enter-scale);

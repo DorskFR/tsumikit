@@ -276,7 +276,7 @@
 		height: var(--seek-track);
 		margin-top: calc(var(--seek-track) / -2);
 		border-radius: var(--r-pill);
-		background: var(--bg-elevated-2);
+		background: var(--track-fill);
 		overflow: hidden;
 		transform-origin: center;
 		transition: scale var(--dur-fast) var(--ease);
@@ -322,7 +322,7 @@
 		border-radius: var(--r-pill);
 		background: var(--seek-accent);
 		border: 2px solid var(--bg);
-		box-shadow: var(--shadow-sm);
+		box-shadow: var(--thumb-shadow);
 		transform: translate(-50%, -50%);
 		scale: 0.6;
 		opacity: 0;
@@ -346,7 +346,7 @@
 		.seek:not(.seek--inert):hover .seek-thumb {
 			opacity: 1;
 			scale: 1;
-			box-shadow: var(--shadow-sm), var(--seek-halo);
+			box-shadow: var(--thumb-shadow), var(--seek-halo);
 		}
 		.seek--dragging .seek-thumb {
 			scale: 1.15;
@@ -370,9 +370,9 @@
 		gap: var(--sp-1);
 		padding: var(--sp-1) var(--sp-2);
 		border-radius: var(--r-sm);
-		background: var(--bg-elevated);
-		border: 1px solid var(--border);
-		box-shadow: var(--shadow-md);
+		background: var(--raised-fill);
+		border: var(--edge-width) solid var(--surface-edge);
+		box-shadow: var(--raised-shadow);
 		color: var(--text);
 		font-size: var(--fs-xs);
 		font-variant-numeric: tabular-nums;

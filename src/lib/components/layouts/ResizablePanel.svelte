@@ -401,8 +401,8 @@
 		min-width: 0;
 		min-height: 0;
 		width: var(--panel-current-width);
-		background: var(--bg-elevated);
-		border-right: 1px solid var(--border);
+		background: var(--surface-fill);
+		border-right: var(--edge-width) solid var(--surface-edge);
 		transition:
 			width var(--dur-base) var(--ease),
 			box-shadow var(--dur-base) var(--ease);
@@ -414,7 +414,7 @@
 		grid-column: 2;
 		grid-row: 1;
 		border-right: 0;
-		border-left: 1px solid var(--border);
+		border-left: var(--edge-width) solid var(--surface-edge);
 	}
 	.main {
 		min-width: 0;
@@ -449,7 +449,7 @@
 		font: inherit;
 		font-size: var(--icon-sm);
 		background: transparent;
-		border: 1px solid transparent;
+		border: var(--edge-width) solid transparent;
 		border-radius: var(--r-sm);
 		cursor: pointer;
 		transition:
@@ -475,7 +475,7 @@
 		.collapse-control:hover {
 			color: var(--text);
 			background: var(--bg-elevated-2);
-			border-color: var(--border);
+			border-color: var(--surface-edge);
 		}
 	}
 	.collapse-control:focus-visible,
@@ -547,7 +547,7 @@
 			left: 0;
 			z-index: 1;
 			width: min(var(--panel-current-width), 85cqw);
-			box-shadow: var(--shadow-md);
+			box-shadow: var(--raised-shadow);
 		}
 		.right .panel {
 			right: 0;
@@ -581,7 +581,7 @@
 		left: 0;
 		z-index: var(--z-drawer);
 		width: min(var(--panel-current-width), 100%);
-		box-shadow: var(--shadow-md);
+		box-shadow: var(--raised-shadow);
 		outline: none;
 		animation: panel-slide-left var(--dur-base) var(--ease);
 	}

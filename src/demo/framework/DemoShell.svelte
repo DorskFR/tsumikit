@@ -4,7 +4,8 @@
 	import DemoNav from './DemoNav.svelte';
 	import DemoSection from './DemoSection.svelte';
 	import DemoToolbar from './DemoToolbar.svelte';
-	import { aimAtHash } from './hash';
+	import { aimAtHash, followHashes, sectionOf } from './hash';
+	import { wake } from './lazy';
 	import { entries, searchText } from './registry';
 	import { createScrollspy } from './scrollspy.svelte';
 
@@ -32,7 +33,9 @@
 	});
 
 	$effect(() => {
-		aimAtHash();
+		const reach = (id: string) => wake(sectionOf(id));
+		aimAtHash(reach);
+		return followHashes(reach);
 	});
 </script>
 

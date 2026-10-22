@@ -142,9 +142,10 @@
 		padding: var(--sp-2) var(--control-px-md);
 		font-size: var(--control-fs-md);
 		line-height: var(--lh-tight);
-		background: var(--input-bg, var(--bg));
-		border: 1px solid var(--input-border, var(--border-strong));
+		background: var(--input-bg, var(--control-fill));
+		border: var(--edge-width) solid var(--input-border, var(--control-edge));
 		border-radius: var(--input-radius, var(--r-md));
+		box-shadow: var(--control-shadow);
 		color: var(--input-fg, var(--text));
 		transition: border-color var(--dur-fast) ease;
 	}
@@ -155,6 +156,7 @@
 	.input:focus-visible {
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset);
+		box-shadow: var(--control-shadow), var(--focus-glow);
 	}
 	.input:disabled {
 		opacity: var(--disabled-opacity);
@@ -216,6 +218,7 @@
 	}
 	.input.grouped:focus-visible {
 		outline: none;
+		box-shadow: var(--control-shadow);
 	}
 	.input.grouped:disabled {
 		opacity: 1;
@@ -296,7 +299,7 @@
 	}
 	@media (hover: hover) and (pointer: fine) {
 		.input:hover:not(:disabled, :focus, [aria-invalid='true']) {
-			border-color: var(--text-faint);
+			border-color: var(--control-edge-hover);
 		}
 		.input-clear:hover {
 			color: var(--text);

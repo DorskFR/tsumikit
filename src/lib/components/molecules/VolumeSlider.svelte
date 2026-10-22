@@ -306,7 +306,7 @@
 		height: var(--vol-track);
 		margin-top: calc(var(--vol-track) / -2);
 		border-radius: var(--r-pill);
-		background: var(--bg-elevated-2);
+		background: var(--track-fill);
 		overflow: hidden;
 	}
 	.vol--vertical .vol-track {
@@ -354,7 +354,7 @@
 		border-radius: var(--r-pill);
 		background: var(--vol-accent);
 		border: 2px solid var(--bg);
-		box-shadow: var(--shadow-sm);
+		box-shadow: var(--thumb-shadow);
 		transform: translate(-50%, -50%);
 		scale: 0.6;
 		opacity: 0;
@@ -375,7 +375,7 @@
 		.vol-slab:not([aria-disabled='true']):hover .vol-thumb {
 			opacity: 1;
 			scale: 1;
-			box-shadow: var(--shadow-sm), var(--vol-halo);
+			box-shadow: var(--thumb-shadow), var(--vol-halo);
 		}
 		.vol--dragging .vol-thumb {
 			scale: 1.15;

@@ -124,7 +124,7 @@
 
 <style>
 	.accordion {
-		border: 1px solid var(--border);
+		border: var(--edge-width) solid var(--surface-edge);
 		border-radius: var(--r-lg);
 		overflow: hidden;
 	}
@@ -133,7 +133,7 @@
 		border-radius: 0;
 	}
 	.accordion > :global(.acc-item + .acc-item) {
-		border-top: 1px solid var(--border);
+		border-top: var(--edge-width) solid var(--surface-edge);
 	}
 	.acc-title {
 		min-width: 0;

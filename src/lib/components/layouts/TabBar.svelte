@@ -144,8 +144,8 @@
 <style>
 	.tabbar {
 		min-width: 0;
-		background: var(--bg-elevated);
-		border-top: 1px solid var(--border);
+		background: var(--surface-fill);
+		border-top: var(--edge-width) solid var(--surface-edge);
 	}
 	.bar {
 		position: fixed;

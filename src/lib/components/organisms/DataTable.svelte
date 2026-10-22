@@ -239,6 +239,7 @@
 					<th
 						scope="col"
 						data-hide-below={col.hideBelow}
+						class:dt-sortable={col.sortable && !headerSnippets[col.key]}
 						style:width={col.width}
 						style:text-align={col.align ?? 'left'}
 						aria-sort={col.sortable
@@ -363,7 +364,7 @@
 		width: 100%;
 		overflow-x: auto;
 		-webkit-overflow-scrolling: touch;
-		border: 1px solid var(--border);
+		border: var(--edge-width) solid var(--surface-edge);
 		border-radius: var(--r-lg);
 		container-type: inline-size;
 	}
@@ -382,7 +383,7 @@
 	th,
 	td {
 		padding: var(--sp-2) var(--sp-3);
-		border-bottom: 1px solid var(--border);
+		border-bottom: var(--edge-width) solid var(--surface-edge);
 	}
 	.dt.sm th,
 	.dt.sm td {
@@ -394,7 +395,7 @@
 		color: var(--text-muted);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
-		background: var(--bg-elevated-2);
+		background: var(--surface-fill-2);
 		white-space: nowrap;
 	}
 	.dt.sticky th {
@@ -429,6 +430,15 @@
 		text-transform: inherit;
 		color: inherit;
 		cursor: pointer;
+	}
+	th.dt-sortable {
+		position: relative;
+	}
+	/* The whole header cell is the sort hit area. */
+	.dt-sort::after {
+		content: '';
+		position: absolute;
+		inset: 0;
 	}
 	.dt-arrow {
 		display: inline-block;
@@ -527,17 +537,9 @@
 		tbody tr:last-child td :global(.checkbox::before) {
 			inset-block-end: 0;
 		}
-		/* Sort slab: inline-end stays at 0 so it never reaches the next header
-		   cell, and the inline-start reach stays inside the cell's own padding. */
-		.dt-sort {
-			position: relative;
-		}
-		.dt-sort::before {
-			content: '';
-			position: absolute;
-			inset-block: var(--touch-slab);
-			inset-inline-start: var(--touch-slab);
-			inset-inline-end: 0;
+		/* The cell overlay grows vertically to the compact target, never sideways. */
+		.dt-sort::after {
+			inset-block: min(0px, calc((100% - var(--touch-target-compact)) / 2));
 		}
 	}
 	@container (max-width: 30rem) {
@@ -587,7 +589,7 @@
 		align-items: baseline;
 		gap: var(--sp-1) var(--sp-3);
 		padding: var(--sp-3);
-		border-bottom: 1px solid var(--border);
+		border-bottom: var(--edge-width) solid var(--surface-edge);
 	}
 	[data-stacked] tbody tr:last-child {
 		border-bottom: none;
@@ -679,7 +681,7 @@
 	.dt-more {
 		text-align: center;
 		padding: var(--sp-2);
-		border-top: 1px solid var(--border);
+		border-top: var(--edge-width) solid var(--surface-edge);
 	}
 	.dt-more-btn {
 		border: 0;

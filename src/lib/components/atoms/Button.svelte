@@ -242,9 +242,12 @@
 		padding: var(--sp-2) var(--btn-px-md);
 		min-height: var(--btn-size, var(--control-height-default));
 		max-width: 100%;
-		border: 1px solid var(--btn-border, var(--border-strong));
+		border: var(--edge-width) solid var(--btn-border, var(--btn-edge));
 		border-radius: var(--btn-radius, var(--r-md));
-		background: var(--btn-bg, var(--surface));
+		background: var(--btn-bg, var(--btn-fill));
+		--btn-shadow-rest: var(--btn-shadow);
+		--btn-shadow-lift: var(--btn-shadow-hover);
+		box-shadow: var(--btn-shadow-rest);
 		color: var(--btn-fg, var(--text));
 		font-weight: var(--fw-medium);
 		font-size: var(--control-fs-md);
@@ -254,8 +257,10 @@
 		transition:
 			background var(--dur-fast) ease,
 			border-color var(--dur-fast) ease,
+			box-shadow var(--dur-fast) ease,
 			color var(--dur-fast) ease,
 			opacity var(--dur-fast) ease,
+			translate var(--dur-fast) var(--ease-out),
 			scale var(--btn-scale-dur) var(--ease-out);
 		user-select: none;
 		white-space: normal;
@@ -264,6 +269,9 @@
 	.btn:disabled {
 		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
+	}
+	.btn:focus-visible:not(.btn-link, .btn-icon-inline, [aria-pressed='true']) {
+		box-shadow: var(--btn-shadow-rest), var(--focus-glow);
 	}
 	/* Press: scale in over --dur-press, release over --dur-fast. */
 	.btn:active:not(:disabled, [aria-disabled='true'], .loading, .btn-link) {
@@ -277,8 +285,10 @@
 		scale: var(--press-scale-sm);
 	}
 	.btn-primary {
-		background: var(--btn-bg, var(--accent));
-		border-color: var(--btn-border, var(--accent));
+		background: var(--btn-bg, var(--btn-primary-fill));
+		border-color: var(--btn-border, var(--btn-primary-edge));
+		--btn-shadow-rest: var(--btn-primary-shadow);
+		--btn-shadow-lift: var(--btn-primary-shadow-hover);
 		color: var(--btn-fg, var(--text-on-accent));
 		font-weight: var(--fw-semibold);
 	}
@@ -289,6 +299,8 @@
 	.btn-ghost {
 		background: var(--btn-bg, transparent);
 		border-color: var(--btn-border, transparent);
+		--btn-shadow-rest: none;
+		--btn-shadow-lift: none;
 	}
 	.btn-sm {
 		min-height: var(--btn-size, var(--control-height-compact));
@@ -372,9 +384,9 @@
 		height: var(--btn-size, var(--control-height));
 		min-height: var(--btn-size, var(--control-height));
 		padding: 0 var(--control-px-md);
-		border: 1px solid var(--btn-border, var(--border-strong));
+		border: var(--edge-width) solid var(--btn-border, var(--btn-edge));
 		border-radius: var(--btn-radius, var(--r-md));
-		background: var(--btn-bg, var(--surface));
+		background: var(--btn-bg, var(--btn-fill));
 		color: var(--btn-fg, var(--text));
 		font-weight: var(--fw-medium);
 		font-size: var(--control-fs-md);
@@ -390,8 +402,8 @@
 	   the primary action with the neutral --surface; restore the accent fill when
 	   both are present. */
 	.btn-control.btn-primary {
-		background: var(--btn-bg, var(--accent));
-		border-color: var(--btn-border, var(--accent));
+		background: var(--btn-bg, var(--btn-primary-fill));
+		border-color: var(--btn-border, var(--btn-primary-edge));
 		color: var(--btn-fg, var(--text-on-accent));
 	}
 	.btn-control.btn-tone-success {
@@ -730,6 +742,8 @@
 	@media (hover: hover) and (pointer: fine) {
 		.btn:hover:not(:disabled) {
 			border-color: var(--accent);
+			translate: 0 calc(-1 * var(--hover-lift));
+			--btn-shadow-rest: var(--btn-shadow-lift);
 		}
 		.btn-primary:hover:not(:disabled) {
 			filter: brightness(1.08);
@@ -782,11 +796,13 @@
 		.btn-link:hover:not(:disabled) {
 			background: none;
 			border: none;
+			translate: none;
 			text-decoration: underline;
 		}
 		.btn-icon-inline:hover:not(:disabled) {
 			border: none;
 			background: none;
+			translate: none;
 			color: var(--text);
 		}
 		.btn-icon-inline.hover-danger:hover:not(:disabled) {

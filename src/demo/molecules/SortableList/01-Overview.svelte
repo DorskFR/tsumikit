@@ -15,7 +15,7 @@
 	let last = $state('');
 </script>
 
-<Card padding="sm">
+<Card padding="sm" class="cq">
 	<SortableList
 		items={queue}
 		key={(i) => i.id}
@@ -31,8 +31,10 @@
 		}}
 	>
 		{#snippet row(i)}
-			<Text size="sm" truncate grow>{i.title}</Text>
-			<Text size="xs" tone="muted" mono truncate measure="45%">{i.service}</Text>
+			<span class="incident">
+				<Text size="sm" truncate grow>{i.title}</Text>
+				<Text size="xs" tone="muted" mono truncate>{i.service}</Text>
+			</span>
 		{/snippet}
 		{#snippet trailing(i)}
 			<Badge size="xs" tone={i.active ? 'accent' : severityTone[i.severity]}>{i.active ? 'working' : i.severity}</Badge>
@@ -40,3 +42,37 @@
 	</SortableList>
 </Card>
 <Text size="xs" tone="muted">Open: {selected ?? 'none'} · {last || 'drag a grip, use the arrows, or focus a grip and press Space'}</Text>
+
+<style>
+	.incident {
+		flex: 1 1 auto;
+		display: flex;
+		align-items: center;
+		gap: var(--sp-2);
+		min-width: 0;
+	}
+	.incident > :global(.truncate:last-child) {
+		max-width: 45%;
+	}
+	@container (max-width: 30rem) {
+		.incident {
+			flex-direction: column;
+			align-items: stretch;
+			gap: 0;
+			padding-block: var(--sp-1);
+		}
+		.incident > :global(.truncate) {
+			flex: none;
+		}
+		.incident > :global(.truncate:last-child) {
+			max-width: 100%;
+		}
+		.incident > :global(.truncate:first-child) {
+			display: -webkit-box;
+			-webkit-box-orient: vertical;
+			-webkit-line-clamp: 2;
+			line-clamp: 2;
+			white-space: normal;
+		}
+	}
+</style>

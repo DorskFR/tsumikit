@@ -174,10 +174,12 @@
 	.card {
 		--card-pad: var(--sp-4);
 		min-width: 0;
-		background: var(--bg-elevated);
+		background: var(--surface-fill);
 		--card-border-style: solid;
-		border: 1px var(--card-border-style) var(--border);
+		border: var(--edge-width) var(--card-border-style) var(--surface-edge);
 		border-radius: var(--r-lg);
+		--card-shadow-rest: var(--surface-shadow);
+		box-shadow: var(--card-shadow-rest);
 		padding: var(--card-pad);
 	}
 	.card-gap {
@@ -194,10 +196,10 @@
 		padding: var(--card-pad);
 	}
 	.card-head {
-		border-bottom: 1px solid var(--border);
+		border-bottom: var(--edge-width) solid var(--surface-edge);
 	}
 	.card-foot {
-		border-top: 1px solid var(--border);
+		border-top: var(--edge-width) solid var(--surface-edge);
 	}
 	/* Theme-aware surface shade, selected by prop so it adapts across themes
 	   instead of being overridden with app-level :global hacks. `base` is the
@@ -206,7 +208,7 @@
 		background: var(--surface);
 	}
 	.surface-sunken {
-		background: var(--bg-elevated-2);
+		background: var(--surface-fill-2);
 	}
 	.border-dashed {
 		--card-border-style: dashed;
@@ -237,16 +239,19 @@
 			border-color var(--dur-fast) var(--ease),
 			background var(--dur-fast) var(--ease),
 			box-shadow var(--dur-fast) var(--ease),
+			translate var(--dur-fast) var(--ease-out),
 			scale var(--dur-fast) var(--ease-out);
 	}
 	.card-tap:active {
-		background: var(--bg-elevated-2);
+		background: var(--surface-fill-2);
 		scale: var(--press-scale-lg);
 		transition-duration: var(--dur-press);
 	}
 	@media (hover: hover) and (pointer: fine) {
 		.card-tap:hover {
-			border-color: var(--border-strong);
+			border-color: var(--surface-edge-strong);
+			translate: 0 calc(-1 * var(--hover-lift));
+			--card-shadow-rest: var(--surface-shadow-hover);
 		}
 	}
 	.card-max {
@@ -275,9 +280,10 @@
 	.card-warn,
 	.card-danger,
 	.card-info,
+	.card-accent,
 	.card-attention {
-		border-color: color-mix(in srgb, var(--card-tone) 55%, var(--border));
-		background: color-mix(in srgb, var(--card-tone) 8%, var(--bg-elevated));
+		border-color: color-mix(in srgb, var(--card-tone) 55%, var(--surface-edge));
+		background: color-mix(in srgb, var(--card-tone) 8%, var(--surface-fill));
 	}
 	.card-attention {
 		background: var(--attention-bg);
@@ -291,8 +297,8 @@
 		/* Defaults; overridden inline by the stackY/stackX props. */
 		--stack-y: 8px;
 		--stack-x: 2px;
-		--stack-bg: var(--bg-elevated-2);
-		--stack-border: var(--border);
+		--stack-bg: var(--surface-fill-2);
+		--stack-border: var(--surface-edge);
 		/* Reserve room for the two peeking layers so they aren't clipped. */
 		margin-right: calc(var(--stack-x) * 2);
 		margin-bottom: calc(var(--stack-y) * 2);
@@ -306,7 +312,7 @@
 		/* Opaque fill so each layer fully hides the one behind it — only the
 		   bottom-right peek (and its single border line) stays visible. */
 		background: var(--stack-bg);
-		border: 1px var(--card-border-style) var(--stack-border);
+		border: var(--edge-width) var(--card-border-style) var(--stack-border);
 	}
 	/* Nearest back layer — sits just under the front surface. */
 	.card-stacked::before {

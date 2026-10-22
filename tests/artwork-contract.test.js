@@ -72,7 +72,7 @@ test('Artwork sizing, a11y and status overlay', () => {
 	assert.match(source, /aria-hidden={tile === 'decorative' \? 'true' : undefined}/);
 	assert.match(source, /{#if status}\s*<span class="status">{@render status\(\)}<\/span>/);
 	assert.match(source, /\.status\s*{[^}]*position: absolute;[^}]*right: var\(--sp-2\);[^}]*bottom: var\(--sp-2\);/s);
-	assert.match(source, /\.hover:hover\s*{[^}]*border-color: var\(--border-strong\);[^}]*box-shadow: var\(--shadow-md\);/s);
+	assert.match(source, /\.hover:hover\s*{[^}]*border-color: var\(--surface-edge-strong\);[^}]*box-shadow: var\(--shadow-md\);/s);
 	assert.match(source, /\.r-pill\s*{[^}]*border-radius: var\(--r-pill\);/s);
 	assert.match(source, /\.fit-contain\s*{[^}]*object-fit: contain;/s);
 });

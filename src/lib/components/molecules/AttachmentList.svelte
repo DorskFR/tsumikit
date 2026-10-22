@@ -317,7 +317,7 @@
 		right: -0.35em;
 		min-width: 1.4em;
 		padding: 0.1em 0.3em;
-		border: 1px solid var(--border-strong);
+		border: var(--edge-width) solid var(--surface-edge-strong);
 		border-radius: var(--r-pill);
 		background: var(--bg);
 		color: var(--text);
@@ -326,7 +326,7 @@
 	.preview {
 		display: block;
 		padding: 0;
-		border: 1px solid var(--border);
+		border: var(--edge-width) solid var(--surface-edge);
 		border-radius: var(--r-md);
 		background: none;
 		cursor: pointer;

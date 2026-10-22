@@ -125,9 +125,9 @@
 		min-width: 0;
 		padding: var(--sp-0-5) var(--sp-2);
 		border-radius: var(--r-pill);
-		background: var(--bg-elevated-2);
+		background: var(--surface-fill-2);
 		color: var(--text-muted);
-		border: 1px solid var(--border);
+		border: var(--edge-width) solid var(--surface-edge);
 		text-decoration: none;
 	}
 	.branch {

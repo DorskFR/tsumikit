@@ -74,7 +74,7 @@
 		.nav-section:not(:first-child) {
 			margin-top: var(--sp-2);
 			padding-top: var(--sp-2);
-			border-top: 1px solid var(--border);
+			border-top: var(--edge-width) solid var(--surface-edge);
 		}
 	}
 </style>

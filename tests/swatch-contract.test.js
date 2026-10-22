@@ -61,7 +61,7 @@ test('Swatch a11y: label → role=img + aria-label, no label → aria-hidden, bu
 });
 
 test('Swatch uses only tokens: hairline border, radii, selection ring, focus ring', () => {
-	assert.equal(hasDecl(css, '.swatch', 'border', '1px solid var(--border)'), true);
+	assert.equal(hasDecl(css, '.swatch', 'border', 'var(--edge-width) solid var(--border)'), true);
 	assert.equal(hasDecl(css, '.swatch', 'border-radius', 'var(--r-pill)'), true);
 	assert.equal(hasDecl(css, '.square', 'border-radius', 'var(--r-sm)'), true);
 	assert.equal(hasDecl(css, '.sm', '--swatch-size'), true);

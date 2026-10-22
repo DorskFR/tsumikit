@@ -168,7 +168,7 @@
 		flex: 0 1 0%;
 		min-width: 3px;
 		height: 100%;
-		background: var(--bg-elevated-2);
+		background: var(--track-fill);
 		overflow: hidden;
 	}
 	.segment:first-child {
@@ -206,7 +206,7 @@
 
 	.stacked {
 		overflow: hidden;
-		background: var(--bg-elevated-2);
+		background: var(--track-fill);
 	}
 	.stacked .segment {
 		min-width: 0;

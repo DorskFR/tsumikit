@@ -257,7 +257,7 @@
 		margin-top: var(--sp-2);
 		padding: var(--sp-1) var(--sp-2);
 		border: 2px solid transparent;
-		border-top: 1px solid var(--border);
+		border-top: var(--edge-width) solid var(--surface-edge);
 		border-radius: var(--r-md);
 		background: none;
 		color: inherit;

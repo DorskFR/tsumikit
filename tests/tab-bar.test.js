@@ -175,7 +175,7 @@ test('fixed bottom with safe-area padding, 48px targets, tokens; reduced motion 
 	assert.ok(hasDecl(css, '.bar', 'padding-bottom', /env\(safe-area-inset-bottom/));
 	assert.ok(hasDecl(css, '.tabbar-item', 'min-height', /48px/));
 	assert.ok(hasDecl(css, '.tabbar-item.current', 'color', 'var(--accent)'));
-	assert.ok(hasDecl(css, '.tabbar', 'background', 'var(--bg-elevated)'));
+	assert.ok(hasDecl(css, '.tabbar', 'background', 'var(--surface-fill)'));
 	assert.doesNotMatch(css, /@media \(prefers-reduced-motion: reduce\)/);
 	assert.doesNotMatch(css, /#[0-9a-f]{3,6}\b/i);
 	assert.match(source, /value = \$bindable\(\)/);

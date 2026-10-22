@@ -119,7 +119,7 @@ test('the caret is the kit chevron, sized to the control height, with square inn
 	assert.ok(hasDecl(style, '.split-caret', 'width', 'var(--split-height)'));
 	assert.ok(hasDecl(style, '.split-caret', '--pop-trigger-radius', '0 var(--r-md) var(--r-md) 0'));
 	assert.ok(hasDecl(style, '.split-main', '--btn-radius', 'var(--r-md) 0 0 var(--r-md)'));
-	assert.ok(hasDecl(style, '.split-caret', 'margin-inline-start', '-1px'));
+	assert.ok(hasDecl(style, '.split-caret', 'margin-inline-start', 'calc(-1 * var(--edge-width))'));
 });
 
 test('caret="half" halves the caret width and keeps its chevron size', () => {

@@ -19,14 +19,14 @@ test('border toggles a border-<style> class; solid adds none', () => {
 
 test('the frame reads its style from a token so tone keeps owning the colour', () => {
 	assert.match(card, /--card-border-style: solid;/);
-	assert.match(card, /border: 1px var\(--card-border-style\) var\(--border\);/);
+	assert.match(card, /border: var\(--edge-width\) var\(--card-border-style\) var\(--surface-edge\);/);
 	assert.match(card, /\.border-dashed\s*{\s*--card-border-style: dashed;/);
 	assert.match(card, /\.border-none\s*{\s*--card-border-style: none;/);
-	assert.match(card, /border-color: color-mix\(in srgb, var\(--card-tone\) \d+%, var\(--border\)\)/);
+	assert.match(card, /border-color: color-mix\(in srgb, var\(--card-tone\) \d+%, var\(--surface-edge\)\)/);
 });
 
 test('stacked back layers follow the same border style', () => {
-	assert.match(card, /border: 1px var\(--card-border-style\) var\(--stack-border\);/);
+	assert.match(card, /border: var\(--edge-width\) var\(--card-border-style\) var\(--stack-border\);/);
 });
 
 test('the showcase demos the dashed and borderless variants', () => {

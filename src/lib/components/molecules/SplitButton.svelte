@@ -168,7 +168,7 @@
 		position: relative;
 		width: var(--split-height);
 		flex: none;
-		margin-inline-start: -1px;
+		margin-inline-start: calc(-1 * var(--edge-width));
 		--pop-trigger-radius: 0 var(--r-md) var(--r-md) 0;
 		--pop-trigger-pad: 0;
 	}

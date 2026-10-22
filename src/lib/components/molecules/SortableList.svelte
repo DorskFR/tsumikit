@@ -571,7 +571,7 @@
 	}
 	.sl-row {
 		position: relative;
-		border-bottom: 1px solid var(--border);
+		border-bottom: var(--edge-width) solid var(--surface-edge);
 	}
 	.sl-row:last-child {
 		border-bottom: 0;
@@ -609,7 +609,7 @@
 		position: relative;
 		z-index: 1;
 		background: var(--bg-elevated-2);
-		box-shadow: var(--shadow-md);
+		box-shadow: var(--raised-shadow);
 		transition: none;
 	}
 	.sl-grip,

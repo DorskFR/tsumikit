@@ -15,8 +15,8 @@
 	<Button size="sm" variant="ghost" onclick={() => theme.set('dark')}>Reset to Dark</Button>
 	<Text size="sm" tone="muted">{theme.all.length} themes registered</Text>
 </Cluster>
-<Cluster gap="var(--sp-1)">
+<Cluster gap="var(--sp-3)">
 	{#each theme.all as t (t.id)}
-		<Swatch color={t.themeColor ?? 'var(--bg)'} label={t.label} interactive selected={theme.current === t.id} onclick={() => theme.set(t.id)} size="sm">{t.icon ?? theme.fallbackIcon}</Swatch>
+		<Swatch color={t.themeColor ?? 'var(--bg)'} label={t.label} interactive selected={theme.current === t.id} onclick={() => theme.set(t.id)}>{t.icon ?? theme.fallbackIcon}</Swatch>
 	{/each}
 </Cluster>

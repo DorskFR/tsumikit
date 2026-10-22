@@ -313,9 +313,9 @@ test('styles: token-driven, touch-ready grip, reduced motion', () => {
 	assert.doesNotMatch(style, /#[0-9a-f]{3,8}\b|rgb\(|hsl\(/i);
 	assert.ok(hasDecl(style, '.sl-grip', 'touch-action', 'none'));
 	assert.ok(hasDecl(style, '.sl-grip', 'color', 'var(--text-faint)'));
-	assert.ok(hasDecl(style, '.sl-row', 'border-bottom', '1px solid var(--border)'));
+	assert.ok(hasDecl(style, '.sl-row', 'border-bottom', 'var(--edge-width) solid var(--surface-edge)'));
 	assert.ok(hasDecl(style, '.sl-row.selected', 'box-shadow', 'inset 2px 0 0 var(--accent)'));
-	assert.ok(hasDecl(style, '.sl-row.lifted .sl-lift', 'box-shadow', 'var(--shadow-md)'));
+	assert.ok(hasDecl(style, '.sl-row.lifted .sl-lift', 'box-shadow', 'var(--raised-shadow)'));
 	assert.ok(hasDecl(style, '.sl-row.lifted .sl-lift', 'background', 'var(--bg-elevated-2)'));
 	assert.ok(hasDecl(style, '.sl-lift', 'min-height', 'var(--sortable-row-h, 2.25rem)'));
 	assert.ok(hasDecl(style, '.sortable-sm .sl-lift', 'min-height', 'var(--sortable-row-h, 1.875rem)'));

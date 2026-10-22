@@ -85,7 +85,7 @@
 <style>
 	.codeblock {
 		margin: 0;
-		border: 1px solid var(--border);
+		border: var(--edge-width) solid var(--surface-edge);
 		border-radius: var(--r-lg);
 		background: var(--bg);
 		overflow: hidden;
@@ -95,8 +95,8 @@
 		align-items: center;
 		gap: var(--sp-2);
 		padding: var(--sp-1) var(--sp-1) var(--sp-1) var(--sp-3);
-		background: var(--bg-elevated-2);
-		border-bottom: 1px solid var(--border);
+		background: var(--surface-fill-2);
+		border-bottom: var(--edge-width) solid var(--surface-edge);
 		font-size: var(--fs-xs);
 		font-family: var(--font-mono);
 		color: var(--text-muted);
@@ -120,8 +120,8 @@
 		padding: var(--sp-3) var(--sp-2);
 		text-align: right;
 		color: var(--text-faint);
-		background: var(--bg-elevated);
-		border-right: 1px solid var(--border);
+		background: var(--surface-fill);
+		border-right: var(--edge-width) solid var(--surface-edge);
 		user-select: none;
 		font-family: var(--font-mono);
 		font-size: var(--fs-sm);

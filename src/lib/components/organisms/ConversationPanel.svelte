@@ -45,7 +45,7 @@
 		gap: var(--sp-2);
 		min-width: 0;
 		padding: var(--sp-2) var(--sp-3);
-		border-bottom: 1px solid var(--border);
+		border-bottom: var(--edge-width) solid var(--surface-edge);
 	}
 	.panel-body {
 		flex: 1;
@@ -55,12 +55,12 @@
 	}
 	.panel-status {
 		flex: none;
-		border-top: 1px solid var(--border);
+		border-top: var(--edge-width) solid var(--surface-edge);
 	}
 	.panel-composer {
 		flex: none;
 		padding: var(--sp-2) var(--sp-3) var(--sp-3);
-		border-top: 1px solid var(--border);
+		border-top: var(--edge-width) solid var(--surface-edge);
 	}
 	.panel-status + .panel-composer {
 		border-top: 0;

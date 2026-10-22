@@ -32,8 +32,8 @@ test('title renders a SectionHeader in the head; header/footer sit outside the p
 	assert.match(card, /{#if footer}\s*<div class="card-foot">{@render footer\(\)}<\/div>/);
 	assert.match(card, /\.card-framed\s*{\s*padding: 0;/);
 	assert.match(card, /\.card-head,\s*\.card-body,\s*\.card-foot\s*{\s*padding: var\(--card-pad\);/);
-	assert.match(card, /\.card-head\s*{\s*border-bottom: 1px solid var\(--border\);/);
-	assert.match(card, /\.card-foot\s*{\s*border-top: 1px solid var\(--border\);/);
+	assert.match(card, /\.card-head\s*{\s*border-bottom: var\(--edge-width\) solid var\(--surface-edge\);/);
+	assert.match(card, /\.card-foot\s*{\s*border-top: var\(--edge-width\) solid var\(--surface-edge\);/);
 });
 
 test('gap stacks children as a flex column via --card-gap', () => {

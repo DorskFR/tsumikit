@@ -473,7 +473,7 @@
 		padding: 0 var(--control-px-md);
 		min-height: var(--control-height-default);
 		background: var(--bg-elevated);
-		border: 1px solid var(--border-strong);
+		border: var(--edge-width) solid var(--control-edge);
 		border-radius: var(--r-md);
 		transition:
 			border-color var(--dur-fast) ease,
@@ -502,7 +502,7 @@
 		font-size: var(--fs-xs);
 		line-height: var(--lh-none);
 		color: var(--text-faint);
-		border: 1px solid var(--border);
+		border: var(--edge-width) solid var(--border);
 		border-radius: var(--r-sm);
 		padding: var(--sp-0-5) var(--sp-1);
 	}
@@ -600,8 +600,8 @@
 		left: 0;
 		right: 0;
 		z-index: var(--z-drawer);
-		background: var(--bg-elevated);
-		border: 1px solid var(--border-strong);
+		background: var(--raised-fill);
+		border: var(--edge-width) solid var(--raised-edge);
 		border-radius: var(--r-md);
 		box-shadow: var(--shadow-lg);
 		padding: var(--sp-1);
