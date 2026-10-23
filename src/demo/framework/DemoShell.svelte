@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import { AppShell, Heading, Text } from '@dorsk/tsumikit';
+	import { AppShell, Heading, LOOKS, SelectButton, Text, theme } from '@dorsk/tsumikit';
 	import DemoNav from './DemoNav.svelte';
 	import DemoSection from './DemoSection.svelte';
 	import DemoToolbar from './DemoToolbar.svelte';
@@ -10,6 +10,12 @@
 	import { createScrollspy } from './scrollspy.svelte';
 
 	let { toolbar }: { toolbar?: Snippet } = $props();
+
+	const looks = LOOKS.map((l) => ({
+		value: l.id,
+		label: l.status === 'experimental' ? `${l.label} (beta)` : l.label
+	}));
+	const lookLabel = $derived(LOOKS.find((l) => l.id === theme.look)?.label ?? theme.look);
 
 	let filter = $state('');
 	let navOpen = $state(false);
@@ -55,6 +61,17 @@
 	{/snippet}
 
 	{#snippet sidebar()}
+		<div class="demo-drawer-look">
+			<SelectButton
+				variant="row"
+				block
+				icon="layout-grid"
+				label="Look: {lookLabel}"
+				value={theme.look}
+				options={looks}
+				onchange={(v) => theme.setLook(v)}
+			/>
+		</div>
 		<DemoNav bind:filter active={spy.active} {visible} />
 	{/snippet}
 
@@ -78,9 +95,16 @@
 		flex: 1 1 0;
 		justify-content: flex-end;
 	}
+	.demo-drawer-look {
+		display: none;
+	}
 	@media (max-width: 40rem) {
 		:global(.shell-header .cq-hide) {
 			display: none;
+		}
+		.demo-drawer-look {
+			display: block;
+			margin-bottom: var(--sp-3);
 		}
 	}
 	.demo-page {

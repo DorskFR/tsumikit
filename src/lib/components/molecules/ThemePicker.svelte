@@ -5,9 +5,12 @@
 	// (--c-bg, --c-surface, --c-text, --c-accent; the derived --bg etc. are
 	// resolved once at :root and would not re-scope). The root default theme
 	// has no [data-theme] block, so its swatch carries the :root values.
+	// Prerendered, the trigger swatch is unscoped: it shows the theme prepainted
+	// on <html> until hydration.
 	import type { ComponentProps } from 'svelte';
 	import type { AnchorAttributes } from '$lib/anchor';
 	import Popover from '$lib/components/molecules/Popover.svelte';
+	import { browser } from '$lib/env';
 	import { type ThemeDef, theme } from '$lib/stores/theme.svelte';
 	import { AUTO_THEME } from '$lib/theme-mode';
 
@@ -63,7 +66,9 @@
 	);
 	const named = (id: string) => theme.all.find((t) => t.id === id)?.label ?? id;
 	const autoCaption = $derived(`${autoLabel} · ${named(theme.pref.light)} / ${named(theme.pref.dark)}`);
-	const title = $derived(isAuto ? `${autoLabel} · ${theme.label}` : `Theme: ${theme.label}`);
+	const title = $derived(
+		!browser ? 'Theme' : isAuto ? `${autoLabel} · ${theme.label}` : `Theme: ${theme.label}`
+	);
 	const caption = $derived(
 		hoveredAuto || (isAuto && !hovered)
 			? autoCaption
@@ -71,7 +76,7 @@
 	);
 </script>
 
-{#snippet swatch(id: string)}
+{#snippet swatch(id: string | undefined)}
 	<span class="swatch" data-theme={id} aria-hidden="true">
 		<i class="q bg"></i><i class="q surface"></i><i class="q text"></i><i class="q accent"></i>
 	</span>
@@ -94,7 +99,7 @@
 	triggerClass={klass}
 	style={styleProp}
 >
-	{#snippet trigger()}<span class="trigger" data-tsu="ThemePicker" {title}>{@render swatch(theme.current)}{#if isAuto}<span class="auto-dot" aria-hidden="true">◐</span>{/if}</span>{/snippet}
+	{#snippet trigger()}<span class="trigger" data-tsu="ThemePicker" {title}>{@render swatch(browser ? theme.current : undefined)}{#if isAuto}<span class="auto-dot" aria-hidden="true">◐</span>{/if}</span>{/snippet}
 	<div class="panel">
 		{#each groups as g (g.mode)}
 			<div class="group-label">{g.label}</div>
