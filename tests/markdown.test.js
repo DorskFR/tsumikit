@@ -82,7 +82,9 @@ test('GFM tables with alignment and escaped pipes; off with tables:false', () =>
 	assert.doesNotMatch(renderMarkdown(src, { tables: false }), /<table/);
 });
 
+/** @param {string} tag @param {...string} cells */
 const tr = (tag, ...cells) => `<tr>${cells.map((c) => `<${tag}>${c}</${tag}>`).join('')}</tr>`;
+/** @param {string[]} head @param {...string[]} rows */
 const tbl = (head, ...rows) =>
 	`<table><thead>${tr('th', ...head)}</thead><tbody>${rows.map((r) => tr('td', ...r)).join('')}</tbody></table>`;
 
