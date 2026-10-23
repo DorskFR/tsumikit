@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 import test from 'node:test';
 import { escapeHtml, renderMarkdown } from '../src/lib/markdown.ts';
 
@@ -79,6 +80,65 @@ test('GFM tables with alignment and escaped pipes; off with tables:false', () =>
 			'<tr><td style="text-align:left">&lt;i&gt;</td><td style="text-align:right">2</td></tr></tbody></table>'
 	);
 	assert.doesNotMatch(renderMarkdown(src, { tables: false }), /<table/);
+});
+
+const tr = (tag, ...cells) => `<tr>${cells.map((c) => `<${tag}>${c}</${tag}>`).join('')}</tr>`;
+const tbl = (head, ...rows) =>
+	`<table><thead>${tr('th', ...head)}</thead><tbody>${rows.map((r) => tr('td', ...r)).join('')}</tbody></table>`;
+
+test('GFM tables: migration note rows with escaped pipes in code, bold and links', () => {
+	const src = [
+		'### 0.18 → 0.54',
+		'',
+		'| Area | Before (0.18) | After | Action |',
+		'| --- | --- | --- | --- |',
+		"| Theme store types (0.24) | `theme.current: Mode` | `theme.current: ThemeId` (`Mode \\| string`) | Handle `undefined`. |",
+		'| Control heights (0.27, 0.39) **(notes)** | FilterInput md were 44px | md uses `--control-height-default` (40px) | Visual check. |',
+		"| `Button` `loading` | `boolean` | `boolean \\| 'done'` | None. See [docs](https://e.com/x). |",
+	].join('\n');
+	assert.equal(
+		renderMarkdown(src, { autolink: false }),
+		'<h3>0.18 → 0.54</h3>' +
+			tbl(
+				['Area', 'Before (0.18)', 'After', 'Action'],
+				['Theme store types (0.24)', '<code>theme.current: Mode</code>', '<code>theme.current: ThemeId</code> (<code>Mode | string</code>)', 'Handle <code>undefined</code>.'],
+				['Control heights (0.27, 0.39) <strong>(notes)</strong>', 'FilterInput md were 44px', 'md uses <code>--control-height-default</code> (40px)', 'Visual check.'],
+				['<code>Button</code> <code>loading</code>', '<code>boolean</code>', "<code>boolean | 'done'</code>", 'None. See <a href="https://e.com/x" target="_blank" rel="noopener noreferrer">docs</a>.'],
+			),
+	);
+});
+
+test('GFM tables: directly after a paragraph or heading, ended by a blank line or another block', () => {
+	assert.equal(renderMarkdown('Intro\n| a |\n| - |\n| 1 |\n\nafter'), `<p>Intro</p>${tbl(['a'], ['1'])}<p>after</p>`);
+	assert.equal(renderMarkdown('## H\n| a |\n| - |\n| 1 |\n> q'), `<h2>H</h2>${tbl(['a'], ['1'])}<blockquote><p>q</p></blockquote>`);
+	assert.equal(renderMarkdown('| a |\n| - |\n| 1 |\n```\nx\n```'), `${tbl(['a'], ['1'])}<pre><code>x</code></pre>`);
+});
+
+test('GFM tables: outer pipes optional, ragged rows padded or truncated to the header', () => {
+	assert.equal(renderMarkdown('a | b\n--- | ---\n1 | 2'), tbl(['a', 'b'], ['1', '2']));
+	assert.equal(renderMarkdown('| a | b\n|---|---\n| 1 | 2'), tbl(['a', 'b'], ['1', '2']));
+	assert.equal(renderMarkdown('| a | b | c |\n| - | - | - |\n| 1 |'), tbl(['a', 'b', 'c'], ['1', '', '']));
+	assert.equal(renderMarkdown('| a |\n| - |\n| 1 | 2 | 3 |'), tbl(['a'], ['1']));
+	assert.equal(renderMarkdown('| a | b |\n| - | - |\n| 1 | 2 |\nbar'), tbl(['a', 'b'], ['1', '2'], ['bar', '']));
+	assert.equal(renderMarkdown('| a | b |\n| - | - |\n|  | 2 |'), tbl(['a', 'b'], ['', '2']));
+	assert.equal(renderMarkdown('| a |\n| - |\n| x \\| |'), tbl(['a'], ['x |']));
+});
+
+test('GFM tables: header and delimiter cell counts must match; centre alignment', () => {
+	assert.doesNotMatch(renderMarkdown('| a | b |\n| - |\n| 1 | 2 |'), /<table/);
+	assert.doesNotMatch(renderMarkdown('a\n---'), /<table/);
+	assert.equal(
+		renderMarkdown('| a | b | c |\n|:-|:-:|-:|\n| 1 | 2 | 3 |'),
+		'<table><thead><tr><th style="text-align:left">a</th><th style="text-align:center">b</th><th style="text-align:right">c</th></tr></thead>' +
+			'<tbody><tr><td style="text-align:left">1</td><td style="text-align:center">2</td><td style="text-align:right">3</td></tr></tbody></table>',
+	);
+});
+
+test('docs/MIGRATION-0.80.md renders the same 7 tables / 68 rows as GitHub', () => {
+	const out = renderMarkdown(readFileSync(new URL('../docs/MIGRATION-0.80.md', import.meta.url), 'utf8'));
+	assert.equal(out.match(/<table>/g)?.length, 7);
+	assert.equal(out.match(/<tr>/g)?.length, 68);
+	assert.doesNotMatch(out, /<p>\|/);
 });
 
 test('control characters are dropped, CRLF normalised, empty input renders nothing', () => {

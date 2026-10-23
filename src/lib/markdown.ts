@@ -109,7 +109,8 @@ function inline(s: string, autolink: boolean): string {
 function splitRow(row: string): string[] {
 	const cells: string[] = [];
 	let cur = '';
-	const t = row.trim().replace(/^\|/, '').replace(/\|$/, '');
+	let t = row.trim();
+	if (t.startsWith('|')) t = t.slice(1);
 	for (let i = 0; i < t.length; i++) {
 		if (t[i] === '\\' && t[i + 1] === '|') {
 			cur += '|';
@@ -119,37 +120,59 @@ function splitRow(row: string): string[] {
 			cur = '';
 		} else cur += t[i];
 	}
-	cells.push(cur);
+	if (cur.trim() || !cells.length) cells.push(cur);
 	return cells;
 }
 
-const TABLE_RE =
-	/(?:^|\n)([ \t]*\|.+\|[ \t]*)\n([ \t]*\|(?:[ \t]*:?-+:?[ \t]*\|)+[ \t]*)\n((?:[ \t]*\|.*\|[ \t]*(?:\n|$))+)/g;
+const hasPipe = (line: string) => /(?:^|[^\\])\|/.test(line);
+const DELIM_CELL = /^\s*:?-+:?\s*$/;
+const TABLE_BREAK = new RegExp(
+	`^\\s*(?:$|#{1,6}(?:\\s|$)|&gt;|(?:[-*+]|\\d{1,9}[.)])\\s|(?:-{3,}|\\*{3,}|_{3,})\\s*$|${BLOCK_L}\\d+${BLOCK_R}\\s*$)`,
+);
 
-function table(header: string, delim: string, body: string, autolink: boolean): string {
-	const aligns = splitRow(delim).map((c) => {
+function table(header: string, delim: string[], body: string[], autolink: boolean): string {
+	const aligns = delim.map((c) => {
 		const l = c.trim().startsWith(':');
 		const r = c.trim().endsWith(':');
 		return r && l ? 'center' : r ? 'right' : l ? 'left' : '';
 	});
-	const cell = (txt: string, i: number, tag: 'th' | 'td') => {
-		const a = aligns[i] ? ` style="text-align:${aligns[i]}"` : '';
-		return `<${tag}${a}>${inline(txt.trim(), autolink)}</${tag}>`;
+	const row = (line: string, tag: 'th' | 'td') => {
+		const cells = splitRow(line);
+		const html = aligns.map((a, i) => {
+			const style = a ? ` style="text-align:${a}"` : '';
+			return `<${tag}${style}>${inline((cells[i] ?? '').trim(), autolink)}</${tag}>`;
+		});
+		return `<tr>${html.join('')}</tr>`;
 	};
-	const head = `<tr>${splitRow(header)
-		.map((c, i) => cell(c, i, 'th'))
-		.join('')}</tr>`;
-	const rows = body
-		.split('\n')
-		.filter((r) => r.trim())
-		.map(
-			(r) =>
-				`<tr>${splitRow(r)
-					.map((c, i) => cell(c, i, 'td'))
-					.join('')}</tr>`,
-		)
-		.join('');
+	const head = row(header, 'th');
+	const rows = body.map((r) => row(r, 'td')).join('');
 	return `<table><thead>${head}</thead><tbody>${rows}</tbody></table>`;
+}
+
+// GFM pipe tables on escaped text: a header row, a delimiter row with the
+// same cell count, then rows up to a blank line or the start of another block.
+function tables(s: string, saved: string[], autolink: boolean): string {
+	const lines = s.split('\n');
+	const out: string[] = [];
+	for (let i = 0; i < lines.length; i++) {
+		const head = lines[i];
+		const next = lines[i + 1];
+		if (next === undefined || !hasPipe(head) || !hasPipe(next) || TABLE_BREAK.test(head)) {
+			out.push(head);
+			continue;
+		}
+		const delim = splitRow(next);
+		const cols = splitRow(head);
+		if (!delim.every((c) => DELIM_CELL.test(c)) || cols.length !== delim.length) {
+			out.push(head);
+			continue;
+		}
+		let j = i + 2;
+		while (j < lines.length && !TABLE_BREAK.test(lines[j])) j++;
+		out.push('', stash(saved, table(head, delim, lines.slice(i + 2, j), autolink)), '');
+		i = j - 1;
+	}
+	return out.join('\n');
 }
 
 type ListKind = 'ul' | 'ol';
@@ -236,7 +259,7 @@ function blocks(lines: string[]): string {
 }
 
 export function renderMarkdown(src: string, opts: RenderMarkdownOptions = {}): string {
-	const tables = opts.tables !== false;
+	const withTables = opts.tables !== false;
 	const autolink = opts.autolink !== false;
 	const saved: string[] = [];
 
@@ -250,13 +273,7 @@ export function renderMarkdown(src: string, opts: RenderMarkdownOptions = {}): s
 	});
 
 	s = escapeHtml(s);
-	if (tables) {
-		s = s.replace(
-			TABLE_RE,
-			(_m, header: string, delim: string, body: string) =>
-				`\n${stash(saved, table(header, delim, body, autolink))}\n`,
-		);
-	}
+	if (withTables) s = tables(s, saved, autolink);
 	s = inline(s, autolink);
 	s = blocks(s.split('\n'));
 	return restore(s, saved);
