@@ -38,6 +38,7 @@
 		placement = 'inline',
 		orientation = 'stacked',
 		variant = 'flush',
+		labels = 'fit',
 		maxWidth,
 		class: klass = '',
 		style: styleProp = '',
@@ -57,12 +58,36 @@
 		orientation?: 'stacked' | 'inline';
 		/** 'floating' = rounded elevated card inset from the edges. */
 		variant?: 'flush' | 'floating';
+		/**
+		 * Stacked labels that run out of room. 'fit' shrinks the font down to
+		 * `--navbar-label-min` (10px) so the longest word fits, then wraps to two
+		 * lines, then ellipsis. 'truncate' = one line with ellipsis at full size.
+		 * 'full' never clips: labels spill past their item.
+		 */
+		labels?: 'fit' | 'truncate' | 'full';
 		/** Caps and centres the row of items. */
 		maxWidth?: string;
 		class?: string;
 		style?: string;
 		[key: string]: unknown;
 	} = $props();
+
+	// Widest word across the labels in em, rounded up from typical UI sans metrics.
+	const charEm = (c: string) =>
+		/[ijlI.,:;!|']/.test(c) ? 0.28
+		: /[frtJ]/.test(c) ? 0.4
+		: /[mwMW]/.test(c) ? 0.94
+		: /[A-Z]/.test(c) ? 0.72
+		: /[0-9]/.test(c) ? 0.58
+		: /[a-z]/.test(c) ? 0.6
+		: c >= '\u2e80' ? 1
+		: 0.62;
+	const labelEm = $derived(
+		Math.max(
+			1,
+			...items.flatMap((item) => item.label.split(/\s+/).map((w) => [...w].reduce((sum, c) => sum + charEm(c), 0)))
+		).toFixed(2)
+	);
 
 	const hasBadge = (badge: NavBarItem['badge']) =>
 		badge !== undefined && badge !== null && badge !== '' && badge !== 0;
@@ -151,11 +176,11 @@
 <nav
 	data-tsu="NavBar"
 	aria-label={label}
-	class="navbar {klass}"
+	class="navbar labels-{labels} {klass}"
 	class:bar={placement === 'bar'}
 	class:floating={variant === 'floating'}
 	class:stacked={orientation === 'stacked'}
-	style="{maxWidth ? `--navbar-max: ${maxWidth};` : ''}{styleProp}"
+	style="--navbar-label-em: {labelEm};{maxWidth ? ` --navbar-max: ${maxWidth};` : ''}{styleProp}"
 	{...rest}
 >
 	<div class="navbar-row">
@@ -313,6 +338,28 @@
 	}
 	.stacked .navbar-label {
 		max-width: 100%;
+	}
+	.stacked.labels-fit :is(.navbar-inner, .navbar-side) {
+		gap: 0;
+	}
+	.stacked.labels-fit .navbar-link {
+		container-type: inline-size;
+		contain-intrinsic-inline-size: 4rem;
+		padding-inline: 0;
+	}
+	.stacked.labels-fit .navbar-label {
+		display: -webkit-box;
+		-webkit-box-orient: vertical;
+		-webkit-line-clamp: 2;
+		line-clamp: 2;
+		font-size: clamp(var(--navbar-label-min, calc(0.625rem * var(--fs-scale))), 100cqi / var(--navbar-label-em), 1em);
+		line-height: var(--lh-tight);
+		text-align: center;
+		white-space: normal;
+	}
+	.labels-full .navbar-label {
+		max-width: none;
+		overflow: visible;
 	}
 	.navbar-badge {
 		position: absolute;

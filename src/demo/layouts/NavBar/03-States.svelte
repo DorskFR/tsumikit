@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'Links, badges and long labels',
-		caption: 'href items render links with aria-current="page" from current; badges take numbers or text and hide at 0; emoji replaces icon; long labels truncate.',
+		caption: 'href items render links with aria-current="page" from current; badges take numbers or text and hide at 0; emoji replaces icon; long stacked labels shrink, then wrap to two lines, then ellipsis.',
 		layout: 'stack'
 	};
 </script>
