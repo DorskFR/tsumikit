@@ -52,11 +52,11 @@ test('Artwork prop surface: src, required alt, seed, aspect, size, radius, fit, 
 });
 
 test('Artwork renders a lazy async image and latches to the fallback on error, resetting when src changes', () => {
-	assert.match(source, /<img {src} {srcset} {sizes} {alt} class="img fit-{fit}" loading="lazy" decoding="async" onerror={fail} \/>/);
-	assert.match(source, /let failed = \$state\(false\);/);
-	assert.match(source, /\$effect\(\(\) => {\s*src;\s*srcset;\s*failed = false;\s*}\);/);
-	assert.match(source, /function fail\(\) {\s*failed = true;\s*onerror\?\.\(\);\s*}/);
-	assert.match(source, /const showImage = \$derived\(Boolean\(src\) && !failed\);/);
+	assert.match(source, /<img {src} {srcset} {sizes} {alt} class="img fit-{fit}" loading="lazy" decoding="async" {@attach watchLoad} \/>/);
+	assert.match(source, /const source = \$derived\(`\$\{src \?\? ''\} \$\{srcset \?\? ''\}`\);/);
+	assert.match(source, /let failedSource = \$state<string \| null>\(null\);/);
+	assert.match(source, /function fail\(\) {\s*failedSource = source;\s*onerror\?\.\(\);\s*}/);
+	assert.match(source, /const showImage = \$derived\(Boolean\(src\) && failedSource !== source\);/);
 	assert.match(source, /artworkGradient\(key\)/);
 	assert.match(source, /const key = \$derived\(seed \?\? alt\);/);
 	assert.match(source, /{:else if fallback === 'initials' && text}/);

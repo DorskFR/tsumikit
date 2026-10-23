@@ -258,6 +258,8 @@
 		border: 0;
 		background: none;
 		font: inherit;
+		text-transform: inherit;
+		letter-spacing: inherit;
 		color: inherit;
 		text-align: start;
 		cursor: pointer;

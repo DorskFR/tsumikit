@@ -4,7 +4,7 @@
 	// initials (or an icon) when there is no source or it fails to load. Width
 	// comes from `size`, height from `aspect`; `status` overlays a Dot/Badge in
 	// the bottom-right corner.
-	import type { Snippet } from 'svelte';
+	import { untrack, type Snippet } from 'svelte';
 	import { artworkGradient, initials as initialsOf } from '$lib/artwork';
 	import Icon from './Icon.svelte';
 	import type { IconName } from './Icon.svelte';
@@ -51,22 +51,26 @@
 		...rest
 	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
 
-	let failed = $state(false);
-	$effect(() => {
-		src;
-		srcset;
-		failed = false;
-	});
+	const source = $derived(`${src ?? ''} ${srcset ?? ''}`);
+	let failedSource = $state<string | null>(null);
 
 	const key = $derived(seed ?? alt);
-	const showImage = $derived(Boolean(src) && !failed);
+	const showImage = $derived(Boolean(src) && failedSource !== source);
 	const tile = $derived(showImage ? undefined : alt.trim() ? 'named' : 'decorative');
 	const gradient = $derived(showImage ? undefined : artworkGradient(key));
 	const text = $derived(fallback === 'initials' ? initialsOf(key) : '');
 
 	function fail() {
-		failed = true;
+		failedSource = source;
 		onerror?.();
+	}
+
+	function watchLoad(img: HTMLImageElement) {
+		img.addEventListener('error', fail);
+		untrack(() => {
+			if (img.complete && img.naturalWidth === 0) fail();
+		});
+		return () => img.removeEventListener('error', fail);
 	}
 </script>
 
@@ -83,7 +87,7 @@
 	{...rest}
 >
 	{#if showImage}
-		<img {src} {srcset} {sizes} {alt} class="img fit-{fit}" loading="lazy" decoding="async" onerror={fail} />
+		<img {src} {srcset} {sizes} {alt} class="img fit-{fit}" loading="lazy" decoding="async" {@attach watchLoad} />
 	{:else if fallback === 'initials' && text}
 		<span class="initials" aria-hidden="true">{text}</span>
 	{:else if fallback === 'icon'}
