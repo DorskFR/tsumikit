@@ -316,12 +316,12 @@
   transition-duration: var(--dur-press);
   transition-timing-function: var(--ease-out);
 }
-:root[data-look="tactile"] .row {
+:root[data-look="tactile"] [data-tsu="RadioGroup"] .row {
   border-color: transparent;
   border-radius: var(--r-lg);
   background: var(--bg-elevated-2);
 }
-:root[data-look="tactile"] .row.selected {
+:root[data-look="tactile"] [data-tsu="RadioGroup"] .row.selected {
   border-color: transparent;
   background: color-mix(in oklab, var(--accent) 12%, var(--bg-elevated));
 }

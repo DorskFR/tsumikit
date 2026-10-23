@@ -1,6 +1,7 @@
 <script lang="ts">
 	import type { ComponentProps } from 'svelte';
 	import SegmentedControl, { type SegmentOption } from '$lib/components/molecules/SegmentedControl.svelte';
+	import { browser } from '$lib/env';
 	import { theme } from '$lib/stores/theme.svelte';
 	import { LOOKS, type LookId } from '$lib/theme-mode';
 
@@ -40,7 +41,7 @@
 </script>
 
 {#snippet option(o: SegmentOption)}
-	<span class="look">
+	<span class="look" data-look-option={o.value}>
 		<span class="name">{o.label}</span>
 		{#if experimentalLabel && tagged.has(o.value)}<span class="tag">{experimentalLabel}</span>{/if}
 	</span>
@@ -48,7 +49,7 @@
 
 <SegmentedControl
 	{options}
-	value={theme.look}
+	value={browser ? theme.look : undefined}
 	onchange={(v) => {
 		theme.setLook(v);
 		onchange?.(theme.look);
@@ -74,6 +75,18 @@
 		min-width: 0;
 		overflow: hidden;
 		text-overflow: ellipsis;
+	}
+	/* Prerendered markup selects nothing; until hydration the look prepainted on <html> shows as selected. */
+	:global(:root:not([data-look]) .look-picker:not(:has(.selected)) .seg-item:has(> [data-look-option='default'])),
+	:global(:root[data-look='depth'] .look-picker:not(:has(.selected)) .seg-item:has(> [data-look-option='depth'])),
+	:global(:root[data-look='tactile'] .look-picker:not(:has(.selected)) .seg-item:has(> [data-look-option='tactile'])),
+	:global(:root[data-look='editorial'] .look-picker:not(:has(.selected)) .seg-item:has(> [data-look-option='editorial'])) {
+		color: var(--text);
+		background: var(--thumb-fill);
+		box-shadow: var(--thumb-shadow);
+	}
+	:global(:root[data-look='editorial'] .look-picker:not(:has(.selected)) .seg-item:has(> [data-look-option='editorial'])) {
+		color: var(--bg);
 	}
 	.tag {
 		flex: none;
