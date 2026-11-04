@@ -239,11 +239,16 @@
 		const pos = el.selectionStart ?? value.length;
 		const id = ++reqId;
 		const next = key ? await suggestSingle(schema, key, value) : await suggest(schema, value, pos);
-		if (id !== reqId) return; // a newer keystroke won
+		if (id !== reqId || document.activeElement !== el) return;
 		menu = next;
 		active = 0;
 		keyboardNavigation = false;
 		open = !!next && next.items.length > 0;
+	}
+
+	function close() {
+		++reqId;
+		open = false;
 	}
 
 	function accept(i: number) {
@@ -269,7 +274,7 @@
 			el.focus();
 			el.setSelectionRange(caret, caret);
 			if (s.advance) refresh();
-			else open = false;
+			else close();
 		});
 	}
 
@@ -282,7 +287,7 @@
 				const exit = closingQuoteExit(value, pos);
 				if (exit !== null) {
 					e.preventDefault();
-					open = false;
+					close();
 					setCaret(exit);
 					return;
 				}
@@ -299,6 +304,7 @@
 		}
 		if (!open || !menu) {
 			if (e.key === 'Enter') submit();
+			else if (e.key === 'Escape') close();
 			return;
 		}
 		switch (e.key) {
@@ -319,13 +325,13 @@
 				break;
 			case 'Escape':
 				e.preventDefault();
-				open = false;
+				close();
 				break;
 		}
 	}
 
 	function submit() {
-		open = false;
+		close();
 		onsubmit?.(value);
 	}
 
@@ -399,7 +405,9 @@
 				}}
 				onblur={() => {
 					focused = false;
-					setTimeout(() => (open = false), 120);
+					setTimeout(() => {
+						if (document.activeElement !== el) close();
+					}, 120);
 				}}
 				{onkeydown}
 			/>
