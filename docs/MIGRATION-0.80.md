@@ -214,6 +214,17 @@ No token was renamed or removed. Tokens you overrode keep working.
   With the defaults, everything looks as it did in 0.78; the release notes report that computed
   styles were compared in Chromium. Per-component hooks such as `--btn-bg`, `--input-bg` and
   `--cb-border` still take precedence.
+- **0.81, reskin tokens.** Non-code UI text and control corners read one token each, so a sans,
+  squarish app overrides three lines instead of every component:
+  - `--font-numeric` (default `var(--font-mono)`): Metric values and segments, `Badge mono`,
+    `Input mono`, the FilterInput query and option codes
+  - `--font-label` (default `var(--font-mono)`): Metric and NavSection eyebrow labels, Button
+    shortcut hints
+  - `--r-control` (default `var(--r-pill)`): the SegmentedControl track, thumb and segments, and
+    `FilterInput shape="pill"`
+
+  `Kbd`, `CodeBlock`, `GitRef`, `Timestamp` and count badges keep `--font-mono` / `--r-pill`.
+  Artwork now keeps its gradient and initials under the image and fades the image in on load.
 
 ## 4. Opting in (optional)
 

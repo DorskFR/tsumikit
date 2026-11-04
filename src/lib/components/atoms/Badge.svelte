@@ -230,7 +230,7 @@
 		border-color: transparent;
 	}
 	.mono {
-		font-family: var(--font-mono);
+		font-family: var(--font-numeric);
 		font-weight: var(--badge-fw, var(--fw-normal));
 	}
 	.uppercase {

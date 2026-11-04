@@ -187,7 +187,7 @@
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
 		color: var(--text-muted);
-		font-family: var(--font-mono);
+		font-family: var(--font-label);
 		line-height: var(--lh-snug);
 	}
 	.metric-chip {
@@ -207,7 +207,7 @@
 		display: flex;
 		align-items: baseline;
 		gap: var(--sp-1);
-		font-family: var(--font-mono);
+		font-family: var(--font-numeric);
 		line-height: var(--lh-none);
 	}
 	.metric-num {
@@ -274,7 +274,7 @@
 		flex-wrap: wrap;
 		align-items: baseline;
 		gap: var(--sp-1) var(--sp-3);
-		font-family: var(--font-mono);
+		font-family: var(--font-numeric);
 		font-size: var(--fs-xs);
 		color: var(--text-muted);
 	}

@@ -687,7 +687,7 @@
 		position: absolute;
 		top: var(--sp-0-5);
 		left: var(--sp-1);
-		font-family: var(--font-mono);
+		font-family: var(--font-label);
 		font-size: calc(var(--fs-xs) * 0.75);
 		font-weight: var(--fw-medium);
 		color: var(--text-faint);

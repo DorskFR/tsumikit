@@ -496,7 +496,7 @@
 		font-size: var(--control-fs-sm);
 	}
 	.fi--pill .fi__bar {
-		border-radius: var(--r-pill);
+		border-radius: var(--r-control);
 		padding-inline: var(--sp-4);
 	}
 	.surface-raised .fi__bar {
@@ -548,7 +548,7 @@
 		border: 0;
 		background: transparent;
 		color: var(--text);
-		font-family: var(--font-mono);
+		font-family: var(--font-numeric);
 		font-size: var(--control-fs-md);
 		outline: none;
 		min-width: 0;
@@ -664,7 +664,7 @@
 	}
 	.fi__opt-code {
 		margin-left: auto;
-		font-family: var(--font-mono);
+		font-family: var(--font-numeric);
 		font-size: var(--fs-xs);
 		color: var(--text-muted);
 		background: var(--bg-elevated-2);

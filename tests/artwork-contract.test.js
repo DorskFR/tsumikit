@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { artworkGradient, artworkHue, initials } from '../src/lib/artwork.ts';
+import { hasDecl, normalize } from './helpers.mjs';
 
 const [source, index] = await Promise.all([
 	readFile(new URL('../src/lib/components/atoms/Artwork.svelte', import.meta.url), 'utf8'),
@@ -52,14 +53,14 @@ test('Artwork prop surface: src, required alt, seed, aspect, size, radius, fit, 
 });
 
 test('Artwork renders a lazy async image and latches to the fallback on error, resetting when src changes', () => {
-	assert.match(source, /<img {src} {srcset} {sizes} {alt} class="img fit-{fit}" loading="lazy" decoding="async" {@attach watchLoad} \/>/);
+	assert.match(normalize(source), /<img {src} {srcset} {sizes} {alt} class="img fit-{fit}" class:loaded loading="lazy" decoding="async" {@attach watchLoad} \/>/);
 	assert.match(source, /const source = \$derived\(`\$\{src \?\? ''\} \$\{srcset \?\? ''\}`\);/);
 	assert.match(source, /let failedSource = \$state<string \| null>\(null\);/);
 	assert.match(source, /function fail\(\) {\s*failedSource = source;\s*onerror\?\.\(\);\s*}/);
 	assert.match(source, /const showImage = \$derived\(Boolean\(src\) && failedSource !== source\);/);
 	assert.match(source, /artworkGradient\(key\)/);
 	assert.match(source, /const key = \$derived\(seed \?\? alt\);/);
-	assert.match(source, /{:else if fallback === 'initials' && text}/);
+	assert.match(source, /{#if fallback === 'initials' && text}/);
 	assert.match(source, /{:else if fallback === 'icon'}\s*<span class="glyph" aria-hidden="true"><Icon name={icon} \/><\/span>/);
 });
 
@@ -77,6 +78,20 @@ test('Artwork sizing, a11y and status overlay', () => {
 	assert.match(source, /\.fit-contain\s*{[^}]*object-fit: contain;/s);
 });
 
+test('Artwork keeps the gradient and initials under the image and fades the image in on load', () => {
+	const css = normalize(source.slice(source.indexOf('<style>')));
+	assert.match(source, /const gradient = \$derived\(artworkGradient\(key\)\);/);
+	assert.match(source, /let loadedSource = \$state<string \| null>\(null\);/);
+	assert.match(source, /const loaded = \$derived\(showImage && loadedSource === source\);/);
+	assert.match(source, /img\.addEventListener\('load', load\);/);
+	assert.match(source, /if \(img\.naturalWidth === 0\) fail\(\);\s*else load\(\);/);
+	assert.ok(source.indexOf("{#if fallback === 'initials' && text}") < source.indexOf('{#if showImage}'));
+	assert.doesNotMatch(source, /{:else if fallback === 'initials'/);
+	assert.ok(hasDecl(css, '.img', 'opacity', '0'));
+	assert.ok(hasDecl(css, '.img', 'transition', 'opacity var(--dur-release) var(--ease)'));
+	assert.ok(hasDecl(css, '.img.loaded', 'opacity', '1'));
+});
+
 test('Artwork and the artwork helpers are part of the public API', () => {
 	assert.match(index, /export { default as Artwork } from '\.\/components\/atoms\/Artwork\.svelte';/);
 	assert.match(index, /export { artworkGradient, artworkHue, initials } from '\.\/artwork';/);
@@ -85,5 +100,5 @@ test('Artwork and the artwork helpers are part of the public API', () => {
 test('Artwork passes optional srcset and sizes through to the img', () => {
 	assert.match(source, /srcset\?: string;/);
 	assert.match(source, /sizes\?: string;/);
-	assert.match(source, /<img {src} {srcset} {sizes} /);
+	assert.match(normalize(source), /<img {src} {srcset} {sizes} /);
 });
