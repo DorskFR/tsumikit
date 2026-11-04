@@ -15,8 +15,8 @@ test('FilterInput exposes font: mono | sans, defaulting to mono', () => {
 	assert.match(input, /class:fi--sans={font === 'sans'}/);
 });
 
-test('sans switches the input (and so its placeholder) to --font-sans after the mono base rule', () => {
-	assert.ok(hasDecl(css, '.fi__input', 'font-family', 'var(--font-mono)'));
+test('sans switches the input (and so its placeholder) to --font-sans after the numeric base rule', () => {
+	assert.ok(hasDecl(css, '.fi__input', 'font-family', 'var(--font-numeric)'));
 	assert.ok(hasDecl(css, '.fi--sans .fi__input', 'font-family', 'var(--font-sans)'));
 	assert.ok(css.indexOf('.fi--sans .fi__input {') > css.indexOf('.fi__input { flex: 1;'));
 	assert.doesNotMatch(css, /::placeholder {[^}]*font-family/);

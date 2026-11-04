@@ -53,7 +53,7 @@
 		padding: 0 var(--sp-3);
 		margin-bottom: var(--sp-1);
 		color: var(--text-faint);
-		font-family: var(--font-mono);
+		font-family: var(--font-label);
 		font-size: var(--fs-xs);
 		font-weight: var(--fw-semibold);
 		text-transform: uppercase;

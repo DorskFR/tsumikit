@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { HTMLAttributes } from 'svelte/elements';
-	// Cover / thumbnail tile: a lazy <img> that swaps to a seeded gradient with
-	// initials (or an icon) when there is no source or it fails to load. Width
-	// comes from `size`, height from `aspect`; `status` overlays a Dot/Badge in
-	// the bottom-right corner.
+	// Cover / thumbnail tile: a seeded gradient with initials (or an icon) that a
+	// lazy <img> fades in over once it loads; the gradient stays when there is no
+	// source or it fails. Width comes from `size`, height from `aspect`; `status`
+	// overlays a Dot/Badge in the bottom-right corner.
 	import { untrack, type Snippet } from 'svelte';
 	import { artworkGradient, initials as initialsOf } from '$lib/artwork';
 	import Icon from './Icon.svelte';
@@ -53,11 +53,13 @@
 
 	const source = $derived(`${src ?? ''} ${srcset ?? ''}`);
 	let failedSource = $state<string | null>(null);
+	let loadedSource = $state<string | null>(null);
 
 	const key = $derived(seed ?? alt);
 	const showImage = $derived(Boolean(src) && failedSource !== source);
+	const loaded = $derived(showImage && loadedSource === source);
 	const tile = $derived(showImage ? undefined : alt.trim() ? 'named' : 'decorative');
-	const gradient = $derived(showImage ? undefined : artworkGradient(key));
+	const gradient = $derived(artworkGradient(key));
 	const text = $derived(fallback === 'initials' ? initialsOf(key) : '');
 
 	function fail() {
@@ -66,11 +68,20 @@
 	}
 
 	function watchLoad(img: HTMLImageElement) {
+		const load = () => {
+			loadedSource = source;
+		};
 		img.addEventListener('error', fail);
+		img.addEventListener('load', load);
 		untrack(() => {
-			if (img.complete && img.naturalWidth === 0) fail();
+			if (!img.complete) return;
+			if (img.naturalWidth === 0) fail();
+			else load();
 		});
-		return () => img.removeEventListener('error', fail);
+		return () => {
+			img.removeEventListener('error', fail);
+			img.removeEventListener('load', load);
+		};
 	}
 </script>
 
@@ -86,12 +97,23 @@
 	aria-hidden={tile === 'decorative' ? 'true' : undefined}
 	{...rest}
 >
-	{#if showImage}
-		<img {src} {srcset} {sizes} {alt} class="img fit-{fit}" loading="lazy" decoding="async" {@attach watchLoad} />
-	{:else if fallback === 'initials' && text}
+	{#if fallback === 'initials' && text}
 		<span class="initials" aria-hidden="true">{text}</span>
 	{:else if fallback === 'icon'}
 		<span class="glyph" aria-hidden="true"><Icon name={icon} /></span>
+	{/if}
+	{#if showImage}
+		<img
+			{src}
+			{srcset}
+			{sizes}
+			{alt}
+			class="img fit-{fit}"
+			class:loaded
+			loading="lazy"
+			decoding="async"
+			{@attach watchLoad}
+		/>
 	{/if}
 	{#if status}
 		<span class="status">{@render status()}</span>
@@ -145,6 +167,11 @@
 		width: 100%;
 		height: 100%;
 		display: block;
+		opacity: 0;
+		transition: opacity var(--dur-release) var(--ease);
+	}
+	.img.loaded {
+		opacity: 1;
 	}
 	.fit-cover {
 		object-fit: cover;

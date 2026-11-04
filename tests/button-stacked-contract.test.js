@@ -79,7 +79,7 @@ test('stacked heights follow size from tokens; danger paints border and ink', ()
 	assert.match(button, /\.btn-stacked,\s*\.btn-stacked\.btn-sm,[^{]*{[^}]*min-height: var\(--btn-size, var\(--control-height-large\)\);/s);
 	assert.match(button, /\.btn-stacked\.btn-danger,\s*\.btn-stacked\.btn-tone-danger\s*{\s*color: var\(--danger\);\s*border-color: var\(--danger\);/);
 	assert.ok(hasDecl(button, '.btn-shortcut', 'color', 'var(--text-faint)'));
-	assert.ok(hasDecl(button, '.btn-shortcut', 'font-family', 'var(--font-mono)'));
+	assert.ok(hasDecl(button, '.btn-shortcut', 'font-family', 'var(--font-label)'));
 });
 
 test('stacked slots carry the coarse-pointer hit slab', () => {

@@ -259,7 +259,7 @@
 		opacity: 1;
 	}
 	.mono {
-		font-family: var(--font-mono);
+		font-family: var(--font-numeric);
 	}
 
 	.input-wrap {

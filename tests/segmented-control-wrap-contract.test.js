@@ -37,8 +37,8 @@ test("wrap keeps each item at one row's height instead of 100%", () => {
 });
 
 test('wrap radius is capped at half a row so a wrapped pill squares its corners', () => {
-	assert.equal(rule(css, '.seg-wrap:not(.seg-icon)')['border-radius'], 'calc(var(--seg-h) / 2)');
-	assert.equal(rule(css, '.seg')['border-radius'], 'var(--r-pill)');
+	assert.equal(rule(css, '.seg-wrap:not(.seg-icon)')['border-radius'], 'min(var(--r-control), calc(var(--seg-h) / 2))');
+	assert.equal(rule(css, '.seg')['border-radius'], 'var(--r-control)');
 });
 
 test('icon segments stay concentric with the track', () => {

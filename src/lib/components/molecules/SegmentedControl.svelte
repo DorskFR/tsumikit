@@ -249,7 +249,7 @@
 		padding: var(--sp-0-5);
 		background: var(--track-fill);
 		border: var(--edge-width) solid var(--track-edge);
-		border-radius: var(--r-pill);
+		border-radius: var(--r-control);
 		max-width: 100%;
 		min-width: 0;
 	}
@@ -325,7 +325,7 @@
 		left: 0;
 		width: 0;
 		height: 0;
-		border-radius: var(--r-pill);
+		border-radius: var(--r-control);
 		background: var(--thumb-fill);
 		box-shadow: var(--thumb-shadow);
 		transform-origin: top left;
@@ -346,7 +346,7 @@
 		height: 100%;
 		padding: 0 var(--control-px-md);
 		border: 0;
-		border-radius: var(--r-pill);
+		border-radius: var(--r-control);
 		background: transparent;
 		color: var(--text-muted);
 		font-size: var(--control-fs-md);
@@ -370,7 +370,7 @@
 	}
 	/* Capped at half a row: one row stays a pill, extra rows square the corners. */
 	.seg-wrap:not(.seg-icon) {
-		border-radius: calc(var(--seg-h) / 2);
+		border-radius: min(var(--r-control), calc(var(--seg-h) / 2));
 	}
 	/* Icon-only segments are squares; corners stay concentric with the track. */
 	.seg-icon .seg-item,

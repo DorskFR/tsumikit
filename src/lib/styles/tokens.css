@@ -113,6 +113,10 @@
   --font-mono:
     ui-monospace, "SF Mono", "JetBrains Mono", "Fira Code", Menlo, Consolas,
     monospace;
+  /* Non-code UI text: counts and stat values (--font-numeric), eyebrow labels
+     and shortcut hints (--font-label). Code-ish slots keep --font-mono. */
+  --font-numeric: var(--font-mono);
+  --font-label: var(--font-mono);
 
   /* Text-scale factor (CCT-305). The UI font control multiplies ONLY the
 	   font-size tokens by this — not the root font-size — so bumping the size up
@@ -171,6 +175,8 @@
   --r-md: 10px;
   --r-lg: 14px;
   --r-pill: 999px;
+  /* Segmented tracks and pill-shaped filter bars; squarish apps set --r-md. */
+  --r-control: var(--r-pill);
 
   /* ---- Elevation ---- */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
