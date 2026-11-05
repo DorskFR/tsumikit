@@ -9,9 +9,10 @@
 	//   • an optional action area (slot via `action`, or a built-in button when
 	//     `actionLabel`+`onAction` are passed)
 	// Everything is token-driven. `size` picks the layout: `default`, `compact`
-	// (tighter spacing), or `inline` (a single muted line). `loading` swaps the
-	// chip for a spinner and marks the root busy.
+	// (tighter spacing), or `inline` (a single muted line). `loading` marks the
+	// root busy at once and swaps the chip for a spinner once `pending()` lets it.
 	import type { Snippet } from 'svelte';
+	import { pending } from '$lib/pending.svelte';
 	import Button from '../atoms/Button.svelte';
 	import Icon, { type IconName } from '../atoms/Icon.svelte';
 	import Spinner from '../atoms/Spinner.svelte';
@@ -29,6 +30,8 @@
 		compact = false,
 		size,
 		loading = false,
+		loadingDelay,
+		loadingMin,
 		class: klass = '',
 		// Raw SVG markup for a custom glyph — passed straight to `Icon`.
 		iconChildren,
@@ -46,6 +49,9 @@
 		compact?: boolean;
 		size?: 'inline' | 'compact' | 'default';
 		loading?: boolean;
+		/** Show delay / minimum visible time for the spinner (ms); 0 follows `loading` at once. */
+		loadingDelay?: number;
+		loadingMin?: number;
 		class?: string;
 		iconChildren?: Snippet;
 		action?: Snippet;
@@ -53,18 +59,19 @@
 	} = $props();
 
 	const sz = $derived(size ?? (compact ? 'compact' : 'default'));
+	const spin = pending(() => loading, () => ({ delay: loadingDelay, min: loadingMin }));
 </script>
 
 <div
 	class="empty empty-{canonicalTone(tone)} {klass}"
 	class:empty-compact={sz === 'compact'}
 	class:empty-inline={sz === 'inline'}
-	class:empty-loading={loading}
+	class:empty-loading={spin.visible}
 	aria-busy={loading ? 'true' : undefined}
 	data-tsu="EmptyState"
 	{...rest}
 >
-	{#if loading}
+	{#if spin.visible}
 		<span class="empty-chip">
 			<Spinner />
 		</span>
@@ -161,7 +168,7 @@
 		font-size: var(--fs-sm);
 	}
 	.empty-inline .empty-desc {
-		max-width: none;
+		max-inline-size: none;
 	}
 	.empty-inline .empty-action {
 		margin-top: 0;
@@ -175,7 +182,7 @@
 	}
 	.empty-desc {
 		margin: 0;
-		max-width: 32ch;
+		max-inline-size: var(--measure, 68ch);
 		font-size: var(--fs-sm);
 		color: var(--text-muted);
 		line-height: var(--lh-normal);

@@ -13,7 +13,7 @@ test('Toaster, store and types are exported from the package index', () => {
 	for (const name of ['Toast', 'ToastAction', 'ToastOptions', 'ToastTone', 'ToastToneInput']) {
 		assert.match(index, new RegExp(`type ${name},`), `${name} exported`);
 	}
-	assert.match(index, /toasts,?\s*} from '\.\/stores\/toast\.svelte';/);
+	assert.match(index, /toasts,\s*UNDO_FAIL_MESSAGE,\s*type UndoOptions,\s*} from '\.\/stores\/toast\.svelte';/);
 });
 
 test('store: tones include info, danger aliases error, action + pending on Toast', () => {

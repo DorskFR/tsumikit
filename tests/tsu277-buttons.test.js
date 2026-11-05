@@ -79,8 +79,9 @@ test('loadingStyle is optional, defaults to the inline spinner and keeps the old
 	assert.match(src, /const busy = \$derived\(loading === true\);/);
 	assert.match(src, /const inactive = \$derived\(disabled \|\| busy\);/);
 	assert.match(src, /aria-busy=\{busy \|\| undefined\}/);
-	assert.match(src, /\{#if busy && !layered\}<span class="btn-spinner" aria-hidden="true"><\/span>/);
-	assert.match(src, /class:loading=\{busy\}/);
+	assert.match(src, /const spinning = \$derived\(spin\.visible\);/);
+	assert.match(src, /\{#if spinning && !layered\}<span class="btn-spinner" aria-hidden="true"><\/span>/);
+	assert.match(src, /class:loading=\{spinning\}\s*class:btn-busy=\{busy\}/);
 });
 
 test('morph stacks label, spinner and done check in one grid cell; fill drives a scaled bar and a clip-path ink layer', () => {

@@ -27,11 +27,11 @@ test('compact stays accepted and maps onto size', () => {
 	assert.match(empty, /class:empty-compact=\{sz === 'compact'\}/);
 });
 
-test('loading renders a Spinner in the chip and marks the root busy', () => {
+test('loading marks the root busy at once and renders the Spinner once pending() shows it', () => {
 	assert.match(empty, /import Spinner from '\.\.\/atoms\/Spinner\.svelte';/);
-	assert.match(empty, /\{#if loading\}\s*<span class="empty-chip">\s*<Spinner \/>/);
+	assert.match(empty, /\{#if spin\.visible\}\s*<span class="empty-chip">\s*<Spinner \/>/);
 	assert.match(empty, /aria-busy=\{loading \? 'true' : undefined\}/);
-	assert.match(empty, /class:empty-loading=\{loading\}/);
+	assert.match(empty, /class:empty-loading=\{spin\.visible\}/);
 });
 
 test('inline size is a single muted row without an icon chip', () => {
