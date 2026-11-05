@@ -26,9 +26,9 @@ const codeish = await Promise.all(
 	)
 );
 
-test('tokens.css declares the reskin tokens with look-preserving defaults', () => {
-	assert.match(tokens, /^\s*--font-numeric: var\(--font-mono\);/m);
-	assert.match(tokens, /^\s*--font-label: var\(--font-mono\);/m);
+test('tokens.css declares the reskin tokens with sans defaults', () => {
+	assert.match(tokens, /^\s*--font-numeric: var\(--font-sans\);/m);
+	assert.match(tokens, /^\s*--font-label: var\(--font-sans\);/m);
 	assert.match(tokens, /^\s*--r-control: var\(--r-pill\);/m);
 	assert.ok(tokens.indexOf('--font-mono:') < tokens.indexOf('--font-numeric:'));
 	assert.ok(tokens.indexOf('--r-pill:') < tokens.indexOf('--r-control:'));

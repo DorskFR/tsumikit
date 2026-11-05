@@ -32,8 +32,8 @@
 		wrap?: 'normal' | 'anywhere' | 'balance';
 		uppercase?: boolean;
 		leading?: 'tight' | 'normal' | 'none';
-		// CSS max-width for the line measure, e.g. "60ch".
-		measure?: string;
+		// Line measure: `true` caps at --measure (68ch), a string sets a CSS max-width ("60ch").
+		measure?: string | boolean;
 		grow?: boolean;
 		// false pins the size to its unscaled px value, ignoring --fs-scale.
 		scale?: boolean;
@@ -67,7 +67,7 @@
 	const toneClass = $derived(
 		tone === 'neutral' ? 'default' : canonicalTone(tone) === 'ok' ? 'success' : canonicalTone(tone)
 	);
-	const styleAttr = $derived(measure ? `max-width: ${measure}` : undefined);
+	const styleAttr = $derived(measure ? `max-width: ${measure === true ? 'var(--measure)' : measure}` : undefined);
 </script>
 
 <svelte:element

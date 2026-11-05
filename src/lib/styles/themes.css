@@ -21,9 +21,9 @@
   --c-text: #1a1d23;
   --c-text-muted: #5b6472;
   --c-text-faint: #616979;
-  --c-accent: #007a50;
+  --c-accent: #0b5cad;
   --c-accent-ink: #ffffff;
-  --c-accent-dim: #9bd9c2;
+  --c-accent-dim: #87aad6;
   --c-blue: #0f64c0;
   --c-amber: #926100;
   --c-red: #c63732;
@@ -54,9 +54,9 @@
   --c-text: #3b2f1e;
   --c-text-muted: #6c5a3f;
   --c-text-faint: #726041;
-  --c-accent: #456c3b;
+  --c-accent: #2f6786;
   --c-accent-ink: #faf3e3;
-  --c-accent-dim: #aec79f;
+  --c-accent-dim: #91a8b0;
   --c-blue: #1d628e;
   --c-amber: #875b00;
   --c-red: #b03b35;
@@ -209,7 +209,7 @@
   --c-accent-dim: #af3a03;
   --c-blue: #8dafa2;
   --c-amber: #fabd2f;
-  --c-red: #ff826e;
+  --c-red: #ff9494;
   --c-green: #b8bb26;
   --c-violet: #df91a6;
   --c-gold: #fabd2f;
@@ -320,9 +320,9 @@
   --c-text: #ddd0b4;
   --c-text-muted: #bbc4b7;
   --c-text-faint: #aebdb2;
-  --c-accent: #bbd594;
+  --c-accent: #85dadf;
   --c-accent-ink: #1c2226;
-  --c-accent-dim: #5c6f49;
+  --c-accent-dim: #588388;
   --c-blue: #99d7ce;
   --c-amber: #e6c689;
   --c-red: #ffb7b6;
@@ -349,9 +349,9 @@
   --c-text: #f8f8f2;
   --c-text-muted: #cfcfc2;
   --c-text-faint: #aeaa95;
-  --c-accent: #a6e22e;
+  --c-accent: #66d9ef;
   --c-accent-ink: #14160f;
-  --c-accent-dim: #5f7d18;
+  --c-accent-dim: #4a7b81;
   --c-blue: #66d9ef;
   --c-amber: #fd971f;
   --c-red: #ff7495;
@@ -382,9 +382,9 @@
   --c-text: #ffffff;
   --c-text-muted: #c8c8c8;
   --c-text-faint: #8e8e8e;
-  --c-accent: #34e89e;
+  --c-accent: #38d0ff;
   --c-accent-ink: #000000;
-  --c-accent-dim: #1f8f62;
+  --c-accent-dim: #0f4f63;
   --c-blue: #4db5ff;
   --c-amber: #ffc24b;
   --c-red: #ff6b6b;
@@ -417,9 +417,9 @@
   --c-text: #000000;
   --c-text-muted: #2e2e2e;
   --c-text-faint: #555555;
-  --c-accent: #037b4d;
+  --c-accent: #0a4fc4;
   --c-accent-ink: #ffffff;
-  --c-accent-dim: #6fbf9a;
+  --c-accent-dim: #87aae6;
   --c-blue: #0b5fc4;
   --c-amber: #946100;
   --c-red: #c4150c;
@@ -479,7 +479,7 @@
    light, soft shadows, pale-tint/dark-ink machine badges.
    =================================================================== */
 
-/* ---- Gruvbox Light (medium) — warm wood/cream, faded orange accent. */
+/* ---- Gruvbox Light (medium) — warm wood/cream, deep teal accent. */
 [data-theme="gruvboxlight"] {
   color-scheme: light;
   --c-bg: #fbf1c7;
@@ -491,9 +491,9 @@
   --c-text: #3c3836;
   --c-text-muted: #504945;
   --c-text-faint: #6a5d53;
-  --c-accent: #aa3700;
+  --c-accent: #0b5f6a;
   --c-accent-ink: #fbf1c7;
-  --c-accent-dim: #d65d0e;
+  --c-accent-dim: #8aa699;
   --c-blue: #076678;
   --c-amber: #875500;
   --c-red: #9d0006;
@@ -553,9 +553,9 @@
   --c-text: #445159;
   --c-text-muted: #516069;
   --c-text-faint: #5b6659;
-  --c-accent: #5c6a00;
+  --c-accent: #1a6a8c;
   --c-accent-ink: #fdf6e3;
-  --c-accent-dim: #8da101;
+  --c-accent-dim: #90afb8;
   --c-blue: #006a98;
   --c-amber: #835c00;
   --c-red: #bf1422;
@@ -776,9 +776,9 @@
   --c-text: #e4e8dc;
   --c-text-muted: #cdd3c5;
   --c-text-faint: #c4cbbb;
-  --c-accent: #bfe196;
+  --c-accent: #a8dff5;
   --c-accent-ink: #1f251c;
-  --c-accent-dim: #5d7146;
+  --c-accent-dim: #6e8b90;
   --c-blue: #b0dcfb;
   --c-amber: #f2d087;
   --c-red: #ffc8c1;
@@ -805,9 +805,9 @@
   --c-text: #f0e6da;
   --c-text-muted: #d8caba;
   --c-text-faint: #d2c2ae;
-  --c-accent: #f3c68c;
+  --c-accent: #9bdbe8;
   --c-accent-ink: #2a2019;
-  --c-accent-dim: #7a5d3e;
+  --c-accent-dim: #728787;
   --c-blue: #b1d1e9;
   --c-amber: #f5c77f;
   --c-red: #ffbfb0;
@@ -834,9 +834,9 @@
   --c-text: #e5e5d5;
   --c-text-muted: #d4d4c3;
   --c-text-faint: #ccccbc;
-  --c-accent: #a0e5e8;
+  --c-accent: #abdbfe;
   --c-accent-ink: #2b2b2b;
-  --c-accent-dim: #5f7f7f;
+  --c-accent-dim: #738999;
   --c-blue: #a0e5e8;
   --c-amber: #ffcead;
   --c-red: #ffcccb;
@@ -864,9 +864,9 @@
   --c-text: #2a2620;
   --c-text-muted: #4d473e;
   --c-text-faint: #585146;
-  --c-accent: #305b4b;
+  --c-accent: #2b5577;
   --c-accent-ink: #f3f0ea;
-  --c-accent-dim: #9db3a7;
+  --c-accent-dim: #7f92a0;
   --c-blue: #1e4f79;
   --c-amber: #6f4d00;
   --c-red: #913328;
@@ -924,9 +924,9 @@
   --c-text: #232a20;
   --c-text-muted: #424b3e;
   --c-text-faint: #4c5648;
-  --c-accent: #325f2a;
+  --c-accent: #2f5a78;
   --c-accent-ink: #f1f4ee;
-  --c-accent-dim: #a5bb9c;
+  --c-accent-dim: #7d96a1;
   --c-blue: #235272;
   --c-amber: #724d04;
   --c-red: #93352f;

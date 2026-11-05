@@ -181,7 +181,7 @@
 		--c-bg: #0f1115;
 		--c-surface: #21262f;
 		--c-text: #e6e9ef;
-		--c-accent: #5ad6a0;
+		--c-accent: #4cc3f0;
 	}
 	.q {
 		display: block;

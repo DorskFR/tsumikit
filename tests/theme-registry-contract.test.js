@@ -89,7 +89,7 @@ test('ThemePicker lists theme.all (not the closed THEMES array) and tolerates a 
 test('app.css and variables.css are import shells over the layered files', () => {
 	assert.deepEqual(
 		[...app.matchAll(/@import '\.\/([a-z]+\.css)';/g)].map((m) => m[1]),
-		['variables.css', 'reset.css', 'utilities.css', 'syntax.css']
+		['font.css', 'variables.css', 'reset.css', 'utilities.css', 'syntax.css']
 	);
 	assert.deepEqual(
 		[...variables.matchAll(/@import '\.\/([a-z]+\.css)';/g)].map((m) => m[1]),

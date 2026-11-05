@@ -30,6 +30,7 @@
 		color: var(--md-text, var(--text));
 		font-size: var(--fs-sm);
 		line-height: var(--lh-normal);
+		max-inline-size: var(--measure);
 		overflow-wrap: anywhere;
 		--prose-gap: var(--sp-3);
 	}
