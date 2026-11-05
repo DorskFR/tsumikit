@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
@@ -201,4 +202,9 @@ test('with DEV false the audit body is dead code and AppShell bundles without it
 	assert.ok(appShell.includes('onSidebarClick'));
 	assert.ok(!appShell.includes('primary Buttons'));
 	assert.ok(!appShell.includes('reportDesignIssues'));
+});
+
+test('the shell demo file rows meet --touch-target on coarse pointers', async () => {
+	const page = await readFile(new URL('../src/routes/shell/+page.svelte', import.meta.url), 'utf8');
+	assert.match(page, /@media \(pointer: coarse\) \{\s*\.file-row \{\s*min-height: var\(--touch-target\);/);
 });

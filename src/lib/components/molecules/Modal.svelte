@@ -271,7 +271,7 @@
 			opacity: 0;
 		}
 	}
-	@media (min-width: 640px) {
+	@media (min-width: 40rem) {
 		.modal {
 			align-items: center;
 			padding: var(--sp-6);
@@ -309,7 +309,7 @@
 			translate: 0 100%;
 		}
 	}
-	@media (min-width: 640px) {
+	@media (min-width: 40rem) {
 		.sheet {
 			border-radius: var(--r-lg);
 			padding-bottom: 0;
@@ -394,7 +394,7 @@
 	.sheet-resize {
 		display: none;
 	}
-	@media (min-width: 640px) {
+	@media (min-width: 40rem) {
 		.sheet-resize {
 			display: block;
 			position: absolute;
@@ -439,7 +439,7 @@
 			background: var(--accent);
 		}
 	}
-	@media (min-width: 640px) and (hover: hover) and (pointer: fine) {
+	@media (min-width: 40rem) and (hover: hover) and (pointer: fine) {
 		.sheet-resize:hover::before {
 			background: color-mix(in srgb, var(--accent) 45%, transparent);
 		}

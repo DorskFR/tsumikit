@@ -140,7 +140,7 @@
 		<Heading {level} {size} class="sh-title">{text}</Heading>
 	{/if}
 	{#if count !== undefined}
-		<Text tone="faint" weight="normal" numeric class="sh-count">{count}</Text>
+		<Text tone="muted" weight="normal" numeric class="sh-count">{count}</Text>
 	{/if}
 {/snippet}
 

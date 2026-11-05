@@ -111,7 +111,7 @@
 	}
 	.v-caption {
 		font-size: var(--txt-size, var(--fs-xs));
-		color: var(--txt-fg, var(--text-faint));
+		color: var(--txt-fg, var(--text-muted));
 	}
 	.v-code {
 		font-family: var(--font-mono);

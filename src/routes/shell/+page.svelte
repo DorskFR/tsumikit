@@ -228,4 +228,9 @@
 		color: var(--text);
 		background: var(--surface);
 	}
+	@media (pointer: coarse) {
+		.file-row {
+			min-height: var(--touch-target);
+		}
+	}
 </style>

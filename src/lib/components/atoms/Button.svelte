@@ -553,7 +553,7 @@
 
 	/* Label collapse: `[data-label]` children disappear below the threshold and
 	   the button falls back to icon-only padding. */
-	@media (max-width: 40rem) {
+	@media (max-width: 39.999rem) {
 		.btn-collapse-mobile :global([data-label]) {
 			display: none;
 		}

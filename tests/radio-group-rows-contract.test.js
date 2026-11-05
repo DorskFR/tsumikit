@@ -19,7 +19,7 @@ test('option shape gains description and note', () => {
 	assert.match(src, /note\?: string/);
 	assert.match(src, /{#if o\.note}<span class="note">{o\.note}<\/span>{\/if}/);
 	assert.match(src, /{#if o\.description}<span class="description" id={descId\(o\)}>{o\.description}<\/span>{\/if}/);
-	assert.match(src, /\.note\s*{[^}]*color: var\(--text-faint\);/s);
+	assert.match(src, /\.note\s*{[^}]*color: var\(--text-muted\);/s);
 });
 
 test('rows: bordered row, selected row uses --accent-dim border and --surface-fill', () => {

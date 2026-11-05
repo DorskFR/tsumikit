@@ -208,6 +208,7 @@
 		align-items: baseline;
 		gap: var(--sp-1);
 		font-family: var(--font-numeric);
+		font-variant-numeric: tabular-nums;
 		line-height: var(--lh-none);
 	}
 	.metric-num {
@@ -228,7 +229,7 @@
 	}
 	.metric-sub {
 		font-size: var(--fs-xs);
-		color: var(--text-faint);
+		color: var(--text-muted);
 		line-height: var(--lh-snug);
 	}
 	:global(.metric-sm) .metric-num {
@@ -275,6 +276,7 @@
 		align-items: baseline;
 		gap: var(--sp-1) var(--sp-3);
 		font-family: var(--font-numeric);
+		font-variant-numeric: tabular-nums;
 		font-size: var(--fs-xs);
 		color: var(--text-muted);
 	}

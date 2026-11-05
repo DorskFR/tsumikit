@@ -305,7 +305,7 @@ test('Modal and Drawer dialogs transition in and out; Scrim fades in from @start
 	const m = normalize(css(modal));
 	assert.match(m, /\.modal { [^}]*transition: display var\(--dur-exit-slow\) allow-discrete, overlay var\(--dur-exit-slow\) allow-discrete; }/);
 	assert.match(m, /\.modal\[open\]::backdrop { opacity: 1; transition-duration: var\(--dur-base\); }/);
-	assert.match(m, /@media \(min-width: 640px\) { \.sheet { [^}]*translate: 0; scale: var\(--enter-scale\); transition: opacity var\(--dur-exit\) var\(--ease-out\), scale var\(--dur-exit\) var\(--ease-out\); } \.modal\[open\] \.sheet { scale: 1; transition-duration: var\(--dur-slow\); }/);
+	assert.match(m, /@media \(min-width: 40rem\) { \.sheet { [^}]*translate: 0; scale: var\(--enter-scale\); transition: opacity var\(--dur-exit\) var\(--ease-out\), scale var\(--dur-exit\) var\(--ease-out\); } \.modal\[open\] \.sheet { scale: 1; transition-duration: var\(--dur-slow\); }/);
 	assert.doesNotMatch(modal, /999px|size=\{18\}|pointer-events: none/);
 	const d = normalize(css(drawer));
 	assert.match(d, /\.panel { [^}]*will-change: translate;[^}]*--drawer-from: 100% 0; translate: var\(--drawer-from\); transition: translate var\(--dur-exit-slow\) var\(--ease-drawer\); }/);

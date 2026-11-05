@@ -22,7 +22,7 @@
   --c-border-strong: #757d8b;
   --c-text: #e6e9ef;
   --c-text-muted: #9aa3b2;
-  --c-text-faint: #929bad;
+  --c-text-faint: #747e8e;
 
   --c-accent: #4cc3f0;
   --c-accent-ink: #04130c;
@@ -55,7 +55,7 @@
   --syn-keyword: var(--c-violet);
   --syn-string: var(--c-green);
   --syn-number: var(--c-amber);
-  --syn-comment: var(--c-text-faint);
+  --syn-comment: var(--c-text-muted);
   --syn-function: var(--c-blue);
   --syn-punct: var(--c-text-muted);
 

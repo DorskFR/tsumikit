@@ -86,6 +86,6 @@
 	}
 	.caption {
 		font-size: var(--fs-xs);
-		color: var(--text-faint);
+		color: var(--text-muted);
 	}
 </style>

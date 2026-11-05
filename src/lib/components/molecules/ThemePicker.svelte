@@ -212,7 +212,7 @@
 		font-size: var(--fs-xs);
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
-		color: var(--text-faint);
+		color: var(--text-muted);
 	}
 	.grid {
 		display: grid;
@@ -297,7 +297,7 @@
 	}
 	.auto-help {
 		font-size: var(--fs-xs);
-		color: var(--text-faint);
+		color: var(--text-muted);
 		white-space: normal;
 	}
 	.auto-pair {

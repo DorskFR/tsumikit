@@ -34,10 +34,10 @@ test('props: title with label alias, level 1-4 (default 2), size, subtitle, icon
 	assert.match(component, /data-tsu="SectionHeader"/);
 });
 
-test('title is a Heading at the given level; count is faint, normal-weight tabular Text', () => {
+test('title is a Heading at the given level; count is muted, normal-weight tabular Text', () => {
 	assert.match(component, /<Heading {level} {size} class="sh-title">{text}<\/Heading>/);
 	assert.match(component, /<Heading {level} {size} class="sh-title">\s*<button\s+type="button"\s+class="sh-toggle"/);
-	assert.match(component, /<Text tone="faint" weight="normal" numeric class="sh-count">{count}<\/Text>/);
+	assert.match(component, /<Text tone="muted" weight="normal" numeric class="sh-count">{count}<\/Text>/);
 	assert.match(component, /<Text variant="caption" class="sh-subtitle">{subtitle}<\/Text>/);
 });
 

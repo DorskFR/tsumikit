@@ -488,7 +488,7 @@
 		padding: 0 var(--sp-1-5);
 		border-radius: var(--r-pill);
 		background: var(--bg-elevated-2);
-		color: var(--text-faint);
+		color: var(--text-muted);
 		font-size: var(--fs-xs);
 		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;

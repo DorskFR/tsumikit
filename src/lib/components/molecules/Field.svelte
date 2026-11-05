@@ -97,7 +97,7 @@
 	}
 	.hint {
 		font-size: var(--fs-xs);
-		color: var(--text-faint);
+		color: var(--text-muted);
 	}
 	.error {
 		font-size: var(--fs-xs);

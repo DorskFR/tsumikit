@@ -71,11 +71,20 @@ export const SURFACES = ['bg', 'bg-elev', 'surface'];
 /** Sunken wells (default badges, tracks, inset cards): every text colour still reads on it. */
 export const SUNKEN = 'bg-elev-2';
 
-/** Minimum contrast against every SURFACES entry (WCAG 1.4.3 text, 1.4.11 control boundaries). */
+export const TEXT_FLOOR = 4.5;
+export const FAINT_FLOOR = 3;
+/** text-muted must be at least this many times more contrasting than text-faint on --bg. */
+export const MUTED_OVER_FAINT = 1.35;
+
+/**
+ * Minimum contrast against every SURFACES entry (WCAG 1.4.3 text, 1.4.11 control boundaries).
+ * text-faint is reserved for WCAG-exempt text (placeholders, disabled, decorative glyphs), so it
+ * only needs the 3:1 graphics floor and must stay visibly quieter than text-muted.
+ */
 export const FLOORS = {
 	text: 7,
 	'text-muted': 5.5,
-	'text-faint': 4.5,
+	'text-faint': FAINT_FLOOR,
 	accent: 4.5,
 	blue: 4.5,
 	amber: 4.5,
@@ -87,7 +96,6 @@ export const FLOORS = {
 	'border-strong': 3
 };
 
-export const TEXT_FLOOR = 4.5;
 
 export const TONES = ['accent', 'blue', 'amber', 'red', 'green', 'violet', 'gold', 'teal'];
 
@@ -163,16 +171,20 @@ export const breaches = (p, margin = 0) => {
 		if (r < floor + margin) out.push(`${name}=${r.toFixed(2)}<${floor}`);
 	};
 	for (const [tok, floor] of Object.entries(FLOORS)) for (const s of SURFACES) check(`${tok}/${s}`, p[tok], p[s], floor);
-	for (const tok of ['text', 'text-muted', 'text-faint', ...TONES]) check(`${tok}/${SUNKEN}`, p[tok], p[SUNKEN], TEXT_FLOOR);
+	for (const tok of ['text', 'text-muted', ...TONES]) check(`${tok}/${SUNKEN}`, p[tok], p[SUNKEN], TEXT_FLOOR);
+	check(`text-faint/${SUNKEN}`, p['text-faint'], p[SUNKEN], FAINT_FLOOR);
 	check(`border-strong/${SUNKEN}`, p['border-strong'], p[SUNKEN], FLOORS['border-strong']);
 	for (const t of TONES) {
 		for (const s of SURFACES) {
-			check(`text-faint/${t}-card@${s}`, p['text-faint'], mixSrgb(p[t], p[s], CARD_TINT), TEXT_FLOOR);
+			check(`text-muted/${t}-card@${s}`, p['text-muted'], mixSrgb(p[t], p[s], CARD_TINT), TEXT_FLOOR);
+			check(`text-faint/${t}-card@${s}`, p['text-faint'], mixSrgb(p[t], p[s], CARD_TINT), FAINT_FLOOR);
 			check(`border-strong/${t}-card@${s}`, p['border-strong'], mixSrgb(p[t], p[s], CARD_TINT), FLOORS['border-strong']);
 		}
 		for (const s of [...SURFACES, SUNKEN]) check(`${t}-badge@${s}`, badgeInk(p, t), mixSrgb(p[t], p[s], BADGE_TINT), TEXT_FLOOR);
 	}
 	check('blue/md-code-bg', p.blue, p['md-code-bg'], FLOORS.blue);
 	check('accent-ink/accent', p['accent-ink'], p.accent, INK_FLOOR);
+	const [m, f] = [contrast(p['text-muted'], p.bg), contrast(p['text-faint'], p.bg)];
+	if (m / f < MUTED_OVER_FAINT) out.push(`text-muted/text-faint=${(m / f).toFixed(2)}<${MUTED_OVER_FAINT}`);
 	return out;
 };

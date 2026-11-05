@@ -202,7 +202,7 @@
 	}
 	.size {
 		margin-inline-start: var(--sp-1);
-		color: var(--text-faint);
+		color: var(--text-muted);
 	}
 	li {
 		display: flex;

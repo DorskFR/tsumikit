@@ -65,7 +65,7 @@
 		color: var(--text-muted);
 	}
 	.status-bar.idle {
-		color: var(--text-faint);
+		color: var(--text-muted);
 	}
 	.status-bar :global(.status-glyph) {
 		flex: none;
@@ -85,7 +85,7 @@
 		display: inline-flex;
 		align-items: center;
 		gap: var(--sp-2);
-		color: var(--text-faint);
+		color: var(--text-muted);
 		font-variant-numeric: tabular-nums;
 		white-space: nowrap;
 	}
