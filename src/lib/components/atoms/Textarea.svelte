@@ -18,10 +18,19 @@
 	// `onsubmit` fires with the value on Enter (`submitOn="enter"`, Shift+Enter
 	// still inserts a newline) or Ctrl/Meta+Enter (`submitOn="mod-enter"`, the
 	// default whenever `onsubmit` is given).
+	//
+	// `segments` opts into a mirror overlay: a layer behind the (text-transparent)
+	// textarea that renders the value split into spans, so tagged spans can show
+	// masked while the user types. The native control keeps caret, selection, IME,
+	// undo, autoresize and scrolling; the overlay shares its box, font and
+	// wrapping rules and follows its scroll offset. The raw value stays what
+	// assistive tech reads and what the form submits.
 	import type { HTMLTextareaAttributes } from 'svelte/elements';
 	import { autoresize as autoresizeAction, rowsFloor, rowsHeight } from '$lib/autoresize';
 	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
 	import { getInputGroupContext } from '$lib/input-group-context';
+
+	export type TextareaSegment = { text: string; mask?: boolean; class?: string };
 
 	type Props = Omit<HTMLTextareaAttributes, 'onsubmit'> & {
 		mono?: boolean;
@@ -45,6 +54,11 @@
 		/** Fires with the current value on the `submitOn` key combo. */
 		onsubmit?: (value: string) => void;
 		submitOn?: 'enter' | 'mod-enter' | 'none';
+		/** Split the value into spans for the mirror overlay; the texts must
+		 *  concatenate back to the value so glyphs line up 1:1. `mask` keeps a
+		 *  span's layout but hides its glyphs under a fill; `class` is added to
+		 *  the span. Unset: no overlay, no extra DOM. */
+		segments?: (value: string) => TextareaSegment[];
 		id?: string;
 		'aria-describedby'?: string | null;
 		'aria-invalid'?: HTMLTextareaAttributes['aria-invalid'];
@@ -66,7 +80,10 @@
 		maxHeight,
 		onsubmit,
 		submitOn = 'none',
+		segments,
 		onkeydown,
+		oninput,
+		onscroll,
 		id,
 		'aria-describedby': ariaDescribedby,
 		'aria-invalid': ariaInvalid,
@@ -136,6 +153,27 @@
 		onsubmit(String(value ?? ''));
 	}
 
+	let mirror = $state<HTMLDivElement | null>(null);
+	const segs = $derived(segments ? segments(String(value ?? '')) : null);
+
+	function syncScroll() {
+		if (!el || !mirror) return;
+		mirror.scrollTop = el.scrollTop;
+		mirror.scrollLeft = el.scrollLeft;
+	}
+	function handleInput(e: Event & { currentTarget: EventTarget & HTMLTextAreaElement }) {
+		oninput?.(e);
+		if (segs) syncScroll();
+	}
+	function handleScroll(e: UIEvent & { currentTarget: EventTarget & HTMLTextAreaElement }) {
+		onscroll?.(e);
+		if (segs) syncScroll();
+	}
+	$effect(() => {
+		void segs;
+		syncScroll();
+	});
+
 	// --- manual resize drag (mirrors AppShell/Modal: rAF-throttled pointer drag) ---
 	let dragging = $state(false);
 	let rafId = 0;
@@ -195,7 +233,23 @@
 	class:grouped={!!group}
 	class:bar={!!group?.bar}
 	data-tsu="Textarea"
+	class:mirrored={!!segs}
 >
+	{#if segs}
+		<div
+			bind:this={mirror}
+			class="mirror textarea"
+			class:mono
+			class:textarea-sm={sizeEff === 'sm'}
+			class:textarea-lg={sizeEff === 'lg'}
+			class:grouped={!!group}
+			class:bar={!!group?.bar}
+			class:capped={!!maxHeight}
+			style:max-height={maxHeight}
+			aria-hidden="true"
+			data-tsu="TextareaMirror"
+		>{#each segs as seg}<span class={seg.class} class:masked={!!seg.mask}>{seg.text}</span>{/each}<span class="tail">{'\u200b'}</span></div>
+	{/if}
 	{#if autoresize}
 		<textarea
 			bind:this={el}
@@ -206,6 +260,7 @@
 			class:grouped={!!group}
 			class:bar={!!group?.bar}
 			class:capped={!!maxHeight}
+			class:mirrored={!!segs}
 			disabled={isDisabled}
 			style:max-height={maxHeight}
 			bind:value
@@ -213,6 +268,8 @@
 			{...rest}
 			placeholder={rest.placeholder ?? (field ? ' ' : undefined)}
 			onkeydown={onsubmit || onkeydown ? handleKeydown : undefined}
+			oninput={segs || oninput ? handleInput : undefined}
+			onscroll={segs || onscroll ? handleScroll : undefined}
 			id={id ?? field?.id}
 			aria-describedby={ariaDescribedby ?? field?.describedBy}
 			aria-invalid={ariaInvalid ?? (isInvalid ? 'true' : undefined)}
@@ -227,12 +284,15 @@
 			class:grouped={!!group}
 			class:bar={!!group?.bar}
 			class:capped={!!maxHeight}
+			class:mirrored={!!segs}
 			disabled={isDisabled}
 			style:max-height={maxHeight}
 			bind:value
 			{...rest}
 			placeholder={rest.placeholder ?? (field ? ' ' : undefined)}
 			onkeydown={onsubmit || onkeydown ? handleKeydown : undefined}
+			oninput={segs || oninput ? handleInput : undefined}
+			onscroll={segs || onscroll ? handleScroll : undefined}
 			id={id ?? field?.id}
 			aria-describedby={ariaDescribedby ?? field?.describedBy}
 			aria-invalid={ariaInvalid ?? (isInvalid ? 'true' : undefined)}
@@ -294,6 +354,47 @@
 		font-size: var(--control-fs-md);
 		line-height: var(--lh-tight);
 		font-family: inherit;
+		white-space: pre-wrap;
+		overflow-wrap: break-word;
+		word-break: normal;
+		tab-size: 4;
+	}
+	/* Mirror overlay: same box, font and wrapping as the textarea; the textarea
+	   above it keeps its border, caret and selection but shows no glyphs. */
+	.textarea-wrap.mirrored {
+		isolation: isolate;
+	}
+	.mirror {
+		position: absolute;
+		inset: 0;
+		z-index: 0;
+		box-sizing: border-box;
+		min-height: 0;
+		overflow: auto;
+		border-color: transparent;
+		box-shadow: none;
+		pointer-events: none;
+		transition: none;
+	}
+	.textarea.mirrored {
+		position: relative;
+		z-index: 1;
+		color: transparent;
+		caret-color: var(--textarea-fg, var(--text));
+		background: transparent;
+	}
+	.textarea.mirrored::selection {
+		color: transparent;
+		background: color-mix(in srgb, var(--accent) 30%, transparent);
+	}
+	.mirrored .resize-handle {
+		z-index: 2;
+	}
+	.mirror .masked {
+		color: transparent;
+		background: var(--textarea-mask, color-mix(in srgb, var(--text) 18%, transparent));
+		border-radius: var(--r-sm);
+		box-decoration-break: clone;
 	}
 	.textarea:focus {
 		outline: none;

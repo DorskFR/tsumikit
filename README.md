@@ -944,6 +944,36 @@ opaque and the blur is dropped; `prefers-contrast: more` also uses the opaque sc
 </Backdrop>
 ```
 
+### Masked spans while typing (Textarea `segments`)
+
+`Textarea` (and `Composer`, which forwards it) accepts `segments`, a function that splits the
+current value into spans for a mirror overlay rendered behind a text-transparent native textarea.
+Each segment's `text` is rendered verbatim so glyph widths match 1:1; `mask: true` keeps the span's
+layout but hides its glyphs under a token fill (`--textarea-mask` overrides it); `class` is added
+to the span. The texts must concatenate back to the value. Caret, selection, IME composition, undo,
+autoresize and scrolling stay native. The overlay is `aria-hidden`: assistive tech and the form
+still get the raw value. Without `segments` the Textarea renders exactly as before.
+
+```svelte
+<script lang="ts">
+	import { Textarea } from '@dorsk/tsumikit';
+	const TAG = /(<redacted>)([\s\S]*?)(<\/redacted>)/g;
+	function segments(text: string) {
+		const out = [];
+		let last = 0;
+		for (const m of text.matchAll(TAG)) {
+			if (m.index > last) out.push({ text: text.slice(last, m.index) });
+			out.push({ text: m[1], class: 'tag' }, { text: m[2], mask: true }, { text: m[3], class: 'tag' });
+			last = m.index + m[0].length;
+		}
+		if (last < text.length) out.push({ text: text.slice(last) });
+		return out;
+	}
+</script>
+
+<Textarea bind:value autoresize {segments} aria-label="Message" />
+```
+
 ### Breakpoints
 
 One list for every media query: `sm` 40rem (640px), `md` 48rem (768px), `lg`

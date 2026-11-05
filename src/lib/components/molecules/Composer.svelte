@@ -6,7 +6,7 @@
 	// `toolbarEnd` move attach + send into a row under the field.
 	import type { Snippet } from 'svelte';
 	import Button from '$lib/components/atoms/Button.svelte';
-	import Textarea from '$lib/components/atoms/Textarea.svelte';
+	import Textarea, { type TextareaSegment } from '$lib/components/atoms/Textarea.svelte';
 	import AttachmentList from '$lib/components/molecules/AttachmentList.svelte';
 	import FileButton from '$lib/components/molecules/FileButton.svelte';
 	import InputGroup from '$lib/components/molecules/InputGroup.svelte';
@@ -26,6 +26,7 @@
 		maxHeight = '40vh',
 		rows = 1,
 		resize = 'none',
+		segments,
 		sendLabel = 'Send',
 		attachLabel = 'Attach',
 		leading,
@@ -52,6 +53,8 @@
 		rows?: number;
 		/** Manual drag handle on the top edge; `none` hides it. */
 		resize?: 'none' | 'top';
+		/** Mirror overlay segments, forwarded to the Textarea. */
+		segments?: (value: string) => TextareaSegment[];
 		sendLabel?: string;
 		attachLabel?: string;
 		leading?: Snippet;
@@ -200,6 +203,7 @@
 			{maxHeight}
 			{placeholder}
 			{resize}
+			{segments}
 			aria-label={placeholder}
 			disabled={disabled || busy}
 			{onkeydown}

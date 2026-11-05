@@ -2144,6 +2144,12 @@
 				"description": "Manual drag handle on the top edge; `none` hides it."
 			},
 			{
+				"name": "segments",
+				"type": "(value: string) => TextareaSegment[]",
+				"optional": true,
+				"description": "Mirror overlay segments, forwarded to the Textarea."
+			},
+			{
 				"name": "sendLabel",
 				"type": "string",
 				"optional": true,
@@ -8553,6 +8559,12 @@
 				"type": "'enter' | 'mod-enter' | 'none'",
 				"optional": true,
 				"default": "'none'"
+			},
+			{
+				"name": "segments",
+				"type": "(value: string) => TextareaSegment[]",
+				"optional": true,
+				"description": "Split the value into spans for the mirror overlay; the texts must concatenate back to the value so glyphs line up 1:1. `mask` keeps a span's layout but hides its glyphs under a fill; `class` is added to the span. Unset: no overlay, no extra DOM."
 			},
 			{
 				"name": "id",
