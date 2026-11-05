@@ -72,7 +72,8 @@
     "design": "npm run package && npm run design:bundle && npm run design:verify",
     "design:bundle": "node .design-sync/build-bundle.mjs",
     "design:verify": "node .design-sync/verify-bundle.mjs",
-    "design:clean": "rm -rf ds-bundle .ds-proto"
+    "design:clean": "rm -rf ds-bundle .ds-proto",
+    "demo:props": "node scripts/gen-demo-props.mjs"
   },
   "peerDependencies": {
     "svelte": "^5.0.0"
