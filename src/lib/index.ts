@@ -9,6 +9,7 @@ export type { AnchorAttributes } from './anchor';
 export { artworkGradient, artworkHue, initials } from './artwork';
 export { autoresize } from './autoresize';
 export { avatarHue, avatarInitial } from './avatar';
+export { type Breakpoint, breakpoints, breakpointsPx, maxWidth, minWidth } from './breakpoints';
 export { copyToClipboard } from './clipboard';
 export { default as Artwork } from './components/atoms/Artwork.svelte';
 export { default as Avatar } from './components/atoms/Avatar.svelte';
@@ -47,6 +48,7 @@ export { default as TimeDisplay } from './components/atoms/TimeDisplay.svelte';
 // ---- layouts ----
 export { default as AppShell } from './components/layouts/AppShell.svelte';
 export { default as AutoGrid } from './components/layouts/AutoGrid.svelte';
+export { default as Backdrop } from './components/layouts/Backdrop.svelte';
 export { default as Cluster } from './components/layouts/Cluster.svelte';
 export { default as Container } from './components/layouts/Container.svelte';
 export { default as MasterDetail } from './components/layouts/MasterDetail.svelte';
@@ -220,7 +222,15 @@ export {
 	renderMarkdown,
 	stripAnsi,
 } from './markdown';
+export { type Media, media, mq } from './media.svelte';
 export { describeMediaTime, formatMediaTime, isLiveDuration } from './media-time';
+export {
+	PENDING_DELAY_MS,
+	PENDING_MIN_MS,
+	type Pending,
+	type PendingOptions,
+	pending,
+} from './pending.svelte';
 export { trackPointer } from './pointer';
 // ---- query core (headless: schema / parser / AST / suggest / compilers) ----
 export * as filterQuery from './query';
@@ -280,6 +290,8 @@ export {
 	type ToastTone,
 	type ToastToneInput,
 	toasts,
+	UNDO_FAIL_MESSAGE,
+	type UndoOptions,
 } from './stores/toast.svelte';
 export {
 	AUTO_THEME,
@@ -308,4 +320,5 @@ export {
 } from './timestamp';
 export { canonicalTone, type Tone } from './tone';
 export { pathCandidates, type TruncateMode, type TruncateOptions, truncate } from './truncate';
+export { isModifiedClick, type UrlState, type UrlStateOptions, urlState } from './url-state.svelte';
 export { normalizeWorkingDir, type WorkingDirOptions, workingDirCandidates } from './working-dir';

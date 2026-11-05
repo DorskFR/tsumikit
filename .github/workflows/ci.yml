@@ -23,3 +23,5 @@ jobs:
       - run: npm run check
       - run: npm run build
       - run: npm run package # svelte-package + publint validate the publishable output
+      - run: npm install && npm run build && npm run lint
+        working-directory: examples/starter

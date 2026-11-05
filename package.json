@@ -1,6 +1,6 @@
 {
   "name": "@dorsk/tsumikit",
-  "version": "0.81.0",
+  "version": "0.82.0",
   "description": "Minimal, dependency-free Svelte 5 + pure-CSS UI kit. Token-driven atoms, molecules & layouts with theming out of the box.",
   "type": "module",
   "license": "MIT",
@@ -25,7 +25,8 @@
   ],
   "files": [
     "dist",
-    "lint"
+    "lint",
+    "principles"
   ],
   "bin": {
     "tsumikit-lint": "./lint/cli.mjs"
@@ -38,6 +39,10 @@
       "svelte": "./dist/index.js",
       "default": "./dist/index.js"
     },
+    "./dev-audit": {
+      "types": "./dist/dev-audit.d.ts",
+      "default": "./dist/dev-audit.js"
+    },
     "./styles/app.css": "./dist/styles/app.css",
     "./styles/variables.css": "./dist/styles/variables.css",
     "./styles/tokens.css": "./dist/styles/tokens.css",
@@ -45,6 +50,7 @@
     "./styles/reset.css": "./dist/styles/reset.css",
     "./styles/utilities.css": "./dist/styles/utilities.css",
     "./styles/syntax.css": "./dist/styles/syntax.css",
+    "./styles/font.css": "./dist/styles/font.css",
     "./looks/*.css": "./dist/looks/*.css"
   },
   "publishConfig": {
