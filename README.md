@@ -26,6 +26,16 @@ hard-coded values · override by specificity, never by forking · props (incl.
 
 **Live demo:** https://dorskfr.github.io/tsumikit
 
+### Principles
+
+The design principles the kit serves, one markdown file each, live in
+[`principles/`](principles/README.md) and ship in the package
+(`node_modules/@dorsk/tsumikit/principles/`). Each gives the principle, its
+source, do / don't, what tsumikit provides for it, and a check to run on a
+screen. The index ends with a short checklist for designing a screen; point
+design reviews and coding agents at it. The showcase renders them at
+[`/principles`](https://dorskfr.github.io/tsumikit/principles).
+
 ## Develop
 
 ```bash
@@ -55,6 +65,18 @@ import { Button, Field, Input, Modal, ThemePicker } from '@dorsk/tsumikit';
 <Button variant="primary" onclick={save}>Save</Button>
 ```
 
+### Start a new project
+
+Copy [`examples/starter`](examples/starter) and change `"@dorsk/tsumikit": "file:../.."` to a
+version. It is the baseline every app should start from: the kit stylesheet (tokens, themes,
+Inter), `AppShell`, a `ThemePicker`, a `Toaster`, an `+error.svelte` that says what happened in
+plain words (404 included), a list page with URL-driven filters (`Tabs href` + `urlState`),
+`LoadMore`, empty and filtered-empty states, delete with `toasts.undo()` instead of a confirm
+dialog, and `tsumikit-lint` on every commit via lefthook.
+
+Upgrading from 0.81 or older: [docs/MIGRATION-0.82.md](docs/MIGRATION-0.82.md) lists what looks
+different and how to revert each change.
+
 ## Theming
 
 - 31 themes ship (light, highcontrast, gruvboxlight, solarizedlight,
@@ -64,8 +86,15 @@ import { Button, Field, Input, Modal, ThemePicker } from '@dorsk/tsumikit';
   **dim** tier between the bright and dark extremes: stone, fog, sage (light)
   and slate, moss, espresso, zenburn (dark).
 - Every built-in clears WCAG AA on `bg`, `bg-elev` and `surface`: text 7:1,
-  muted 5.5:1, faint and every accent/status hue 4.5:1, `accent-ink` on
-  `accent` 4.5:1, and `--c-border-strong` (the outline of every control) 3:1.
+  muted 4.5:1, every accent/status hue 4.5:1, `accent-ink` on `accent` 4.5:1,
+  and `--c-border-strong` (the outline of every control) 3:1.
+- Three text levels: `--text` for values and titles, `--text-muted` for labels
+  and secondary text (4.5:1), `--text-faint` only for placeholders, disabled
+  and decorative text (3:1, and muted is at least 1.35x faint so the step is
+  visible).
+- The accent is never a status colour: every theme keeps `--c-accent` at least
+  OKLab deltaE 0.08 away from `--c-green`, `--c-amber` and `--c-red`, so the
+  primary action never reads as "success".
   `tests/theme-contrast.mjs` holds the floors; the test suite fails on any
   breach.
 - `<ThemePicker />` and `<FontScalePicker />` wire the stores to the UI. Theme
@@ -83,6 +112,17 @@ import { Button, Field, Input, Modal, ThemePicker } from '@dorsk/tsumikit';
   `{"mode","light","dark"}` instead of a bare theme id. A bare id left by an
   older version still loads — it pins its own slot — but a downgrade will not
   read the new blob and falls back to the default theme.
+
+### Typeface
+
+`styles/app.css` bundles [Inter](https://rsms.me/inter/) (variable, latin subset, OFL-1.1, licence in
+`styles/fonts/`) through `styles/font.css` and lists it first in `--font-sans`. Counts, stat values,
+eyebrow labels and shortcut hints (`--font-numeric`, `--font-label`) are sans by default; only code
+(`CodeBlock`, `Kbd`, `GitRef`, `Text variant="code"`) stays monospace.
+
+To opt out, import `tokens.css` / `themes.css` without `font.css`, or override `--font-sans`.
+Reading text is capped at `--measure` (68ch): `Prose` always, `Text` with `measure`; set
+`--measure: none` on a container to lift it.
 
 ### Stylesheets
 
@@ -836,6 +876,144 @@ step; override any string through `messages` (defaults in
 	{#snippet row(r)}<span>{r.name}</span><span>{r.dist}</span>{/snippet}
 </SortableList>
 ```
+
+## Patterns
+
+### Calm loading
+
+Every busy indicator in the kit waits 200 ms before appearing and then stays at least 500 ms, so a 60 ms save never flashes a spinner and a slow one never flickers. `Button loading` and `EmptyState loading` do this internally; `aria-busy` and the click block still follow `loading` at once, only the visual is calmed. Tune or disable per instance with `loadingDelay` / `loadingMin` (`0` = immediate). For your own indicators:
+
+```svelte
+<script>
+  import { pending } from '@dorsk/tsumikit';
+  let saving = $state(false);
+  const p = pending(() => saving, { delay: 200, min: 500 });
+</script>
+{#if p.visible}<Spinner />{/if}
+```
+
+### Undo over confirm
+
+Prefer an optimistic change with an Undo toast to a confirmation dialog when success is likely. `toasts.undo` applies at once, offers Undo while the toast is visible, commits when it goes away (timeout, click, or `pagehide`), and reverts with a plain-words error toast if the commit fails:
+
+```ts
+toasts.undo({
+  message: 'Message deleted',
+  apply: () => (items = items.filter((m) => m.id !== id)),
+  revert: () => (items = [...items, removed]),
+  commit: () => api.delete(id),
+});
+```
+
+Keep `ConfirmModal` for irreversible or bulk actions (purging data, deleting many rows, anything that cannot be reverted locally).
+
+### URL state
+
+Put tab, filter and page state in the URL so it survives a refresh and can be shared. `urlState` is a framework-neutral rune for one search param; Tabs, SegmentedControl and Pagination accept `href` and then render real links (middle-click opens in a new tab) with `aria-current`.
+
+```svelte
+<script lang="ts">
+	import { Tabs, Pagination, urlState } from '@dorsk/tsumikit';
+	const tab = urlState('tab', { default: 'overview' });
+	const page = urlState('page', { default: 1, parse: Number, serialize: String, push: true });
+</script>
+
+<Tabs {tabs} bind:value={tab.value} href={(id) => tab.href(id)} />
+<Pagination bind:page={page.value} pageCount={12} href={(p) => page.href(p)} />
+```
+
+`urlState(key, { default, parse?, serialize?, push? })` reads the param (or `default`), writes with `history.replaceState` (`pushState` when `push`), follows back/forward, and holds `default` without a `window` (SSR-safe). A value that serializes like the default removes the param. `href(value)` builds the link for the current page with that value. Per-item `href` on `TabItem`/`SegmentOption` overrides the function. `isModifiedClick(e)` is exported for custom links that must leave ctrl/meta/shift/middle clicks to the browser.
+
+### Backdrop
+
+`Backdrop` is the page-level hero: a full-bleed `Artwork` (so a missing or failed
+`src` shows the seeded placeholder and the picture fades in lazily) that melts into
+`--bg` along its bottom edge, with `children` sitting on a scrim mixed from `--bg`
+so titles and actions read over any picture. `height` takes any CSS length
+(default `min(45svh, 22rem)`), `fade="none"` keeps a hard edge, `blur` softens the
+picture, `dim` tints it toward `--bg`. `seed`, `fallback`, `icon`, `fit`, `srcset`,
+`sizes`, `onerror` are passed straight to Artwork; everything else (incl. `aria-*`)
+spreads onto the root. Under `prefers-reduced-transparency` the scrim becomes
+opaque and the blur is dropped; `prefers-contrast: more` also uses the opaque scrim.
+
+```svelte
+<Backdrop as="header" src={album.cover} alt="" seed={album.title} height="18rem">
+  <Heading level={1}>{album.title}</Heading>
+  <Text tone="muted">{album.artist}</Text>
+  <Button variant="primary">Play</Button>
+</Backdrop>
+```
+
+### Breakpoints
+
+One list for every media query: `sm` 40rem (640px), `md` 48rem (768px), `lg`
+64rem (1024px); max-width queries use the complement (`39.999rem`,
+`47.999rem`, `63.999rem`). CSS custom properties cannot drive `@media`, so the
+list is exported for JS (`breakpoints`, `minWidth(bp)`, `maxWidth(bp)`) with a
+reactive, SSR-safe `mq.sm` / `mq.md` / `mq.lg` and `media(query)`.
+`tsumikit-lint` enforces the list in CSS. Inside a pane, prefer container
+queries (below).
+
+## Guardrails
+
+### Design lint (`tsumikit-lint`)
+
+The package ships a dependency-free CLI that flags drift from the kit's rules in your `.svelte` and `.css` files (it only needs node and the `svelte` peer).
+
+```sh
+npx tsumikit-lint            # lints ./src
+npx tsumikit-lint src lib/styles/app.css
+npx tsumikit-lint --json src # CI-friendly
+npx tsumikit-lint --rule spacing-scale,breakpoints src
+npx tsumikit-lint --disable no-raw-control src
+```
+
+Output is `file:line:col  rule  message` plus a per-rule summary; exit code is 1 when anything is reported, 2 on usage errors.
+
+| Rule | Flags |
+| --- | --- |
+| `no-raw-color` | hex / rgb / hsl literals outside `:root` / `[data-theme]` blocks (custom-property definitions and `var()`-composed colors are fine) |
+| `spacing-scale` | px / rem in padding, margin, gap, inset and top/right/bottom/left that is not a `--sp-*` token; `0` and `1px` hairlines allowed; suggests the token |
+| `no-raw-control` | raw `<button>`, `<input>`, `<select>`, `<textarea>` instead of the atoms |
+| `one-primary` | more than one `variant="primary"` that can render at the same time (if/else branches are exclusive, snippets are separate) |
+| `no-raw-font` | `font-family` other than `var(--font-*)`; `--font-mono` outside code-ish elements (use `--font-numeric` / `--font-label`) |
+| `breakpoints` | media-query widths other than 40rem/640px, 48rem/768px, 64rem/1024px (and their max-width complements like 39.999rem / 639.98px) |
+| `motion` | `transition` / `@keyframes` on properties other than transform, opacity, color, background-color, box-shadow, filter (and other paint-only properties); `transition: all` |
+| `img-alt` | `<img>` without `alt` |
+
+Suppress a single line with a comment on the line above (or at the end of the line):
+
+```css
+/* tsumikit-lint-ignore spacing-scale */
+padding: 3px;
+```
+```svelte
+<!-- tsumikit-lint-ignore no-raw-control -->
+<button type="button" class="chip">…</button>
+```
+
+Omit the rule id to ignore every rule on that line. In app code, read the breakpoint list from `breakpoints` in the main entry.
+
+lefthook:
+
+```yaml
+pre-commit:
+  commands:
+    tsumikit-lint:
+      glob: '*.{svelte,css}'
+      run: npx tsumikit-lint {staged_files}
+```
+
+### Dev-mode design warnings
+
+In development, `AppShell` starts a DOM audit (`src/lib/dev-audit.ts`) that console.warns once per issue, prefixed `[tsumikit]`, with the offending element:
+
+- more than one visible primary `Button` in the same `main` or dialog (modal and page are counted separately);
+- `Button`/`IconButton` without an accessible name;
+- on coarse pointers, interactive elements whose hit box is under `--touch-target` (kit controls are accepted at `--touch-target-compact`; controls carrying the kit's touch slab are not flagged; opt out per element with `.hit-compact`);
+- text over an `Artwork`/`img` without a `Scrim` (or any opaque background).
+
+Without `AppShell`: `import { startDesignAudit } from '@dorsk/tsumikit/dev-audit'; startDesignAudit();`. The audit is guarded by `import.meta.env.DEV`, so production bundles contain none of it.
 
 ## Container queries
 

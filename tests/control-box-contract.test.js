@@ -91,7 +91,7 @@ test('IconButton glyphSize sizes SVG and text glyphs alike', () => {
 
 test('Button collapseLabel hides data-label children and names the button from them', () => {
 	assert.match(button, /collapseLabel\?: 'never' \| 'mobile' \| 'container'/);
-	assert.match(button, /@media \(max-width: 40rem\)\s*{\s*\.btn-collapse-mobile :global\(\[data-label\]\)\s*{\s*display: none;/s);
+	assert.match(button, /@media \(max-width: 39\.999rem\)\s*{\s*\.btn-collapse-mobile :global\(\[data-label\]\)\s*{\s*display: none;/s);
 	assert.match(button, /@container \(max-width: 30rem\)\s*{\s*\.btn-collapse-container :global\(\[data-label\]\)\s*{\s*display: none;/s);
 	assert.match(button, /if \(!el \|\| collapseLabel === 'never' \|\| explicitName\) return;/);
 	assert.match(button, /node\.setAttribute\('aria-label', text\)/);

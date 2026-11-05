@@ -231,6 +231,7 @@
 	}
 	.mono {
 		font-family: var(--font-numeric);
+		font-variant-numeric: tabular-nums;
 		font-weight: var(--badge-fw, var(--fw-normal));
 	}
 	.uppercase {

@@ -549,6 +549,7 @@
 		background: transparent;
 		color: var(--text);
 		font-family: var(--font-numeric);
+		font-variant-numeric: tabular-nums;
 		font-size: var(--control-fs-md);
 		outline: none;
 		min-width: 0;
@@ -576,7 +577,7 @@
 		border: 0;
 		background: transparent;
 		font-size: var(--fi-icon);
-		color: var(--text-faint);
+		color: var(--text-muted);
 		cursor: pointer;
 		padding: var(--sp-1);
 		border-radius: var(--r-sm);
@@ -632,7 +633,7 @@
 		font-size: var(--fs-xs);
 		text-transform: uppercase;
 		letter-spacing: 0.06em;
-		color: var(--text-faint);
+		color: var(--text-muted);
 		padding: var(--sp-2) var(--sp-2) var(--sp-1);
 	}
 	.fi__opt {
@@ -659,12 +660,13 @@
 		font-weight: var(--fw-medium);
 	}
 	.fi__opt-hint {
-		color: var(--text-faint);
+		color: var(--text-muted);
 		font-size: var(--fs-xs);
 	}
 	.fi__opt-code {
 		margin-left: auto;
 		font-family: var(--font-numeric);
+		font-variant-numeric: tabular-nums;
 		font-size: var(--fs-xs);
 		color: var(--text-muted);
 		background: var(--bg-elevated-2);

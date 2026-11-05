@@ -631,7 +631,7 @@
 	[data-stacked] td[data-role='meta']::before {
 		content: attr(data-label) ' ';
 		font-family: var(--font-sans);
-		color: var(--text-faint);
+		color: var(--text-muted);
 	}
 	[data-stacked] td[data-role='detail'][data-stack-label='false'] {
 		flex: 0 1 auto;
@@ -675,7 +675,7 @@
 	}
 	.dt-empty {
 		text-align: center;
-		color: var(--text-faint);
+		color: var(--text-muted);
 		padding: var(--sp-8);
 	}
 	.dt-more {

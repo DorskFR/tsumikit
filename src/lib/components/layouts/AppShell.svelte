@@ -140,6 +140,20 @@
 		return () => el.removeEventListener('click', onSidebarClick);
 	});
 
+	if (import.meta.env.DEV && browser) {
+		$effect(() => {
+			let stop: (() => void) | undefined;
+			let gone = false;
+			import('$lib/dev-audit').then((m) => {
+				if (!gone) stop = m.startDesignAudit();
+			});
+			return () => {
+				gone = true;
+				stop?.();
+			};
+		});
+	}
+
 	// Lock body scroll while the mobile drawer is open.
 	$effect(() => {
 		if (!browser) return;

@@ -406,7 +406,7 @@
 	.caption {
 		grid-column: 2 / 3;
 		font-size: var(--fs-xs);
-		color: var(--text-faint);
+		color: var(--text-muted);
 	}
 	.cap-bar:not(:has(.label)) .caption {
 		grid-column: 1 / 3;

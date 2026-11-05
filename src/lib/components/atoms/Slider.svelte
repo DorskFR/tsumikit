@@ -158,7 +158,7 @@
 		flex: 1 0 100%;
 		height: 1.2em;
 		font-size: var(--fs-xs);
-		color: var(--text-faint);
+		color: var(--text-muted);
 	}
 	.mark {
 		position: absolute;

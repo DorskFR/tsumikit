@@ -1,6 +1,7 @@
 <script lang="ts">
 	import Icon, { isIconName } from '$lib/components/atoms/Icon.svelte';
 	import { formatCount, hasCount } from '$lib/count';
+	import { pending } from '$lib/pending.svelte';
 	import { playSound } from '$lib/sound';
 	import type { ControlSize } from '$lib/size';
 	import { canonicalTone, type Tone } from '$lib/tone';
@@ -65,6 +66,11 @@
 		// morphing into a centred spinner at constant width, or a progress fill
 		// pouring in from the left (driven by `progress`).
 		loadingStyle?: 'spinner' | 'morph' | 'fill';
+		// Calm loading: the visual waits `loadingDelay` ms and then stays at least
+		// `loadingMin` ms; aria-busy and the click block follow `loading` at once.
+		// 0 for both shows and hides with `loading`.
+		loadingDelay?: number;
+		loadingMin?: number;
 		// 0–1 for `loadingStyle="fill"`; omit for an indeterminate idle fill.
 		progress?: number;
 		// Text beside the check in the `'done'` state; defaults to the children.
@@ -113,6 +119,8 @@
 		hitArea = 'auto',
 		loading = false,
 		loadingStyle = 'spinner',
+		loadingDelay,
+		loadingMin,
 		progress,
 		doneLabel,
 		count,
@@ -136,6 +144,8 @@
 	// so an inactive link drops `href` (no focus, no keyboard activation).
 	const tag = $derived(href !== undefined || as === 'a' ? 'a' : 'button');
 	const busy = $derived(loading === true);
+	const spin = pending(() => busy, () => ({ delay: loadingDelay, min: loadingMin }));
+	const spinning = $derived(spin.visible);
 	const done = $derived(loading === 'done');
 	const layered = $derived(loadingStyle !== 'spinner');
 	const inactive = $derived(disabled || busy);
@@ -224,7 +234,8 @@
 	class:btn-tone-danger={t === 'danger'}
 	class:btn-icon-inline={iconInline}
 	class:hover-danger={hoverDanger}
-	class:loading={busy}
+	class:loading={spinning}
+	class:btn-busy={busy}
 	class:btn-done={done}
 	class:btn-morph={loadingStyle === 'morph'}
 	class:btn-fill={loadingStyle === 'fill'}
@@ -234,7 +245,7 @@
 	onclick={handleClick}
 >
 	{#if loadingStyle === 'fill'}<span class="btn-fill-bar" aria-hidden="true"></span>{/if}
-	{#if busy && !layered}<span class="btn-spinner" aria-hidden="true"></span>{:else if done && !layered}<span class="btn-check" aria-hidden="true"><Icon name="check" /></span>{/if}
+	{#if spinning && !layered}<span class="btn-spinner" aria-hidden="true"></span>{:else if done && !layered}<span class="btn-check" aria-hidden="true"><Icon name="check" /></span>{/if}
 	{#if glyph !== undefined}
 		<span class="btn-glyph" aria-hidden="true">
 			{#if typeof glyph !== 'string'}{@render glyph()}{:else if isIconName(glyph)}<Icon name={glyph} />{:else}{glyph}{/if}
@@ -542,7 +553,7 @@
 
 	/* Label collapse: `[data-label]` children disappear below the threshold and
 	   the button falls back to icon-only padding. */
-	@media (max-width: 40rem) {
+	@media (max-width: 39.999rem) {
 		.btn-collapse-mobile :global([data-label]) {
 			display: none;
 		}
@@ -697,10 +708,10 @@
 
 	/* Loading: keep full opacity (it's busy, not disabled-looking) + a wait cursor,
 	   and show a spinner in the current text color. */
-	.btn.loading {
+	.btn.btn-busy {
 		cursor: wait;
 	}
-	.btn.loading:disabled {
+	.btn.btn-busy:disabled {
 		opacity: 1;
 	}
 	.btn-spinner {

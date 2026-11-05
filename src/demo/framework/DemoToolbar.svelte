@@ -23,6 +23,7 @@
 
 <Toolbar label="Showcase settings" density="compact" class="demo-toolbar">
 	<Link href="{base}/shell" class="cq-hide">AppShell</Link>
+	<Link href="{base}/principles" class="cq-hide">Principles</Link>
 	{@render extras?.()}
 	<MotionSettings size="sm" />
 	<FontScalePicker box="sm" />

@@ -11,6 +11,8 @@
 		title?: string;
 		/** Per-tab override of the strip's `closable` (pin one tab open). */
 		closable?: boolean;
+		/** Render this tab as a real link; overrides the strip's `href`. */
+		href?: string;
 		/**
 		 * Extra attributes for this tab's button — `data-*`, `title`…
 		 * The tab's own semantics (`role`, `aria-*`, `id`, `class`, `disabled`,
@@ -37,11 +39,13 @@
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import IconButton from '$lib/components/molecules/IconButton.svelte';
 	import { playSound } from '$lib/sound';
+	import { isModifiedClick } from '$lib/url-state.svelte';
 
 	let {
 		tabs,
 		value = $bindable(),
 		label = 'Tabs',
+		href,
 		panel,
 		closable = false,
 		onclose,
@@ -60,6 +64,8 @@
 		tabs: TabItem[];
 		value?: string;
 		label?: string;
+		/** Tabs become real links (`<a aria-current>`): middle-click opens the tab's URL in a new tab. */
+		href?: (id: string) => string;
 		/** Content for the active tab. Omit it for a strip-only tablist. */
 		panel?: Snippet<[string]>;
 		/** Every tab gets a close control; Delete and middle-click close too. */
@@ -100,6 +106,10 @@
 
 	function canClose(t: TabItem): boolean {
 		return t.closable ?? closable;
+	}
+	function linkTo(t: TabItem): string | undefined {
+		if (t.disabled || canClose(t)) return undefined;
+		return t.href ?? href?.(t.id);
 	}
 
 	// One indicator slides under the selected tab on translate/scale (never
@@ -288,6 +298,27 @@
 							}}
 						/>
 					</div>
+				{:else if linkTo(t) !== undefined}
+					<a
+						{...t.attrs as HTMLAttributes<HTMLAnchorElement>}
+						href={linkTo(t)}
+						role="tab"
+						id="{baseId}-tab-{t.id}"
+						title={t.title ?? t.attrs?.title}
+						aria-selected={value === t.id}
+						aria-current={value === t.id ? 'page' : undefined}
+						aria-controls={panelId}
+						tabindex={stop?.id === t.id ? 0 : -1}
+						class="tab"
+						class:selected={value === t.id}
+						onclick={(e) => {
+							if (isModifiedClick(e)) return;
+							inkFrom(e);
+							select(t.id);
+						}}
+					>
+						{@render body(t)}
+					</a>
 				{:else}
 					<button
 						type="button"
@@ -362,6 +393,7 @@
 		border: none;
 		background: none;
 		color: var(--text-muted);
+		text-decoration: none;
 		font-size: var(--control-fs-md);
 		font-weight: var(--fw-medium);
 		--icon-size: var(--control-icon-md);

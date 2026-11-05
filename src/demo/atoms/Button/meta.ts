@@ -17,6 +17,8 @@ export const meta: ComponentMeta = {
 		'hover',
 		'morph',
 		'fill',
+		'calm',
+		'delay',
 	],
 	seeAlso: ['IconButton', 'CopyButton', 'SplitButton', 'Toggle'],
 };

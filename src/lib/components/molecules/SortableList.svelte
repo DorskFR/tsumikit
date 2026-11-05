@@ -656,7 +656,7 @@
 	.sl-ordinal {
 		flex: none;
 		min-width: 1.5em;
-		color: var(--text-faint);
+		color: var(--text-muted);
 		font-size: var(--fs-sm);
 		font-variant-numeric: tabular-nums;
 		text-align: end;

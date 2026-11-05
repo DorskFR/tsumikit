@@ -260,6 +260,7 @@
 	}
 	.mono {
 		font-family: var(--font-numeric);
+		font-variant-numeric: tabular-nums;
 	}
 
 	.input-wrap {

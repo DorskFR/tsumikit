@@ -1,0 +1,5 @@
+pre-commit:
+  commands:
+    tsumikit-lint:
+      glob: 'src/**/*.{svelte,css}'
+      run: npx tsumikit-lint {staged_files}

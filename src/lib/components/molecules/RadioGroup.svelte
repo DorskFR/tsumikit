@@ -277,7 +277,7 @@
 	}
 	.hint {
 		font-size: var(--fs-xs);
-		color: var(--text-faint);
+		color: var(--text-muted);
 	}
 
 	.rows {
@@ -324,7 +324,7 @@
 	}
 	.note {
 		font-size: var(--fs-xs);
-		color: var(--text-faint);
+		color: var(--text-muted);
 	}
 	.description {
 		font-size: var(--fs-xs);

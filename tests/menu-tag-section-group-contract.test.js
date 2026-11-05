@@ -40,7 +40,7 @@ test('SectionHeader variant="group": lead snippet, count, flexible rule, actions
 	assert.match(header, /lead\?: Snippet;/);
 	assert.match(header, /class:sh-group={variant === 'group'}/);
 	assert.match(header, /{#if lead}\s*<span class="sh-lead">{@render lead\(\)}<\/span>/);
-	assert.match(header, /<Text tone="faint" weight="normal" numeric class="sh-count">{count}<\/Text>/);
+	assert.match(header, /<Text tone="muted" weight="normal" numeric class="sh-count">{count}<\/Text>/);
 	assert.match(
 		header,
 		/{#if variant === 'group'}\s*<span class="sh-rule" aria-hidden="true"><\/span>\s*{\/if}\s*{#if actions}/

@@ -1,0 +1,19 @@
+/*
+ * Inter, self-hosted (variable, latin subset; OFL-1.1, see fonts/LICENSE-Inter.txt).
+ * --font-sans in tokens.css lists "Inter" first, so importing this file turns it
+ * on for the whole kit. Opt out by importing tokens.css/themes.css without it,
+ * or by overriding --font-sans.
+ */
+
+@font-face {
+  font-family: "Inter";
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+  src: url("./fonts/inter.woff2") format("woff2");
+}
+
+/* cv11: single-storey a · ss01: open digits, so 0/O and 1/l/I stay apart. */
+:where(body) {
+  font-feature-settings: "cv11", "ss01";
+}

@@ -20,7 +20,7 @@ const SHARED_PROPS = {
 	wrap: "'normal' \\| 'anywhere' \\| 'balance'",
 	uppercase: 'boolean',
 	leading: "'tight' \\| 'normal' \\| 'none'",
-	measure: 'string',
+	measure: 'string(?: \\| boolean)?',
 	grow: 'boolean',
 	scale: 'boolean'
 };
@@ -47,7 +47,7 @@ for (const [name, src] of [
 		assert.ok(hasDecl(src, '.lh-none', 'line-height', 'var(--lh-none)'));
 		assert.ok(hasDecl(src, '.grow', 'flex', '1 1 0'));
 		assert.ok(hasDecl(src, '.grow', 'min-width', '0'));
-		assert.match(src, /max-width: \${measure}/);
+		assert.match(src, /max-width: \${measure/);
 	});
 
 	test(`${name} noscale pins each size to its px value after the scaled rules`, () => {

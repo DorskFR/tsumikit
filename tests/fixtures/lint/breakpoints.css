@@ -1,0 +1,12 @@
+@media (min-width: 640px) { .a { color: var(--x); } }
+@media (min-width: 48rem) and (max-width: 63.999rem) { .a { color: var(--x); } }
+@media (max-width: 639.98px) { .a { color: var(--x); } }
+@media (width >= 64em) { .a { color: var(--x); } }
+@media (max-width: 767px) and (min-height: 500px) { .a { color: var(--x); } }
+@media (min-width: 959px) { .b { color: var(--x); } }
+@media (max-width: 430px) { .b { color: var(--x); } }
+@media (min-width: 720px) { .b { color: var(--x); } }
+@media (width >= 50rem) { .b { color: var(--x); } }
+@media (prefers-reduced-motion: reduce) { .a { color: var(--x); } }
+/* tsumikit-lint-ignore breakpoints */
+@media (min-width: 1200px) { .c { color: var(--x); } }
