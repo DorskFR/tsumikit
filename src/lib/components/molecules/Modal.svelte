@@ -231,12 +231,15 @@
 
 <style>
 	/* Reset the UA dialog box: we own the surface via the inner .sheet. The
-	   dialog itself is just the centering/backdrop layer. */
+	   dialog itself is just the centering/backdrop layer. It must never scroll:
+	   the UA `overflow: auto` lets the initial focus scroll the sheet into view
+	   while it still sits at `translate: 0 100%`, which eats the slide-in. */
 	.modal {
 		margin: 0;
 		padding: 0;
 		border: 0;
 		background: none;
+		overflow: clip;
 		max-width: 100vw;
 		max-height: 100dvh;
 		width: 100%;
