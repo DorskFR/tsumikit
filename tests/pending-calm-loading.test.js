@@ -42,7 +42,7 @@ function render(init = {}) {
 			return doc.querySelector('[data-part="raw"]')?.getAttribute('data-visible');
 		},
 		get buttons() {
-			return [...doc.querySelectorAll('button.btn')];
+			return /** @type {HTMLButtonElement[]} */ ([...doc.querySelectorAll('button.btn')]);
 		},
 		get spinner() {
 			return doc.querySelector('.btn-spinner') !== null;

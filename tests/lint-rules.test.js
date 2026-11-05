@@ -4,6 +4,7 @@ import test from 'node:test';
 import { BREAKPOINTS, isAllowedBreakpointWidth } from '../lint/breakpoints.mjs';
 import { RULE_IDS, lintSource, selectRules } from '../lint/index.mjs';
 
+/** @param {string} fixture @param {string} rule */
 async function lint(fixture, rule) {
 	const file = `tests/fixtures/lint/${fixture}`;
 	const source = await readFile(new URL(`../${file}`, import.meta.url), 'utf8');
@@ -11,7 +12,7 @@ async function lint(fixture, rule) {
 	return findings;
 }
 
-const lines = (findings) => findings.map((f) => f.line);
+const lines = (/** @type {import('../lint/context.mjs').Finding[]} */ findings) => findings.map((f) => f.line);
 
 test('no-raw-color flags hex/rgb/hsl outside theme blocks, inline too', async () => {
 	const f = await lint('no-raw-color.svelte', 'no-raw-color');

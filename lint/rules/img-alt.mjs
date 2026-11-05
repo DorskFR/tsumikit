@@ -1,6 +1,6 @@
 import { hasAttribute, hasSpread, walkMarkup } from '../context.mjs';
 
-export default {
+export default /** @type {import('../context.mjs').LintRule} */ ({
 	id: 'img-alt',
 	description: '<img> without alt',
 	check(ctx) {
@@ -10,4 +10,4 @@ export default {
 			ctx.report('img-alt', node.start, '<img> without alt; add alt text, or alt="" when decorative');
 		});
 	}
-};
+});

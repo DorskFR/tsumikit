@@ -59,7 +59,7 @@ test('every live do/don\'t pair points at an existing principle', () => {
 
 test('the prerendered page contains every principle title and anchor', { skip: !existsSync(join(ROOT, 'build/principles.html')) && 'run vite build first' }, async () => {
 	const html = await readFile(join(ROOT, 'build/principles.html'), 'utf8');
-	const escape = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+	const escape = (/** @type {string} */ s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 	for (const d of docs) {
 		assert.ok(html.includes(escape(d.title)) || html.includes(d.title), `${d.file}: title not rendered`);
 		assert.ok(html.includes(`id="p-${d.id}"`), `${d.file}: no #p-${d.id} section`);

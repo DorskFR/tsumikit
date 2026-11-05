@@ -4,7 +4,7 @@ import { walkAtrules } from '../context.mjs';
 const FEATURE = /\(([^()]*width[^()]*)\)/gi;
 const LENGTH = /-?\d*\.?\d+(?:px|rem|em)\b/g;
 
-export default {
+export default /** @type {import('../context.mjs').LintRule} */ ({
 	id: 'breakpoints',
 	description: `media-query widths outside the kit's breakpoints (${describeBreakpoints()})`,
 	check(ctx) {
@@ -22,4 +22,4 @@ export default {
 			}
 		});
 	}
-};
+});

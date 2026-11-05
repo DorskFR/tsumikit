@@ -1,5 +1,5 @@
-<div style="padding: 10px">inline</div>
-<div style:margin-top="0.5rem">directive</div>
+<div class="bad" style="padding: 10px">inline</div>
+<div class="ok ignored" style:margin-top="0.5rem">directive</div>
 
 <style>
 	.bad {

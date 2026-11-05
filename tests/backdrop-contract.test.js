@@ -28,7 +28,11 @@ function render(props = {}) {
 	mount(Fixture, { target: dom.window.document.body, props });
 	flushSync();
 	const el = /** @type {HTMLElement} */ (dom.window.document.querySelector('[data-tsu="Backdrop"]'));
-	return { el, artwork: el.querySelector('[data-tsu="Artwork"]'), content: el.querySelector('.content') };
+	return {
+		el,
+		artwork: /** @type {HTMLElement} */ (el.querySelector('[data-tsu="Artwork"]')),
+		content: /** @type {HTMLElement} */ (el.querySelector('.content'))
+	};
 }
 
 const pct = (/** @type {string} */ selector, /** @type {string} */ prop) => {

@@ -23,7 +23,7 @@
 <Card>
 	<EmptyState
 		{loading}
-		icon="inbox"
+		icon="mail"
 		title={loading ? 'Refreshing inbox…' : 'Inbox is empty'}
 		description={loading ? `Checking the ${source}.` : 'New messages from your team land here as soon as they arrive.'}
 	>

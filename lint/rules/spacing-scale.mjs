@@ -1,8 +1,14 @@
 import { inlineDeclarations, walkDeclarations, walkMarkup } from '../context.mjs';
 
+/**
+ * @typedef {import('../context.mjs').Context} Context
+ * @typedef {import('../context.mjs').DeclarationLike} DeclarationLike
+ */
+
 const PROPERTY = /^(padding|margin|gap|row-gap|column-gap|inset|top|right|bottom|left|scroll-padding|scroll-margin)(-|$)/;
 const LENGTH = /(?<![\w.-])(-?\d*\.?\d+)(px|rem)(?![\w%])/g;
 
+/** @type {ReadonlyArray<readonly [string, number]>} */
 export const SPACING_SCALE = [
 	['--sp-0-5', 0.125],
 	['--sp-1', 0.25],
@@ -17,10 +23,12 @@ export const SPACING_SCALE = [
 	['--sp-12', 3]
 ];
 
+/** @param {string} value */
 function stripFunctions(value) {
 	return value.replace(/\b(var|env|url)\((?:[^)(]|\([^)(]*\))*\)/gi, ' ');
 }
 
+/** @param {number} amount @param {string} unit */
 export function tokenFor(amount, unit) {
 	const rem = unit === 'px' ? amount / 16 : amount;
 	const match = SPACING_SCALE.find(([, v]) => Math.abs(v - Math.abs(rem)) < 1e-6);
@@ -28,6 +36,7 @@ export function tokenFor(amount, unit) {
 	return rem < 0 ? `calc(-1 * var(${match[0]}))` : `var(${match[0]})`;
 }
 
+/** @param {Context} ctx @param {DeclarationLike} declaration */
 function check(ctx, declaration) {
 	if (!PROPERTY.test(declaration.property)) return;
 	for (const m of stripFunctions(declaration.value).matchAll(LENGTH)) {
@@ -44,7 +53,7 @@ function check(ctx, declaration) {
 	}
 }
 
-export default {
+export default /** @type {import('../context.mjs').LintRule} */ ({
 	id: 'spacing-scale',
 	description: 'px/rem in padding/margin/gap/inset that is not a --sp-* token (1px allowed)',
 	check(ctx) {
@@ -54,4 +63,4 @@ export default {
 			for (const d of inlineDeclarations(node)) check(ctx, d);
 		});
 	}
-};
+});

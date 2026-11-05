@@ -8,11 +8,13 @@ const run = promisify(execFile);
 const cli = fileURLToPath(new URL('../lint/cli.mjs', import.meta.url));
 const root = fileURLToPath(new URL('..', import.meta.url));
 
+/** @param {string[]} args */
 async function cliRun(args) {
 	try {
 		const { stdout, stderr } = await run(process.execPath, [cli, ...args], { cwd: root });
 		return { code: 0, stdout, stderr };
-	} catch (e) {
+	} catch (err) {
+		const e = /** @type {import('node:child_process').ExecFileException & { stdout: string, stderr: string }} */ (err);
 		return { code: e.code, stdout: e.stdout, stderr: e.stderr };
 	}
 }
@@ -27,6 +29,7 @@ test('cli prints file:line:col text with a summary and exits 1 on findings', asy
 test('cli --json emits findings and errorCount', async () => {
 	const { code, stdout } = await cliRun(['--json', '--rule', 'motion', 'tests/fixtures/lint/motion.css']);
 	assert.equal(code, 1);
+	/** @type {{ files: number, errorCount: number, findings: import('../lint/context.mjs').Finding[] }} */
 	const report = JSON.parse(stdout);
 	assert.equal(report.files, 1);
 	assert.equal(report.errorCount, 5);

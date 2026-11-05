@@ -37,13 +37,13 @@ function setup(html, opts = {}) {
 	);
 	/** @type {unknown[][]} */
 	const warnings = [];
-	win.console.warn = (...args) => warnings.push(args);
+	win.console.warn = (/** @type {unknown[]} */ ...args) => warnings.push(args);
 	win.eval(devBundle);
 	const audit = win.__audit;
 	const doc = win.document;
 	/** Give an element a measured hit box (jsdom has no layout). */
 	const size = (/** @type {string} */ sel, /** @type {number} */ w, /** @type {number} */ h) => {
-		const el = doc.querySelector(sel);
+		const el = /** @type {HTMLElement} */ (doc.querySelector(sel));
 		el.getBoundingClientRect = () => ({ x: 0, y: 0, top: 0, left: 0, right: w, bottom: h, width: w, height: h, toJSON() {} });
 		return el;
 	};
@@ -60,7 +60,7 @@ test('two visible primary Buttons in the same main are flagged; one per landmark
 		</main>
 		<div role="dialog"><button data-tsu="Button" class="btn btn-primary">Confirm</button></div>`);
 	assert.deepEqual(r.kinds(), []);
-	r.doc.querySelector('main').insertAdjacentHTML('beforeend', '<button data-tsu="Button" class="btn btn-primary">Publish</button>');
+	/** @type {HTMLElement} */ (r.doc.querySelector('main')).insertAdjacentHTML('beforeend', '<button data-tsu="Button" class="btn btn-primary">Publish</button>');
 	const issues = r.run();
 	assert.deepEqual(issues.map((i) => i.kind), ['multiple-primary']);
 	assert.equal(issues[0].el.textContent, 'Publish');
@@ -130,10 +130,12 @@ test('coarse-pointer sizing accepts kit controls at --touch-target-compact and s
 	);
 	for (const id of ['compact', 'off', 'slab', 'after']) r.size(`#${id}`, 28, 28);
 	const real = r.win.getComputedStyle.bind(r.win);
+	const pseudoStyle = (/** @type {string} */ position, /** @type {string} */ content) =>
+		/** @type {CSSStyleDeclaration} */ (/** @type {unknown} */ ({ position, content }));
 	r.win.getComputedStyle = (el, pseudo) => {
-		if (el.id === 'slab' && pseudo === '::before') return { position: 'absolute', content: '""' };
-		if (el.id === 'after' && pseudo === '::after') return { position: 'absolute', content: '""' };
-		if (pseudo) return { position: 'static', content: 'none' };
+		if (el.id === 'slab' && pseudo === '::before') return pseudoStyle('absolute', '""');
+		if (el.id === 'after' && pseudo === '::after') return pseudoStyle('absolute', '""');
+		if (pseudo) return pseudoStyle('static', 'none');
 		return real(el);
 	};
 	assert.deepEqual(r.kinds(), []);
@@ -174,7 +176,7 @@ test('startDesignAudit warns once per issue with the "[tsumikit]" prefix and the
 	await tick();
 	assert.equal(r.warnings.length, 0);
 
-	const main = r.doc.querySelector('main');
+	const main = /** @type {HTMLElement} */ (r.doc.querySelector('main'));
 	main.insertAdjacentHTML('beforeend', '<button data-tsu="Button" class="btn btn-primary" id="dup">Publish</button>');
 	main.insertAdjacentHTML('beforeend', '<button data-tsu="IconButton" class="btn btn-icon" id="nameless"></button>');
 	await tick();

@@ -44,7 +44,7 @@ test('urlState round-trips through parse/serialize and keeps other params', () =
 	const { win, urlState } = boot('http://localhost/list?q=open&page=3');
 	const page = urlState('page', {
 		default: 1,
-		parse: (raw) => Number.parseInt(raw, 10) || 1,
+		parse: (/** @type {string} */ raw) => Number.parseInt(raw, 10) || 1,
 		serialize: String
 	});
 	assert.equal(page.value, 3);
@@ -58,6 +58,7 @@ test('urlState round-trips through parse/serialize and keeps other params', () =
 test('urlState push opts into pushState and popstate syncs tracked readers', () => {
 	const { win, urlState, track, flushSync, popstate } = boot('http://localhost/list');
 	const tab = urlState('tab', { default: 'overview', push: true });
+	/** @type {string[]} */
 	const seen = [];
 	const stop = track(() => tab.value, seen);
 	flushSync();

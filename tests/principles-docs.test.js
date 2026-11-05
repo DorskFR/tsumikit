@@ -5,16 +5,20 @@ import test from 'node:test';
 const principlesDir = new URL('../principles/', import.meta.url);
 const stylesDir = new URL('../src/lib/styles/', import.meta.url);
 
-const inFlightTokens = new Set([]);
-const inFlightExports = new Set([]);
+/** @type {Set<string>} */
+const inFlightTokens = new Set();
+/** @type {Set<string>} */
+const inFlightExports = new Set();
 
 const requiredHeadings = ['## Why', '## Do', "## Don't", '## In tsumikit', '## Check'];
 
 const files = (await readdir(principlesDir)).filter((f) => /^\d{2}-[a-z0-9-]+\.md$/.test(f)).sort();
+/** @type {Map<string, string>} */
 const docs = new Map();
 for (const f of files) docs.set(f, await readFile(new URL(f, principlesDir), 'utf8'));
 const readme = await readFile(new URL('README.md', principlesDir), 'utf8');
 
+/** @type {Set<string>} */
 const declaredTokens = new Set();
 for (const css of await readdir(stylesDir)) {
 	if (!css.endsWith('.css')) continue;
@@ -23,6 +27,7 @@ for (const css of await readdir(stylesDir)) {
 }
 
 const index = await readFile(new URL('../src/lib/index.ts', import.meta.url), 'utf8');
+/** @type {Set<string>} */
 const exported = new Set();
 for (const m of index.matchAll(/default as ([A-Za-z]+)/g)) exported.add(m[1]);
 for (const block of index.matchAll(/export (?:type )?\{([^}]*)\}/g)) {
@@ -32,7 +37,7 @@ for (const block of index.matchAll(/export (?:type )?\{([^}]*)\}/g)) {
 	}
 }
 
-const section = (doc, heading) => {
+const section = (/** @type {string} */ doc, /** @type {string} */ heading) => {
 	const start = doc.indexOf(`\n${heading}\n`);
 	if (start < 0) return '';
 	const rest = doc.slice(start + heading.length + 2);

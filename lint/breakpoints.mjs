@@ -15,6 +15,7 @@ const LENGTH = /^(-?\d*\.?\d+)(px|rem|em)$/;
  * True when a media-query width token (e.g. "640px", "47.999rem") is one of the
  * kit's breakpoints or a max-width complement of one. `em` in a media query
  * resolves against the root font size, so it is treated like `rem`.
+ * @param {string} token
  */
 export function isAllowedBreakpointWidth(token) {
 	const m = LENGTH.exec(token.trim());

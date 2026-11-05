@@ -1,5 +1,10 @@
 import { inlineDeclarations, walkDeclarations, walkMarkup } from '../context.mjs';
 
+/**
+ * @typedef {import('../context.mjs').Context} Context
+ * @typedef {import('../context.mjs').DeclarationLike} DeclarationLike
+ */
+
 const TOKEN_ONLY = /^(?:var\(--font-[\w-]+\)|inherit|initial|unset|revert)\s*(?:,\s*(?:var\(--font-[\w-]+\)|[a-z-]+))*$/i;
 const MONO = /var\(--font-mono\)/;
 const CODE_WORDS = new Set([
@@ -8,6 +13,7 @@ const CODE_WORDS = new Set([
 	'path', 'snippet', 'editor', 'trace', 'stack', 'output', 'stdout', 'stderr', 'hex', 'uuid', 'ansi'
 ]);
 
+/** @param {string[]} selectors */
 export function isCodeIsh(selectors) {
 	return selectors.some((s) =>
 		s
@@ -18,6 +24,11 @@ export function isCodeIsh(selectors) {
 	);
 }
 
+/**
+ * @param {Context} ctx
+ * @param {DeclarationLike} declaration
+ * @param {string[]} selectors
+ */
 function check(ctx, declaration, selectors) {
 	if (declaration.property !== 'font-family') return;
 	if (selectors.some((s) => /:root|:host|\[data-theme|\[data-look/.test(s))) return;
@@ -39,7 +50,7 @@ function check(ctx, declaration, selectors) {
 	}
 }
 
-export default {
+export default /** @type {import('../context.mjs').LintRule} */ ({
 	id: 'no-raw-font',
 	description: 'font-family other than the --font-* tokens; --font-mono only on code-ish elements',
 	check(ctx) {
@@ -50,4 +61,4 @@ export default {
 			for (const d of inlineDeclarations(node)) check(ctx, d, selectors);
 		});
 	}
-};
+});

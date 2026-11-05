@@ -14,7 +14,7 @@ const read = (/** @type {string} */ p) => readFile(join(ROOT, p), 'utf8');
 test('lint/breakpoints.mjs and src/lib/breakpoints.ts publish the same list', () => {
 	assert.deepEqual(
 		BREAKPOINTS.map((b) => [b.name, b.rem, b.px]),
-		Object.entries(breakpoints).map(([name, rem]) => [name, rem, breakpointsPx[name]])
+		Object.entries(breakpoints).map(([name, rem]) => [name, rem, breakpointsPx[/** @type {keyof typeof breakpointsPx} */ (name)]])
 	);
 	assert.deepEqual(breakpoints, { sm: 40, md: 48, lg: 64 });
 });
@@ -25,7 +25,7 @@ test('minWidth / maxWidth build the contract forms the lint rule accepts', () =>
 	assert.equal(maxWidth('sm'), '(max-width: 39.999rem)');
 	assert.equal(maxWidth('lg'), '(max-width: 63.999rem)');
 	for (const bp of /** @type {const} */ (['sm', 'md', 'lg'])) {
-		for (const q of [minWidth(bp), maxWidth(bp)]) assert.ok(isAllowedBreakpointWidth(q.match(/: (.+)\)/)[1]), q);
+		for (const q of [minWidth(bp), maxWidth(bp)]) assert.ok(isAllowedBreakpointWidth(/** @type {RegExpMatchArray} */ (q.match(/: (.+)\)/))[1]), q);
 	}
 });
 
@@ -59,7 +59,7 @@ test('every width @media in src/lib is on the list', async () => {
 test('px widths are gone from the kit: Modal is on 40rem', async () => {
 	const modal = await read('src/lib/components/molecules/Modal.svelte');
 	assert.doesNotMatch(modal, /@media \(min-width: 640px\)/);
-	assert.ok(modal.match(/@media \(min-width: 40rem\)/g).length >= 3);
+	assert.ok((modal.match(/@media \(min-width: 40rem\)/g) ?? []).length >= 3);
 });
 
 test('index.ts exports breakpoints, media and mq', async () => {
@@ -75,7 +75,7 @@ test('mq and media() track matchMedia and update reactively', async () => {
 	/** @type {Map<string, EventTarget>} */
 	const queries = new Map();
 	let width = 800;
-	const rem = (/** @type {string} */ q) => Number(q.match(/min-width: ([\d.]+)rem/)[1]) * 16;
+	const rem = (/** @type {string} */ q) => Number(/** @type {RegExpMatchArray} */ (q.match(/min-width: ([\d.]+)rem/))[1]) * 16;
 	w.matchMedia = (/** @type {string} */ q) => {
 		let mql = queries.get(q);
 		if (!mql) {
@@ -86,7 +86,7 @@ test('mq and media() track matchMedia and update reactively', async () => {
 			});
 			queries.set(q, mql);
 		}
-		return mql;
+		return /** @type {MediaQueryList} */ (/** @type {unknown} */ (mql));
 	};
 	const resize = (/** @type {number} */ px) => {
 		width = px;
@@ -96,7 +96,7 @@ test('mq and media() track matchMedia and update reactively', async () => {
 	const { mount, unmount, flushSync, Fixture } = w.__fixture;
 	const app = mount(Fixture, { target: w.document.body });
 	flushSync();
-	const part = (/** @type {string} */ n) => w.document.querySelector(`[data-part="${n}"]`).getAttribute('data-matches');
+	const part = (/** @type {string} */ n) => /** @type {HTMLElement} */ (w.document.querySelector(`[data-part="${n}"]`)).getAttribute('data-matches');
 	assert.deepEqual([part('md'), part('mq-sm'), part('mq-lg')], ['true', 'true', 'false']);
 	assert.deepEqual([...queries.keys()].sort(), ['(min-width: 40rem)', '(min-width: 48rem)', '(min-width: 64rem)']);
 	resize(500);

@@ -256,7 +256,7 @@ export function startDesignAudit(options: DesignAuditOptions = {}): () => void {
 	const root = options.root ?? document;
 	const win = (root.ownerDocument ?? (root as Document)).defaultView ?? window;
 	const delay = options.delay ?? 250;
-	let timer: ReturnType<typeof setTimeout> | undefined;
+	let timer: number | undefined;
 	const run = () => {
 		timer = undefined;
 		reportDesignIssues(auditDesign(options));

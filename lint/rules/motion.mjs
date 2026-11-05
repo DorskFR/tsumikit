@@ -25,6 +25,7 @@ export const ANIMATABLE = new Set([
 
 const TIMING = /^(ease|ease-in|ease-out|ease-in-out|linear|step-start|step-end|steps|cubic-bezier|var|allow-discrete|normal)$|^-?\d*\.?\d+m?s$|^-?\d*\.?\d+$/;
 
+/** @param {string} value */
 function splitTopLevel(value) {
 	const parts = [];
 	let depth = 0;
@@ -41,6 +42,7 @@ function splitTopLevel(value) {
 	return parts.map((p) => p.trim()).filter(Boolean);
 }
 
+/** @param {string} value */
 export function transitionedProperties(value) {
 	const out = [];
 	for (const item of splitTopLevel(value)) {
@@ -54,7 +56,7 @@ export function transitionedProperties(value) {
 	return out;
 }
 
-export default {
+export default /** @type {import('../context.mjs').LintRule} */ ({
 	id: 'motion',
 	description: 'transition/animation on properties other than transform/opacity/color/background-color/box-shadow/filter',
 	check(ctx) {
@@ -80,4 +82,4 @@ export default {
 			}
 		});
 	}
-};
+});

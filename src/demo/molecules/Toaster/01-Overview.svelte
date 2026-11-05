@@ -23,8 +23,12 @@
 		if (!message) return;
 		toasts.undo({
 			message: `Deleted “${message.subject}”`,
-			apply: () => (inbox = inbox.filter((m) => m.id !== id)),
-			revert: () => (inbox = [...inbox.slice(0, index), message, ...inbox.slice(index)]),
+			apply: () => {
+				inbox = inbox.filter((m) => m.id !== id);
+			},
+			revert: () => {
+				inbox = [...inbox.slice(0, index), message, ...inbox.slice(index)];
+			},
 			commit: async () => {
 				await new Promise((r) => setTimeout(r, 300));
 				if (failing) throw new Error('offline');

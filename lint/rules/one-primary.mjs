@@ -1,9 +1,18 @@
 import { staticAttribute } from '../context.mjs';
 
 /**
+ * @typedef {import('../context.mjs').Fragment} Fragment
+ * @typedef {import('../context.mjs').MarkupNode} MarkupNode
+ * @typedef {import('../context.mjs').ElementLike} ElementLike
+ */
+
+/**
  * Returns the primaries that can render at the same time inside `node`.
  * Exclusive branches (if/else, await states) contribute the largest branch;
  * snippets are separate scopes checked on their own.
+ * @param {MarkupNode | Fragment | null | undefined} node
+ * @param {Fragment[]} scopes
+ * @returns {ElementLike[]}
  */
 function primaries(node, scopes) {
 	if (!node || typeof node !== 'object') return [];
@@ -40,11 +49,12 @@ function primaries(node, scopes) {
 	}
 }
 
+/** @template T @param {T[][]} lists */
 function largest(...lists) {
-	return lists.reduce((a, b) => (b.length > a.length ? b : a), []);
+	return lists.reduce((a, b) => (b.length > a.length ? b : a), /** @type {T[]} */ ([]));
 }
 
-export default {
+export default /** @type {import('../context.mjs').LintRule} */ ({
 	id: 'one-primary',
 	description: 'more than one variant="primary" rendered in the same branch',
 	check(ctx) {
@@ -61,4 +71,4 @@ export default {
 			}
 		}
 	}
-};
+});

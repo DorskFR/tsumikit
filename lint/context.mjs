@@ -1,7 +1,23 @@
 import { parse } from 'svelte/compiler';
 
+/**
+ * @typedef {import('svelte/compiler').AST.Fragment} Fragment
+ * @typedef {import('svelte/compiler').AST.ElementLike} ElementLike
+ * @typedef {import('svelte/compiler').AST.Attribute} Attribute
+ * @typedef {import('svelte/compiler').AST.StyleDirective} StyleDirective
+ * @typedef {Fragment['nodes'][number]} MarkupNode
+ * @typedef {import('svelte/compiler').AST.CSS.Declaration} Declaration
+ * @typedef {import('svelte/compiler').AST.CSS.Atrule} Atrule
+ * @typedef {import('svelte/compiler').AST.CSS.Rule} CssRule
+ * @typedef {{ property: string, value: string, start: number }} DeclarationLike
+ * @typedef {{ file: string, line: number, column: number, rule: string, message: string }} Finding
+ * @typedef {ReturnType<typeof createContext>} Context
+ * @typedef {{ id: string, description: string, check: (ctx: Context) => void }} LintRule
+ */
+
 const IGNORE_RE = /tsumikit-lint-ignore(?:\s+([\w-]+(?:[\s,]+[\w-]+)*))?/g;
 
+/** @param {string} source */
 function lineStarts(source) {
 	const starts = [0];
 	for (let i = 0; i < source.length; i++) {
@@ -10,6 +26,7 @@ function lineStarts(source) {
 	return starts;
 }
 
+/** @param {number[]} starts @param {number} offset */
 function positionOf(starts, offset) {
 	let lo = 0;
 	let hi = starts.length - 1;
@@ -25,9 +42,13 @@ function positionOf(starts, offset) {
  * Collects `tsumikit-lint-ignore [rule ...]` comments. A comment suppresses the
  * named rules (all rules when none is given) on the following line, and on its
  * own line when code precedes it.
+ * @param {string} source
+ * @param {number[]} starts
  */
 function collectIgnores(source, starts) {
+	/** @type {Map<number, 'all' | Set<string>>} */
 	const ignores = new Map();
+	/** @param {number} line @param {'all' | string[]} rules */
 	const add = (line, rules) => {
 		const existing = ignores.get(line);
 		if (existing === 'all') return;
@@ -48,6 +69,8 @@ function collectIgnores(source, starts) {
  * Parses a .svelte or .css source into a lint context. CSS is wrapped in a
  * <style> element so the Svelte CSS parser can be reused; offsets are shifted
  * back when reporting.
+ * @param {string} file
+ * @param {string} source
  */
 export function createContext(file, source) {
 	const isCss = /\.css$/i.test(file);
@@ -55,6 +78,7 @@ export function createContext(file, source) {
 	const parsed = parse(isCss ? `<style>${source}</style>` : source, { modern: true });
 	const starts = lineStarts(source);
 	const ignores = collectIgnores(source, starts);
+	/** @type {Finding[]} */
 	const findings = [];
 	const parseSource = isCss ? `<style>${source}</style>` : source;
 
@@ -64,12 +88,15 @@ export function createContext(file, source) {
 		isCss,
 		css: parsed.css,
 		fragment: isCss ? null : parsed.fragment,
+		/** @param {{ start: number, end: number }} node */
 		text(node) {
 			return parseSource.slice(node.start, node.end);
 		},
+		/** @param {number} offset */
 		loc(offset) {
 			return positionOf(starts, Math.max(0, offset - shift));
 		},
+		/** @param {string} rule @param {number} offset @param {string} message */
 		report(rule, offset, message) {
 			const { line, column } = this.loc(offset);
 			const ignored = ignores.get(line);
@@ -85,9 +112,16 @@ export function createContext(file, source) {
  * `cb(declaration, { selectors, atrules })` where `selectors` are the selector
  * texts of enclosing rules (outermost first) and `atrules` the enclosing
  * at-rule nodes.
+ * @param {Context} ctx
+ * @param {(declaration: Declaration, scope: { selectors: string[], atrules: Atrule[] }) => void} cb
  */
 export function walkDeclarations(ctx, cb) {
 	if (!ctx.css) return;
+	/**
+	 * @param {Array<Declaration | CssRule | Atrule>} nodes
+	 * @param {string[]} selectors
+	 * @param {Atrule[]} atrules
+	 */
 	const visit = (nodes, selectors, atrules) => {
 		for (const node of nodes) {
 			if (node.type === 'Declaration') cb(node, { selectors, atrules });
@@ -101,8 +135,10 @@ export function walkDeclarations(ctx, cb) {
 	visit(ctx.css.children, [], []);
 }
 
+/** @param {Context} ctx @param {(node: Atrule) => void} cb */
 export function walkAtrules(ctx, cb) {
 	if (!ctx.css) return;
+	/** @param {Array<Declaration | CssRule | Atrule>} nodes */
 	const visit = (nodes) => {
 		for (const node of nodes) {
 			if (node.type === 'Atrule') {
@@ -116,9 +152,14 @@ export function walkAtrules(ctx, cb) {
 
 const CHILD_KEYS = ['fragment', 'consequent', 'alternate', 'body', 'fallback', 'pending', 'then', 'catch'];
 
-/** Visits every markup node (elements, components, blocks) depth-first. */
+/**
+ * Visits every markup node (elements, components, blocks) depth-first.
+ * @param {Context} ctx
+ * @param {(node: MarkupNode) => void} cb
+ */
 export function walkMarkup(ctx, cb) {
 	if (!ctx.fragment) return;
+	/** @param {MarkupNode | Fragment | null | undefined} node */
 	const visit = (node) => {
 		if (!node || typeof node !== 'object') return;
 		if (node.type === 'Fragment') {
@@ -126,40 +167,61 @@ export function walkMarkup(ctx, cb) {
 			return;
 		}
 		cb(node);
+		const children = /** @type {Partial<Record<string, Fragment | null>>} */ (/** @type {unknown} */ (node));
 		for (const key of CHILD_KEYS) {
-			if (node[key]) visit(node[key]);
+			if (children[key]) visit(children[key]);
 		}
 	};
 	visit(ctx.fragment);
 }
 
-/** Static text of an attribute, or null when it is dynamic or absent. */
+/**
+ * Joined text of a static attribute value, or null when any part is dynamic.
+ * @param {Attribute['value'] | StyleDirective['value']} value
+ */
+function staticText(value) {
+	if (value === true) return '';
+	let out = '';
+	for (const v of Array.isArray(value) ? value : [value]) {
+		if (v.type !== 'Text') return null;
+		out += v.data;
+	}
+	return out;
+}
+
+/**
+ * Static text of an attribute, or null when it is dynamic or absent.
+ * @param {ElementLike} node
+ * @param {string} name
+ */
 export function staticAttribute(node, name) {
-	const attr = node.attributes?.find((a) => a.type === 'Attribute' && a.name === name);
-	if (!attr) return null;
-	if (attr.value === true) return '';
-	const values = Array.isArray(attr.value) ? attr.value : [attr.value];
-	if (values.some((v) => v.type !== 'Text')) return null;
-	return values.map((v) => v.data).join('');
+	const attr = node.attributes.find((a) => a.type === 'Attribute' && a.name === name);
+	if (!attr || attr.type !== 'Attribute') return null;
+	return staticText(attr.value);
 }
 
+/** @param {ElementLike} node @param {string} name */
 export function hasAttribute(node, name) {
-	return node.attributes?.some((a) => a.type === 'Attribute' && a.name === name) ?? false;
+	return node.attributes.some((a) => a.type === 'Attribute' && a.name === name);
 }
 
+/** @param {ElementLike} node */
 export function hasSpread(node) {
-	return node.attributes?.some((a) => a.type === 'SpreadAttribute') ?? false;
+	return node.attributes.some((a) => a.type === 'SpreadAttribute');
 }
 
 /**
  * Declarations written inline on an element (`style="…"` and `style:prop`
- * directives) with static values, as `{ property, value, start }`.
+ * directives) with static values.
+ * @param {ElementLike} node
+ * @returns {DeclarationLike[]}
  */
 export function inlineDeclarations(node) {
+	/** @type {DeclarationLike[]} */
 	const out = [];
-	for (const attr of node.attributes ?? []) {
+	for (const attr of node.attributes) {
 		if (attr.type === 'Attribute' && attr.name === 'style') {
-			const text = staticAttributeText(attr);
+			const text = staticText(attr.value);
 			if (text == null) continue;
 			for (const chunk of text.split(';')) {
 				const i = chunk.indexOf(':');
@@ -170,18 +232,11 @@ export function inlineDeclarations(node) {
 					start: attr.start
 				});
 			}
-		} else if (attr.type === 'StyleDirective') {
-			const values = Array.isArray(attr.value) ? attr.value : [attr.value];
-			if (attr.value === true || values.some((v) => v.type !== 'Text')) continue;
-			out.push({ property: attr.name, value: values.map((v) => v.data).join(''), start: attr.start });
+		} else if (attr.type === 'StyleDirective' && attr.value !== true) {
+			const value = staticText(attr.value);
+			if (value == null) continue;
+			out.push({ property: attr.name, value, start: attr.start });
 		}
 	}
 	return out;
-}
-
-function staticAttributeText(attr) {
-	if (attr.value === true) return '';
-	const values = Array.isArray(attr.value) ? attr.value : [attr.value];
-	if (values.some((v) => v.type !== 'Text')) return null;
-	return values.map((v) => v.data).join('');
 }
