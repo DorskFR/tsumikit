@@ -15,10 +15,13 @@ test('Modal: the <dialog> is not a scroll container; the sheet body owns scrolli
 	assert.match(source, /\.sheet-body\s*{[^}]*overflow-y:\s*auto;/s);
 });
 
-/** @returns {Promise<import('playwright').BrowserType | null>} */
+/** Playwright is optional (not a dependency); the test skips without it. */
+const PLAYWRIGHT = 'playwright';
+
+/** @returns {Promise<any>} */
 async function chromium() {
 	try {
-		const { chromium } = await import('playwright');
+		const { chromium } = await import(PLAYWRIGHT);
 		return existsSync(chromium.executablePath()) ? chromium : null;
 	} catch {
 		return null;
@@ -38,7 +41,7 @@ test(
 			readFile(new URL('../src/lib/styles/tokens.css', import.meta.url), 'utf8'),
 			readFile(new URL('../src/lib/styles/reset.css', import.meta.url), 'utf8')
 		]);
-		const instance = await /** @type {import('playwright').BrowserType} */ (browser).launch();
+		const instance = await browser.launch();
 		try {
 			const page = await instance.newPage({
 				viewport: { width: 390, height: 844 }

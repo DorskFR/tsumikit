@@ -4,7 +4,10 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { buildFixture } from './fixtures/build.mjs';
 
-const playwright = await import('playwright').catch(() => null);
+/** Playwright is optional (not a dependency); the test skips without it. */
+const PLAYWRIGHT = 'playwright';
+/** @type {any} */
+const playwright = await import(PLAYWRIGHT).catch(() => null);
 const chromium = playwright?.chromium;
 const executable = chromium?.executablePath();
 const skip = !chromium
@@ -16,7 +19,7 @@ const skip = !chromium
 const tokens = await readFile(new URL('../src/lib/styles/tokens.css', import.meta.url), 'utf8');
 const bundle = await buildFixture('mount-rich-select.js');
 
-/** @typedef {import('playwright').Page} Page */
+/** @typedef {any} Page */
 
 const PANEL = '.rs-panel';
 const TRIGGER = '.rs-trigger';
@@ -69,7 +72,7 @@ async function open(page) {
 }
 
 test('closed RichSelect panel has no layout box: before first open, after pick, Escape and outside click', { skip }, async () => {
-	const browser = await /** @type {import('playwright').BrowserType} */ (chromium).launch();
+	const browser = await chromium.launch();
 	try {
 		const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
 		await page.setContent(`<!doctype html><html><head><style>${tokens}</style>
