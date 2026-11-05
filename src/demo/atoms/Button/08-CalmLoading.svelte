@@ -3,7 +3,7 @@
 		title: 'Fast vs slow save',
 		caption:
 			'loading shows nothing for the first 200 ms and then stays at least 500 ms, so a 60 ms save never flashes a spinner while a 1.5 s one reads as steady work. aria-busy and the click block follow loading at once. loadingDelay / loadingMin tune or disable it (0).',
-		layout: 'row'
+		layout: 'stack'
 	};
 </script>
 
