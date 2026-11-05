@@ -42,6 +42,7 @@ export { default as Swatch } from './components/atoms/Swatch.svelte';
 export { default as Switch } from './components/atoms/Switch.svelte';
 // ---- atoms ----
 export { default as Text } from './components/atoms/Text.svelte';
+export type { TextareaSegment } from './components/atoms/Textarea.svelte';
 export { default as Textarea } from './components/atoms/Textarea.svelte';
 export { default as Thinking } from './components/atoms/Thinking.svelte';
 export { default as TimeDisplay } from './components/atoms/TimeDisplay.svelte';
