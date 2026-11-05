@@ -32,9 +32,21 @@ test('stickySidebar pins the desktop aside to the viewport while the resize hand
 	assert.match(source, /class:sticky-sidebar={stickySidebar}/);
 	assert.match(
 		desktop,
-		/\.shell\.sticky-sidebar \.shell-sidebar\s*{[^}]*position: sticky;[^}]*top: 0;[^}]*height: 100dvh;[^}]*align-self: start;/s
+		/\.shell\.sticky-sidebar \.shell-sidebar\s*{[^}]*position: sticky;[^}]*top: var\(--shell-header-h\);[^}]*height: calc\(100dvh - var\(--shell-header-h\)\);[^}]*align-self: start;/s
 	);
 	assert.match(desktop, /\.shell-sidebar-resize\s*{[^}]*position: absolute;/s);
+});
+
+test('stickySidebar starts below the header in header-top and at the viewport top in sidebar-full', () => {
+	assert.match(
+		desktop,
+		/\.shell\.sticky-sidebar\.sidebar-full \.shell-sidebar\s*{\s*top: 0;\s*height: 100dvh;\s*}/
+	);
+	assert.doesNotMatch(source.slice(0, source.indexOf('@media')), /\.shell\.sticky-sidebar/);
+	assert.match(
+		source,
+		/\.shell-header\s*{[^}]*position: sticky;[^}]*top: 0;[^}]*height: var\(--shell-header-h\);/s
+	);
 });
 
 test('sidebarPadding drives one custom property used by all three padding declarations', () => {

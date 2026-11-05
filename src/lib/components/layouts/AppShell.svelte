@@ -57,8 +57,9 @@
 		/** `'sidebar-full'`: the sidebar spans the whole height on desktop/tablet
 		 *  and the header only covers the content column (brand sits top-left). */
 		layout?: 'header-top' | 'sidebar-full';
-		/** Pin the desktop sidebar to the viewport (100dvh, own scroll) so its
-		 *  footer stays visible on long pages. */
+		/** Pin the desktop sidebar to the viewport (own scroll) so its footer
+		 *  stays visible on long pages. Sits below the header in `header-top`,
+		 *  spans the full viewport height in `sidebar-full`. */
 		stickySidebar?: boolean;
 		/** Inner padding of the sidebar; `'none'` when the nav owns its gutters. */
 		sidebarPadding?: 'none' | 'sm' | 'md';
@@ -414,9 +415,13 @@
 		}
 		.shell.sticky-sidebar .shell-sidebar {
 			position: sticky;
+			top: var(--shell-header-h);
+			height: calc(100dvh - var(--shell-header-h));
+			align-self: start;
+		}
+		.shell.sticky-sidebar.sidebar-full .shell-sidebar {
 			top: 0;
 			height: 100dvh;
-			align-self: start;
 		}
 		.shell-scrim,
 		.shell-menu-btn {
