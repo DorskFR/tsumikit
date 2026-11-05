@@ -16,11 +16,14 @@ const skip = !chromium
 const tokens = await readFile(new URL('../src/lib/styles/tokens.css', import.meta.url), 'utf8');
 const bundle = await buildFixture('mount-rich-select.js');
 
+/** @typedef {import('playwright').Page} Page */
+
 const PANEL = '.rs-panel';
 const TRIGGER = '.rs-trigger';
 
+/** @param {Page} page */
 const panelBox = (page) =>
-	page.evaluate((sel) => {
+	page.evaluate((/** @type {string} */ sel) => {
 		const el = /** @type {HTMLElement} */ (document.querySelector(sel));
 		const rect = el.getBoundingClientRect();
 		return {
@@ -32,16 +35,19 @@ const panelBox = (page) =>
 		};
 	}, PANEL);
 
+/** @param {Page} page */
 const waitHidden = (page) =>
-	page.waitForFunction((sel) => getComputedStyle(document.querySelector(sel)).display === 'none', PANEL, {
+	page.waitForFunction((/** @type {string} */ sel) => getComputedStyle(/** @type {Element} */ (document.querySelector(sel))).display === 'none', PANEL, {
 		timeout: 3000,
 	});
 
+/** @param {Page} page */
 const waitShown = (page) =>
-	page.waitForFunction((sel) => document.querySelector(sel).matches(':popover-open'), PANEL, {
+	page.waitForFunction((/** @type {string} */ sel) => /** @type {Element} */ (document.querySelector(sel)).matches(':popover-open'), PANEL, {
 		timeout: 3000,
 	});
 
+/** @param {Page} page @param {string} when */
 async function assertNoLayoutBox(page, when) {
 	await waitHidden(page);
 	const box = await panelBox(page);
@@ -52,6 +58,7 @@ async function assertNoLayoutBox(page, when) {
 	assert.equal(await page.locator('[role="option"]:visible').count(), 0, `${when}: no visible options`);
 }
 
+/** @param {Page} page */
 async function open(page) {
 	await page.click(TRIGGER);
 	await waitShown(page);
@@ -62,7 +69,7 @@ async function open(page) {
 }
 
 test('closed RichSelect panel has no layout box: before first open, after pick, Escape and outside click', { skip }, async () => {
-	const browser = await chromium.launch();
+	const browser = await /** @type {import('playwright').BrowserType} */ (chromium).launch();
 	try {
 		const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
 		await page.setContent(`<!doctype html><html><head><style>${tokens}</style>
@@ -70,7 +77,7 @@ test('closed RichSelect panel has no layout box: before first open, after pick, 
 <body><div id="rs"></div><div id="outside" style="position:fixed;right:20px;bottom:20px;width:200px;height:200px"></div></body></html>`);
 		await page.addScriptTag({ content: bundle });
 		await page.evaluate(() => {
-			const { mount, flushSync, Fixture } = globalThis.__fixture;
+			const { mount, flushSync, Fixture } = /** @type {any} */ (globalThis).__fixture;
 			mount(Fixture, { target: document.getElementById('rs'), props: {} });
 			flushSync();
 		});

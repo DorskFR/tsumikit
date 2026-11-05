@@ -47,20 +47,20 @@ test(
 				`<!doctype html><html><head><style>${tokens}\n${reset}</style></head><body></body></html>`
 			);
 			await page.addScriptTag({ content: bundle });
-			const samples = await page.evaluate(
+			const samples = /** @type {{ scrollTop: number[], sheetTop: number[], active: string | null | undefined }} */ (await page.evaluate(
 				() =>
 					new Promise((resolve) => {
-						const { mount, flushSync, Fixture, props } = globalThis.__fixture;
+						const { mount, flushSync, Fixture, props } = /** @type {any} */ (globalThis).__fixture;
 						const live = props({ open: false });
 						mount(Fixture, { target: document.body, props: live });
 						flushSync();
-						const dialog = document.querySelector('dialog');
-						const sheet = dialog.querySelector('.sheet');
+						const dialog = /** @type {HTMLDialogElement} */ (document.querySelector('dialog'));
+						const sheet = /** @type {HTMLElement} */ (dialog.querySelector('.sheet'));
 						live.open = true;
 						flushSync();
 						const out = {
-							scrollTop: [],
-							sheetTop: [],
+							scrollTop: /** @type {number[]} */ ([]),
+							sheetTop: /** @type {number[]} */ ([]),
 							active: document.activeElement?.getAttribute('aria-label')
 						};
 						const started = performance.now();
@@ -72,7 +72,7 @@ test(
 						};
 						requestAnimationFrame(tick);
 					})
-			);
+			));
 			assert.equal(samples.active, 'Close dialog');
 			assert.ok(samples.scrollTop.length > 10, `sampled ${samples.scrollTop.length} frames`);
 			assert.deepEqual(
@@ -86,7 +86,7 @@ test(
 				`sheet translate did not animate: ${samples.sheetTop.join(',')}`
 			);
 			const first = samples.sheetTop[0];
-			const last = samples.sheetTop.at(-1);
+			const last = samples.sheetTop[samples.sheetTop.length - 1];
 			assert.ok(first - last > 100, `sheet should slide up by >100px, got ${first} -> ${last}`);
 			for (let i = 1; i < samples.sheetTop.length; i++) {
 				assert.ok(

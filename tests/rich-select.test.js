@@ -137,12 +137,13 @@ function render(props = {}) {
 }
 
 /** aria-labelledby wins over aria-label in the accessible name computation. */
+/** @param {Document} doc @param {Element} el */
 function accessibleName(doc, el) {
 	const ids = el.getAttribute('aria-labelledby');
 	if (!ids) return el.getAttribute('aria-label') ?? '';
 	return ids
 		.split(/\s+/)
-		.map((id) => doc.getElementById(id)?.textContent?.trim() ?? '')
+		.map((/** @type {string} */ id) => doc.getElementById(id)?.textContent?.trim() ?? '')
 		.join(' ');
 }
 
