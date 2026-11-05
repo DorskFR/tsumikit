@@ -175,6 +175,7 @@ function dom() {
 		() => ({ matches: true, addEventListener() {}, removeEventListener() {}, addListener() {}, removeListener() {} })
 	);
 	d.window.Element.prototype.scrollIntoView = () => {};
+	d.window.ResizeObserver = class { observe() {} unobserve() {} disconnect() {} };
 	d.window.eval(bundle);
 	return d;
 }
@@ -215,6 +216,16 @@ test('DemoSection renders the Button examples with anchors, previews and verbati
 		assert.ok(card.querySelector('.example__head [data-tsu="CopyButton"]'), `${ex.file} has a copy-link button`);
 	}
 	assert.equal(section.querySelectorAll('.example__preview--stack').length, cards.length);
+
+	const props = section.querySelector('.props-table');
+	assert.ok(props, 'props table after the examples');
+	assert.equal(props.previousElementSibling, cards.at(-1));
+	assert.equal(props.querySelector('h3')?.textContent?.trim(), 'Props');
+	assert.equal(props.getAttribute('aria-labelledby'), 'button--props');
+	const names = [...props.querySelectorAll('tbody tr')].map((tr) => tr.querySelector('td code')?.textContent);
+	assert.deepEqual(names.slice(0, 3), ['variant', 'tone', 'size']);
+	assert.ok(names.includes('children'));
+	assert.ok(!names.includes('disabled'));
 });
 
 test('a section without examples renders no migration notice or legacy link', () => {

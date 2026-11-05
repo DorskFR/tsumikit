@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { Badge, Cluster, Heading, Link, Text } from '@dorsk/tsumikit';
 	import Example from './Example.svelte';
+	import PropsTable from './PropsTable.svelte';
 	import { SSR, defer, startsLive } from './lazy';
 	import { type DemoEntry, resolveRef } from './registry';
 
@@ -19,6 +20,7 @@
 		{#each entry.examples as example (example.id)}
 			<Example {example} />
 		{/each}
+		<PropsTable {entry} />
 	</div>
 {/snippet}
 

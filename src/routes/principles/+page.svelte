@@ -388,7 +388,7 @@
 		display: grid;
 		gap: var(--sp-8);
 		max-inline-size: 56rem;
-		padding-block: var(--sp-4) var(--sp-10);
+		padding: var(--sp-4) var(--sp-6) var(--sp-10);
 	}
 	.section {
 		display: grid;
