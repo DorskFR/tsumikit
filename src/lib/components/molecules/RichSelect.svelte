@@ -83,6 +83,7 @@
 
 	const uid = Math.random().toString(36).slice(2, 8);
 	const listId = `rs-list-${uid}`;
+	const nameId = `rs-name-${uid}`;
 	const optionId = (i: number) => `rs-opt-${uid}-${i}`;
 
 	let root = $state<HTMLDivElement | null>(null);
@@ -96,6 +97,7 @@
 
 	const selectedIndex = $derived(options.findIndex((o) => getKey(o) === value));
 	const selectedOption = $derived(selectedIndex >= 0 ? options[selectedIndex] : undefined);
+	const triggerName = $derived(selectedOption === undefined ? label : `${label}, ${getLabel(selectedOption)}`);
 	const typeahead = createTypeahead();
 
 	const triggerEl = () => root?.querySelector<HTMLElement>('.rs-trigger') ?? null;
@@ -150,6 +152,7 @@
 		if (key !== value) {
 			value = key;
 			onchange?.(key, next);
+			if (!closeAfter) announcement = getLabel(next);
 			playSound(closeAfter ? 'click' : 'tick', sound);
 		}
 		if (closeAfter) {
@@ -354,6 +357,7 @@
 		onopen={onOpen}
 		onclose={onClose}
 		aria-controls={listId}
+		aria-labelledby={nameId}
 		aria-activedescendant={open && active >= 0 ? optionId(active) : undefined}
 	>
 		{#snippet trigger()}
@@ -407,6 +411,7 @@
 			<div class="rs-footer">{@render footer({ close })}</div>
 		{/if}
 	</Popover>
+	<span class="sr-only" id={nameId}>{triggerName}</span>
 	<span class="sr-only" aria-live="polite">{announcement}</span>
 </div>
 
@@ -487,8 +492,10 @@
 	.rich-select.is-open .rs-chevron {
 		rotate: 180deg;
 	}
-	.rich-select :global(.pop-panel.rs-panel) {
+	.rich-select :global(.pop-panel.rs-panel:popover-open) {
 		display: flex;
+	}
+	.rich-select :global(.pop-panel.rs-panel) {
 		flex-direction: column;
 		gap: var(--sp-1);
 		box-sizing: border-box;

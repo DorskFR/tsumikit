@@ -136,12 +136,23 @@ function render(props = {}) {
 	return { win, doc, trigger, panel, out, isOpen, settle, key, options, activeOption, unmount: () => unmount(app) };
 }
 
+/** aria-labelledby wins over aria-label in the accessible name computation. */
+function accessibleName(doc, el) {
+	const ids = el.getAttribute('aria-labelledby');
+	if (!ids) return el.getAttribute('aria-label') ?? '';
+	return ids
+		.split(/\s+/)
+		.map((id) => doc.getElementById(id)?.textContent?.trim() ?? '')
+		.join(' ');
+}
+
 test('trigger wiring: combobox role, listbox inside a group panel, selected card in the trigger', async () => {
 	const { trigger, panel, doc, settle, key, options, unmount } = render();
 	assert.equal(trigger.getAttribute('role'), 'combobox');
 	assert.equal(trigger.getAttribute('aria-haspopup'), 'listbox');
 	assert.equal(trigger.getAttribute('aria-expanded'), 'false');
 	assert.equal(trigger.getAttribute('aria-label'), 'Spawn profile');
+	assert.equal(accessibleName(doc, trigger), 'Spawn profile, Sonnet daily');
 	assert.equal(panel.getAttribute('role'), 'group');
 	assert.equal(trigger.querySelector('.card')?.textContent, 'Sonnet daily · sonnet');
 	assert.equal(trigger.querySelector('.card')?.getAttribute('data-in-trigger'), 'true');
@@ -172,6 +183,20 @@ test('keyboard selection while closed changes the value without opening', () => 
 	assert.equal(out('value'), 'opus', 'clamps at the first option');
 	assert.equal(out('changes'), '3');
 	assert.equal(trigger.querySelector('.card')?.textContent, 'Opus deep work · opus');
+	unmount();
+});
+
+test('closed trigger: accessible name carries the selected option and arrow changes are announced', () => {
+	const { trigger, doc, key, unmount } = render();
+	const live = doc.querySelector('.rich-select [aria-live="polite"]');
+	assert.equal(accessibleName(doc, trigger), 'Spawn profile, Sonnet daily');
+	assert.equal(live?.textContent, '');
+	key(trigger, 'ArrowDown');
+	assert.equal(accessibleName(doc, trigger), 'Spawn profile, Haiku quick');
+	assert.equal(live?.textContent, 'Haiku quick');
+	key(trigger, 's');
+	assert.equal(accessibleName(doc, trigger), 'Spawn profile, Sol review');
+	assert.equal(live?.textContent, 'Sol review');
 	unmount();
 });
 
