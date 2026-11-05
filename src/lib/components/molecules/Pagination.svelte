@@ -6,6 +6,7 @@
 	// next when the container is narrower than 24rem.
 	import Text from '$lib/components/atoms/Text.svelte';
 	import { playSound } from '$lib/sound';
+	import { isModifiedClick } from '$lib/url-state.svelte';
 	import IconButton from './IconButton.svelte';
 
 	let {
@@ -15,6 +16,7 @@
 		limit,
 		total,
 		onchange,
+		href,
 		siblings = 1,
 		showEdges = true,
 		showRange = false,
@@ -34,6 +36,8 @@
 		limit?: number;
 		total?: number;
 		onchange?: (page: number) => void;
+		/** Pages become real links (`<a aria-current="page">`): middle-click opens a page in a new tab. */
+		href?: (page: number) => string;
 		/** Numbered pages shown on each side of the current one. */
 		siblings?: number;
 		/** Always show the first and last page. */
@@ -105,6 +109,9 @@
 		if (offsetMode) offset = (next - 1) * (limit as number);
 		onchange?.(next);
 	}
+	function onlinkclick(e: MouseEvent, p: number) {
+		if (!isModifiedClick(e)) go(p);
+	}
 </script>
 
 <nav
@@ -121,14 +128,26 @@
 		label="Previous page"
 		box={size === 'sm' ? 'sm' : 'md'}
 		disabled={current <= 1}
+		href={href?.(current - 1)}
 		sound={false}
-		onclick={() => go(current - 1)}
+		onclick={(e) => onlinkclick(e, current - 1)}
 	/>
 	<ol class="pages">
 		{#each items as item, i (item === ELLIPSIS ? `e${i}` : item)}
 			<li>
 				{#if item === ELLIPSIS}
 					<span class="ellipsis" aria-hidden="true">…</span>
+				{:else if href}
+					<a
+						href={href(item)}
+						class="page"
+						class:on={item === current}
+						aria-current={item === current ? 'page' : undefined}
+						aria-label="Page {item}"
+						onclick={(e) => onlinkclick(e, item)}
+					>
+						{item}
+					</a>
 				{:else}
 					<button
 						type="button"
@@ -150,8 +169,9 @@
 		label="Next page"
 		box={size === 'sm' ? 'sm' : 'md'}
 		disabled={current >= count}
+		href={href?.(current + 1)}
 		sound={false}
-		onclick={() => go(current + 1)}
+		onclick={(e) => onlinkclick(e, current + 1)}
 	/>
 	{#if showRange}
 		<Text class="range" size="sm" numeric tone="muted">{rangeText}</Text>
@@ -186,6 +206,9 @@
 		padding: 0;
 	}
 	.page {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
 		min-width: var(--box-md);
 		height: var(--box-md);
 		padding: 0 var(--control-px-md);
@@ -195,6 +218,7 @@
 		color: var(--text-muted);
 		font-size: var(--control-fs-md);
 		font-variant-numeric: tabular-nums;
+		text-decoration: none;
 		cursor: pointer;
 		--page-scale-dur: var(--dur-fast);
 		transition:

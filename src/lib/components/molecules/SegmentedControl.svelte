@@ -11,6 +11,8 @@
 		icon?: import('$lib/components/atoms/Icon.svelte').IconName;
 		/** Greyed out, not selectable, skipped by keyboard navigation. */
 		disabled?: boolean;
+		/** Render this segment as a real link; overrides the control's `href`. */
+		href?: string;
 	}
 </script>
 
@@ -28,6 +30,7 @@
 	import type { Attachment } from 'svelte/attachments';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import { playSound } from '$lib/sound';
+	import { isModifiedClick } from '$lib/url-state.svelte';
 	import { formatSegmentCount } from './segmented-control-count.js';
 	import { nextEnabledSegment } from './segmented-control-keyboard.js';
 
@@ -35,6 +38,7 @@
 		options,
 		value = $bindable(),
 		onchange,
+		href,
 		justify,
 		wrap = false,
 		// `icon` packs the segments into compact square buttons (label hidden as an
@@ -60,6 +64,8 @@
 		value?: string;
 		/** Fires after a selection (click or keyboard). */
 		onchange?: (value: string) => void;
+		/** Segments become real links (`<a aria-current>`): middle-click opens the segment's URL in a new tab. */
+		href?: (value: string) => string;
 		/** Pin the control to the start/end of a flex row. */
 		justify?: 'start' | 'end';
 		/** Allow segments to wrap onto multiple lines. */
@@ -100,6 +106,7 @@
 		options.find((o) => o.value === value && !o.disabled) ?? options.find((o) => !o.disabled)
 	);
 	const segId = (val: string) => `${baseId}-${val}`;
+	const linkTo = (o: SegmentOption) => (o.disabled ? undefined : (o.href ?? href?.(o.value)));
 
 	// A pill wider than its container falls back to the `scroll` layout; the
 	// class is dropped again once the row fits so the touch slab stays unclipped.
@@ -185,6 +192,16 @@
 	}
 </script>
 
+{#snippet content(o: SegmentOption, selected: boolean)}
+	{#if optionSnippet}
+		{@render optionSnippet(o, selected)}
+	{:else}
+		{#if o.icon}<Icon name={o.icon} />{/if}
+		{#if o.label}<span class="seg-label">{o.label}</span>{/if}
+		{#if o.count !== undefined}<span class="seg-count">{formatSegmentCount(o.count)}</span>{/if}
+	{/if}
+{/snippet}
+
 <div
 	bind:this={listEl}
 	role="radiogroup"
@@ -209,27 +226,42 @@
 	<span bind:this={thumb} class="seg-thumb" aria-hidden="true"></span>
 	{#each options as o (o.value)}
 		{@const selected = value === o.value}
-		<button
-			type="button"
-			id={segId(o.value)}
-			role="radio"
-			aria-checked={selected}
-			aria-label={variant === 'icon' && !o.label ? o.value : o.label}
-			tabindex={stop?.value === o.value ? 0 : -1}
-			class="seg-item"
-			class:has-label={!!o.label}
-			class:selected
-			disabled={o.disabled}
-			onclick={() => select(o.value)}
-		>
-			{#if optionSnippet}
-				{@render optionSnippet(o, selected)}
-			{:else}
-				{#if o.icon}<Icon name={o.icon} />{/if}
-				{#if o.label}<span class="seg-label">{o.label}</span>{/if}
-				{#if o.count !== undefined}<span class="seg-count">{formatSegmentCount(o.count)}</span>{/if}
-			{/if}
-		</button>
+		{@const link = linkTo(o)}
+		{#if link !== undefined}
+			<a
+				href={link}
+				id={segId(o.value)}
+				role="radio"
+				aria-checked={selected}
+				aria-current={selected ? 'page' : undefined}
+				aria-label={variant === 'icon' && !o.label ? o.value : o.label}
+				tabindex={stop?.value === o.value ? 0 : -1}
+				class="seg-item"
+				class:has-label={!!o.label}
+				class:selected
+				onclick={(e) => {
+					if (!isModifiedClick(e)) select(o.value);
+				}}
+			>
+				{@render content(o, selected)}
+			</a>
+		{:else}
+			<button
+				type="button"
+				id={segId(o.value)}
+				role="radio"
+				aria-checked={selected}
+				aria-label={variant === 'icon' && !o.label ? o.value : o.label}
+				tabindex={stop?.value === o.value ? 0 : -1}
+				class="seg-item"
+				class:has-label={!!o.label}
+				class:selected
+				disabled={o.disabled}
+				onclick={() => select(o.value)}
+			>
+				{@render content(o, selected)}
+			</button>
+		{/if}
 	{/each}
 </div>
 
@@ -354,6 +386,7 @@
 		line-height: var(--lh-none);
 		--icon-size: var(--control-icon-md);
 		white-space: nowrap;
+		text-decoration: none;
 		cursor: pointer;
 		transition:
 			background var(--dur-fast) var(--ease),
