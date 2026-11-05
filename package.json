@@ -24,8 +24,12 @@
     "**/*.css"
   ],
   "files": [
-    "dist"
+    "dist",
+    "lint"
   ],
+  "bin": {
+    "tsumikit-lint": "./lint/cli.mjs"
+  },
   "svelte": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {

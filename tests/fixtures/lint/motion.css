@@ -1,0 +1,30 @@
+.bad {
+	transition: all 0.2s ease;
+}
+.bad-prop {
+	transition: height 150ms ease-in-out, opacity 150ms;
+}
+.bad-list {
+	transition-property: width, color;
+}
+.ok {
+	transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), opacity var(--dur-fast) ease, color 100ms, background-color 100ms, box-shadow 100ms, filter 100ms;
+}
+.ok-var {
+	transition: var(--motion-fade);
+}
+.ok-discrete {
+	transition: display 0.3s allow-discrete, overlay 0.3s allow-discrete, --wipe 0.3s;
+}
+@keyframes slide {
+	from { transform: translateY(4px); opacity: 0; }
+	to { transform: none; opacity: 1; }
+}
+@keyframes grow {
+	from { height: 0; }
+	to { height: 10rem; animation-timing-function: ease; }
+}
+.ignored {
+	/* tsumikit-lint-ignore motion */
+	transition: all 0.2s;
+}
