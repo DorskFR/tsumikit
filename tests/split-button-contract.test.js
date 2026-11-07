@@ -6,7 +6,7 @@ import test from 'node:test';
 import * as esbuild from 'esbuild';
 import sveltePlugin from 'esbuild-svelte';
 import { JSDOM } from 'jsdom';
-import { hasDecl, normalize } from './helpers.mjs';
+import { hasDecl, normalize, readDocs } from './helpers.mjs';
 import { demoed, readDemo } from './helpers/demo-source.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -15,7 +15,7 @@ const read = (p) => readFile(new URL(p, import.meta.url), 'utf8');
 const [source, index, readme, page] = await Promise.all([
 	read('../src/lib/components/molecules/SplitButton.svelte'),
 	read('../src/lib/index.ts'),
-	read('../README.md'),
+	readDocs('components.md'),
 	readDemo()
 ]);
 const style = source.slice(source.indexOf('<style>'));

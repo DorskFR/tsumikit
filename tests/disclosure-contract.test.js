@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { JSDOM } from 'jsdom';
 import { buildFixture } from './fixtures/build.mjs';
-import { hasDecl, normalize, rule } from './helpers.mjs';
+import { hasDecl, normalize, readDocs, rule } from './helpers.mjs';
 
 /** @param {string} name */
 const component = (name) =>
@@ -12,7 +12,7 @@ const [disclosure, accordion, index, readme] = await Promise.all([
 	component('Disclosure.svelte'),
 	component('Accordion.svelte'),
 	readFile(new URL('../src/lib/index.ts', import.meta.url), 'utf8'),
-	readFile(new URL('../README.md', import.meta.url), 'utf8')
+	readDocs('components.md')
 ]);
 const bundle = await buildFixture('mount-disclosure.svelte.js');
 

@@ -3,7 +3,7 @@
  * Class-based highlighters (highlight.js `hljs-*`, Prism `token.*`) are themed
  * here by mapping their token classes onto the --syn-* theme tokens, so colors
  * track every theme. This must be GLOBAL: Svelte scoped styles don't reach
- * {@html} content. (Shiki emits inline colors instead — see the README for how
+ * {@html} content. (Shiki emits inline colors instead; docs/components.md explains how
  * to theme it via its css-variables theme.) */
 .hljs-keyword,
 .hljs-built_in,

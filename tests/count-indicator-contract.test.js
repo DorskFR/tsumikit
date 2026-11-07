@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { JSDOM } from 'jsdom';
 import { buildFixture } from './fixtures/build.mjs';
-import { hasDecl } from './helpers.mjs';
+import { hasDecl, readDocs } from './helpers.mjs';
 
 /** @param {string} p */
 const read = (p) => readFile(new URL(`../src/lib/${p}`, import.meta.url), 'utf8');
@@ -12,7 +12,7 @@ const [button, iconButton, popover, index, readme] = await Promise.all([
 	read('components/molecules/IconButton.svelte'),
 	read('components/molecules/Popover.svelte'),
 	read('index.ts'),
-	readFile(new URL('../README.md', import.meta.url), 'utf8')
+	readDocs('styling.md')
 ]);
 const { formatCount, hasCount } = await import('../src/lib/count.ts');
 const bundle = await buildFixture('mount-count-fixture.js');

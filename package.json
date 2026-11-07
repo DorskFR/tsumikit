@@ -1,7 +1,7 @@
 {
   "name": "@dorsk/tsumikit",
   "version": "0.82.2",
-  "description": "Minimal, dependency-free Svelte 5 + pure-CSS UI kit. Token-driven atoms, molecules & layouts with theming out of the box.",
+  "description": "Svelte 5 UI components styled with plain CSS variables: 31 themes, WCAG AA contrast, no runtime dependencies.",
   "type": "module",
   "license": "MIT",
   "author": "Dorsk <dorsk.dev@gmail.com>",
@@ -73,7 +73,8 @@
     "design:bundle": "node .design-sync/build-bundle.mjs",
     "design:verify": "node .design-sync/verify-bundle.mjs",
     "design:clean": "rm -rf ds-bundle .ds-proto",
-    "demo:props": "node scripts/gen-demo-props.mjs"
+    "demo:props": "node scripts/gen-demo-props.mjs",
+    "readme:shots": "node scripts/readme-screenshots.mjs"
   },
   "peerDependencies": {
     "svelte": "^5.0.0"
@@ -91,6 +92,7 @@
     "esbuild-svelte": "^0.9.5",
     "jsdom": "^30.0.1",
     "lefthook": "^1.7.0",
+    "playwright": "~1.63.0",
     "publint": "^0.2.0",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",

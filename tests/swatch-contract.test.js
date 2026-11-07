@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { compile, preprocess } from 'svelte/compiler';
-import { hasDecl, normalize } from './helpers.mjs';
+import { hasDecl, normalize, readDocs } from './helpers.mjs';
 import { demoed, readDemo } from './helpers/demo-source.js';
 
 /** @param {string} p */
@@ -11,7 +11,7 @@ const read = (p) => readFile(new URL(p, import.meta.url), 'utf8');
 const [swatch, index, readme, page] = await Promise.all([
 	read('../src/lib/components/atoms/Swatch.svelte'),
 	read('../src/lib/index.ts'),
-	read('../README.md'),
+	readDocs('components.md'),
 	readDemo(),
 ]);
 const css = swatch.slice(swatch.indexOf('<style>'));

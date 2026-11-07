@@ -10,13 +10,14 @@ import {
 } from '../src/lib/components/molecules/combobox-keyboard.js';
 import { buildFixture } from './fixtures/build.mjs';
 import { demoed, readDemo } from './helpers/demo-source.js';
+import { readDocs } from './helpers.mjs';
 
 const read = (/** @type {string} */ p) => readFile(new URL(p, import.meta.url), 'utf8');
 const [source, floating, index, readme, page] = await Promise.all([
 	read('../src/lib/components/molecules/Combobox.svelte'),
 	read('../src/lib/floating.ts'),
 	read('../src/lib/index.ts'),
-	read('../README.md'),
+	readDocs('components.md', 'styling.md'),
 	readDemo(),
 ]);
 const bundle = await buildFixture('mount-combobox.js');

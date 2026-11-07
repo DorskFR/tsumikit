@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { JSDOM } from 'jsdom';
 import { buildFixture } from './fixtures/build.mjs';
-import { hasDecl } from './helpers.mjs';
+import { hasDecl, readDocs } from './helpers.mjs';
 import { demoed, readDemo } from './helpers/demo-source.js';
 
 const read = (/** @type {string} */ p) => readFile(new URL(`../src/lib/${p}`, import.meta.url), 'utf8');
@@ -14,7 +14,7 @@ const [feed, panel, status, bubble, composer, index, readme, page] = await Promi
 	read('components/molecules/ChatBubble.svelte'),
 	read('components/molecules/Composer.svelte'),
 	read('index.ts'),
-	readFile(new URL('../README.md', import.meta.url), 'utf8'),
+	readDocs('components.md'),
 	readDemo()
 ]);
 const bundle = await buildFixture('mount-conversation.svelte.js');

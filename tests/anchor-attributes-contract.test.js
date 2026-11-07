@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { vitePreprocess } from '@sveltejs/vite-plugin-svelte';
 import { compile, preprocess } from 'svelte/compiler';
-import { normalize } from './helpers.mjs';
+import { normalize, readDocs } from './helpers.mjs';
 
 /** @param {string} p */
 const read = (p) => readFile(new URL(p, import.meta.url), 'utf8');
@@ -14,7 +14,7 @@ const [tabs, filterInput, filterSearchBar, themePicker, anchor, index, readme] =
 	read('../src/lib/components/molecules/ThemePicker.svelte'),
 	read('../src/lib/anchor.ts'),
 	read('../src/lib/index.ts'),
-	read('../README.md')
+	readDocs('styling.md')
 ]);
 
 /** @param {string} src @param {string} filename */
@@ -73,7 +73,7 @@ test('none of the four changed their own defaults or semantics', () => {
 	assert.match(normalize(filterSearchBar), /showChips = true,/);
 });
 
-test('the README points anchors at the public surface, not the private data-tsu marker', () => {
-	assert.match(readme, /### Anchoring to a component/);
+test('the docs point anchors at the public surface, not the private data-tsu marker', () => {
+	assert.match(readme, /## Anchoring to a component/);
 	assert.match(normalize(readme), /Never target the private `data-tsu="…"` markers/);
 });

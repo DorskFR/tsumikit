@@ -4,12 +4,13 @@ import test from 'node:test';
 import { JSDOM } from 'jsdom';
 import { buildFixture } from './fixtures/build.mjs';
 import { readDemo } from './helpers/demo-source.js';
+import { readDocs } from './helpers.mjs';
 
 /** @param {string} p */
 const read = (p) => readFile(new URL(p, import.meta.url), 'utf8');
 const [source, readme, page] = await Promise.all([
 	read('../src/lib/components/organisms/DataTable.svelte'),
-	read('../README.md'),
+	readDocs('components.md'),
 	readDemo()
 ]);
 const bundle = await buildFixture('mount-data-table.js');
@@ -98,7 +99,7 @@ test('a header snippet renders a working select-all checkbox instead of the labe
 	assert.deepEqual(calls, [true]);
 });
 
-test('README and demo page document both stack modes and the header snippet', () => {
+test('docs and demo page document both stack modes and the header snippet', () => {
 	assert.match(readme, /`Column\.stackLabel: false`/);
 	assert.match(readme, /`headerSnippets\[key\]`/);
 	assert.match(page, /stackLabel: false/);

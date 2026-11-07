@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict';
 import { readFile, readdir } from 'node:fs/promises';
 import test from 'node:test';
+import { readDocs } from './helpers.mjs';
 
-const readme = await readFile(new URL('../README.md', import.meta.url), 'utf8');
+const readme = await readDocs('styling.md');
 const componentsDir = new URL('../src/lib/components/', import.meta.url);
 
 const files = new Map();
@@ -15,8 +16,8 @@ for (const group of await readdir(componentsDir)) {
 
 const table = readme.match(/\| component \| published properties \|\n\|[^\n]*\|\n((?:\|[^\n]*\|\n)+)/);
 
-test('the README publishes a custom-property table', () => {
-	assert.ok(table, 'README is missing the published-properties table');
+test('the docs publish a custom-property table', () => {
+	assert.ok(table, 'docs/styling.md is missing the published-properties table');
 });
 
 const rows = (table?.[1] ?? '')
@@ -77,7 +78,7 @@ test('the gap-filled controls cover bg/fg/border/size/radius', () => {
 	assert.deepEqual(byName.get('Text'), ['--txt-fg', '--txt-size']);
 });
 
-test('README states that reaching into internals with :global() is unsupported', () => {
+test('the docs state that reaching into internals with :global() is unsupported', () => {
 	assert.match(readme, /`:global\(\)` into kit internals is unsupported/);
 	assert.match(readme, /private and change without a major/);
 });

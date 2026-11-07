@@ -4,7 +4,7 @@ import test from 'node:test';
 import { JSDOM } from 'jsdom';
 import { compile } from 'svelte/compiler';
 import { buildFixture } from './fixtures/build.mjs';
-import { hasDecl, rule } from './helpers.mjs';
+import { hasDecl, readDocs, rule } from './helpers.mjs';
 
 // jsdom has no layout engine: the geometry contract (the field's border box
 // spanning the group, text clear of the adornments, bottom alignment while
@@ -19,7 +19,7 @@ const [group, input, textarea, composer, index, readme] = await Promise.all([
 	read('components/atoms/Textarea.svelte'),
 	read('components/molecules/Composer.svelte'),
 	read('index.ts'),
-	readFile(new URL('../README.md', import.meta.url), 'utf8')
+	readDocs('components.md')
 ]);
 const bundle = await buildFixture('mount-input-group.js');
 
