@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { normalize, rule } from './helpers.mjs';
+import { normalize, readDocs, rule } from './helpers.mjs';
 import { readDemo } from './helpers/demo-source.js';
 
 /** @param {string} p */
@@ -12,7 +12,7 @@ const [badge, popover, menu, fontScale, themePicker, readme, showcase] = await P
 	read('../src/lib/components/molecules/Menu.svelte'),
 	read('../src/lib/components/molecules/FontScalePicker.svelte'),
 	read('../src/lib/components/molecules/ThemePicker.svelte'),
-	read('../README.md'),
+	readDocs('styling.md'),
 	readDemo()
 ]);
 
@@ -58,7 +58,7 @@ test('every --badge-* size hook is read with a fallback, so unset renders exactl
 	}
 });
 
-test('Badge publishes the size axis in the README table', () => {
+test('Badge publishes the size axis in the docs table', () => {
 	const row = readme.match(/\| `Badge` \|([^\n]*)\|/)?.[1] ?? '';
 	for (const prop of ['--badge-fs', '--badge-fw', '--badge-min-size']) assert.ok(row.includes(prop), prop);
 });
@@ -159,7 +159,7 @@ test('every --pop-trigger-* hook is read with a fallback, so unset triggers are 
 	}
 });
 
-test('Popover is in the README property table with its trigger hooks and --pop-box', () => {
+test('Popover is in the docs property table with its trigger hooks and --pop-box', () => {
 	const row = readme.match(/\| `Popover` \|([^\n]*)\|/)?.[1];
 	assert.ok(row, 'Popover is missing from the published-properties table');
 	for (const prop of [

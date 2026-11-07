@@ -1,0 +1,686 @@
+# Components
+
+[Back to the README](../README.md) · Live demo with every prop: <https://dorskfr.github.io/tsumikit>
+
+Every component is exported from `@dorsk/tsumikit`. This page lists them by layer, then gives the
+details that do not fit in a one-line summary. Layout and touch sizing are in
+[layout.md](layout.md), custom properties per component in [styling.md](styling.md).
+
+## Atoms
+
+Text, Heading, Button, Input (`icon` inset leading glyph,
+`clearable` + `onclear`, `shape="pill"`, `width` fixed + `flex: none`,
+`onenter(value)`; the bare `<input>` DOM stays a plain `<input>` unless `icon`/`clearable`
+is used), Textarea, Select (`options` array with per-option `icon`/`emoji`/`hint`/`disabled`;
+the trigger overlays the selected option's glyph + muted hint on the native control), Switch, Checkbox (`size`
+sm/md/lg as on `Switch`, or `--cb-box` for the box alone),
+Slider (`ticks` draws a dot per step for a segmented slider), Progress, Gauge (vertical consumption cell, `variant` continuous/segments,
+threshold tones via `warnAt`/`dangerAt`, `corner` snippet), Artwork (lazy cover image with seeded gradient + initials
+fallback, `aspect`, `status` overlay, `srcset`/`sizes` passed to the `<img>`), Avatar (grapheme-safe initial or `glyph`, hue hashed from
+`seed`/`name` or a fixed `tone`, `size` xs–lg or px, `shape` circle/square, `decorative`, corner `status`), Card (`tone` tints the surface for inline banners), Badge
+(`tone` semantic palette (the shared `Tone`, `success` = `ok`, plus `muted`/`violet`) or `color` for any CSS colour, `size` xs/sm/md (sm/xs on `--fs-xs`), `dot`,
+`icon`, `numeric`, `truncate`, `variant="text"`, `removable`/`onremove` or any
+trailing action via `actionIcon`/`actionLabel`/`onaction`, `removed` mutes and
+strikes the pill for a restorable entry; all tints derive from
+`--badge-tone`), Dot (`ring` dark halo over artwork), Swatch (colour chip:
+`color` any CSS colour, `size` sm/md/lg, `shape` circle/square, `label` → role=img
+else aria-hidden, `interactive` renders a button with `onclick` + `aria-pressed`
+from `selected`), Divider (standalone
+horizontal/vertical hairline, `tone`, `spacing`, optional centred label,
+`decorative` to drop the `separator` role), Link (`tone`, `underline`
+always/hover/none, default hover for navigation and titles; pass `always` inside prose, `align`), Icon (open registry — pass a `children` snippet for
+any custom SVG).
+
+## Molecules
+
+Field (`grow`), IconButton (`filled` forwards to `Icon`, for a
+filled pin/star toggle), SelectButton, Toggle, OptionButton (`value` +
+`description` secondary text wired via `aria-describedby`, `onfocuschange(value)` on
+focus/hover to drive a preview pane), Modal,
+Popover, RadialMenu (a FAB that fans `Menu` items out as petals on an arc, see below), Menu (items take a free-form trailing `tag` + `tagTone`, or a `tag` snippet,
+and an `attrs` object for `data-*`/test ids on the row; a checkable `pressed` item keeps
+its icon leading and shows its check trailing, or uses the leading check slot when it has
+no icon; selecting closes the menu unless `closeOnSelect={false}` or the item sets `keepOpen`;
+rest props land on the trigger, `count`/`countMax` paint its corner badge and `panelStyle`
+sizes the panel; an item with a `control` snippet renders as a non-button row hosting a native
+`<select>` or nested Popover trigger, keeping the icon column, row height and ↑/↓ navigation;
+labels may repeat, and an optional `id` keeps a row's identity when the list reorders),
+Tabs (omit `panel` for a strip-only tablist of document tabs: `closable` + `onclose(id)`
+close through the ✕, Delete and middle-click, per-tab `leading` snippet, `title`,
+trailing `actions` snippet; `--tab-max-width` truncates long labels),
+Breadcrumb (`maxItems` collapses the middle, `size` sm/md, `wrap={false}` keeps one
+line with the current crumb ellipsised, `collapseCurrent` keeps only the ancestors),
+RadioGroup (per-option `description` in every variant, announced via
+`aria-describedby`; `onfocuschange(value)` fires once per newly focused/hovered option;
+`variant="rows"`: bordered rows, per-option `note`,
+`action(option)` trailing control that never toggles, `below(option)` inline panel),
+Tooltip, Disclosure (single collapsible: `header` snippet, bindable `open` or `open` + `onchange` for
+controlled mode, `chevron` start/end/false, `size="compact"` for strip rows, native button with
+`aria-expanded`/`aria-controls` over a `region` panel), Accordion (a stack of Disclosures; items take a
+`title` string or a `summary` snippet that receives the `item` it heads, per-item `open`/`onchange`,
+`multiple=false` keeps one open, `variant="plain"` drops the outer border, `size` forwards to every item), CopyButton, FileButton, InputGroup (a field with inset
+leading/trailing controls fused into one bordered unit, see below),
+Dropzone, CodeBlock, Callout, EmptyState, ConfirmModal, Pagination, Toaster,
+ThemePicker (popover grid of 2×2 palette swatches: bg · surface · text · accent per theme),
+EmojiPicker (popover with a searchable EN+FR glyph catalogue, grouped tabs, roving-tabindex grid; pass `groups` to swap the catalogue), FontScalePicker (popover with a stepped slider across the five text sizes), SoundSettings (popover with the sound switch, volume and preview; see [sound.md](sound.md)), SectionHeader, KeyValue, LoadMore,
+GitRef (branch chip + PR link tinted by state + `+N −N` diff; `collapse`
+auto/never/glyph degrades to icons inside a narrow `.cq` container),
+CapBar (consumption track with a draggable, keyboard-steppable cap handle that
+shows a `N%` bubble while it is moved; `oninput` live, `onchange` on commit;
+`marker`/`markerLabel`/`markerTone` draw a pace rule, `cap: null` plus
+`clearAtMax`/`uncappedLabel` express "no cap", `layout`/`stackBelow` put the
+readout above a full-width track, `capLabel`/`capValueText` localise the ARIA
+strings),
+StatusBar (thin `role="status"` row: `tone` idle/busy/ok/warn/error dot or spinner, `label` or
+`children`, `trailing`), ChatBubble (`timestamp`, `footer` snippet, `markdown` body rendered
+through `renderMarkdown` into `Prose` when there are no `children`),
+Composer (`toolbarStart`/`toolbarEnd` snippets move attach + send into a row under the field),
+Drawer (side-panel `<dialog>`: `side`, `width` clamped to the viewport, full-screen
+under 48rem; `nav` page column that turns into a horizontal strip on narrow
+screens, or `navMobile`; sticky `footer`; Escape / scrim / close button all close),
+Timestamp (`mode` date/time/datetime/relative/iso/`short-iso` for a locale-independent `YYYY-MM-DD`; `utc`; click for a details popover), WorkingDir
+(fish-style path chip: ancestors abbreviate left to right as the slot narrows,
+then the leaf ellipsises down to `minLeaf`; `full` skips the fit, `copy` makes it
+a copy-on-click button; candidates via the `workingDirCandidates` helper).
+Fieldset (bordered zone, legend rides the border; `droppable` makes it an HTML5
+drop target with `accepts`/`ondrop`/`dropHint` — keyboard alternative is the consumer's job),
+SortableList (reorderable list: grip drag on Pointer Events, keyboard grab, ↑/↓ arrows, see below),
+Combobox (suggestion listbox for a field you render as `children` — an Input for
+plain autocomplete or a Textarea for `@`/`#` mentions; the kit sets the field's
+combobox ARIA and `aria-activedescendant`, floats the `role="listbox"` in the top
+layer under the field or under the caret via `anchor="caret"`, and handles
+ArrowUp/Down, Enter/Tab (`selectOn`), Escape and blur; `open`/`index` are
+bindable, `onselect`/`onclose(reason)` report picks; `findTrigger`/`applyTrigger`
+are exported for trigger-char detection and token replacement).
+
+## Organisms
+
+ConversationPanel / ConversationFeed (chat column + sticky
+feed, see below), DataTable (generic `<T>`, typed columns + cell snippets; `headerSnippets[key]`
+replaces a header cell (a select-all checkbox);
+`layout="fixed"` makes column widths authoritative, `Column.truncate` /
+`nowrap` / `hideBelow="sm|md|lg"` (container-query on the table's own box),
+`hideHeader` clips the header but keeps it for assistive tech, `rowTone(row)`
+paints a left accent bar + `data-tone`, `rowClass(row)`, `rowActions` snippet
+for a hover/focus-revealed trailing cell (always visible on touch; under
+`layout="fixed"` its column is `--dt-actions-w`, default 3.5rem),
+`stickyOffset` for the sticky header's `top` (it sticks within the table's own
+scroller, so give the table a bounded height), `size="sm"`, `loading`,
+`onloadmore` footer button, `empty` as string or snippet; `data-part`
+hooks on head/row/cell; `responsive="stack"` turns rows into cards below
+`stackBelow` (48rem, measured on the table's own box) using `Column.role`
+`title | detail | meta | actions | hidden` — detail cells get a `data-label`
+prefix, `Column.stackLabel: false` drops it so metas join on one `·` line
+and details share lines, `--dt-meta-font` restyles meta values (e.g. `var(--font-sans)`; a
+literal `inherit` falls back to mono), stacked tables use `table-layout: fixed`,
+`stackActions="end"` closes every card with its actions, cells that render
+nothing get `data-empty` and are hidden and skipped by the `·` separators, the `<table>`
+stays a table for assistive tech), FilterSearchBar /
+FilterInput (`font="sans"` for a plain search box, `size="sm"` compact bar on `--control-height-compact`, text
+floored at 16px under `pointer: coarse` so iOS does not zoom on focus,
+`shape="pill"`, `surface`, `hotkey="/"` focuses the input from anywhere
+outside an editable element, `showHotkey` renders the `<kbd>` hint, `grow`;
+`key="cwd"` puts FilterInput in single-key mode — `value` is the bare value
+instead of a `key:"value"` query, no key prefix in the box, the `placeholder`
+shows while empty, and completion still runs through that field's provider).
+
+## Layouts
+
+AppShell (responsive header/sidebar/main/footer — persistent
+sidebar on desktop, overlay drawer on mobile, optionally resizable;
+`layout="sidebar-full"` runs the sidebar the full height with the header over
+the content column only, `stickySidebar` pins it to the viewport, and
+`sidebarPadding="none" | "sm" | "md"` sets the aside gutter — the header and its
+children are `min-width: 0` so a wide title/actions row can't widen the grid on
+mobile; the mobile drawer's state is `bind:open` with `onOpenChange(open)`, and
+`closeOnNavigate` (default `true`) closes it when a plain same-origin link inside
+it is clicked — a router can also close it, e.g. SvelteKit
+`afterNavigate(() => (navOpen = false))` with `<AppShell bind:open={navOpen}>`
+to cover `goto` and back/forward), NavBar (horizontal route bar — `<nav>` + `<a aria-current="page">`,
+icon/emoji + label + count badge; `placement="bar"` pins it to the bottom edge
+over `--z-nav` with `--safe-bottom` padding, `orientation` stacks or inlines the
+glyph, `maxWidth` centres the row; items without `href` are buttons that set a
+bindable `value` / `onchange`, in a `tablist` when none are links; `center`
+reserves a notch the items split around, for a raised FAB; `variant="floating"`
+insets it as an elevated rounded card), NavItem
+(collapses to an icon rail when the sidebar is narrow; `icon` from the
+registry, `iconPath` / `iconChildren` for custom glyphs, `activeStyle="bar"`
+for the inset-bar active look), MasterDetail (list + detail columns that
+become two pages — one pane at a time with a sticky 44px back header, keeping the
+list's scroll and focus — below
+their own `breakpoint`, so `selected` can be driven from the URL; `gap` spaces
+the columns and `divider="none"` drops the seam, both also settable as the
+`--md-gap` / `--md-divider` custom properties), Container, Stack
+(vertical), Cluster (wrapping row; `stackAt="xs|sm|md|lg"` makes it its own
+query container and stacks children full-width below 18/30/40/48rem — phone
+action rows without a viewport query), AutoGrid (intrinsically responsive
+columns — no media/container query needed; a child marked
+`data-span="2|3|4|full"` claims that many tracks, so a primary action can sit
+at 2 of 4 columns and take the whole row once the columns halve).
+
+## Stores, actions and helpers
+
+**Stores:** `theme`, `toasts`, `fontScale` (opt-in). **Actions:** `autoresize`.
+
+`toasts.show(message, { tone, duration, action })` plus the `ok`/`error`/`info`
+shorthands (tones `neutral|ok|error|info`; `danger` aliases `error`). An `action`
+(`{ label, run }`) renders a button; the toast shows a loading state while `run`
+settles, then dismisses, and action toasts stay 7s instead of 4s (`duration: 0` is
+sticky). `Toaster` renders in the browser top layer (`popover="manual"`), so toasts
+paint above an open `Modal`; `--toast-max-width` (28rem) caps the stack.
+**Helpers:** `copyToClipboard(text)` — async Clipboard API with an
+insecure-context fallback; returns whether it succeeded.
+
+## Component notes
+
+### Container
+
+`size` caps the column (`--content-max` by default; `size="none"` fills the parent),
+`gutter` overrides the `--sp-4` inline padding (safe-area insets still win),
+`align="start"` drops the centering. `fullWidth` is a *viewport* breakout for
+edge-to-edge sections — inside AppShell's main column use `size="none"` instead;
+`inset="<left> <right>"` keeps a `fullWidth` container clear of docked panels.
+Children can bleed to the column edge with
+`margin-inline: calc(-1 * var(--container-gutter))`.
+
+### ResizablePanel
+
+Inline by default: `panel` shares the row with `children` on its `side`, drag the
+edge or use the arrow keys/Home/End on the separator, collapse it with the edge
+chevron; `width`/`minWidth`/`maxWidth` (px numbers or CSS lengths such as
+`'12rem'`) and `widthKey` persist the width. `mode="overlay"` turns it into a
+fixed non-modal drawer (`role="dialog"`) on the viewport edge: `bind:open`,
+`onclose` fires on Escape, scrim click or the edge control, `scrim={false}` drops
+the dim backdrop, `fullWidthBelow="960px"` makes the drawer span the viewport (no
+handle, no scrim) on small screens, and `clampToViewport` (default true) keeps a
+stored width inside a shrunken window. `children` is optional in overlay mode.
+`onresizestart` / `onresize(width)` / `onresizeend(width)` report the drag: start
+fires on pointer-down, `onresize` once per animation frame (and per keyboard
+step), `onresizeend` with the settled width on release — enough to suspend
+expensive panel work only while the width is in flux. A keyboard step commits
+without a start.
+
+```svelte
+<ResizablePanel mode="overlay" side="right" label="Conversation" bind:open
+  width={720} minWidth={360} maxWidth="90vw" widthKey="conv-w" fullWidthBelow="960px">
+  {#snippet panel()}…{/snippet}
+</ResizablePanel>
+```
+
+`Scrim` (`onclose`, `hideBelow`, `z`, `label`) is the drawer's backdrop atom,
+exported for custom overlays: click or Escape (document-level) calls `onclose`.
+`resizeHandle` is the shared drag action behind every grip: `use:resizeHandle={{
+side, min, max, step, onwidth, oncommit, onreset, onactive, measure }}` gives
+any element pointer-capture + rAF-coalesced dragging, arrow/Home/End keys and
+double-click reset; the width defaults to the element's parent box.
+
+### Stacked distribution + legend
+
+`SegmentedProgress mode="stacked"` turns the bar into one shared track whose slice
+widths follow `value` (not `max`), fully filled, no gaps; a zero value collapses to
+nothing. Pass a top-level `max` to show the remainder as empty track. `legend`
+renders a dot + label + count per segment (`true`/`'below'` or `'inline'`), or takes
+a snippet for custom rendering. In this mode the bar is `role="img"`, labelled from
+the segments. `gap` (px or CSS length, default `2`) applies in segments mode, and
+`tone: 'ok'` is an alias of `'success'`.
+
+```svelte
+<SegmentedProgress
+  mode="stacked"
+  label="Analysis"
+  max={analyzedCount}
+  legend
+  segments={[
+    { value: 412, max: 0, tone: 'ok', label: 'conforming' },
+    { value: 12, max: 0, tone: 'warn', label: 'nonconforming' },
+    { value: 0, max: 0, tone: 'danger', label: 'blocked' }
+  ]}
+/>
+```
+
+### Tinted surfaces & Callout
+
+`Card` takes `tone="neutral" | "ok" | "warn" | "danger" | "info"` (default
+`neutral`, the plain look) to tint its border and wash its background with the
+semantic hue. `Callout` builds on it for inline messages: leading glyph (auto
+per tone, or `icon`), optional `title`, body, right-aligned `actions` snippet,
+`dismissible` + `ondismiss`, and `busy` to show a Spinner while work runs. It
+is a live region — `role="status"`, or `role="alert"` when `tone="danger"`.
+
+```svelte
+<Callout tone="danger" title="Search failed" dismissible ondismiss={clear}>
+  The provider returned 503.
+  {#snippet actions()}<Button size="sm" onclick={retry}>Retry</Button>{/snippet}
+</Callout>
+```
+
+### Modal, ConfirmModal & Pagination
+
+`Modal` opens on mount by default; pass `bind:open` instead to keep it mounted
+and drive `showModal()`/`close()` from state (closing writes `open = false`).
+`tone="danger" | "warn" | "info"` adds a title glyph and a 3px top border;
+`busy` makes the body inert, shows a spinner by the title and disables Escape,
+backdrop and the close button. The `footer` snippet is a right-aligned flex row
+(`justify-content: flex-end; gap: var(--sp-2)`); `footerFill` stretches its
+children instead, for a footer that is one layout wrapper rather than a short
+row of buttons.
+
+`ConfirmModal` wraps it as a yes/no dialog: `title`, `message` (or `children`),
+`confirmLabel`/`cancelLabel`, `tone="primary" | "danger" | "warn"`, `busy`,
+`onconfirm`, `oncancel`. An async `onconfirm` keeps the dialog busy until it
+settles, closes only on success and shows a rejection's message (`role="alert"`)
+under the body. `Button` accepts `tone="danger"` as an alias of
+`variant="danger"` so the tone axis works alone.
+
+```svelte
+<ConfirmModal bind:open title="Delete library?" tone="danger" confirmLabel="Delete"
+  onconfirm={() => api.deleteLibrary(id)} />
+```
+
+`Pagination` renders `<nav aria-label>` with prev/next IconButtons, numbered
+pages (`aria-current="page"`), ellipses and an optional `showRange` readout.
+Page mode: `bind:page` + `pageCount`. Offset mode: `bind:offset` + `limit` +
+`total` (page and count are derived, `offset` is written back). `onchange(page)`,
+`siblings` (1), `showEdges` (true), `size="sm" | "md"`, `label`. Under 24rem of
+container width it collapses to prev / "3 / 12" / next.
+
+```svelte
+<Pagination bind:offset limit={20} total={412} showRange onchange={load} />
+```
+
+### SectionHeader, Card header/footer, KeyValue, LoadMore
+
+`SectionHeader` is the one "title + meta + right-aligned actions" row:
+`title` (or `label`), `level` 1–4 (default 2), `size`, `subtitle`, `icon`,
+`count` (faint tabular figure after the title), `tone`, `hue` (0–360 swatch
+chip), `uppercase` (eyebrow group label), `divider`, `sticky` (pins at
+`--sticky-offset` / `--header-h` and publishes `--section-header-h` on its
+parent), `collapsible` + `bind:open` (title becomes a disclosure button with
+`aria-expanded`; `children` render beneath while open), `actions` snippet.
+`variant="group"` is the non-wrapping list-group row: `lead` snippet (dot /
+badge) · title · `count` · flexible 1px rule · `actions` (sort menu, eye toggle).
+
+`Card` takes `header` / `footer` snippets rendered outside the padded body
+behind a divider, `title` / `subtitle` / `actions` sugar that renders a
+`SectionHeader` in the header slot, and `gap` to stack children as a flex
+column. A Card without any of these is a plain padded box.
+
+`KeyValue` renders `rows: { label, value: string | number | Snippet, mono?,
+tone?, hint? }[]` as a semantic `<dl>` grid; `columns` 1 | 2, `dense`, `align`
+start | end. `LoadMore` is the tri-state list footer: `state` idle | loading |
+error | done, `onload`, `label`, `loadingLabel`, `errorLabel`, `retryLabel`,
+`doneLabel`, `pill` for the compact "load older" chip.
+
+```svelte
+<Card title="Recent sessions" subtitle="last 24h">
+  {#snippet actions()}<Link href="/sessions">View all</Link>{/snippet}
+  <KeyValue rows={[{ label: 'Running', value: 3, tone: 'ok' }, { label: 'Host', value: 'sakura', mono: true }]} />
+  {#snippet footer()}<LoadMore state={more} onload={loadMore} />{/snippet}
+</Card>
+
+<SectionHeader label="Blocked" count={4} uppercase hue={12} collapsible bind:open>
+  …group rows…
+</SectionHeader>
+```
+
+### InputGroup
+
+One visual unit: `[leading] field [trailing]` with a single border, radius,
+background and focus ring. The field (`Input` or `Textarea`, optionally wrapped
+by the consumer) keeps its own border and spans the whole group width; the
+`leading`/`trailing` snippets are overlaid inside it and the field pads its
+text past them. This is a hard constraint, not a look: Firefox Android zooms to
+the focused element's rect, so a field laid out beside its buttons zooms the
+page. Adornment widths are measured with a `ResizeObserver` into
+`--ig-leading-w`/`--ig-trailing-w`, so a trailing label that changes
+(`Send (42s)`) never runs under the text.
+
+The adornments sit flush inside the field's padding as ghost/primary controls,
+no dividers: pick a control one step below the group (`size="sm"`/`box="sm"` in
+an `md` group, `box="xs"` in `sm`, `box="lg"` in `lg`). `align="end"` (default)
+pins them to the bottom edge as a textarea grows. A square control (`box`,
+`iconOnly`) drops its fixed box and stretches square to the slot height, so its
+glyph centres on the field; `align="center"` is for a
+single-line `Input`. `size` sm/md/lg, `disabled` and `error` flow to the field
+through context (a `size`/`invalid`/`disabled` set on the field still wins).
+`Textarea` keeps `autoresize`, `maxHeight` and `resize="top"` (the grip is
+clipped to the space between the adornments). Once a `Textarea` needs more
+than one row (content, `rows`, or a dragged floor; a wrapping placeholder does
+not count, it stays on one clipped line) the adornments move into a
+bar under the text: every line then runs the full width with the normal
+padding, the textarea's box (and its scrollbar) ends above the controls, and
+the bar continues the field's border, the controls still flush against its
+bottom and side edges. The textarea measures that in the
+single-line layout, so the switch cannot flip back and forth; the single-line
+look is untouched. Tab order is leading → field → trailing; the group shows
+the focus ring around the whole unit.
+
+```svelte
+<InputGroup>
+  {#snippet leading()}<FileButton iconOnly label="Attach" variant="ghost" box="sm" {onfiles} />{/snippet}
+  <Textarea bind:value autoresize rows={1} resize="top" maxHeight="40vh" aria-label="Message" />
+  {#snippet trailing()}<Button variant="primary" size="sm" onclick={send}>Send</Button>{/snippet}
+</InputGroup>
+```
+
+`Composer` is built on it: attachments above, `FileButton` leading, the send
+button trailing, `resize="top"` opt-in.
+
+### AttachmentList
+
+`AttachmentList` renders `files` (`File` or `{ name, size?, type?, url? }`)
+as removable mono chips with the formatted size. It sets `container-type:
+inline-size` on itself: at 30rem or narrower every file collapses to a square
+tile (a file glyph, or the image's thumbnail — an object URL for a `File`,
+`url` for a plain attachment). Tapping a tile opens a `Popover` with the full
+wrapping name, the size and a Remove button, so four screenshots take one row
+on a phone instead of four. `tiles` forces the tile mode (`false` forces
+chips); `removeLabel` names the popover button. Both variants are in the DOM
+and the container query displays one; the hidden one is `display: none`, so
+it is neither focusable nor announced. `Composer` inherits the behaviour.
+Chips show a small thumbnail before an image's name and clip it in the middle
+(the last 12 characters stay, so look-alike screenshot names remain telling).
+`numbered` shows each file's 1-based position on the chip and the tile,
+matching `[#N]` markers written in a prompt. `onopen(index)` makes the chip name a button and adds a
+larger preview (images) plus an `openLabel` ("Open") action to the tile
+popover; Remove stays separate.
+
+```svelte
+<AttachmentList files={attachments} onremove={(i) => (attachments = attachments.toSpliced(i, 1))} />
+<AttachmentList tiles files={[{ name: 'cover.png', size: 1024, type: 'image/png', url }]} />
+<AttachmentList numbered files={attachments} onopen={(i) => preview(attachments[i])} />
+```
+
+### ConversationPanel, ConversationFeed, StatusBar
+
+`ConversationPanel` is the chat column: `header`, the feed as `children`
+(flexes), `status`, `composer`, filling its parent with token borders between
+the rows. `ConversationFeed` (generic `<T>`) takes `items`, `key(item)` and an
+`item(item, index)` snippet; `empty` renders when there is nothing. It sticks
+to the bottom while the user is within 80px of it (`follow`, default true),
+holds the viewport still when older items are prepended, and shows a
+`jumpLabel` pill ("Jump to latest") when new items land while scrolled up.
+`loadMore` idle | loading | error | done renders a `LoadMore` pill at the top
+that calls `onloadmore`; `scrollToBottom(behavior?)` is exported on the
+instance. `StatusBar` is the thin live row under the feed: `tone` idle |
+busy (Spinner) | ok | warn | error, `label` or `children`, `trailing`.
+
+`renderMarkdown(src, { tables?, autolink?, highlight? })` turns chat markdown
+into HTML for `Prose`: everything is escaped first, then headings, emphasis,
+inline/fenced code, lists, blockquotes, rules, GFM tables and links with safe
+schemes only (`javascript:`/`data:` stay text). `highlight(code, lang)` is an
+optional hook returning safe HTML for fenced blocks; `stripAnsi` and
+`escapeHtml` are exported too. `ChatBubble` takes `markdown` directly, plus
+`timestamp` (after the role pill) and a `footer` snippet. `Composer` takes
+`toolbarStart` / `toolbarEnd`: either one moves attach and send into a row
+under the field, start slot left, end slot then send right.
+
+```svelte
+<ConversationPanel>
+  {#snippet header()}<Text weight="medium">Session</Text>{/snippet}
+  <ConversationFeed bind:this={feed} items={msgs} key={(m) => m.id} loadMore={more} onloadmore={loadOlder}>
+    {#snippet item(m)}
+      <ChatBubble role={m.role} timestamp={m.at} markdown={m.text}>
+        {#snippet footer()}<span>{m.ms}ms</span>{/snippet}
+      </ChatBubble>
+    {/snippet}
+  </ConversationFeed>
+  {#snippet status()}<StatusBar tone={busy ? 'busy' : 'ok'} label={busy ? 'Working…' : 'Listening'} />{/snippet}
+  {#snippet composer()}
+    <Composer onsubmit={send}>
+      {#snippet toolbarStart()}<Toggle pressed={pick} onclick={togglePick}>⌖ Pick</Toggle>{/snippet}
+    </Composer>
+  {/snippet}
+</ConversationPanel>
+```
+
+### Artwork
+
+`Artwork` is the one cover/thumbnail tile: `src` + `alt` (required) render a
+lazy, async-decoded `<img>`; a missing or failing source swaps to a gradient
+seeded from `seed` (default `alt`) with `fallback` initials | icon | none.
+`aspect` ('1/1', '2/3', '16/9' or any ratio), `size` (width), `radius`
+sm | md | lg | pill, `fit` cover | contain, `hover` for tappable tiles,
+`status` snippet overlaid bottom-right, `onerror`. `artworkGradient(seed)`,
+`artworkHue(seed)` and `initials(text)` are exported for non-component use.
+
+```svelte
+<Artwork src={album.cover} alt={album.title} aspect="1/1" size="9rem" hover>
+  {#snippet status()}<Dot status="active" ring />{/snippet}
+</Artwork>
+```
+
+### Avatar
+
+`Avatar` is the initials/glyph identity mark for people and accounts. `name`
+gives the initial (first grapheme, so emoji and flags stay whole) and the
+`aria-label`; `glyph` shows an emoji or character instead. The fill hue is
+hashed from `seed` (default `name`) — the same hash as Artwork — or set with
+`hue`; `tone` accent | neutral | none swaps the hash for a fixed palette (`none`
+is for a bare emoji). Hashed fills mix the theme's `--mach-*-sl` pairs with the
+surface and ink tokens at ratios that clear 4.5:1 at every hue on every bundled
+theme. `size` xs | sm | md | lg (1.25–2.5rem) or a pixel number, `shape` circle |
+square, `decorative` drops it from the accessibility tree when the row already
+names the person (otherwise `role="img"`), `status` overlays a Dot on the
+top-right corner, ringed with `--avatar-status-ring` (default `--bg-elevated`).
+`--avatar-bg` / `--avatar-fg` override the colours from outside;
+`avatarInitial(name)` and `avatarHue(seed)` are exported.
+
+```svelte
+<Avatar name={user.name} size={26} decorative />
+<Avatar name="work" glyph="🐙" shape="square" size={16} tone="none" />
+<Avatar name={me} tone="accent" size="sm">
+  {#snippet status()}<Dot status="dead" />{/snippet}
+</Avatar>
+```
+
+### GlyphStack
+
+`GlyphStack` lays out up to four small glyphs (a pin, a status dot, an entity
+tag, an avatar) as an inline run, and folds them into one 2×2 grid of 1rem
+cells with a 1px gap when the row is tight — the four slots plus three gaps
+a phone-width title cannot spare. `stack` never | always | auto (default);
+`auto` measures the nearest query container (any `.cq`, an AppShell region,
+or the ancestor whose `container-name` is `container`) and folds below
+`stackBelow` (default `30rem`, like the `.cq-*` utilities). Pass `items` as
+`{ inline, stacked? }` pairs (snippets or strings) so a glyph can swap to a
+compact variant in the grid — a full `Badge` inline, a tinted initial tile
+stacked — or render free-form `children`, where each direct child is a cell.
+The grid is visual only: DOM order, tab order and reading order are those of
+the inline run. `--glyph-stack-gap` sets the inline gap (default `--sp-1`).
+
+Folded cells are 1rem — hard to hit on touch. `expand` none | tap | slide
+(default `none`, `items` only, active while stacked) makes a press open the
+four glyphs as big tiles in a top-layer panel over the stack. `tap` opens it
+on click and keeps it open, so the star can be clicked, a status dot hovered
+and a badge read (dismiss by pressing outside or Escape); keyboard activation
+still goes straight to the cell. `slide` opens it on press: drag toward a
+corner to arm that tile and release to fire it — the item's `action`, else a
+click on the tile's first control. The panel closes after firing unless that
+opened a nested popover; a release in place, or on a tile with nothing to
+fire, leaves it open as in `tap`. An item's `expanded` snippet replaces
+`inline` in its tile; `--glyph-stack-tile` (default `3rem`) and
+`--glyph-stack-zoom` (default `1.75`) size the tiles; `expandLabel` names the
+panel.
+
+```svelte
+<GlyphStack stackBelow="34rem" items={[
+  { inline: pin },
+  { inline: dot },
+  { inline: machine, stacked: machineTile },
+  { inline: avatar }
+]} />
+
+<GlyphStack stack="always" expand="slide" items={[
+  { inline: pin, action: togglePin },
+  { inline: dot },
+  { inline: machine, stacked: machineTile },
+  { inline: avatar }
+]} />
+```
+
+### RadialMenu
+
+`RadialMenu` is a round FAB that opens its `items` (the same `MenuItem` type
+`Menu` takes: `label`, `icon`, `onselect`, `danger`, `disabled`, `pressed`,
+`keepOpen`, `attrs`) as round icon-over-label petals on an arc around it, over
+a `Scrim` (`scrim={false}` drops it; a click outside still closes). `arc`
+`{ from, to }` is in degrees, 0 = right, counter-clockwise; the default
+`{ from: 200, to: -20 }` is an upward fan. Petals sit at equal angles at
+`radius` (default `--radial-radius`, else `8.5rem`) and are `petalSize` wide
+(default `--radial-petal-size`, else `3.5rem`, never under `--touch-target`).
+The panel lives in the top layer, so it escapes `overflow: hidden` parents and
+a fixed bottom bar; the radius shrinks, and then the fan shifts, to keep every
+petal inside the viewport and its safe-area insets. `status` renders a line
+centred above the arc.
+
+The default trigger is a `--radial-fab-size` (3.75rem) circle with a 2px ring
+in `tone` (default `accent`) that swaps `icon` for `closeIcon` while open and
+shows an optional `caption` (string or snippet); `trigger` replaces its content
+and receives `{ open }`. `open` is bindable, with `onopen` / `onclose`; rest
+props land on the trigger. Tap toggles; press-and-slide (press the FAB, drag
+over a petal, release) fires the petal under the finger, sharing the gesture
+helper with `GlyphStack expand="slide"`. The trigger carries `aria-haspopup`,
+`aria-expanded` and `aria-controls`; petals are `menuitem`s with a roving
+tabindex. Opening from the keyboard focuses the first enabled petal; ←/→ walk
+the arc in screen order, ↓/↑ in item order, Home/End jump to the ends,
+Enter/Space fire and close, Escape or Tab close and return focus to the
+trigger. Under `prefers-reduced-motion` petals appear without the staggered
+scale-in.
+
+```svelte
+<RadialMenu label="Bot" {items} caption="● bot" tone="ok">
+  {#snippet status()}● Armed · explore · in world{/snippet}
+</RadialMenu>
+```
+
+### SplitButton
+
+`SplitButton` fuses a primary action with a narrow caret that opens a `Menu`:
+one outer radius, square inner corners, a 1px divider, two tab stops. The
+primary takes `onclick`, `type` (submit inside a form) and `loading`; the caret
+takes `label` (its accessible name), `items`, `placement` and the `Menu`
+panel props (`tag`, `panelClass`, `panelStyle`, `gap`, `open`, `onopen`,
+`onclose`). `primaryProps` sets attributes on the primary segment itself
+(`title`, `aria-describedby`, `data-*` — a disabled-with-reason tooltip), while
+rest props stay on the root box; the props SplitButton owns are applied after it,
+so the fused chrome cannot be clobbered.
+`variant` (default | primary | danger), `size` and `control` apply to both
+segments and match `Button` heights; `disabled` turns off the whole control,
+`menuDisabled` only the caret. `caret="half"` narrows the caret to half the
+control height so it reads as secondary. ArrowDown on the primary opens the menu.
+
+```svelte
+<SplitButton variant="primary" label="Send options" {items} onclick={send}>Send</SplitButton>
+```
+
+### SortableList
+
+`SortableList` reorders a list the consumer owns. Pass `items` and a `key`, render
+each row's content with the `row` snippet; the kit draws the grip, the ordinal
+(`numbered`) and the ↑/↓ arrows (`arrows`, on by default) around it. `onreorder(keys,
+{ key, from, to })` fires on a drop or an arrow press with the full new key order.
+The list shows that order at once and keeps it until `items` changes; if the
+consumer never adopts it, it falls back to `items` after `revertAfter` ms
+(3000). `canMove(key, to)` vetoes a target; `locked(item)` removes the grip and
+disables the arrows. `selected` (bindable) + `onselect` turn the row body into a
+button with an accent tint and a 2px inset bar on the selected row; put row
+actions in the `trailing` snippet so they stay outside that button.
+
+Drag runs on Pointer Events, so it works on touch. The grip has `touch-action:
+none`; `handle="row"` drags from anywhere on the row, and touch then starts
+after a 250 ms long-press so the list still scrolls. The lifted row casts
+`--shadow-md` over a dashed slot, and the nearest scroll container scrolls at
+its edges. On the keyboard the grip is a "Reorder {name}" button: Space/Enter
+grabs, ↑/↓ moves, Home/End jumps, Space/Enter drops, Escape restores.
+Alt+↑/↓ moves the focused row in one step. A polite live region announces each
+step; override any string through `messages` (defaults in
+`SORTABLE_LIST_MESSAGES`). `size` is `sm` (1.875rem rows) or `md` (2.25rem);
+`--sortable-row-h` overrides both.
+
+```svelte
+<SortableList
+	items={rares}
+	key={(r) => r.id}
+	name={(r) => r.name}
+	label="Rare hunt order"
+	numbered
+	size="sm"
+	bind:selected
+	onreorder={(keys) => send({ rare_order: keys })}
+>
+	{#snippet row(r)}<span>{r.name}</span><span>{r.dist}</span>{/snippet}
+</SortableList>
+```
+
+### Mobile: TabBar, SwipeRow, PullToRefresh
+
+`TabBar` is a phone bottom tab bar: `items: { id, label, icon?, href?, badge? }[]`,
+`bind:value` (the selected `id`), `onselect(id, item)`. Items without `href` are a
+`tablist` with roving focus (←/→/Home/End); items with `href` are links with
+`aria-current="page"`. It is fixed to the bottom with `env(safe-area-inset-bottom)`
+(`placement="inline"` flows with the page) and, while mounted as a bar, publishes its
+height as `--tabbar-h` on `<html>`, so content clears it with
+`padding-bottom: var(--tabbar-h)`. Targets are at least 48px; numeric badges cap at `99+`.
+
+`SwipeRow` wraps a list row with one action per side: `leadingAction` on a rightward
+swipe, `trailingAction` on a leftward one, each `{ label, icon?, tone?, onaction }`
+(or `leading` / `trailing` snippets receiving the action and an `armed` flag).
+Releasing past `threshold` (0.35 of the width) fires `onaction`. Drags that are more
+vertical than horizontal are left to the scroller (`touch-action: pan-y`). The same
+actions are visually hidden buttons for keyboard and screen-reader users.
+
+`PullToRefresh` is a scroll container with pull-down-to-refresh for touch and pen.
+`onrefresh` returns a promise; the Spinner holds and the container is `aria-busy`
+with `label` ("Refreshing…") announced politely until it settles. It starts only at
+`scrollTop === 0`, fires once past `threshold` (72px), and contains overscroll so the
+browser's own pull does not fight it. Keep a visible refresh control for mouse users.
+
+### Player: SeekSlider, VolumeSlider, TimeDisplay
+
+`SeekSlider` is a media scrubber: `bind:value` (seconds), `max` (duration;
+`null`/`Infinity`/`0` = live, track disabled), `buffered` (`[start, end][]` drawn
+as a muted fill), `step` (5 s arrows), `bigStep` (10 % PageUp/Down), `size="sm" | "md"`,
+`formatTime`, `previewSnippet(time)` for a thumbnail in the hover tooltip. `oninput`
+fires while dragging and never seeks; `onchange` fires once per release or keyboard
+step, so seek the player only there. `onscrubstart`/`onscrubend` bracket a drag. The
+hit slab is `--touch-target-compact` tall on coarse pointers while the track stays
+3–4 px, and horizontal scrubbing never scrolls the page. `aria-valuetext` reads
+"1:02 of 23:45".
+
+`VolumeSlider` pairs a mute toggle (glyph follows the level) with a short slider:
+`bind:value` (0–1), `bind:muted`, `orientation="vertical"`, `step` (5 %, also the
+wheel notch), `onchange`/`oninput`/`onmutechange`. Changing the level unmutes.
+`hideOnTouch` (default) hides the slider, not the mute button, on touch screens.
+
+`TimeDisplay` renders "1:02 / 23:45" in tabular numbers; clicking toggles
+`bind:remaining`. `formatMediaTime`, `describeMediaTime` and `isLiveDuration` are
+exported for custom readouts.
+
+### Syntax highlighting (CodeBlock)
+
+The kit ships **no** highlighter — that keeps it zero-dep and avoids shipping a
+big grammar bundle to every consumer. `CodeBlock` renders the chrome (language
+label, copy, line numbers, wrap, scroll) and takes code three ways: plain
+`code`, a `highlight={(code, lang) => htmlString}` callback, or pre-rendered
+`html`. Pick a highlighter per app:
+
+- **highlight.js** — class-based output (`hljs-*`). Recommended for this kit:
+  those classes are already mapped to the `--syn-*` theme tokens (in `app.css`),
+  so highlighted code re-themes with every theme for free. Import only the
+  languages you need to keep it lean.
+- **Prism** — also class-based (`token.*`), mapped the same way. Similar fit.
+- **Shiki** — VS Code-grade accuracy, but it emits *inline colors* from a fixed
+  theme, so it won't follow your themes out of the box. Use its
+  `css-variables` theme and map `--shiki-*` to your `--syn-*` tokens if you want
+  it themed. Best when you want exact editor fidelity over theme-following.
+
+```svelte
+<script>
+  import hljs from 'highlight.js/lib/core';
+  import ts from 'highlight.js/lib/languages/typescript';
+  hljs.registerLanguage('typescript', ts);
+  const hl = (code, lang) => hljs.highlight(code, { language: lang ?? 'typescript' }).value;
+</script>
+<CodeBlock {code} lang="typescript" highlight={hl} showLineNumbers />
+```

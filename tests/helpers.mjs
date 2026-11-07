@@ -1,3 +1,5 @@
+import { readFile } from 'node:fs/promises';
+
 /**
  * Collapse whitespace runs so formatting cannot break a source-text assertion.
  * @param {string} src
@@ -38,4 +40,13 @@ export function hasDecl(src, selector, prop, value) {
 	const v = rule(src, selector)[prop];
 	if (v === undefined) return false;
 	return value === undefined ? true : value instanceof RegExp ? value.test(v) : v === value;
+}
+
+/**
+ * Text of the named pages under docs/, joined.
+ * @param {...string} pages
+ */
+export async function readDocs(...pages) {
+	const texts = await Promise.all(pages.map((p) => readFile(new URL(`../docs/${p}`, import.meta.url), 'utf8')));
+	return texts.join('\n');
 }

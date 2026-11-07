@@ -5,14 +5,14 @@ import { JSDOM } from 'jsdom';
 import { artworkHue } from '../src/lib/artwork.ts';
 import { avatarHue, avatarInitial } from '../src/lib/avatar.ts';
 import { buildFixture } from './fixtures/build.mjs';
-import { hasDecl } from './helpers.mjs';
+import { hasDecl, readDocs } from './helpers.mjs';
 import { demoed, readDemo } from './helpers/demo-source.js';
 
 const read = (/** @type {string} */ p) => readFile(new URL(p, import.meta.url), 'utf8');
 const [source, index, readme, page, tokens, themes] = await Promise.all([
 	read('../src/lib/components/atoms/Avatar.svelte'),
 	read('../src/lib/index.ts'),
-	read('../README.md'),
+	readDocs('components.md'),
 	readDemo(),
 	read('../src/lib/styles/tokens.css'),
 	read('../src/lib/styles/themes.css')

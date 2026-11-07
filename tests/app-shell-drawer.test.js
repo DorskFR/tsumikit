@@ -3,12 +3,13 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { JSDOM } from 'jsdom';
 import { buildFixture } from './fixtures/build.mjs';
+import { readDocs } from './helpers.mjs';
 
 const source = await readFile(
 	new URL('../src/lib/components/layouts/AppShell.svelte', import.meta.url),
 	'utf8'
 );
-const readme = await readFile(new URL('../README.md', import.meta.url), 'utf8');
+const readme = await readDocs('components.md');
 const bundle = await buildFixture('mount-app-shell.svelte.js');
 
 /** @param {Record<string, unknown>} init @param {{ mobile?: boolean }} opts */
@@ -142,7 +143,7 @@ test('the link listener stays framework-neutral', () => {
 	assert.match(source, /onOpenChange\?: \(open: boolean\) => void;/);
 });
 
-test('README documents bind:open, onOpenChange and closeOnNavigate', () => {
+test('the docs cover bind:open, onOpenChange and closeOnNavigate', () => {
 	assert.match(readme, /bind:open/);
 	assert.match(readme, /onOpenChange/);
 	assert.match(readme, /closeOnNavigate/);

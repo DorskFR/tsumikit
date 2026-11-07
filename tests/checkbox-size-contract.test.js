@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { hasDecl, rule } from './helpers.mjs';
+import { hasDecl, readDocs, rule } from './helpers.mjs';
 import { readDemo } from './helpers/demo-source.js';
 
 /** @param {string} p */
@@ -9,7 +9,7 @@ const read = (p) => readFile(new URL(p, import.meta.url), 'utf8');
 const [checkbox, switchSrc, readme, page] = await Promise.all([
 	read('../src/lib/components/atoms/Checkbox.svelte'),
 	read('../src/lib/components/atoms/Switch.svelte'),
-	read('../README.md'),
+	readDocs('components.md'),
 	readDemo()
 ]);
 

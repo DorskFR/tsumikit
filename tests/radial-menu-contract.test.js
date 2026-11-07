@@ -7,14 +7,14 @@ import { compile, preprocess } from 'svelte/compiler';
 import { fanAngles, fanLayout } from '../src/lib/floating.ts';
 import { slideSelect } from '../src/lib/slide-select.ts';
 import { buildFixture } from './fixtures/build.mjs';
-import { hasDecl, normalize } from './helpers.mjs';
+import { hasDecl, normalize, readDocs } from './helpers.mjs';
 import { demoed, readDemo } from './helpers/demo-source.js';
 
 const read = (/** @type {string} */ p) => readFile(new URL(p, import.meta.url), 'utf8');
 const [source, index, readme, page] = await Promise.all([
 	read('../src/lib/components/molecules/RadialMenu.svelte'),
 	read('../src/lib/index.ts'),
-	read('../README.md'),
+	readDocs('components.md', 'styling.md'),
 	readDemo(),
 ]);
 const css = source.slice(source.indexOf('<style>'));

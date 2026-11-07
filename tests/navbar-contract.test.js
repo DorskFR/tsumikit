@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import { JSDOM } from 'jsdom';
 import { buildFixture } from './fixtures/build.mjs';
-import { hasDecl } from './helpers.mjs';
+import { hasDecl, readDocs } from './helpers.mjs';
 import { demoed, readDemo } from './helpers/demo-source.js';
 
 const source = await readFile(
@@ -13,7 +13,7 @@ const source = await readFile(
 const index = await readFile(new URL('../src/lib/index.ts', import.meta.url), 'utf8');
 const docs = await readDemo();
 const tokens = await readFile(new URL('../src/lib/styles/tokens.css', import.meta.url), 'utf8');
-const readme = await readFile(new URL('../README.md', import.meta.url), 'utf8');
+const readme = await readDocs('styling.md');
 const css = source.slice(source.indexOf('<style>'));
 const bundle = await buildFixture('mount-navbar.svelte.js');
 

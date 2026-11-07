@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { hasDecl, normalize } from './helpers.mjs';
+import { hasDecl, normalize, readDocs } from './helpers.mjs';
 import { readDemo } from './helpers/demo-source.js';
 
 /** @param {string} p */
@@ -9,7 +9,7 @@ const read = (p) => readFile(new URL(p, import.meta.url), 'utf8');
 const [tabs, docs, readme] = await Promise.all([
 	read('../src/lib/components/molecules/Tabs.svelte'),
 	readDemo(),
-	read('../README.md')
+	readDocs('components.md', 'styling.md')
 ]);
 const src = normalize(tabs);
 
@@ -81,7 +81,7 @@ test('the strip row keeps the tablist scrolling and continues the rule under the
 	assert.match(readme, /\| `Tabs` \| `--tab-max-width` \|/);
 });
 
-test('demo and README cover the closable strip', () => {
+test('demo and docs cover the closable strip', () => {
 	assert.match(docs, /<Tabs tabs=\{docs\} bind:value label="Open documents" closable onclose=\{/);
 	assert.match(docs, /\{#snippet leading\(t\)\}\s*<Dot status=/);
 	assert.match(docs, /<Tabs \{tabs\} bind:value=\{strip\} label="Strip only" \/>/);

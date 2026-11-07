@@ -2,7 +2,7 @@
  * All-in-one stylesheet: Inter @font-face, tokens + built-in themes, reset + element defaults,
  * generic utilities and the syntax-highlight token mapping (global so it
  * reaches {@html} output). Import the parts individually to compose your own
- * stack — see README "Theming".
+ * stack: see docs/theming.md.
  */
 @import './font.css';
 @import './variables.css';

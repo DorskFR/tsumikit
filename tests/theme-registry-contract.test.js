@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
+import { readDocs } from './helpers.mjs';
 
 /** @param {string} p */
 const read = (p) => readFile(new URL(`../${p}`, import.meta.url), 'utf8');
@@ -9,7 +10,7 @@ const [store, picker, pkg, readme, app, variables, tokens, themes, reset, utilit
 		read('src/lib/stores/theme.svelte.ts'),
 		read('src/lib/components/molecules/ThemePicker.svelte'),
 		read('package.json').then(JSON.parse),
-		read('README.md'),
+		readDocs('theming.md'),
 		read('src/lib/styles/app.css'),
 		read('src/lib/styles/variables.css'),
 		read('src/lib/styles/tokens.css'),
@@ -151,8 +152,8 @@ test('package.json exports every stylesheet, keeping the old entries', () => {
 		assert.equal(pkg.exports[`./styles/${f}.css`], `./dist/styles/${f}.css`);
 });
 
-test('README documents the registration API and the consumer stylesheet contract', () => {
-	const theming = readme.slice(readme.indexOf('## Theming'), readme.indexOf('## Components'));
+test('the docs cover the registration API and the consumer stylesheet contract', () => {
+	const theming = readme;
 	assert.match(theming, /theme\.register\(/);
 	assert.match(theming, /theme\.setDefault\(/);
 	assert.match(theming, /@dorsk\/tsumikit\/styles\/tokens\.css/);
