@@ -12,8 +12,6 @@ Svelte 5 UI components styled with plain CSS variables: 31 themes, WCAG AA contr
   <img alt="tsumikit showcase page: breadcrumb, page header with actions, four metric cards, a settings form with inputs, selects, checkboxes, switches, slider, radio group and segmented control, and a panel of button variants, sizes, tones, split buttons and a menu" src="docs/assets/hero-light.png" width="900">
 </picture>
 
-^ The [`/looks`](https://dorskfr.github.io/tsumikit/looks) showcase page in the `light` and `dark` themes.
-
 Every colour, space, radius and size is a CSS custom property: a theme is one block of variables, a component is restyled with `style="--btn-bg: …"`. Interactive parts use `<dialog>`, the Popover API and native form controls; a design lint and [design principles](principles/README.md) ship in the package.
 
 [Live demo with every component and prop](https://dorskfr.github.io/tsumikit)
@@ -116,7 +114,6 @@ npm run lint         # biome
 npm run check        # svelte-check
 npm run build        # prerendered static site in /build
 npm run package      # publishable library in /dist (+ publint)
-npm run readme:shots # regenerate docs/assets/hero-*.png (needs npm run dev -- --port 5391)
 ```
 
 Hooks (lefthook, via `prepare`): Biome on commit, `svelte-check` on push. A `v*` tag publishes to npm through GitHub Actions trusted publishing.
