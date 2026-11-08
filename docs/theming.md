@@ -36,6 +36,13 @@
   still loads and pins its own slot; a version before 0.47 cannot read the blob
   and falls back to the default theme.
 
+## Looks
+
+Optional looks (`depth`, `tactile`, `editorial`) change shape and elevation on
+top of any theme. Import `@dorsk/tsumikit/looks/depth.css` and call
+`theme.setLook('depth')`, or render `<LookPicker />`. Details:
+[MIGRATION-0.80.md](MIGRATION-0.80.md).
+
 ## Typeface
 
 `styles/app.css` bundles [Inter](https://rsms.me/inter/) (variable, latin subset, OFL-1.1, licence in
