@@ -1,6 +1,6 @@
 {
   "name": "@dorsk/tsumikit",
-  "version": "0.82.2",
+  "version": "0.82.3",
   "description": "Svelte 5 UI components styled with plain CSS variables: 31 themes, WCAG AA contrast, no runtime dependencies.",
   "type": "module",
   "license": "MIT",
