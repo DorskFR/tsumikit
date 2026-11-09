@@ -36,3 +36,9 @@ test('coarse pointers grow the collapse chevron to --touch-target with an invisi
 	assert.match(coarse, /inset-inline: min\(0px, calc\(\(100% - var\(--touch-target\)\) \/ 2\)\);/);
 	assert.match(css, /\.collapse-control\.svelte-[\w-]+ \{[^}]*position: absolute;/);
 });
+
+test('the resize grip centers with the translate property so its scale grows about its visible center', () => {
+	const grip = css.match(/\.resize-handle\.svelte-[\w-]+::after \{[^}]*\}/)?.[0] ?? '';
+	assert.match(grip, /translate: -50% -50%;/);
+	assert.doesNotMatch(grip, /transform:/);
+});

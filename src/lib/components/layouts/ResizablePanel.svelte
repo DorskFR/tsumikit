@@ -514,7 +514,7 @@
 		height: var(--sp-8);
 		border-radius: var(--r-pill);
 		background: var(--border-strong);
-		transform: translate(-50%, -50%);
+		translate: -50% -50%;
 		transition:
 			background var(--dur-fast) var(--ease),
 			scale var(--dur-fast) var(--ease);
