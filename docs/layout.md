@@ -115,6 +115,13 @@ row of IconButton + SelectButton + Popover lines up with no per-app overrides.
 a toolbar. `IconButton glyphSize` sets the exact glyph size for SVG *and* text
 glyphs (`size` stays the SVG px, emoji ×1.35).
 
+On `(pointer: coarse)` the md tier is a full touch target: `--control-height-default`,
+`--box-md` and `--box-lg` become `--touch-target` (44px), so md `Button`s,
+`IconButton`s, inputs, selects, tabs and boxed controls are 44px boxes. `sm`
+(`--control-height-compact`, `--box-sm`) stays 32px so an sm toolbar keeps one
+line; its slabs make up the difference. Set the tokens on a container to opt a
+dense region out (`.player { --box-md: 2.5rem }`).
+
 On `(pointer: coarse)` every icon-only/square control (and `Popover`'s default
 trigger) carries an invisible `::after` slab that extends its hit area to
 `--touch-target` (44px, WCAG 2.5.8) without moving layout; fine pointers are
@@ -138,12 +145,15 @@ from the hidden text unless `aria-label` is set:
 
 Compact text controls (`Button size="sm"`, `Toggle`, `Switch`, `Link`) take
 the same shape, sized by `--touch-slab`: at least 8px past the block edges and
-the inline start, and at least `--touch-target-compact` (40px) tall, with no
-inline-end overflow. `SegmentedControl` items grow on the block axis and by
+the inline start, and at least `--touch-target-compact` tall (44px on coarse
+pointers, 40px otherwise), with no inline-end overflow. `SegmentedControl` items grow on the block axis and by
 half the gap sideways, which stays inside the group's padding, so neighbours
-never overlap. `Input size="sm"` cannot host a pseudo-element and grows to 40px
+never overlap. `Input size="sm"` cannot host a pseudo-element and grows to `--touch-target-compact`
 instead, as should any control that clips its own overflow:
-`min-height: var(--touch-target-compact)`.
+`min-height: var(--touch-target-compact)`. Square `sm`/`xs` controls end up
+44px tall and their box plus half the deficit wide (38px for a 32px box): the
+slab never grows past the inline end, so it cannot make a scroll container
+scroll sideways or cover the next control.
 `Checkbox`, `Button variant="link"` and the `DataTable` sort button take the same
 slab; inside a DataTable it is clipped at the table's top edge. A `SegmentedControl`
 wider than its container switches to the `scroll` layout until it fits again
