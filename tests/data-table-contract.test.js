@@ -8,7 +8,7 @@ const [component, index] = await Promise.all([
 ]);
 
 test('DataTable and its Column type stay exported', () => {
-	assert.match(index, /type Column,\s+default as DataTable,\s+type RowTone/);
+	assert.match(index, /type Column,\s+default as DataTable,\s+type RowAction,\s+type RowTone/);
 	assert.match(component, /export interface Column<T> {/);
 	assert.match(component, /export type RowTone = 'neutral' \| 'ok' \| 'warn' \| 'danger' \| 'info'/);
 });
@@ -75,8 +75,9 @@ test('rowActions is a trailing cell with a labelled header, hover-revealed, visi
 	assert.match(component, /rowActions\?: Snippet<\[T\]>/);
 	assert.match(component, /rowActionsLabel = 'Actions'/);
 	assert.match(component, /<th scope="col" class="dt-actions-head"><span class="sr-only">{rowActionsLabel}<\/span><\/th>/);
-	assert.match(component, /<td data-part="actions" class="dt-actions">\s*<span class="dt-actions-inner" use:measureActions>{@render rowActions\(row\)}/);
-	assert.match(component, /const colCount = \$derived\(columns\.length \+ \(rowActions \? 1 : 0\)\)/);
+	assert.match(component, /<td data-part="actions" class="dt-actions">\s*<span class="dt-actions-inner" use:measureActions>\s*{#if rowActions}{@render rowActions\(row\)}{\/if}/);
+	assert.match(component, /const hasActions = \$derived\(!!rowActions \|\| !!actions\);/);
+	assert.match(component, /const colCount = \$derived\(columns\.length \+ \(hasActions \? 1 : 0\) \+ \(showSelect \? 1 : 0\)\)/);
 	assert.match(component, /colspan={colCount}/);
 	assert.match(component, /\.dt-actions\s*{\s*opacity: 0;/);
 	assert.match(component, /tr:focus-within \.dt-actions\s*{\s*opacity: 1;/);
@@ -109,7 +110,9 @@ test('empty accepts a string or a snippet; loading and onloadmore render rows/fo
 	assert.match(component, /{#if typeof empty === 'string'}\s*{empty}\s*{:else}\s*{@render empty\(\)}/);
 	assert.match(component, /aria-busy={loading \|\| undefined}/);
 	assert.match(component, /{#if sortedRows\.length === 0 && !loading}/);
-	assert.match(component, /<tr data-part="loading">/);
+	assert.match(component, /{#if loading}\s*{#each { length: skeletonRows } as _, r \(r\)}\s*{@render skeletonRow\(r\)}/);
+	assert.match(component, /<tr data-part="skeleton">/);
+	assert.doesNotMatch(component, /data-part="loading"/);
 	assert.match(component, /onloadmore\?: \(\) => void/);
 	assert.match(component, /{#if onloadmore && !loading}\s*<tfoot>/);
 	assert.match(component, /<button type="button" class="dt-more-btn" onclick={onloadmore}>{loadMoreLabel}<\/button>/);
@@ -127,6 +130,6 @@ test('semantics kept: real table, th scope, keyboard-operable sort and rows', ()
 
 test('fixed layout gives the actions column a definite width so it never overflows the scroll wrapper', () => {
 	assert.match(component, /\.dt\.fixed \.dt-actions-head,\s*\.dt\.fixed \.dt-actions\s*{\s*width: var\(--dt-actions-w, 3\.5rem\);/s);
-	assert.match(component, /<span class="dt-actions-inner" use:measureActions>{@render rowActions\(row\)}<\/span>/);
+	assert.match(component, /<span class="dt-actions-inner" use:measureActions>\s*{#if rowActions}{@render rowActions\(row\)}{\/if}/);
 	assert.match(component, /style:--dt-actions-w={actionsW \? `calc\(\${actionsW}px \+ 2 \* var\(--sp-3\)\)` : undefined}/);
 });

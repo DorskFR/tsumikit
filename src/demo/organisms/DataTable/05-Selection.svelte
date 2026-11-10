@@ -1,63 +1,51 @@
 <script module>
 	export const meta = {
-		title: 'Bulk selection',
-		caption: 'headerSnippets puts a select-all Checkbox (indeterminate when partial) over a checkbox column from cellSnippets; rowClass marks picked rows.',
+		title: 'Selection mode',
+		caption: 'selectable with bind:selected and bind:selecting: checkboxes and the floating selection bar exist only while selecting; a row click toggles the row, Escape or Done leaves. The row menu gains a trailing Select item.',
 		layout: 'stack'
 	};
 </script>
 
 <script lang="ts">
-	import { Button, Checkbox, Cluster, DataTable, Text, type Column } from '@dorsk/tsumikit';
+	import { Button, Cluster, DataTable, Text, type Column, type RowAction } from '@dorsk/tsumikit';
 	import { services, type Service } from './data';
 
 	const columns: Column<Service>[] = [
-		{ key: 'pick', label: 'Select', width: '2.5rem' },
 		{ key: 'name', label: 'Service' },
 		{ key: 'region', label: 'Region', hideBelow: 'sm' },
 	];
-	let picked = $state<number[]>([2, 6]);
-	const all = $derived(picked.length === services.length);
+	let selected = $state<(string | number)[]>([]);
+	let selecting = $state(false);
+	let last = $state('');
+
+	const actions = (s: Service): RowAction[] => [
+		{ id: 'logs', label: `Open logs for ${s.name}`, icon: 'external', onselect: () => (last = `Opened logs for ${s.name}`) },
+		{ id: 'restart', label: 'Restart', icon: 'retry', onselect: () => (last = `Restarted ${s.name}`) },
+	];
+
+	function bulk(verb: string, picked: Service[]) {
+		last = `${verb} ${picked.map((s) => s.name).join(', ')}`;
+		selecting = false;
+	}
 </script>
 
-{#snippet pickAll()}
-	<Checkbox
-		label="Select all services"
-		labelHidden
-		size="sm"
-		checked={all}
-		indeterminate={picked.length > 0 && !all}
-		onchange={(e) => (picked = e.currentTarget.checked ? services.map((s) => s.id) : [])}
-	/>
-{/snippet}
-{#snippet pickOne(s: Service)}
-	<Checkbox
-		label="Select {s.name}"
-		labelHidden
-		size="sm"
-		checked={picked.includes(s.id)}
-		onchange={(e) => (picked = e.currentTarget.checked ? [...picked, s.id] : picked.filter((id) => id !== s.id))}
-	/>
-{/snippet}
-
-<Cluster align="center">
-	<Text size="sm" tone="muted">{picked.length} of {services.length} selected</Text>
-	<Button size="sm" disabled={!picked.length}>Restart</Button>
-	<Button size="sm" variant="danger" disabled={!picked.length}>Drain</Button>
+<Cluster align="center" justify="space-between">
+	<Text size="sm" tone="muted">{last || `${services.length} services`}</Text>
+	<Button size="sm" pressed={selecting} onclick={() => (selecting = !selecting)}>Select</Button>
 </Cluster>
-<div class="fleet">
-	<DataTable
-		{columns}
-		rows={services}
-		rowKey={(s) => s.id}
-		size="sm"
-		headerSnippets={{ pick: pickAll }}
-		cellSnippets={{ pick: pickOne }}
-		rowClass={(s) => (picked.includes(s.id) ? 'picked' : undefined)}
-	/>
-</div>
-
-<style>
-	.fleet :global(.picked) {
-		background: color-mix(in srgb, var(--accent) 12%, transparent);
-	}
-</style>
+<DataTable
+	{columns}
+	rows={services}
+	rowKey={(s) => s.id}
+	size="sm"
+	{actions}
+	selectable
+	bind:selected
+	bind:selecting
+	onrowclick={(s) => (last = `Opened ${s.name}`)}
+>
+	{#snippet selectionActions(picked: Service[])}
+		<Button size="sm" disabled={!picked.length} onclick={() => bulk('Restarted', picked)}>Restart</Button>
+		<Button size="sm" variant="danger" disabled={!picked.length} onclick={() => bulk('Drained', picked)}>Drain</Button>
+	{/snippet}
+</DataTable>

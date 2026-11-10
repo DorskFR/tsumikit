@@ -46,9 +46,11 @@ test('Skeleton atom exposes width/height/lines/circle/radius', () => {
 		assert.match(skeleton, new RegExp(`\\b${p}\\?:`));
 	}
 	assert.match(skeleton, /width = '100%',/);
-	assert.match(skeleton, /height = '1em',/);
+	assert.match(skeleton, /^\t\theight,$/m);
+	assert.match(skeleton, /height \?\? '1em'/);
 	assert.match(skeleton, /lines = 1,/);
-	assert.match(skeleton, /radius = 'var\(--r-sm\)',/);
+	assert.match(skeleton, /^\t\tradius,$/m);
+	assert.match(skeleton, /control \? 'var\(--input-radius, var\(--r-md\)\)' : 'var\(--r-sm\)'/);
 	assert.match(skeleton, /data-tsu="Skeleton"/);
 	assert.match(skeleton, /aria-hidden="true"/);
 	assert.match(skeleton, /class="skeleton-bar"/);
