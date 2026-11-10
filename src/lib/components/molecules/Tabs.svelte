@@ -480,6 +480,11 @@
 			border-bottom: 0;
 			border-radius: var(--r-pill);
 		}
+		@media (pointer: coarse) {
+			& .tab {
+				min-height: var(--touch-target);
+			}
+		}
 		& .tab.selected {
 			color: var(--text);
 		}
