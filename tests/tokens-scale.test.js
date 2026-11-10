@@ -3,7 +3,7 @@ import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 
 const tokens = await readFile(new URL('../src/lib/styles/tokens.css', import.meta.url), 'utf8');
-const root = tokens.slice(tokens.indexOf(':root {'), tokens.lastIndexOf('}'));
+const root = tokens.slice(tokens.indexOf(':root {'), tokens.indexOf('\n}', tokens.indexOf(':root {')));
 
 /** @type {Map<string, string[]>} */
 const decls = new Map();

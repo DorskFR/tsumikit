@@ -15,6 +15,78 @@ Every busy indicator in the kit waits 200 ms before appearing and then stays at 
 {#if p.visible}<Spinner />{/if}
 ```
 
+## Reserve the final box
+
+A placeholder is the size of what replaces it, so nothing moves when data arrives. Render the
+section's frame (heading, toolbar, table header) from the first frame and put skeletons only
+where the data goes.
+
+- `Skeleton` without `height` fills the line box of the text around it: `lines={3}` is exactly
+  three lines tall at that font. `aspect="2/3"` is a cover or tile at its real ratio; `control`
+  is a box at the control height, for form rows. An explicit `height` keeps fixed bars.
+  Put a text skeleton in a block (`Text as="p"`, a `div`), not an inline span, so it takes
+  the block's line height.
+- `DataTable loading` with no rows draws `loadingRows` (default 5) skeleton rows in real cells,
+  so each one is a data row tall and `hideBelow` / stacked mode apply. Set `loadingRows` to the
+  page size you expect. `loadingLabel` is announced; nothing visible says "Loading…".
+- `Artwork` reserves its box and shows its placeholder until the image loads.
+
+```svelte
+<Card>
+	<Heading level={3}>Playback</Heading>
+	{#if settings}
+		<Field label="Quality"><Select bind:value={settings.quality} {options} /></Field>
+		<Field label="Speed"><Select bind:value={settings.speed} {options} /></Field>
+	{:else}
+		{#each { length: 2 } as _}
+			<Skeleton width="30%" />
+			<Skeleton control />
+		{/each}
+	{/if}
+</Card>
+
+<AutoGrid min="9rem">
+	{#each { length: 12 } as _}
+		<div><Skeleton aspect="2/3" /><Skeleton lines={2} /></div>
+	{/each}
+</AutoGrid>
+
+<DataTable {columns} rows={items ?? []} rowKey={(r) => r.id} loading={!items} loadingRows={25} />
+```
+
+## Row actions and selection
+
+One visible action per row; everything else is one tap away. `DataTable actions` takes a list
+per row: the first `inlineActions` (default 1) render as icon buttons, the rest go into a "…"
+menu, and touch or stacked layouts never show more than one inline. Put the action people
+repeat first.
+
+Selection is a mode, not a permanent column: with `selectable`, the checkboxes and the floating
+selection bar appear only while `selecting` is true (a "Select" button on the page, or the
+"Select" item the row menu gains). The bar floats above the tab bar and pushes nothing; toasts
+stack above it.
+
+```svelte
+<Button size="sm" pressed={selecting} onclick={() => (selecting = !selecting)}>Select</Button>
+<DataTable {columns} {rows} rowKey={(r) => r.id} {actions} selectable bind:selected bind:selecting>
+	{#snippet selectionActions(picked)}
+		<Button size="sm" onclick={() => search(picked)}>Search {picked.length}</Button>
+	{/snippet}
+</DataTable>
+```
+
+## One control per kind of choice
+
+| Choice | Component |
+|---|---|
+| Page-level views (Queue / History / Blocklist) | `Tabs` |
+| Filters over a list (All 3,047 / Missing 924 / Complete) | `FilterChips` |
+| Two-state display toggles (grid / list) | `SegmentedControl`, icon only |
+
+`FilterChips` keeps one row: it scrolls with a fade only on the edge that hides chips and, with
+`collapse="auto"` (default), turns into a single dropdown chip ("All 3,047 ▾") when the chips do
+not fit. `multiple` makes it a set of toggles; `href` makes the chips links for URL state.
+
 ## Undo over confirm
 
 Prefer an optimistic change with an Undo toast to a confirmation dialog when success is likely. `toasts.undo` applies at once, offers Undo while the toast is visible, commits when it goes away (timeout, click, or `pagehide`), and reverts with a plain-words error toast if the commit fails:

@@ -157,7 +157,8 @@ test('text badges are not clipped by the glyph box and only overlap its 2px oute
 test('as a bar it publishes --tabbar-h on <html> and removes it on unmount', () => {
 	const r = render();
 	assert.ok(r.nav.classList.contains('bar'));
-	assert.equal(r.doc.documentElement.style.getPropertyValue('--tabbar-h'), '0px');
+	assert.equal(r.nav.dataset.placement, 'bar');
+	assert.equal(r.doc.documentElement.style.getPropertyValue('--tabbar-h'), '', 'no 0px before the first measurement');
 	r.resize(72);
 	assert.equal(r.doc.documentElement.style.getPropertyValue('--tabbar-h'), '72px');
 	r.destroy();
@@ -166,6 +167,17 @@ test('as a bar it publishes --tabbar-h on <html> and removes it on unmount', () 
 	const inline = render({ placement: 'inline' });
 	assert.ok(!inline.nav.classList.contains('bar'));
 	assert.equal(inline.doc.documentElement.style.getPropertyValue('--tabbar-h'), '');
+});
+
+test('a CSS default holds --tabbar-h from the first frame while a bar is in the document', () => {
+	assert.ok(
+		hasDecl(
+			css,
+			":global(:root:has([data-tsu='TabBar'][data-placement='bar']))",
+			'--tabbar-h',
+			'calc(var(--nav-h) + var(--edge-width) + env(safe-area-inset-bottom, 0px))'
+		)
+	);
 });
 
 test('fixed bottom with safe-area padding, 48px targets, tokens; reduced motion comes from the reset', () => {

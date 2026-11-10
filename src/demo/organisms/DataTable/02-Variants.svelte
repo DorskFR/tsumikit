@@ -1,13 +1,13 @@
 <script module>
 	export const meta = {
 		title: 'Density and chrome',
-		caption: 'size="md" | "sm", hideHeader keeps the header for assistive tech only, stickyHeader inside a bounded height.',
+		caption: 'size="md" | "sm", headerSnippets replaces a column header (a unit badge), hideHeader keeps the header for assistive tech only, stickyHeader inside a bounded height.',
 		layout: 'stack'
 	};
 </script>
 
 <script lang="ts">
-	import { DataTable, Text, type Column } from '@dorsk/tsumikit';
+	import { Badge, DataTable, Text, type Column } from '@dorsk/tsumikit';
 	import { memory, services, type Service } from './data';
 
 	const columns: Column<Service>[] = [
@@ -18,8 +18,12 @@
 	const top = services.slice(0, 3);
 </script>
 
+{#snippet memoryHead(col: Column<Service>)}
+	{col.label} <Badge size="xs" border={false}>RSS</Badge>
+{/snippet}
+
 <Text size="sm" tone="muted">Comfortable (size="md")</Text>
-<DataTable {columns} rows={top} rowKey={(s) => s.id} />
+<DataTable {columns} rows={top} rowKey={(s) => s.id} headerSnippets={{ memoryMb: memoryHead }} />
 <Text size="sm" tone="muted">Compact (size="sm")</Text>
 <DataTable {columns} rows={top} rowKey={(s) => s.id} size="sm" />
 <Text size="sm" tone="muted">Headerless list (hideHeader)</Text>

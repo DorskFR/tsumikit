@@ -61,6 +61,9 @@ controlled mode, `chevron` start/end/false, `size="compact"` for strip rows, nat
 `multiple=false` keeps one open, `variant="plain"` drops the outer border, `size` forwards to every item), CopyButton, FileButton, InputGroup (a field with inset
 leading/trailing controls fused into one bordered unit, see below),
 Dropzone, CodeBlock, Callout, EmptyState, ConfirmModal, Pagination, Toaster,
+FilterChips (one row of filter chips with counts, single or `multiple`, `href` links,
+edge fade only where chips are hidden, dropdown-chip form when they do not fit; see
+[patterns.md](patterns.md#one-control-per-kind-of-choice)),
 ThemePicker (popover grid of 2×2 palette swatches: bg · surface · text · accent per theme),
 EmojiPicker (popover with a searchable EN+FR glyph catalogue, grouped tabs, roving-tabindex grid; pass `groups` to swap the catalogue), FontScalePicker (popover with a stepped slider across the five text sizes), SoundSettings (popover with the sound switch, volume and preview; see [sound.md](sound.md)), SectionHeader, KeyValue, LoadMore,
 GitRef (branch chip + PR link tinted by state + `+N −N` diff; `collapse`
@@ -105,8 +108,18 @@ paints a left accent bar + `data-tone`, `rowClass(row)`, `rowActions` snippet
 for a hover/focus-revealed trailing cell (always visible on touch; under
 `layout="fixed"` its column is `--dt-actions-w`, default 3.5rem),
 `stickyOffset` for the sticky header's `top` (it sticks within the table's own
-scroller, so give the table a bounded height), `size="sm"`, `loading`,
-`onloadmore` footer button, `empty` as string or snippet; `data-part`
+scroller, so give the table a bounded height), `size="sm"`, `loading` (no rows:
+`loadingRows` skeleton rows at data-row height, default 5; with rows: one trailing
+skeleton row; `loadingLabel` is announced, not shown), `actions(row)` returning
+`RowAction[]` (`{ id, label, icon?, onselect, danger?, disabled? }`: the first
+`inlineActions`, default 1, are icon buttons, the rest a "…" `Menu`; coarse pointers
+and stacked cards show at most one inline, and the buttons are 44px boxes on touch),
+selection mode (`selectable`, `bind:selected` row keys, `bind:selecting`; the checkbox
+column, header select-all and a floating `selectionActions(rows)` bar exist only while
+selecting, the row menu gains a "Select" item, a row click toggles the row, Escape
+or Done leaves and clears; the bar publishes `--selectionbar-h` so toasts stack above
+it; labels via `selectionLabel`, `selectLabel`, `selectRowLabel`, `selectAllLabel`,
+`doneLabel`), `onloadmore` footer button, `empty` as string or snippet; `data-part`
 hooks on head/row/cell; `responsive="stack"` turns rows into cards below
 `stackBelow` (48rem, measured on the table's own box) using `Column.role`
 `title | detail | meta | actions | hidden` — detail cells get a `data-label`
@@ -168,6 +181,11 @@ shorthands (tones `neutral|ok|error|info`; `danger` aliases `error`). An `action
 settles, then dismisses, and action toasts stay 7s instead of 4s (`duration: 0` is
 sticky). `Toaster` renders in the browser top layer (`popover="manual"`), so toasts
 paint above an open `Modal`; `--toast-max-width` (28rem) caps the stack.
+`placement` is `bottom` (default, centred), `bottom-start`, `bottom-end` or `top`.
+Bottom placements sit above the `TabBar` (`--tabbar-h`) and the DataTable
+selection bar (`--selectionbar-h`) with no setup; add an app's own bottom bars
+with `--toaster-offset` (`:root { --toaster-offset: var(--player-h, 0px) }`),
+and push a `top` stack under a fixed header with `--toaster-offset-top`.
 **Helpers:** `copyToClipboard(text)` — async Clipboard API with an
 insecure-context fallback; returns whether it succeeded.
 
@@ -621,7 +639,10 @@ step; override any string through `messages` (defaults in
 `aria-current="page"`. It is fixed to the bottom with `env(safe-area-inset-bottom)`
 (`placement="inline"` flows with the page) and, while mounted as a bar, publishes its
 height as `--tabbar-h` on `<html>`, so content clears it with
-`padding-bottom: var(--tabbar-h)`. Targets are at least 48px; numeric badges cap at `99+`.
+`padding-bottom: var(--tabbar-h)`. A CSS default computed from `--nav-h` and the
+safe-area inset holds the value from the first frame (server-rendered pages
+included) until the bar is measured. Hide the bar by not rendering it (or with
+`placement="inline"`), not with `display: none`, or the default keeps the padding. Targets are at least 48px; numeric badges cap at `99+`.
 
 `SwipeRow` wraps a list row with one action per side: `leadingAction` on a rightward
 swipe, `trailingAction` on a leftward one, each `{ label, icon?, tone?, onaction }`

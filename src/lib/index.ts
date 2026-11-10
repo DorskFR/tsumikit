@@ -108,6 +108,10 @@ export { default as Field } from './components/molecules/Field.svelte';
 export { default as Fieldset } from './components/molecules/Fieldset.svelte';
 export { default as FileButton } from './components/molecules/FileButton.svelte';
 export {
+	default as FilterChips,
+	type FilterChipOption,
+} from './components/molecules/FilterChips.svelte';
+export {
 	default as FilterInput,
 	type FilterInputContext,
 } from './components/molecules/FilterInput.svelte';
@@ -191,6 +195,7 @@ export { default as ConversationPanel } from './components/organisms/Conversatio
 export {
 	type Column,
 	default as DataTable,
+	type RowAction,
 	type RowTone,
 } from './components/organisms/DataTable.svelte';
 export { default as FilterSearchBar } from './components/organisms/FilterSearchBar.svelte';

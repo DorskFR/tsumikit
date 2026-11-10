@@ -1,4 +1,6 @@
 <script lang="ts" module>
+	import type { IconName } from '$lib/components/atoms/Icon.svelte';
+
 	export type RowTone = 'neutral' | 'ok' | 'warn' | 'danger' | 'info';
 
 	export interface Column<T> {
@@ -26,6 +28,21 @@
 		stackLabel?: boolean;
 	}
 
+	export interface RowAction {
+		id: string;
+		/** Accessible name and tooltip of the inline button; the menu row text. */
+		label: string;
+		icon?: IconName;
+		onselect: () => void;
+		danger?: boolean;
+		disabled?: boolean;
+	}
+
+	const SELECT_ACTION_ID = '__select';
+	// Layers that consume Escape themselves; the selection bar is a popover too.
+	const OWN_ESCAPE = 'dialog, [popover]:not([data-part="selection-bar"])';
+	const SKELETON_WIDTHS = ['72%', '48%', '64%', '40%', '80%', '56%'];
+
 	let rootFontPx: number | undefined;
 
 	function rootFontSize(): number {
@@ -43,8 +60,16 @@
 	// `cellSnippets[key]` snippet for full control (badges, actions…). Sticky
 	// header, empty state, optional row click (the table becomes a grid whose
 	// rows are focusable and Enter/Space-activatable; rows stay rows for AT). Horizontal scroll is contained so it never
-	// breaks the page layout on mobile.
-	import type { Snippet } from 'svelte';
+	// breaks the page layout on mobile. `actions` renders one inline action and
+	// a "more" menu per row; `selectable` adds a selection mode (checkbox column
+	// and a floating selection bar, both only while `selecting`).
+	import { type Snippet, untrack } from 'svelte';
+	import Button from '$lib/components/atoms/Button.svelte';
+	import Checkbox from '$lib/components/atoms/Checkbox.svelte';
+	import Icon from '$lib/components/atoms/Icon.svelte';
+	import Skeleton from '$lib/components/atoms/Skeleton.svelte';
+	import IconButton from '$lib/components/molecules/IconButton.svelte';
+	import Menu from '$lib/components/molecules/Menu.svelte';
 
 	let {
 		columns,
@@ -64,8 +89,22 @@
 		rowClass,
 		rowActions,
 		rowActionsLabel = 'Actions',
+		actions,
+		inlineActions = 1,
+		moreLabel = 'More actions',
+		selectable = false,
+		selected = $bindable([]),
+		selecting = $bindable(false),
+		selectionActions,
+		selectionLabel = (n) => `${n} selected`,
+		selectLabel = 'Select',
+		selectRowLabel,
+		selectAllLabel = 'Select all',
+		selectionBarLabel = 'Selection',
+		doneLabel = 'Done',
 		loading = false,
 		loadingLabel = 'Loading…',
+		loadingRows = 5,
 		onloadmore,
 		loadMoreLabel = 'Load more',
 		responsive = 'scroll',
@@ -104,8 +143,38 @@
 		/** Trailing actions cell revealed on hover/focus (always visible on touch). */
 		rowActions?: Snippet<[T]>;
 		rowActionsLabel?: string;
+		/** Data-driven row actions: the first `inlineActions` render as icon buttons,
+		 *  the rest in a "more" menu. Rendered after `rowActions` when both are set. */
+		actions?: (row: T) => RowAction[];
+		/** Inline action count (default 1). Coarse pointers and stacked cards cap it at 1. */
+		inlineActions?: number;
+		/** Accessible name of the "more" menu trigger; the row's name is appended. */
+		moreLabel?: string;
+		/** Enables selection mode. With `actions`, each row menu gains a trailing
+		 *  "Select" item that enters it with that row selected. */
+		selectable?: boolean;
+		/** Bindable row keys (`rowKey`) of the selected rows. Cleared on leaving selection mode. */
+		selected?: (string | number)[];
+		/** Bindable. While true the checkbox column and the selection bar show, a
+		 *  row click toggles the row instead of `onrowclick`, and Escape leaves. */
+		selecting?: boolean;
+		/** Bulk actions in the selection bar; receives the selected rows. */
+		selectionActions?: Snippet<[T[]]>;
+		selectionLabel?: (count: number) => string;
+		/** Label of the row menu item that enters selection mode. */
+		selectLabel?: string;
+		/** Accessible name of a row's checkbox. Defaults to `Select <title or first column value>`. */
+		selectRowLabel?: (row: T) => string;
+		selectAllLabel?: string;
+		/** Accessible name of the selection bar. */
+		selectionBarLabel?: string;
+		doneLabel?: string;
+		/** With no rows: `loadingRows` skeleton rows at the height of a data row.
+		 *  With rows: the rows stay and one skeleton row trails them. */
 		loading?: boolean;
+		/** Announced to assistive tech while loading (visually hidden). */
 		loadingLabel?: string;
+		loadingRows?: number;
 		/** Renders a footer "load more" button that calls this. */
 		onloadmore?: () => void;
 		loadMoreLabel?: string;
@@ -171,7 +240,91 @@
 	let sortKey = $state<string | null>(null);
 	let sortDir = $state<'asc' | 'desc'>('asc');
 
-	const colCount = $derived(columns.length + (rowActions ? 1 : 0));
+	let coarse = $state(false);
+
+	$effect(() => {
+		const query = window.matchMedia?.('(pointer: coarse)');
+		if (!query) return;
+		const update = () => (coarse = query.matches);
+		update();
+		query.addEventListener('change', update);
+		return () => query.removeEventListener('change', update);
+	});
+
+	const hasActions = $derived(!!rowActions || !!actions);
+	const showSelect = $derived(selectable && selecting);
+	const inlineCount = $derived.by(() => {
+		const n = Math.max(0, Math.floor(inlineActions));
+		return coarse || stacked ? Math.min(1, n) : n;
+	});
+	const colCount = $derived(columns.length + (hasActions ? 1 : 0) + (showSelect ? 1 : 0));
+	const skeletonRows = $derived(rows.length ? 1 : Math.max(1, Math.floor(loadingRows)));
+
+	const selectedKeys = $derived(new Set(selected));
+	const selectedRows = $derived(rows.filter((row) => selectedKeys.has(rowKey(row))));
+
+	function rowName(row: T): string | undefined {
+		const col = columns.find((c) => c.role === 'title') ?? columns[0];
+		const value = col && display(col, row);
+		return typeof value === 'string' || typeof value === 'number' ? String(value) : undefined;
+	}
+
+	function checkboxLabel(row: T): string {
+		if (selectRowLabel) return selectRowLabel(row);
+		const name = rowName(row);
+		return name ? `${selectLabel} ${name}` : `${selectLabel} row`;
+	}
+
+	function splitActions(row: T): { inline: RowAction[]; menu: RowAction[] } {
+		const all = actions?.(row) ?? [];
+		const menu = all.slice(inlineCount);
+		if (selectable && !selecting) {
+			menu.push({ id: SELECT_ACTION_ID, label: selectLabel, icon: 'check-circle', onselect: () => startSelection(row) });
+		}
+		return { inline: all.slice(0, inlineCount), menu };
+	}
+
+	function startSelection(row: T) {
+		selecting = true;
+		selected = [rowKey(row)];
+	}
+
+	function endSelection() {
+		selecting = false;
+		selected = [];
+	}
+
+	function toggleRow(row: T) {
+		const key = rowKey(row);
+		selected = selectedKeys.has(key) ? selected.filter((k) => k !== key) : [...selected, key];
+	}
+
+	function toggleAll(on: boolean) {
+		const visible = new Set(sortedRows.map(rowKey));
+		const rest = selected.filter((k) => !visible.has(k));
+		selected = on ? [...rest, ...visible] : rest;
+	}
+
+	$effect(() => {
+		if (selectable && !selecting && untrack(() => selected.length)) selected = [];
+	});
+
+	function selectionBar(node: HTMLElement) {
+		node.showPopover?.();
+		const root = document.documentElement;
+		const publish = () =>
+			root.style.setProperty(
+				'--selectionbar-h',
+				`calc(${Math.ceil(node.getBoundingClientRect().height)}px + var(--sp-4))`
+			);
+		publish();
+		const observer = new ResizeObserver(publish);
+		observer.observe(node);
+		return () => {
+			observer.disconnect();
+			root.style.removeProperty('--selectionbar-h');
+		};
+	}
 
 	const NESTED_CONTROL = 'a,button,input,select,textarea,label,summary,[role="button"],[contenteditable]';
 
@@ -210,7 +363,19 @@
 			return String(av).localeCompare(String(bv)) * dir;
 		});
 	});
+
+	const selectedVisible = $derived(sortedRows.filter((row) => selectedKeys.has(rowKey(row))).length);
 </script>
+
+<svelte:window
+	onkeydown={showSelect
+		? (e) => {
+				if (e.key !== 'Escape' || e.defaultPrevented) return;
+				if ((e.target as Element).closest?.(OWN_ESCAPE)) return;
+				endSelection();
+			}
+		: undefined}
+/>
 
 <div
 	bind:this={wrapEl}
@@ -223,6 +388,7 @@
 	data-stack-actions={responsive === 'stack' && stackActions === 'end' ? 'end' : undefined}
 	aria-busy={loading || undefined}
 >
+	<span class="sr-only" role="status">{loading ? loadingLabel : ''}</span>
 	<table
 		class="dt {tableClass}"
 		class:sticky={stickyHeader}
@@ -235,6 +401,19 @@
 	>
 		<thead data-part="head">
 			<tr>
+				{#if showSelect}
+					<th scope="col" class="dt-select">
+						<Checkbox
+							label={selectAllLabel}
+							labelHidden
+							size="sm"
+							checked={sortedRows.length > 0 && selectedVisible === sortedRows.length}
+							indeterminate={selectedVisible > 0 && selectedVisible < sortedRows.length}
+							disabled={sortedRows.length === 0}
+							onchange={(e) => toggleAll(e.currentTarget.checked)}
+						/>
+					</th>
+				{/if}
 				{#each columns as col (col.key)}
 					<th
 						scope="col"
@@ -269,7 +448,7 @@
 						{/if}
 					</th>
 				{/each}
-				{#if rowActions}
+				{#if hasActions}
 					<th scope="col" class="dt-actions-head"><span class="sr-only">{rowActionsLabel}</span></th>
 				{/if}
 			</tr>
@@ -288,28 +467,43 @@
 			{:else}
 				{#each sortedRows as row (rowKey(row))}
 					{@const tone = rowTone?.(row)}
+					{@const picked = showSelect && selectedKeys.has(rowKey(row))}
+					{@const activate = showSelect ? () => toggleRow(row) : onrowclick ? () => onrowclick(row) : undefined}
 					<tr
 						data-part="row"
 						data-tone={tone}
+						data-selected={picked || undefined}
+						aria-selected={showSelect && onrowclick ? picked : undefined}
 						class={rowClass?.(row)}
-						class:clickable={!!onrowclick}
+						class:clickable={!!activate}
 						class:toned={!!tone && tone !== 'neutral'}
 						tabindex={onrowclick ? 0 : undefined}
-						onclick={onrowclick
+						onclick={activate
 							? (e) => {
-									if (!fromNestedControl(e)) onrowclick(row);
+									if (!fromNestedControl(e)) activate();
 								}
 							: undefined}
-						onkeydown={onrowclick
+						onkeydown={activate
 							? (e) => {
 									if (e.target !== e.currentTarget) return;
 									if (e.key === 'Enter' || e.key === ' ') {
 										e.preventDefault();
-										onrowclick(row);
+										activate();
 									}
 								}
 							: undefined}
 					>
+						{#if showSelect}
+							<td data-part="select" class="dt-select">
+								<Checkbox
+									label={checkboxLabel(row)}
+									labelHidden
+									size="sm"
+									checked={picked}
+									onchange={() => toggleRow(row)}
+								/>
+							</td>
+						{/if}
 						{#each columns as col (col.key)}
 							{@const value = cellSnippets[col.key] ? undefined : display(col, row)}
 							<td
@@ -333,18 +527,59 @@
 								{/if}
 							</td>
 						{/each}
-						{#if rowActions}
+						{#if hasActions}
+							{@const built = actions ? splitActions(row) : undefined}
 							<td data-part="actions" class="dt-actions">
-								<span class="dt-actions-inner" use:measureActions>{@render rowActions(row)}</span>
+								<span class="dt-actions-inner" use:measureActions>
+									{#if rowActions}{@render rowActions(row)}{/if}
+									{#if built}
+										{#each built.inline as action (action.id)}
+											{#if action.icon}
+												<IconButton
+													icon={action.icon}
+													label={action.label}
+													box="sm"
+													size={16}
+													tone={action.danger ? 'danger' : 'none'}
+													disabled={action.disabled}
+													data-action={action.id}
+													onclick={action.onselect}
+												/>
+											{:else}
+												<Button
+													size="sm"
+													variant="ghost"
+													tone={action.danger ? 'danger' : 'none'}
+													disabled={action.disabled}
+													data-action={action.id}
+													onclick={action.onselect}
+												>
+													{action.label}
+												</Button>
+											{/if}
+										{/each}
+										{#if built.menu.length}
+											{@const name = rowName(row)}
+											<Menu
+												label={name ? `${moreLabel}: ${name}` : moreLabel}
+												items={built.menu}
+												placement="bottom-end"
+												box="sm"
+											>
+												{#snippet trigger()}<Icon name="more" size={16} />{/snippet}
+											</Menu>
+										{/if}
+									{/if}
+								</span>
 							</td>
 						{/if}
 					</tr>
 				{/each}
 			{/if}
 			{#if loading}
-				<tr data-part="loading">
-					<td class="dt-empty" colspan={colCount}>{loadingLabel}</td>
-				</tr>
+				{#each { length: skeletonRows } as _, r (r)}
+					{@render skeletonRow(r)}
+				{/each}
 			{/if}
 		</tbody>
 		{#if onloadmore && !loading}
@@ -358,6 +593,46 @@
 		{/if}
 	</table>
 </div>
+
+{#if showSelect}
+	<div
+		class="dt-selbar"
+		data-part="selection-bar"
+		role="group"
+		aria-label={selectionBarLabel}
+		popover="manual"
+		{@attach selectionBar}
+	>
+		<span class="dt-selbar-count" aria-live="polite">{selectionLabel(selected.length)}</span>
+		{@render selectionActions?.(selectedRows)}
+		<Button size="sm" variant="ghost" onclick={endSelection}>{doneLabel}</Button>
+	</div>
+{/if}
+
+{#snippet skeletonRow(r: number)}
+	<tr data-part="skeleton">
+		{#if showSelect}
+			<td data-part="select" class="dt-select"></td>
+		{/if}
+		{#each columns as col, c (col.key)}
+			<td
+				data-hide-below={col.hideBelow}
+				data-role={responsive === 'stack' ? (col.role ?? 'detail') : undefined}
+				class:dt-skeleton-end={!stacked && col.align === 'right'}
+				class:dt-skeleton-center={!stacked && col.align === 'center'}
+			>
+				<Skeleton width={SKELETON_WIDTHS[(c * 2 + r) % SKELETON_WIDTHS.length]} />
+			</td>
+		{/each}
+		{#if hasActions}
+			<td data-part="actions" class="dt-actions">
+				{#if actions}
+					<span class="dt-actions-inner"><Skeleton width="var(--box-sm)" height="var(--box-sm)" /></span>
+				{/if}
+			</td>
+		{/if}
+	</tr>
+{/snippet}
 
 <style>
 	.dt-scroll {
@@ -506,6 +781,23 @@
 	tr.toned td:first-child {
 		box-shadow: inset 3px 0 0 var(--dt-tone);
 	}
+	tr[data-selected] {
+		background: color-mix(in srgb, var(--accent) 12%, transparent);
+	}
+	.dt-select {
+		width: 1%;
+		white-space: nowrap;
+	}
+	/* Block-level, so the box never stretches the header's line box. */
+	.dt-select > :global(.checkbox) {
+		display: flex;
+	}
+	.dt-skeleton-end > :global(.skeleton) {
+		margin-inline-start: auto;
+	}
+	.dt-skeleton-center > :global(.skeleton) {
+		margin-inline: auto;
+	}
 	.dt-actions-head,
 	.dt-actions {
 		width: 1%;
@@ -532,6 +824,9 @@
 	@media (pointer: coarse) {
 		.dt-actions {
 			opacity: 1;
+		}
+		.dt-actions-inner {
+			--box-sm: var(--touch-target);
 		}
 		/* The last row's checkbox slab would otherwise add a scroll range. */
 		tbody tr:last-child td :global(.checkbox::before) {
@@ -669,6 +964,14 @@
 	[data-stacked] td[data-role='hidden'] {
 		display: none;
 	}
+	[data-stacked] td.dt-select {
+		flex: none;
+		order: -3;
+		width: auto;
+	}
+	[data-stacked] tr[data-part='skeleton'] td::before {
+		content: none;
+	}
 	[data-stacked] td.dt-empty,
 	[data-stacked] td.dt-more {
 		text-align: center;
@@ -694,6 +997,42 @@
 	}
 	.dt-more-btn:focus-visible {
 		background: var(--bg-elevated-2);
+	}
+	/* Top layer (popover) so no ancestor transform or containment can re-anchor it. */
+	.dt-selbar {
+		position: fixed;
+		inset: auto;
+		left: 50%;
+		translate: -50% 0;
+		bottom: calc(var(--safe-bottom, 0px) + var(--tabbar-h, 0px) + var(--sp-4));
+		z-index: calc(var(--z-toast) - 1);
+		display: flex;
+		align-items: center;
+		gap: var(--sp-3);
+		width: max-content;
+		max-width: calc(100% - var(--sp-8));
+		margin: 0;
+		padding: var(--sp-2) var(--sp-2) var(--sp-2) var(--sp-4);
+		border: var(--edge-width) solid var(--raised-edge);
+		border-radius: var(--r-lg);
+		background: var(--raised-fill);
+		box-shadow: var(--raised-shadow);
+		color: var(--text);
+		font-size: var(--fs-sm);
+		overflow: visible;
+		transition:
+			opacity var(--dur-base) var(--ease-out),
+			translate var(--dur-base) var(--ease-out);
+	}
+	@starting-style {
+		.dt-selbar {
+			opacity: 0;
+			translate: -50% var(--shift-md);
+		}
+	}
+	.dt-selbar-count {
+		white-space: nowrap;
+		font-variant-numeric: tabular-nums;
 	}
 	.sr-only {
 		position: absolute;

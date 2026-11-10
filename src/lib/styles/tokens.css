@@ -334,6 +334,16 @@
   --focus-glow: 0 0 0 0 transparent;
 }
 
+/* Touch: md controls and md/lg boxes are full targets; compact slabs reach the
+   same height. sm stays compact so mixed sm toolbars keep one line. */
+@media (pointer: coarse) {
+  :root {
+    --control-height-default: var(--touch-target);
+    --box-md: var(--touch-target);
+    --touch-target-compact: var(--touch-target);
+  }
+}
+
 @supports (animation-timing-function: linear(0, 1)) {
   :root {
     /* stiffness 1200, damping 56, mass 1: zeta 0.81, 1.1% overshoot, settles 250ms */

@@ -71,6 +71,7 @@
 		| 'gap'
 		| 'count'
 		| 'countMax'
+		| 'pressed'
 		| 'onopen'
 		| 'onclose'
 	>;
@@ -96,6 +97,7 @@
 		gap,
 		count,
 		countMax,
+		pressed,
 		onopen,
 		onclose,
 		open = $bindable(false),
@@ -203,6 +205,7 @@
 	{gap}
 	{count}
 	{countMax}
+	{pressed}
 	{sound}
 	role="menu"
 	haspopup="menu"
