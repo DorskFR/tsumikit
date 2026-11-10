@@ -3,7 +3,8 @@
 	// Items without `href` form a `tablist` of `tab`s with roving focus; with
 	// `href` the bar is a `<nav>` of `<a aria-current="page">`. While mounted as
 	// a bar it publishes its measured height as `--tabbar-h` on `<html>` so
-	// content can clear it (`padding-bottom: var(--tabbar-h)`).
+	// content can clear it (`padding-bottom: var(--tabbar-h)`); until measured,
+	// a CSS default computed from the tokens holds the same value.
 	import Badge from '$lib/components/atoms/Badge.svelte';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import type { IconName } from '$lib/components/atoms/Icon.svelte';
@@ -57,7 +58,8 @@
 	$effect(() => {
 		if (placement !== 'bar' || typeof document === 'undefined') return;
 		const root = document.documentElement;
-		root.style.setProperty('--tabbar-h', `${height}px`);
+		if (height > 0) root.style.setProperty('--tabbar-h', `${height}px`);
+		else root.style.removeProperty('--tabbar-h');
 		return () => root.style.removeProperty('--tabbar-h');
 	});
 
@@ -104,6 +106,7 @@
 	aria-label={label}
 	class="tabbar {klass}"
 	class:bar={placement === 'bar'}
+	data-placement={placement}
 	{...rest}
 >
 	<div
@@ -142,6 +145,9 @@
 </nav>
 
 <style>
+	:global(:root:has([data-tsu='TabBar'][data-placement='bar'])) {
+		--tabbar-h: calc(var(--nav-h) + var(--edge-width) + env(safe-area-inset-bottom, 0px));
+	}
 	.tabbar {
 		min-width: 0;
 		background: var(--surface-fill);
