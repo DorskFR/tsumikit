@@ -1,7 +1,8 @@
 <script lang="ts">
-	// Renders the toast queue bottom-centered in two live regions: polite for
+	// Renders the toast queue in two live regions: polite for
 	// ok/info/neutral, assertive (role=alert) for errors. Mount once near the
-	// app root. The stack lives in a manual popover so it paints in the top
+	// app root. Bottom placements sit above the TabBar, the DataTable selection
+	// bar and `--toaster-offset` (an app's own bottom bars). The stack lives in a manual popover so it paints in the top
 	// layer; without the Popover API the attribute is ignored and the
 	// fixed/z-index positioning applies instead. While a modal <dialog> is open
 	// everything outside it is inert, top layer included, so the stack moves
@@ -13,10 +14,13 @@
 	import Icon from '$lib/components/atoms/Icon.svelte';
 
 	let {
+		placement = 'bottom',
 		class: klass = '',
 		style: styleProp = '',
 		sound = true
 	}: {
+		/** Where the stack sits; bottom placements clear the bottom bars. */
+		placement?: 'bottom' | 'bottom-start' | 'bottom-end' | 'top';
 		class?: string;
 		style?: string;
 		/** Play UI sounds when enabled globally; false silences this instance. */
@@ -156,7 +160,7 @@
 {/snippet}
 
 <div class="toaster-host" bind:this={host}>
-	<div class="toaster {klass}" style={styleProp} bind:this={el} popover="manual" data-tsu="Toaster">
+	<div class="toaster {klass}" style={styleProp} bind:this={el} popover="manual" data-tsu="Toaster" data-placement={placement}>
 		<div class="region" role="status" aria-live="polite">
 			{#each polite as t (t.id)}{@render toast(t)}{/each}
 		</div>
@@ -175,7 +179,10 @@
 		inset: auto;
 		left: 50%;
 		transform: translateX(-50%);
-		bottom: calc(var(--safe-bottom) + var(--sp-4));
+		bottom: calc(
+			var(--safe-bottom) + var(--tabbar-h, 0px) + var(--selectionbar-h, 0px) + var(--toaster-offset, 0px) +
+				var(--sp-4)
+		);
 		z-index: var(--z-toast);
 		display: flex;
 		flex-direction: column;
@@ -188,6 +195,20 @@
 		background: transparent;
 		overflow: visible;
 		pointer-events: none;
+	}
+	.toaster[data-placement='bottom-start'] {
+		left: calc(var(--safe-left) + var(--sp-4));
+		transform: none;
+	}
+	.toaster[data-placement='bottom-end'] {
+		left: auto;
+		right: calc(var(--safe-right) + var(--sp-4));
+		transform: none;
+	}
+	.toaster[data-placement='top'] {
+		top: calc(var(--safe-top) + var(--toaster-offset-top, 0px) + var(--sp-4));
+		bottom: auto;
+		flex-direction: column-reverse;
 	}
 	.toaster:not(:popover-open) {
 		display: none;
@@ -216,6 +237,9 @@
 			opacity: 0;
 			translate: 0 var(--shift-md);
 			scale: 0.98;
+		}
+		.toaster[data-placement='top'] :global(.toast) {
+			translate: 0 calc(-1 * var(--shift-md));
 		}
 	}
 	.toaster :global(.toast[data-leaving]) {
