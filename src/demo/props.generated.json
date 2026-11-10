@@ -2628,16 +2628,111 @@
 				"default": "'Actions'"
 			},
 			{
+				"name": "actions",
+				"type": "(row: T) => RowAction[]",
+				"optional": true,
+				"description": "Data-driven row actions: the first `inlineActions` render as icon buttons, the rest in a \"more\" menu. Rendered after `rowActions` when both are set."
+			},
+			{
+				"name": "inlineActions",
+				"type": "number",
+				"optional": true,
+				"default": "1",
+				"description": "Inline action count (default 1). Coarse pointers and stacked cards cap it at 1."
+			},
+			{
+				"name": "moreLabel",
+				"type": "string",
+				"optional": true,
+				"default": "'More actions'",
+				"description": "Accessible name of the \"more\" menu trigger; the row's name is appended."
+			},
+			{
+				"name": "selectable",
+				"type": "boolean",
+				"optional": true,
+				"default": "false",
+				"description": "Enables selection mode. With `actions`, each row menu gains a trailing \"Select\" item that enters it with that row selected."
+			},
+			{
+				"name": "selected",
+				"type": "(string | number)[]",
+				"optional": true,
+				"default": "[]",
+				"bindable": true,
+				"description": "Bindable row keys (`rowKey`) of the selected rows. Cleared on leaving selection mode."
+			},
+			{
+				"name": "selecting",
+				"type": "boolean",
+				"optional": true,
+				"default": "false",
+				"bindable": true,
+				"description": "Bindable. While true the checkbox column and the selection bar show, a row click toggles the row instead of `onrowclick`, and Escape leaves."
+			},
+			{
+				"name": "selectionActions",
+				"type": "Snippet<[T[]]>",
+				"optional": true,
+				"description": "Bulk actions in the selection bar; receives the selected rows."
+			},
+			{
+				"name": "selectionLabel",
+				"type": "(count: number) => string",
+				"optional": true,
+				"default": "(n) => `${n} selected`"
+			},
+			{
+				"name": "selectLabel",
+				"type": "string",
+				"optional": true,
+				"default": "'Select'",
+				"description": "Label of the row menu item that enters selection mode."
+			},
+			{
+				"name": "selectRowLabel",
+				"type": "(row: T) => string",
+				"optional": true,
+				"description": "Accessible name of a row's checkbox. Defaults to `Select <title or first column value>`."
+			},
+			{
+				"name": "selectAllLabel",
+				"type": "string",
+				"optional": true,
+				"default": "'Select all'"
+			},
+			{
+				"name": "selectionBarLabel",
+				"type": "string",
+				"optional": true,
+				"default": "'Selection'",
+				"description": "Accessible name of the selection bar."
+			},
+			{
+				"name": "doneLabel",
+				"type": "string",
+				"optional": true,
+				"default": "'Done'"
+			},
+			{
 				"name": "loading",
 				"type": "boolean",
 				"optional": true,
-				"default": "false"
+				"default": "false",
+				"description": "With no rows: `loadingRows` skeleton rows at the height of a data row. With rows: the rows stay and one skeleton row trails them."
 			},
 			{
 				"name": "loadingLabel",
 				"type": "string",
 				"optional": true,
-				"default": "'Loading…'"
+				"default": "'Loading…'",
+				"description": "Announced to assistive tech while loading (visually hidden)."
+			},
+			{
+				"name": "loadingRows",
+				"type": "number",
+				"optional": true,
+				"default": "5"
 			},
 			{
 				"name": "onloadmore",
@@ -3454,6 +3549,74 @@
 				"optional": true,
 				"default": "'auto'",
 				"description": "Icon-only buttons grow a touch hit slab on coarse pointers; `compact` opts out."
+			},
+			{
+				"name": "sound",
+				"type": "boolean",
+				"optional": true,
+				"default": "true",
+				"description": "Play UI sounds when enabled globally; false silences this instance."
+			},
+			{
+				"name": "class",
+				"type": "string",
+				"optional": true,
+				"default": "''"
+			}
+		]
+	},
+	"FilterChips": {
+		"file": "molecules/FilterChips.svelte",
+		"family": "molecules",
+		"props": [
+			{
+				"name": "options",
+				"type": "FilterChipOption[]",
+				"optional": false
+			},
+			{
+				"name": "value",
+				"type": "string | string[]",
+				"optional": true,
+				"bindable": true,
+				"description": "The selected id, or the selected ids with `multiple`."
+			},
+			{
+				"name": "multiple",
+				"type": "boolean",
+				"optional": true,
+				"default": "false"
+			},
+			{
+				"name": "label",
+				"type": "string",
+				"optional": false,
+				"description": "Accessible name of the group."
+			},
+			{
+				"name": "size",
+				"type": "'sm' | 'md'",
+				"optional": true,
+				"default": "'sm'"
+			},
+			{
+				"name": "onchange",
+				"type": "(value: string | string[]) => void",
+				"optional": true,
+				"description": "Fires after a selection (click, keyboard or menu)."
+			},
+			{
+				"name": "href",
+				"type": "(id: string) => string",
+				"optional": true,
+				"description": "Chips become real links (`<a aria-current>`): middle-click opens the chip's URL in a new tab."
+			},
+			{
+				"name": "collapse",
+				"type": "'auto' | 'never' | 'always'",
+				"optional": true,
+				"default": "'auto'",
+				"description": "`auto` swaps the row for one dropdown chip when the chips do not fit; `never` scrolls the row instead."
 			},
 			{
 				"name": "sound",
@@ -4958,6 +5121,12 @@
 				"name": "countMax",
 				"type": "number",
 				"optional": true
+			},
+			{
+				"name": "pressed",
+				"type": "boolean",
+				"optional": true,
+				"description": "`variant=\"toggle\"` only: paint the chip in its \"on\" tint."
 			},
 			{
 				"name": "onopen",
@@ -7347,27 +7516,39 @@
 				"name": "height",
 				"type": "string",
 				"optional": true,
-				"default": "'1em'"
+				"description": "Fixed bar height, stacked with a gap. Omit to fill the text line box."
 			},
 			{
 				"name": "lines",
 				"type": "number",
 				"optional": true,
 				"default": "1",
-				"description": "Stacked bars; the last one is shortened to read as a paragraph."
+				"description": "Stacked lines; the last one is shortened to read as a paragraph."
 			},
 			{
 				"name": "circle",
 				"type": "boolean",
 				"optional": true,
 				"default": "false",
-				"description": "Round avatar placeholder — width follows height."
+				"description": "Round avatar placeholder: width follows height."
+			},
+			{
+				"name": "aspect",
+				"type": "string",
+				"optional": true,
+				"description": "Block at a CSS aspect-ratio (`\"2/3\"`, `\"16/9\"`) of `width`, for a cover or tile."
+			},
+			{
+				"name": "control",
+				"type": "boolean",
+				"optional": true,
+				"default": "false",
+				"description": "Box at the kit control height and radius, for a form row."
 			},
 			{
 				"name": "radius",
 				"type": "string",
-				"optional": true,
-				"default": "'var(--r-sm)'"
+				"optional": true
 			},
 			{
 				"name": "variant",
@@ -8913,6 +9094,13 @@
 		"file": "molecules/Toaster.svelte",
 		"family": "molecules",
 		"props": [
+			{
+				"name": "placement",
+				"type": "'bottom' | 'bottom-start' | 'bottom-end' | 'top'",
+				"optional": true,
+				"default": "'bottom'",
+				"description": "Where the stack sits; bottom placements clear the bottom bars."
+			},
 			{
 				"name": "class",
 				"type": "string",

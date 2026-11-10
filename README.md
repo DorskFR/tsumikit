@@ -47,7 +47,7 @@ Import the stylesheet once at the app root. Pressing Save shows an `ok` toast.
 
 Copy [`examples/starter`](examples/starter) and replace `"file:../.."` with a version. Contents: [examples/starter/README.md](examples/starter/README.md).
 
-Upgrading from 0.81 or older: [docs/MIGRATION-0.82.md](docs/MIGRATION-0.82.md).
+Upgrading from 0.82 or older: [docs/MIGRATION-0.83.md](docs/MIGRATION-0.83.md) (and [0.82](docs/MIGRATION-0.82.md)).
 
 ## Theming
 
@@ -81,7 +81,7 @@ Layers: `tokens.css`, atoms (the only raw `<button>`/`<input>`/`<select>`), mole
 | Layer | Components |
 |---|---|
 | [Atoms](docs/components.md#atoms) | Text, Heading, Button, Input, Textarea, Select, Switch, Checkbox, Slider, Gauge, Avatar, Card, Badge, Link, Icon |
-| [Molecules](docs/components.md#molecules) | Field, Modal, Popover, Menu, Tabs, Combobox, Disclosure, Accordion, Toaster, ThemePicker, Drawer, SplitButton, SortableList |
+| [Molecules](docs/components.md#molecules) | Field, Modal, Popover, Menu, Tabs, FilterChips, Combobox, Disclosure, Accordion, Toaster, ThemePicker, Drawer, SplitButton, SortableList |
 | [Organisms](docs/components.md#organisms) | DataTable, ConversationPanel, ConversationFeed, FilterSearchBar |
 | [Layouts](docs/components.md#layouts) | AppShell, NavBar, MasterDetail, Container, Stack, Cluster, AutoGrid |
 | [Mobile and media](docs/components.md#mobile-tabbar-swiperow-pulltorefresh) | TabBar, SwipeRow, PullToRefresh, SeekSlider, VolumeSlider |
@@ -89,7 +89,7 @@ Layers: `tokens.css`, atoms (the only raw `<button>`/`<input>`/`<select>`), mole
 
 | Guide | Covers |
 |---|---|
-| [Patterns](docs/patterns.md) | loading, undo over confirm, URL state, breakpoints |
+| [Patterns](docs/patterns.md) | loading, reserving the final box, row actions and selection, choice controls, undo over confirm, URL state, breakpoints |
 | [Layout and sizing](docs/layout.md) | container queries, rem sizing, control heights, 44px hit areas |
 | [Guardrails](docs/guardrails.md) | `tsumikit-lint` CLI, dev-mode warnings |
 | [Sound](docs/sound.md) | opt-in UI sounds |
