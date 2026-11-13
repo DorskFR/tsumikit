@@ -42,11 +42,15 @@ console.log(`[build] ${components.length} components`);
 rmSync(OUT, { recursive: true, force: true });
 mkdirSync(join(OUT, '_vendor'), { recursive: true });
 
+// React never forwards `key`; such a Svelte prop is taken as `itemKey`.
+const KEY_ALIAS = 'itemKey';
+for (const c of components) c.hasKey = propSummary(extractProps(readFileSync(join(ROOT, c.src), 'utf8'))).some((p) => p.name === 'key');
+
 const entry = [
 	`import { toReact } from '@dorsk/kakehashi';`,
 	`export { snippet } from '@dorsk/kakehashi';`,
 	...components.map((c, i) => `import C${i} from '${join(ROOT, c.src)}';`),
-	...components.map((c, i) => `export const ${c.name} = toReact(C${i}, '${c.name}');`),
+	...components.map((c, i) => `export const ${c.name} = toReact(C${i}, '${c.name}'${c.hasKey ? `, { rename: { ${KEY_ALIAS}: 'key' } }` : ''});`),
 ].join('\n');
 
 // react/react-dom come from the vendored UMD globals the cards load first.
@@ -163,23 +167,107 @@ for (const [file, contents] of [
 
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-/** Pull the props type literal that annotates $props(). */
-function extractProps(source) {
-	const named = source.match(/type \w*Props\s*=\s*[^{]*\{([\s\S]*?)\n\t\};/);
-	if (named) return named[1];
-	const inline = source.match(/\}:\s*\{([\s\S]*?)\n\t\}\s*=\s*\$props\(\)/);
-	if (inline) return inline[1];
+/** Index just past the bracket that closes the one at `open`. */
+function closeOf(src, open) {
+	const pairs = { '{': '}', '(': ')', '[': ']', '<': '>' };
+	const stack = [];
+	for (let i = open; i < src.length; i++) {
+		const ch = src[i];
+		if (ch === '/' && src[i + 1] === '/') i = src.indexOf('\n', i);
+		else if (ch === '/' && src[i + 1] === '*') i = src.indexOf('*/', i) + 1;
+		else if (ch === "'" || ch === '"' || ch === '`') i = src.indexOf(ch, i + 1);
+		else if (ch === '=' && src[i + 1] === '>') i++;
+		else if (pairs[ch]) stack.push(pairs[ch]);
+		else if (ch === stack.at(-1) && stack.pop() && !stack.length) return i + 1;
+		if (i < 0) return -1;
+	}
+	return -1;
+}
+
+/** Top-level `{ … }` bodies of a type expression, local type names resolved. */
+function typeBodies(source, expr, seen = new Set()) {
+	const bodies = [];
+	for (let i = 0; i < expr.length; i++) {
+		if (expr[i] === '{') {
+			const end = closeOf(expr, i);
+			bodies.push(expr.slice(i + 1, end - 1));
+			i = end - 1;
+		} else if (expr[i] === '<') {
+			i = closeOf(expr, i) - 1;
+		} else if (/[A-Za-z_]/.test(expr[i]) && !/[\w.$]/.test(expr[i - 1] ?? '')) {
+			const name = expr.slice(i).match(/^\w+/)[0];
+			i += name.length - 1;
+			if (seen.has(name)) continue;
+			seen.add(name);
+			const decl = source.match(new RegExp(`\\b(?:type ${name}(?:<[^=]*>)?\\s*=|interface ${name}(?:<[^{]*>)?(?:\\s+extends[^{]*)?)\\s*`));
+			if (!decl) continue;
+			const at = decl.index + decl[0].length;
+			if (decl[0].startsWith('interface')) bodies.push(source.slice(at + 1, closeOf(source, at) - 1));
+			else bodies.push(...typeBodies(source, aliasRhs(source, at), seen));
+		}
+	}
+	return bodies;
+}
+
+/** Right-hand side of a `type X =` alias starting at `at`, up to its `;`. */
+function aliasRhs(source, at) {
+	for (let i = at; i < source.length; i++) {
+		if ('{([<'.includes(source[i])) i = closeOf(source, i) - 1;
+		else if (source[i] === ';' || (source[i] === '\n' && /^\s*(type|interface|let|const|import|export|function)\b/.test(source.slice(i + 1)))) return source.slice(at, i);
+	}
+	return source.slice(at);
+}
+
+/** The props type annotating `$props()`, flattened to its members' source. */
+function extractProps(raw) {
+	const source = raw.replace(/\/\*[\s\S]*?\*\/|(?<!:)\/\/[^\n]*/g, (c) => c.replace(/[^\n]/g, ' '));
+	const eq = source.search(/=\s*\$props\(\)/);
+	if (eq < 0) return null;
+	let depth = 0;
+	for (let i = eq - 1; i > 0; i--) {
+		const ch = source[i];
+		if (ch === '>' && source[i - 1] === '=') i--;
+		else if ('})]>'.includes(ch)) depth++;
+		else if ('{([<'.includes(ch)) depth--;
+		else if (ch === ':' && depth === 0 && /\}\s*$/.test(source.slice(0, i))) {
+			const bodies = typeBodies(raw, raw.slice(i + 1, eq));
+			return bodies.length ? bodies.join('\n') : null;
+		}
+	}
 	return null;
 }
 
-/** Prop names with a usable literal/boolean default, for a card that renders. */
+/** Split a type body into members at nesting depth 0. */
+function members(body) {
+	const out = [];
+	let start = 0;
+	for (let i = 0; i < body.length; i++) {
+		const ch = body[i];
+		if (ch === '/' && body[i + 1] === '/') {
+			const nl = body.indexOf('\n', i);
+			body = body.slice(0, i) + body.slice(nl < 0 ? body.length : nl);
+			i--;
+		} else if (ch === '/' && body[i + 1] === '*') {
+			body = body.slice(0, i) + body.slice(body.indexOf('*/', i) + 2);
+			i--;
+		} else if ('{([<'.includes(ch)) {
+			i = closeOf(body, i) - 1;
+		} else if (ch === ';' || (ch === '\n' && /^\s*(['"]?[\w-]+['"]?\??:|$)/.test(body.slice(i + 1).split('\n')[0]))) {
+			out.push(body.slice(start, i));
+			start = i + 1;
+		}
+	}
+	out.push(body.slice(start));
+	return out.map((x) => x.trim()).filter(Boolean);
+}
+
+/** Name, optionality and type of each prop member. */
 function propSummary(body) {
 	if (!body) return [];
-	return [...body.matchAll(/^\s*(?:\/\/.*\n\s*)*(\w+)(\??):\s*([^;]+);/gm)].map(([, name, opt, type]) => ({
-		name,
-		optional: opt === '?',
-		type: type.replace(/\s+/g, ' ').trim(),
-	}));
+	return members(body)
+		.map((m) => m.match(/^['"]?([\w-]+)['"]?(\??):\s*([\s\S]+)$/))
+		.filter(Boolean)
+		.map(([, name, opt, type]) => ({ name, optional: opt === '?', type: type.replace(/\s+/g, ' ').trim() }));
 }
 
 const CARD_DEFAULTS = JSON.parse(readFileSync(join(ROOT, '.design-sync/card-props.json'), 'utf8'));
@@ -188,8 +276,9 @@ for (const c of components) {
 	const dir = join(OUT, 'components', c.group, c.name);
 	mkdirSync(dir, { recursive: true });
 	const source = readFileSync(join(ROOT, c.src), 'utf8');
-	const body = extractProps(source);
-	const props = propSummary(body);
+	const extracted = extractProps(source);
+	const body = c.hasKey ? extracted.replace(/^(\s*)key(\??):/m, `$1${KEY_ALIAS}$2:`) : extracted;
+	const props = propSummary(body).map((p) => (p.name === 'key' ? { ...p, name: KEY_ALIAS } : p));
 
 	// .jsx — one-line re-export into window scope (the bundle owns the impl)
 	writeFileSync(join(dir, `${c.name}.jsx`), `export const ${c.name} = window.${GLOBAL}.${c.name};\nexport default ${c.name};\n`);
@@ -210,7 +299,7 @@ for (const c of components) {
 		: '';
 	writeFileSync(
 		join(dir, `${c.name}.prompt.md`),
-		`---\ncategory: ${c.group}\n---\n\n# ${c.name}\n\nA real Svelte component from \`@dorsk/tsumikit\`, exposed to React via a bridge.\nStyling comes from the kit's own scoped CSS — do not restyle it; compose around it\nwith the design tokens and utility classes documented in the README.\n\n\`\`\`jsx\nconst { ${c.name} } = window.${GLOBAL};\n\`\`\`\n\n## Props\n\n| Prop | Type | |\n|---|---|---|\n${rows}\n\nChildren are passed through as the component's default snippet. Props are passed to the Svelte component verbatim: use \`onclick\` / \`class\`, not React's \`onClick\` / \`className\`.\n${snippetNote}`,
+		`---\ncategory: ${c.group}\n---\n\n# ${c.name}\n\nA real Svelte component from \`@dorsk/tsumikit\`, exposed to React via a bridge.\nStyling comes from the kit's own scoped CSS — do not restyle it; compose around it\nwith the design tokens and utility classes documented in the README.\n\n\`\`\`jsx\nconst { ${c.name} } = window.${GLOBAL};\n\`\`\`\n\n## Props\n\n| Prop | Type | |\n|---|---|---|\n${rows}\n\nChildren are passed through as the component's default snippet. Props are passed to the Svelte component verbatim: use \`onclick\` / \`class\`, not React's \`onClick\` / \`className\`.\n${c.hasKey ? `\nThe Svelte \`key\` prop is passed as \`${KEY_ALIAS}\`: React reserves \`key\` and never forwards it.\n` : ''}${snippetNote}`,
 	);
 
 	// .html — preview card. `variants` renders a labelled row per entry;

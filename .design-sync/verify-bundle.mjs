@@ -26,6 +26,7 @@ W.matchMedia ||= (q) => ({ matches: false, media: q, addListener() {}, removeLis
 W.ResizeObserver ||= class { observe() {} unobserve() {} disconnect() {} };
 W.IntersectionObserver ||= class { observe() {} unobserve() {} disconnect() {} takeRecords() { return []; } };
 W.scrollTo ||= () => {};
+if (!W.Element.prototype.scrollTo) W.Element.prototype.scrollTo = function () {};
 if (!W.Element.prototype.scrollIntoView) W.Element.prototype.scrollIntoView = function () {};
 if (!W.HTMLElement.prototype.animate) W.HTMLElement.prototype.animate = () => ({ finished: Promise.resolve(), cancel() {}, finish() {} });
 if (!W.HTMLElement.prototype.showModal) {
@@ -54,6 +55,10 @@ log(`React: ${React.version} | createRoot: ${typeof ReactDOM.createRoot} | expor
 
 const fails = [];
 let cells = 0;
+let current = null;
+const asyncFail = (e) => { if (current) current.err ??= e?.message ?? String(e); };
+process.on('uncaughtException', asyncFail);
+process.on('unhandledRejection', asyncFail);
 for (const name of names) {
 	const card = cardProps[name] ?? {};
 	const variants = card.variants ?? [card];
@@ -62,6 +67,7 @@ for (const name of names) {
 		const tag = variants.length > 1 ? `${name}[${cfg.label || i}]` : name;
 		const host = W.document.createElement('div');
 		W.document.body.appendChild(host);
+		current = { err: null };
 		try {
 			const root = ReactDOM.createRoot(host);
 			const props = cfg.propsExpr ? new Function('Tsumikit_a4c6ce', 'React', `return (${cfg.propsExpr})`)(NS, React) : (cfg.props ?? {});
@@ -69,10 +75,12 @@ for (const name of names) {
 			// let the concurrent render commit and effects (which mount Svelte) run
 			for (let i = 0; i < 5; i++) await new Promise((r) => setTimeout(r, 10));
 			const rendered = host.innerHTML.replace(/<!---->/g, '').replace(/<span style="display: contents;"><\/span>/g, '').trim();
-			if (!rendered) fails.push([tag, 'rendered EMPTY']);
+			if (current.err) fails.push([tag, current.err]);
+			else if (!rendered) fails.push([tag, 'rendered EMPTY']);
 		} catch (e) {
 			fails.push([tag, e.message]);
 		}
+		current = null;
 		cells++;
 		host.remove();
 	}
