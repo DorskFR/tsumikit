@@ -323,3 +323,32 @@ bundle 756kB / CSS 157kB, `99/101` cells with the same two pre-existing empties
   `.swatch[data-theme=dark]` in `_ds_bundle.css` — a theme-picker component's own
   scoped swatch preview, not a global `[data-theme]` block. Still a false
   positive; keep it allowlisted.
+
+## Rebuild — 2026-11-13 (v0.83.0), upload pending
+
+Build: 105 exports (+25 since v0.54.0, no removals, no regroupings, so
+`deletes: []` stays safe), 105/105 `@dsCard`, `126/126` cells, bundle 1135kB /
+CSS 326kB, 437 files in `ds-bundle/`. `conventions.md` re-validated: no edits.
+
+Fixed in the build on the way:
+
+- **Prop tables were empty for 41 components.** The extractor only knew
+  `type XProps = {…}` and an inline literal; the kit now writes `type Own = {…}`
+  behind `Omit<…, keyof Own> & Own`, and `type XProps = HTMLButtonAttributes & {…}`.
+  It now reads the `$props()` annotation, resolves local `type`/`interface`
+  names and collects every `{…}` body; members split at depth 0, so
+  `Snippet<[T, { active: boolean }]>` is no longer cut at the inner `;`.
+  876 → 1422 documented props. Comments are blanked only while scanning
+  (`Σvalue < max` in a comment read as a bracket).
+- **`key` props never reached Svelte.** React strips `key`, so `SortableList` and
+  `ConversationFeed` mounted with `key === undefined`. kakehashi 0.3.0 added
+  `toReact(C, name, { rename })`; components with a `key` prop take `itemKey`,
+  and their `.d.ts` / `.prompt.md` say so.
+- **verify died on async errors.** A Svelte effect throwing in a microtask
+  escaped the per-cell `try` and killed the run. Errors are now pinned to the
+  cell being rendered. jsdom also needed `Element.prototype.scrollTo`.
+- 10 new `card-props.json` entries; the Accordion card still used the removed
+  `title` prop.
+
+Upload with the runbook above (`npm run design`, then `DesignSync`), from a
+session with the design-sync skill after `/design-login`.

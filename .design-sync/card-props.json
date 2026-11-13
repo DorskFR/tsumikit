@@ -385,11 +385,9 @@
     "subtitle": "Multi-line field"
   },
   "Accordion": {
-    "props": {
-      "title": "Details"
-    },
-    "children": "Hidden content",
-    "subtitle": "Disclosure"
+    "subtitle": "Stacked disclosures",
+    "children": null,
+    "propsExpr": "{ items: [{ id: 'a', title: 'Shipping', open: true, content: Tsumikit_a4c6ce.snippet(function () { return React.createElement('p', null, 'Ships in 2 days.'); }) }, { id: 'b', title: 'Returns', content: Tsumikit_a4c6ce.snippet(function () { return React.createElement('p', null, '30-day returns.'); }) }] }"
   },
   "Breadcrumb": {
     "props": {
@@ -455,7 +453,7 @@
   "FilterInput": {
     "props": {
       "value": "",
-      "placeholder": "Filter\u2026"
+      "placeholder": "Filter…"
     },
     "children": null,
     "subtitle": "Filter field"
@@ -701,5 +699,132 @@
     "children": null,
     "subtitle": "Stepped full-bleed panels",
     "propsExpr": "{ slides: ['One', 'Two', 'Three'], counter: true, slide: Tsumikit_a4c6ce.snippet(function (text) { return React.createElement('p', null, text); }) }"
+  },
+  "Backdrop": {
+    "subtitle": "Hero backdrop with generated art",
+    "children": "Backdrop",
+    "props": {
+      "alt": "Cover",
+      "seed": "tsumikit",
+      "height": "8rem"
+    }
+  },
+  "Combobox": {
+    "subtitle": "Listbox attached to a field",
+    "children": null,
+    "propsExpr": "{ label: 'Fruit', open: true, options: ['Apple', 'Banana', 'Cherry'], children: React.createElement('input', { placeholder: 'Type a fruit' }) }"
+  },
+  "ConversationFeed": {
+    "subtitle": "Virtualised message feed",
+    "children": null,
+    "propsExpr": "{ label: 'Messages', items: [{ id: 1, text: 'Hello' }, { id: 2, text: 'How are you?' }], itemKey: function (m) { return m.id; }, item: Tsumikit_a4c6ce.snippet(function (m) { return React.createElement('p', null, m.text); }) }"
+  },
+  "FilterChips": {
+    "subtitle": "Filter chip row",
+    "children": null,
+    "props": {
+      "label": "Status",
+      "options": [
+        {
+          "id": "all",
+          "label": "All",
+          "count": 12
+        },
+        {
+          "id": "open",
+          "label": "Open",
+          "count": 7
+        },
+        {
+          "id": "done",
+          "label": "Done",
+          "count": 5
+        }
+      ]
+    }
+  },
+  "NavBar": {
+    "subtitle": "App navigation bar",
+    "children": null,
+    "props": {
+      "label": "Main",
+      "placement": "inline",
+      "value": "home",
+      "items": [
+        {
+          "value": "home",
+          "label": "Home",
+          "icon": "home"
+        },
+        {
+          "value": "search",
+          "label": "Search",
+          "icon": "search"
+        },
+        {
+          "value": "settings",
+          "label": "Settings",
+          "icon": "settings"
+        }
+      ]
+    }
+  },
+  "RadialMenu": {
+    "subtitle": "Radial action menu",
+    "children": null,
+    "props": {
+      "label": "Actions",
+      "items": [
+        {
+          "label": "Copy",
+          "icon": "copy"
+        },
+        {
+          "label": "Edit",
+          "icon": "edit"
+        },
+        {
+          "label": "Delete",
+          "icon": "trash",
+          "danger": true
+        }
+      ]
+    }
+  },
+  "RichSelect": {
+    "subtitle": "Select with custom option rows",
+    "children": null,
+    "propsExpr": "{ label: 'Plan', value: 'pro', options: [{ id: 'free', name: 'Free' }, { id: 'pro', name: 'Pro' }], getKey: function (o) { return o.id; }, getLabel: function (o) { return o.name; }, option: Tsumikit_a4c6ce.snippet(function (ctx) { return React.createElement('span', null, ctx.option.name); }) }"
+  },
+  "SortableList": {
+    "subtitle": "Drag-to-reorder list",
+    "children": null,
+    "propsExpr": "{ label: 'Queue', items: ['First', 'Second', 'Third'], itemKey: function (s) { return s; }, row: Tsumikit_a4c6ce.snippet(function (s) { return React.createElement('span', null, s); }) }"
+  },
+  "TabBar": {
+    "subtitle": "Bottom tab bar",
+    "children": null,
+    "props": {
+      "label": "Sections",
+      "placement": "inline",
+      "value": "home",
+      "items": [
+        {
+          "id": "home",
+          "label": "Home",
+          "icon": "home"
+        },
+        {
+          "id": "search",
+          "label": "Search",
+          "icon": "search"
+        },
+        {
+          "id": "user",
+          "label": "Profile",
+          "icon": "user"
+        }
+      ]
+    }
   }
 }
