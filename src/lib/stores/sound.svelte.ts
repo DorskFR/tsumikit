@@ -9,7 +9,7 @@ import { readStorage, writeStorage } from './storage';
 // With `prefers-reduced-motion: reduce` only the feedback sounds (success,
 // error) play: they carry information, the decorative ones are muted.
 // Calls inside one frame are coalesced and the highest priority wins
-// (error > success > open/close > toggle > click > tick); the same sound plays
+// (error > success > notify > open/close > toggle > click > tick); the same sound plays
 // at most once per 50 ms (tick: 40 ms). Hidden tabs are silent.
 const KEY = 'tsumikit-sound';
 const DEFAULT_VOLUME = 0.5;
@@ -20,6 +20,7 @@ export type SoundName =
 	| 'toggle-off'
 	| 'open'
 	| 'close'
+	| 'notify'
 	| 'success'
 	| 'error'
 	| 'tick';
@@ -35,6 +36,7 @@ const ORDER: SoundName[] = [
 	'toggle-off',
 	'open',
 	'close',
+	'notify',
 	'success',
 	'error',
 ];

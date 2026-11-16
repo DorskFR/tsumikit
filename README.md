@@ -82,7 +82,7 @@ Layers: `tokens.css`, atoms (the only raw `<button>`/`<input>`/`<select>`), mole
 |---|---|
 | [Atoms](docs/components.md#atoms) | Text, Heading, Button, Input, Textarea, Select, Switch, Checkbox, Slider, Gauge, Avatar, Card, Badge, Link, Icon |
 | [Molecules](docs/components.md#molecules) | Field, Modal, Popover, Menu, Tabs, FilterChips, Combobox, Disclosure, Accordion, Toaster, ThemePicker, Drawer, SplitButton, SortableList |
-| [Organisms](docs/components.md#organisms) | DataTable, ConversationPanel, ConversationFeed, FilterSearchBar |
+| [Organisms](docs/components.md#organisms) | DataTable, NotificationCenter, ConversationPanel, ConversationFeed, FilterSearchBar |
 | [Layouts](docs/components.md#layouts) | AppShell, NavBar, MasterDetail, Container, Stack, Cluster, AutoGrid |
 | [Mobile and media](docs/components.md#mobile-tabbar-swiperow-pulltorefresh) | TabBar, SwipeRow, PullToRefresh, SeekSlider, VolumeSlider |
 | [Stores and helpers](docs/components.md#stores-actions-and-helpers) | `theme`, `toasts`, `fontScale`, `autoresize`, `copyToClipboard` |

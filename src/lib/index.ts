@@ -145,6 +145,13 @@ export {
 } from './components/molecules/Metric.svelte';
 export { default as Modal } from './components/molecules/Modal.svelte';
 export { default as MotionSettings } from './components/molecules/MotionSettings.svelte';
+export {
+	default as NotificationItem,
+	type NotificationAction,
+	type NotificationData,
+	type NotificationIcon,
+	type NotificationTone,
+} from './components/molecules/NotificationItem.svelte';
 export { default as OptionButton } from './components/molecules/OptionButton.svelte';
 export { default as Pagination } from './components/molecules/Pagination.svelte';
 export { default as Popover } from './components/molecules/Popover.svelte';
@@ -199,6 +206,8 @@ export {
 	type RowTone,
 } from './components/organisms/DataTable.svelte';
 export { default as FilterSearchBar } from './components/organisms/FilterSearchBar.svelte';
+export { default as NotificationCenter } from './components/organisms/NotificationCenter.svelte';
+export { dayLabel, type NotificationFilter } from './components/organisms/notification-center';
 export { formatCount, hasCount } from './count';
 export { EMOJI_GROUPS, type EmojiEntry, type EmojiGroup, searchEmoji } from './emoji';
 export {

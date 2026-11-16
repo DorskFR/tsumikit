@@ -2977,16 +2977,17 @@
 			},
 			{
 				"name": "side",
-				"type": "'left' | 'right'",
+				"type": "'left' | 'right' | 'bottom'",
 				"optional": true,
-				"default": "'right'"
+				"default": "'right'",
+				"description": "`bottom` is a sheet rising from the bottom edge, full width, at most `--drawer-max-h` (85dvh) tall."
 			},
 			{
 				"name": "width",
 				"type": "string",
 				"optional": true,
 				"default": "'620px'",
-				"description": "Panel width on wide viewports (any CSS length); clamps to 100vw. Below 48rem the panel is always full-screen."
+				"description": "Panel width on wide viewports (any CSS length); clamps to 100vw. Below 48rem a side panel is always full-screen."
 			},
 			{
 				"name": "navWidth",
@@ -5768,6 +5769,296 @@
 				"name": "style",
 				"type": "string",
 				"optional": true
+			}
+		]
+	},
+	"NotificationCenter": {
+		"file": "organisms/NotificationCenter.svelte",
+		"family": "organisms",
+		"props": [
+			{
+				"name": "items",
+				"type": "NotificationData[]",
+				"optional": true,
+				"default": "[]"
+			},
+			{
+				"name": "unread",
+				"type": "number",
+				"optional": true,
+				"description": "Badge count; defaults to the number of unread `items`."
+			},
+			{
+				"name": "loading",
+				"type": "boolean",
+				"optional": true,
+				"default": "false"
+			},
+			{
+				"name": "hasMore",
+				"type": "boolean",
+				"optional": true,
+				"default": "false"
+			},
+			{
+				"name": "open",
+				"type": "boolean",
+				"optional": true,
+				"default": "false",
+				"bindable": true
+			},
+			{
+				"name": "filter",
+				"type": "NotificationFilter",
+				"optional": true,
+				"default": "'all'",
+				"bindable": true
+			},
+			{
+				"name": "filters",
+				"type": "boolean",
+				"optional": true,
+				"default": "false",
+				"description": "Show the All / Unread / Needs action chips."
+			},
+			{
+				"name": "title",
+				"type": "string",
+				"optional": true,
+				"default": "'Notifications'"
+			},
+			{
+				"name": "markAllLabel",
+				"type": "string",
+				"optional": true,
+				"default": "'Mark all read'"
+			},
+			{
+				"name": "closeLabel",
+				"type": "string",
+				"optional": true,
+				"default": "'Close notifications'"
+			},
+			{
+				"name": "emptyTitle",
+				"type": "string",
+				"optional": true,
+				"default": "'No notifications'"
+			},
+			{
+				"name": "emptyDescription",
+				"type": "string",
+				"optional": true,
+				"default": "'You are all caught up.'"
+			},
+			{
+				"name": "placement",
+				"type": "'bottom-start' | 'bottom-end'",
+				"optional": true,
+				"default": "'bottom-end'"
+			},
+			{
+				"name": "sheet",
+				"type": "'auto' | boolean",
+				"optional": true,
+				"default": "'auto'",
+				"description": "`auto` opens a bottom Drawer on coarse pointers and narrow screens, a Popover otherwise."
+			},
+			{
+				"name": "attention",
+				"type": "boolean",
+				"optional": true,
+				"default": "true",
+				"description": "Wiggle the bell when the unread count rises; skipped under reduced motion."
+			},
+			{
+				"name": "chime",
+				"type": "boolean",
+				"optional": true,
+				"default": "false",
+				"description": "Play the `notify` sound when the unread count rises (needs sounds enabled)."
+			},
+			{
+				"name": "sound",
+				"type": "boolean",
+				"optional": true,
+				"default": "true"
+			},
+			{
+				"name": "onaction",
+				"type": "(itemId: string, actionId: string) => unknown",
+				"optional": true,
+				"description": "May return a promise; the item's action stays pending until it settles."
+			},
+			{
+				"name": "onread",
+				"type": "(id: string) => void",
+				"optional": true,
+				"description": "An unread item was opened."
+			},
+			{
+				"name": "onreadall",
+				"type": "() => void",
+				"optional": true
+			},
+			{
+				"name": "onloadmore",
+				"type": "() => void",
+				"optional": true
+			},
+			{
+				"name": "onopenchange",
+				"type": "(open: boolean) => void",
+				"optional": true
+			},
+			{
+				"name": "onvisible",
+				"type": "(id: string) => void",
+				"optional": true,
+				"description": "An unread item scrolled into view while the panel is open; once per open."
+			},
+			{
+				"name": "onitemopen",
+				"type": "(id: string) => void",
+				"optional": true
+			},
+			{
+				"name": "ondismiss",
+				"type": "(id: string) => void",
+				"optional": true,
+				"description": "Shows a dismiss button on each item when set."
+			},
+			{
+				"name": "footer",
+				"type": "Snippet",
+				"optional": true
+			},
+			{
+				"name": "empty",
+				"type": "Snippet",
+				"optional": true,
+				"description": "Replaces the empty state."
+			},
+			{
+				"name": "class",
+				"type": "string",
+				"optional": true,
+				"default": "''"
+			},
+			{
+				"name": "style",
+				"type": "string",
+				"optional": true,
+				"default": "''"
+			}
+		]
+	},
+	"NotificationItem": {
+		"file": "molecules/NotificationItem.svelte",
+		"family": "molecules",
+		"props": [
+			{
+				"name": "title",
+				"type": "string",
+				"optional": false
+			},
+			{
+				"name": "text",
+				"type": "string",
+				"optional": true
+			},
+			{
+				"name": "time",
+				"type": "Date | number | string",
+				"optional": false
+			},
+			{
+				"name": "icon",
+				"type": "NotificationIcon",
+				"optional": true,
+				"description": "Kit icon name or a snippet; defaults to a glyph matching `tone`."
+			},
+			{
+				"name": "tone",
+				"type": "Tone | 'warning'",
+				"optional": true,
+				"default": "'neutral'"
+			},
+			{
+				"name": "unread",
+				"type": "boolean",
+				"optional": true,
+				"default": "false"
+			},
+			{
+				"name": "state",
+				"type": "string",
+				"optional": true
+			},
+			{
+				"name": "actions",
+				"type": "NotificationAction[]",
+				"optional": true,
+				"default": "[]"
+			},
+			{
+				"name": "href",
+				"type": "string",
+				"optional": true
+			},
+			{
+				"name": "onaction",
+				"type": "(id: string) => unknown",
+				"optional": true,
+				"description": "`onaction` may return a promise; the action stays pending until it settles, or until `state` / `actions` change."
+			},
+			{
+				"name": "onopen",
+				"type": "() => void",
+				"optional": true
+			},
+			{
+				"name": "ondismiss",
+				"type": "() => void",
+				"optional": true,
+				"description": "Shows a dismiss button when set."
+			},
+			{
+				"name": "dismissLabel",
+				"type": "string",
+				"optional": true,
+				"default": "'Dismiss'"
+			},
+			{
+				"name": "moreLabel",
+				"type": "string",
+				"optional": true,
+				"default": "'More actions'"
+			},
+			{
+				"name": "cancelLabel",
+				"type": "string",
+				"optional": true,
+				"default": "'Cancel'"
+			},
+			{
+				"name": "unreadLabel",
+				"type": "string",
+				"optional": true,
+				"default": "'Unread'"
+			},
+			{
+				"name": "as",
+				"type": "'div' | 'li'",
+				"optional": true,
+				"default": "'div'",
+				"description": "Mount the item as an `li` inside a list."
+			},
+			{
+				"name": "class",
+				"type": "string",
+				"optional": true,
+				"default": "''"
 			}
 		]
 	},

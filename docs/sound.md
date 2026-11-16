@@ -20,7 +20,7 @@ The choice persists in `localStorage` under `tsumikit-sound`.
 
 - **Palette**: `click` (buttons, selections, menu items), `toggle-on` / `toggle-off`
   (Switch, Checkbox, Toggle), `open` / `close` (Modal, Drawer, Popover, Menu,
-  Accordion…), `success` / `error` (ok and error toasts, CopyButton), `tick` (slider
+  Accordion…), `notify` (NotificationCenter `chime`), `success` / `error` (ok and error toasts, CopyButton), `tick` (slider
   steps, pull-to-refresh threshold). Every sound is a short soft synth tone, under
   120 ms for interactions and under 160 ms for `success` / `error`; nothing is hover
   driven.
@@ -35,4 +35,4 @@ The choice persists in `localStorage` under `tsumikit-sound`.
   on the first play (or when the setting is turned on, so a gesture can unlock audio
   on Safari). What components import is a ~0.3 KB gate plus the store.
 - Calls within one frame coalesce (the highest priority wins: error > success >
-  open/close > toggle > click > tick) and the same sound plays at most once per 50 ms.
+  notify > open/close > toggle > click > tick) and the same sound plays at most once per 50 ms.

@@ -78,9 +78,14 @@ StatusBar (thin `role="status"` row: `tone` idle/busy/ok/warn/error dot or spinn
 `children`, `trailing`), ChatBubble (`timestamp`, `footer` snippet, `markdown` body rendered
 through `renderMarkdown` into `Prose` when there are no `children`),
 Composer (`toolbarStart`/`toolbarEnd` snippets move attach + send into a row under the field),
-Drawer (side-panel `<dialog>`: `side`, `width` clamped to the viewport, full-screen
-under 48rem; `nav` page column that turns into a horizontal strip on narrow
+Drawer (side-panel `<dialog>`: `side` left/right, or `bottom` for a full-width sheet
+capped at `--drawer-max-h`; `width` clamped to the viewport, full-screen
+under 48rem; `--drawer-body-pad` sets the body padding; `nav` page column that turns into a horizontal strip on narrow
 screens, or `navMobile`; sticky `footer`; Escape / scrim / close button all close),
+NotificationItem (tone icon, title, two-line `text` with Show more, relative `time`,
+unread Dot, `state` label for resolved items, up to two `actions` plus a "…" Menu,
+`requiresConfirm` asks inline, an `onaction` promise keeps the action pending;
+see [NotificationCenter](#notificationcenter-and-notificationitem)),
 Timestamp (`mode` date/time/datetime/relative/iso/`short-iso` for a locale-independent `YYYY-MM-DD`; `utc`; click for a details popover), WorkingDir
 (fish-style path chip: ancestors abbreviate left to right as the slot narrows,
 then the leaf ellipsises down to `minLeaf`; `full` skips the fit, `copy` makes it
@@ -128,7 +133,8 @@ and details share lines, `--dt-meta-font` restyles meta values (e.g. `var(--font
 literal `inherit` falls back to mono), stacked tables use `table-layout: fixed`,
 `stackActions="end"` closes every card with its actions, cells that render
 nothing get `data-empty` and are hidden and skipped by the `·` separators, the `<table>`
-stays a table for assistive tech), FilterSearchBar /
+stays a table for assistive tech), NotificationCenter (bell with unread badge,
+Popover or bottom-Drawer list of NotificationItems; see below), FilterSearchBar /
 FilterInput (`font="sans"` for a plain search box, `size="sm"` compact bar on `--control-height-compact`, text
 floored at 16px under `pointer: coarse` so iOS does not zoom on focus,
 `shape="pill"`, `surface`, `hotkey="/"` focuses the input from anywhere
@@ -407,6 +413,51 @@ popover; Remove stays separate.
 <AttachmentList files={attachments} onremove={(i) => (attachments = attachments.toSpliced(i, 1))} />
 <AttachmentList tiles files={[{ name: 'cover.png', size: 1024, type: 'image/png', url }]} />
 <AttachmentList numbered files={attachments} onopen={(i) => preview(attachments[i])} />
+```
+
+### NotificationCenter and NotificationItem
+
+`NotificationCenter` is a bell `IconButton` with the unread count (hidden at 0,
+`99+` past the cap, the exact number in the accessible name). It opens a
+`Popover` on fine pointers and a bottom `Drawer` on coarse pointers or under 40rem
+(`sheet="auto"`; `true` / `false` force one). The panel is a dialog: header with
+the title, the count and Mark all read, optional `filters` (All / Unread / Needs
+action), the items grouped by day, `EmptyState` (or the `empty` snippet) when
+there is nothing, `LoadMore` while `hasMore`, and a `footer` snippet.
+
+Opening the panel marks nothing read. The parent decides: `onvisible(id)` reports
+each unread item that scrolls into view (once per open), `onread(id)` reports an
+unread item the user opened, `onreadall()` the header button. `unread` overrides
+the count taken from `items`. ↑ / ↓ / Home / End move between items, Enter opens
+one, Tab reaches its actions, Escape closes and returns focus to the bell. When
+the count rises the bell wiggles (`attention`, skipped under reduced motion) and
+`chime` plays the `notify` sound if sounds are on.
+
+`onaction(itemId, actionId)` may return a promise: the button shows a spinner and
+the other actions are disabled until it settles or the item's `state` / `actions`
+change, so a double tap fires once. Set `state` ("Approved on phone") to resolve
+an item: it turns muted, shows the label and drops its actions.
+
+```svelte
+<NotificationCenter
+  {items}
+  {loading}
+  hasMore={cursor !== null}
+  filters
+  onaction={(id, action) => api.act(id, action)}
+  onvisible={(id) => api.markRead(id)}
+  onreadall={() => api.markAllRead()}
+  onloadmore={loadOlder}
+>
+  {#snippet footer()}<Button size="sm" variant="ghost" href="/settings/notifications">Notification settings</Button>{/snippet}
+</NotificationCenter>
+
+<!-- the same row in a full-page inbox -->
+<ul>
+  {#each items as n (n.id)}
+    <NotificationItem as="li" {...n} onaction={(a) => api.act(n.id, a)} onopen={() => goto(n.href)} />
+  {/each}
+</ul>
 ```
 
 ### ConversationPanel, ConversationFeed, StatusBar
