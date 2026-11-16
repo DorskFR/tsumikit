@@ -7,7 +7,7 @@
 </script>
 
 <script lang="ts">
-	import { Button, NotificationCenter, type NotificationData } from '@dorsk/tsumikit';
+	import { Button, NotificationCenter, toasts, type NotificationData } from '@dorsk/tsumikit';
 	import { older, seed } from './data';
 
 	let items = $state<NotificationData[]>(seed());
@@ -57,7 +57,7 @@
 	ondismiss={(id) => (items = items.filter((i) => i.id !== id))}
 >
 	{#snippet footer()}
-		<Button size="sm" variant="ghost" href="#settings">Notification settings</Button>
+		<Button size="sm" variant="ghost" onclick={() => toasts.info('Open notification settings')}>Notification settings</Button>
 	{/snippet}
 </NotificationCenter>
 <Button size="sm" onclick={arrive}>New notification</Button>

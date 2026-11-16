@@ -17,7 +17,7 @@
 	title="Nightly backup finished"
 	text="3.2 GB written to the cold tier in 4 min."
 	time={now - 2 * 3_600_000}
-	href="#backups"
+	href="https://example.com/backups"
 	unread
 />
 <NotificationItem
