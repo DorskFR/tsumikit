@@ -31,9 +31,11 @@
 		 *  `showModal()`/`close()` follow the value; closing sets it back to false.
 		 *  Omit to open on mount (mount/unmount the component to show/hide). */
 		open?: boolean;
-		side?: 'left' | 'right';
+		/** `bottom` is a sheet rising from the bottom edge, full width, at most
+		 *  `--drawer-max-h` (85dvh) tall. */
+		side?: 'left' | 'right' | 'bottom';
 		/** Panel width on wide viewports (any CSS length); clamps to 100vw. Below
-		 *  48rem the panel is always full-screen. */
+		 *  48rem a side panel is always full-screen. */
 		width?: string;
 		/** Width of the `nav` column on wide viewports. */
 		navWidth?: string;
@@ -186,6 +188,10 @@
 	.drawer[data-side='left'] {
 		justify-content: flex-start;
 	}
+	.drawer[data-side='bottom'] {
+		flex-direction: column;
+		justify-content: flex-end;
+	}
 	.drawer::backdrop {
 		background: rgba(0, 0, 0, 0.55);
 		opacity: 0;
@@ -225,6 +231,15 @@
 	}
 	.drawer[data-side='left'] .panel {
 		--drawer-from: -100% 0;
+	}
+	.drawer[data-side='bottom'] .panel {
+		--drawer-from: 0 100%;
+		height: auto;
+		max-height: var(--drawer-max-h, 85dvh);
+		padding-top: 0;
+		border-top: var(--edge-width) solid var(--border-strong);
+		border-radius: var(--r-lg) var(--r-lg) 0 0;
+		box-shadow: var(--overlay-shadow);
 	}
 	.drawer[open] .panel {
 		translate: 0;
@@ -279,7 +294,7 @@
 
 	.panel-body {
 		grid-area: body;
-		padding: var(--sp-4);
+		padding: var(--drawer-body-pad, var(--sp-4));
 		overflow-y: auto;
 		-webkit-overflow-scrolling: touch;
 	}
@@ -310,6 +325,11 @@
 		.drawer[data-side='left'] .panel {
 			border-left: 0;
 			border-right: var(--edge-width) solid var(--border-strong);
+		}
+		.drawer[data-side='bottom'] .panel {
+			width: 100%;
+			border-left: 0;
+			padding-bottom: var(--safe-bottom);
 		}
 		.panel.has-nav {
 			grid-template-columns: var(--drawer-nav-w) minmax(0, 1fr);

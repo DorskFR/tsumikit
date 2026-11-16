@@ -32,7 +32,7 @@ test('Drawer locks body scroll while shown and restores it on close', () => {
 
 test('Drawer sides, width clamp and full-screen narrow layout', () => {
 	assert.match(source, /side = 'right'/);
-	assert.match(source, /side\?: 'left' \| 'right';/);
+	assert.match(source, /side\?: 'left' \| 'right' \| 'bottom';/);
 	assert.match(source, /width = '620px'/);
 	assert.match(source, /style:--drawer-w={width}/);
 	assert.match(source, /\.drawer\[data-side='left'\]\s*{\s*justify-content: flex-start;/s);
