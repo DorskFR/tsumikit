@@ -529,18 +529,6 @@
 			inset-inline-end: 0;
 		}
 	}
-	@media (pointer: fine) {
-		.pop-trigger:not(.canonical, .hit-compact) {
-			position: relative;
-		}
-		.pop-trigger:not(.canonical, .hit-compact)::after {
-			content: '';
-			position: absolute;
-			inset-block: min(0px, calc((100% - var(--hit-min)) / 2));
-			inset-inline-start: min(0px, calc((100% - var(--hit-min)) / 2));
-			inset-inline-end: 0;
-		}
-	}
 	.pop-trigger.trigger-tone-accent {
 		--pop-trigger-tone: var(--accent);
 	}

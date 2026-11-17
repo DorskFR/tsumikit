@@ -374,15 +374,6 @@
 		color: color-mix(in srgb, currentColor 65%, transparent);
 		font-variant-numeric: tabular-nums;
 	}
-	@media (pointer: fine) {
-		.chip::before {
-			content: '';
-			position: absolute;
-			inset-block: min(0px, calc((100% - var(--hit-min)) / 2));
-			inset-inline-start: min(0px, calc((100% - var(--hit-min)) / 2));
-			inset-inline-end: 0;
-		}
-	}
 	@media (pointer: coarse) {
 		.chip::before {
 			content: '';
