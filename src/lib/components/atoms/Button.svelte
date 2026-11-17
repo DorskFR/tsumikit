@@ -623,21 +623,6 @@
 			inset-inline-end: 0;
 		}
 	}
-	/* Fine pointers: boxless inline icon buttons get the same slab up to
-	   --hit-min. `all: unset` drops the hover-effect layers that share ::after. */
-	@media (pointer: fine) {
-		.btn-icon-inline:not(.hit-compact) {
-			position: relative;
-		}
-		.btn-icon-inline:not(.hit-compact)::after {
-			all: unset;
-			content: '';
-			position: absolute;
-			inset-block: min(0px, calc((100% - var(--hit-min)) / 2));
-			inset-inline-start: min(0px, calc((100% - var(--hit-min)) / 2));
-			inset-inline-end: 0;
-		}
-	}
 
 	/* Two-state (toggle) buttons — e.g. an IconButton with `pressed`. Reacts to
 	   the native aria-pressed that flows through, so no extra class. Tint defaults
