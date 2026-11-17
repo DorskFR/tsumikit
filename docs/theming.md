@@ -16,8 +16,8 @@
   and decorative text (3:1, and muted is at least 1.35x faint so the step is
   visible).
 - The accent is never a status colour: every theme keeps `--c-accent` at least
-  OKLab deltaE 0.08 away from `--c-green`, `--c-amber` and `--c-red`, so the
-  primary action never reads as "success".
+  OKLab deltaE 0.08 and 30° of HSL hue away from `--c-green`, `--c-amber` and
+  `--c-red`, so the primary action never reads as "success".
   `tests/theme-contrast.mjs` holds the floors; the test suite fails on any
   breach.
 - `<ThemePicker />` and `<FontScalePicker />` wire the stores to the UI. Theme

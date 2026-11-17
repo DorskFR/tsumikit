@@ -124,8 +124,11 @@ dense region out (`.player { --box-md: 2.5rem }`).
 
 On `(pointer: coarse)` every icon-only/square control (and `Popover`'s default
 trigger) carries an invisible `::after` slab that extends its hit area to
-`--touch-target` (44px, WCAG 2.5.8) without moving layout; fine pointers are
-untouched. The slab is the centred target with its inline-*end* half cut off:
+`--touch-target` (44px, WCAG 2.5.8) without moving layout. `--hit-min` is the
+floor every control's hit box reaches: 24px on fine pointers, `--touch-target`
+on coarse ones. On fine pointers the controls that can drop under it (inline
+`IconButton`, `Popover`/`Menu` triggers, `Toggle`, `FilterChips` chips) take the
+same slab sized by `--hit-min`; boxes already past 24px are unchanged. The slab is the centred target with its inline-*end* half cut off:
 44px tall, and the box plus half the deficit wide (34px for a 24px icon).
 Inline-end overflow would count towards the scrollable overflow of every scroll
 ancestor, so a button near the right edge of an `overflow-y: auto` container
