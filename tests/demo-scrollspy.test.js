@@ -140,7 +140,7 @@ test('a keystroke that changes the section list re-measures and re-picks', () =>
 	assert.equal(r.active(), 'a');
 });
 
-test('a resize of a section or the page re-measures on the next frame', () => {
+test('a resize of a section or the page reads no layout until the next scroll, which re-measures', () => {
 	const r = render(TOPS);
 	assert.ok(r.ro.els.has(r.root));
 	assert.equal(r.ro.els.size, 5);
@@ -148,8 +148,9 @@ test('a resize of a section or the page re-measures on the next frame', () => {
 	const measured = r.reads();
 	r.ro.cb?.();
 	r.frame();
-	assert.equal(r.reads(), measured + 4);
+	assert.equal(r.reads(), measured, 'a layout change alone must not measure');
 	r.scrollTo(360);
+	assert.equal(r.reads(), measured + 4);
 	assert.equal(r.active(), 'b');
 });
 

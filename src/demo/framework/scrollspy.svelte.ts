@@ -63,6 +63,11 @@ export function createScrollspy(opts: {
 		stale = true;
 		schedule();
 	};
+	// Layout changes (sections mounting, a dialog opening) only mark the cache:
+	// the next scroll frame measures, so nothing reads layout right after them.
+	const dirty = () => {
+		stale = true;
+	};
 
 	const track = (next: HTMLElement[]) => {
 		if (!observer) return;
@@ -74,7 +79,7 @@ export function createScrollspy(opts: {
 	};
 
 	$effect(() => {
-		if (typeof ResizeObserver !== 'undefined') observer = new ResizeObserver(invalidate);
+		if (typeof ResizeObserver !== 'undefined') observer = new ResizeObserver(dirty);
 		addEventListener('scroll', schedule, { passive: true });
 		addEventListener('resize', invalidate);
 		return () => {
