@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'The fontScale store',
-		caption: 'fontScale.set(id) with one of SCALE_LEVELS; fontScale.current is the multiplier, persisted alongside the theme.',
+		caption: 'fontScale.set(id) with one of SCALE_LEVELS; fontScale.current is the multiplier, persisted alongside the theme. An app that stores the level itself calls fontScale.configure({ persist: false }) before the first render, replays its value with fontScale.hydrate(id) and listens on fontScale.onchange.',
 		layout: 'stack'
 	};
 </script>

@@ -13,3 +13,15 @@ export function writeStorage(key: string, value: string): void {
 		localStorage.setItem(key, value);
 	} catch {}
 }
+
+export function removeStorage(key: string): void {
+	try {
+		localStorage.removeItem(key);
+	} catch {}
+}
+
+export interface PersistOptions {
+	/** False keeps the value in memory only: the kit's stored copy is dropped
+	 *  and removed, and changes are no longer written to browser storage. */
+	persist?: boolean;
+}

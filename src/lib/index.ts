@@ -297,6 +297,7 @@ export { fontScale, SCALE_LEVELS, type ScaleLevel } from './stores/fontscale.sve
 export { FX_PREPAINT, fx } from './stores/fx.svelte';
 // ---- stores / actions ----
 export { sound } from './stores/sound.svelte';
+export type { PersistOptions } from './stores/storage';
 export { type Mode, THEME_PREPAINT, THEMES, theme } from './stores/theme.svelte';
 export {
 	type Toast,

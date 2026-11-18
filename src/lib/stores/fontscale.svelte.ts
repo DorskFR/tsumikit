@@ -1,5 +1,5 @@
 import { browser } from '$lib/env';
-import { readStorage, writeStorage } from './storage';
+import { type PersistOptions, readStorage, removeStorage, writeStorage } from './storage';
 
 // OPT-IN. Most apps don't need this: the kit is rem-based and never resets the
 // root font-size, so the user's browser/OS font-size preference and browser
@@ -32,25 +32,56 @@ const DEFAULT_LEVEL = 'normal';
 function levelById(id: string): ScaleLevel {
 	return SCALE_LEVELS.find((l) => l.id === id) ?? SCALE_LEVELS[2];
 }
+function validLevel(id: string): string {
+	return SCALE_LEVELS.some((l) => l.id === id) ? id : DEFAULT_LEVEL;
+}
 
 class FontScale {
 	levelId = $state<string>(DEFAULT_LEVEL);
 	current = $derived(levelById(this.levelId).value);
+	/** Called with the new level id whenever the user changes it, so an app
+	 *  can mirror it into its own (server-side) settings. */
+	onchange?: (id: string) => void;
+	private stored = false;
+	private persistent = true;
 
 	constructor() {
 		if (browser) {
 			const raw = readStorage(KEY);
-			if (raw && SCALE_LEVELS.some((l) => l.id === raw)) this.levelId = raw;
+			if (raw && SCALE_LEVELS.some((l) => l.id === raw)) {
+				this.levelId = raw;
+				this.stored = true;
+			}
 			this.apply();
 		}
+	}
+	/** Call before the first render, ahead of `hydrate()`. */
+	configure({ persist }: PersistOptions = {}) {
+		if (persist === undefined || persist === this.persistent) return;
+		this.persistent = persist;
+		if (persist || !browser) return;
+		removeStorage(KEY);
+		if (!this.stored) return;
+		this.stored = false;
+		this.levelId = DEFAULT_LEVEL;
+		this.apply();
 	}
 	private apply() {
 		if (!browser) return;
 		document.documentElement.style.setProperty('--fs-scale', String(levelById(this.levelId).value));
 	}
 	set(id: string) {
-		this.levelId = SCALE_LEVELS.some((l) => l.id === id) ? id : DEFAULT_LEVEL;
-		if (browser) writeStorage(KEY, this.levelId);
+		this.levelId = validLevel(id);
+		this.stored = false;
+		if (browser && this.persistent) writeStorage(KEY, this.levelId);
+		this.apply();
+		this.onchange?.(this.levelId);
+	}
+	/** Replay a level an app persisted itself, without echoing it back
+	 *  through `onchange`. Unknown ids fall back to `normal`. */
+	hydrate(id: string) {
+		this.levelId = validLevel(id);
+		this.stored = false;
 		this.apply();
 	}
 }

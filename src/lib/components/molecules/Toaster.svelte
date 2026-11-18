@@ -108,6 +108,62 @@
 	function release(e: PointerEvent, id: number) {
 		if (e.pointerType === 'mouse') toasts.resume(id);
 	}
+
+	// Touch swipe to dismiss. The drag writes `translate` straight to the
+	// element so a move costs no reactive update.
+	const SWIPE_SLOP = 8;
+	const SWIPE_DISMISS = 48;
+	let swipe: { id: number; pointerId: number; x: number; y: number; dx: number; locked: boolean } | null = null;
+	let swallowClick = false;
+
+	function swipeStart(e: PointerEvent, t: (typeof toasts.items)[number]) {
+		swallowClick = false;
+		if (e.pointerType !== 'touch' || swipe || t.leaving) return;
+		swipe = { id: t.id, pointerId: e.pointerId, x: e.clientX, y: e.clientY, dx: 0, locked: false };
+	}
+	function swipeMove(e: PointerEvent) {
+		if (!swipe || e.pointerId !== swipe.pointerId) return;
+		const el = e.currentTarget as HTMLElement;
+		const dx = e.clientX - swipe.x;
+		if (!swipe.locked) {
+			const dy = e.clientY - swipe.y;
+			if (Math.hypot(dx, dy) < SWIPE_SLOP) return;
+			if (Math.abs(dy) >= Math.abs(dx)) {
+				swipe = null;
+				return;
+			}
+			swipe.locked = true;
+			swallowClick = true;
+			toasts.pause(swipe.id);
+			el.dataset.swiping = '';
+			try {
+				el.setPointerCapture?.(e.pointerId);
+			} catch {}
+		}
+		swipe.dx = dx;
+		el.style.translate = `${dx}px 0`;
+	}
+	function swipeEnd(e: PointerEvent, cancelled = false) {
+		if (!swipe || e.pointerId !== swipe.pointerId) return;
+		const { id, dx, locked } = swipe;
+		swipe = null;
+		if (!locked) return;
+		const el = e.currentTarget as HTMLElement;
+		delete el.dataset.swiping;
+		if (!cancelled && Math.abs(dx) >= SWIPE_DISMISS) {
+			el.style.translate = `calc(${dx}px + ${Math.sign(dx) * 6} * var(--shift-md)) 0`;
+			toasts.dismiss(id);
+		} else {
+			el.style.removeProperty('translate');
+			toasts.resume(id);
+		}
+	}
+	function swallowSwipeClick(e: MouseEvent) {
+		if (!swallowClick) return;
+		swallowClick = false;
+		e.stopPropagation();
+		e.preventDefault();
+	}
 </script>
 
 {#snippet toast(t: (typeof toasts.items)[number])}
@@ -121,6 +177,12 @@
 			data-leaving={t.leaving || undefined}
 			onpointerenter={(e: PointerEvent) => hold(e, t.id)}
 			onpointerleave={(e: PointerEvent) => release(e, t.id)}
+			onpointerdown={(e: PointerEvent) => swipeStart(e, t)}
+			onpointermove={swipeMove}
+			onpointerup={(e: PointerEvent) => swipeEnd(e)}
+			onpointercancel={(e: PointerEvent) => swipeEnd(e, true)}
+			onlostpointercapture={(e: PointerEvent) => swipeEnd(e, true)}
+			onclickcapture={swallowSwipeClick}
 		>
 			<button
 				type="button"
@@ -148,6 +210,12 @@
 			data-leaving={t.leaving || undefined}
 			onpointerenter={(e: PointerEvent) => hold(e, t.id)}
 			onpointerleave={(e: PointerEvent) => release(e, t.id)}
+			onpointerdown={(e: PointerEvent) => swipeStart(e, t)}
+			onpointermove={swipeMove}
+			onpointerup={(e: PointerEvent) => swipeEnd(e)}
+			onpointercancel={(e: PointerEvent) => swipeEnd(e, true)}
+			onlostpointercapture={(e: PointerEvent) => swipeEnd(e, true)}
+			onclickcapture={swallowSwipeClick}
 			onclick={() => toasts.dismiss(t.id)}
 		>
 			<span aria-hidden="true" class="toast-icon">
@@ -227,6 +295,7 @@
 		width: 100%;
 		text-align: left;
 		font-size: var(--fs-sm);
+		touch-action: pan-y;
 		transition:
 			opacity var(--dur-sheet) var(--ease-out),
 			translate var(--dur-sheet) var(--ease-out),
@@ -247,6 +316,9 @@
 		scale: 0.96;
 		pointer-events: none;
 		transition-duration: var(--dur-exit-slow);
+	}
+	.toaster :global(.toast[data-swiping]) {
+		transition: none;
 	}
 	.toaster :global(.toast.card-ok) {
 		color: var(--ok);
