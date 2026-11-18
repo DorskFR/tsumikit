@@ -43,7 +43,8 @@ test('width sets a fixed width with flex: none; pill uses the pill radius', () =
 
 test('onenter fires with the value on Enter and still calls a consumer onkeydown', () => {
 	assert.match(source, /onkeydown\?\.\(e\);/);
-	assert.match(source, /if \(onenter && e\.key === 'Enter' && !e\.defaultPrevented\) onenter\(String\(value \?\? ''\)\)/);
+	assert.match(source, /if \(e\.key !== 'Enter' \|\| e\.defaultPrevented \|\| isComposing\(e\)\) return;/);
+	assert.match(source, /onenter\?\.\(String\(value \?\? ''\)\);/);
 });
 
 test('Input adopts the default control height so it lines up with FilterInput and Button', () => {

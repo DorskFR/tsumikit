@@ -48,6 +48,7 @@
 	import { singleQuery, suggestSingle } from '$lib/query/single';
 	import { suggest, type SuggestState } from '$lib/query/suggest';
 	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
+	import { isComposing } from '$lib/ime.js';
 
 	let {
 		schema,
@@ -279,6 +280,7 @@
 	}
 
 	function onkeydown(e: KeyboardEvent) {
+		if (isComposing(e)) return;
 		if (quoting && el) {
 			const pos = el.selectionStart ?? value.length;
 			if (e.key === 'Tab') {

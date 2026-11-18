@@ -1,3 +1,5 @@
+import { isComposing } from '../../ime.js';
+
 /**
  * @typedef {{ type: 'move', index: number } | { type: 'select' } | { type: 'close' }} ComboboxAction
  * @typedef {{ start: number, char: string, query: string }} ComboboxTrigger
@@ -31,9 +33,10 @@ export function nextComboboxIndex(current, count, key, { loop = true, homeEnd = 
  * Nothing is consumed while closed. Escape always closes. Enter/Tab select the
  * highlighted option only when one exists and no modifier is held, so
  * Shift+Enter (newline), Shift+Tab (focus back) and Mod+Enter (submit) pass
- * through. `undefined` means the field keeps the key.
+ * through. Every key belongs to the IME while composing. `undefined` means the
+ * field keeps the key.
  *
- * @param {{ key: string, shiftKey?: boolean, ctrlKey?: boolean, metaKey?: boolean, altKey?: boolean }} e
+ * @param {{ key: string, shiftKey?: boolean, ctrlKey?: boolean, metaKey?: boolean, altKey?: boolean, isComposing?: boolean, keyCode?: number }} e
  * @param {{ open: boolean, count: number, index: number, loop?: boolean, homeEnd?: boolean, selectOn?: readonly string[] }} state
  * @returns {ComboboxAction | undefined}
  */
@@ -41,7 +44,7 @@ export function comboboxAction(
 	e,
 	{ open, count, index, loop, homeEnd, selectOn = ['Enter', 'Tab'] },
 ) {
-	if (!open) return undefined;
+	if (!open || isComposing(e)) return undefined;
 	if (e.key === 'Escape') return { type: 'close' };
 	if (e.shiftKey || e.ctrlKey || e.metaKey || e.altKey) return undefined;
 	if (selectOn.includes(e.key)) return count > 0 ? { type: 'select' } : undefined;
