@@ -232,8 +232,8 @@
 	}
 
 	// Keep the collapse handle within the viewport (and its panel) while a long
-	// panel scrolls past the fold. Scroll fires often, so coalesce recomputes
-	// into one per animation frame.
+	// panel scrolls past the fold. Only on-screen panels listen, and recomputes
+	// coalesce into one per animation frame.
 	let stickyFrame: number | undefined;
 
 	function computeSticky() {
@@ -264,14 +264,33 @@
 		});
 	}
 
+	let onScreen = $state(false);
+
+	$effect(() => {
+		if (!browser || !stickyHandle || overlay) return;
+		if (typeof IntersectionObserver === 'undefined') {
+			onScreen = true;
+			return;
+		}
+		const io = new IntersectionObserver((entries) => {
+			onScreen = entries[entries.length - 1].isIntersecting;
+		});
+		io.observe(root);
+		return () => {
+			io.disconnect();
+			onScreen = false;
+		};
+	});
+
 	$effect(() => {
 		if (!browser || !stickyHandle || overlay) {
 			stickyShift = 0;
 			return;
 		}
+		if (!onScreen) return;
 		computeSticky();
-		addEventListener('scroll', scheduleSticky, true);
-		addEventListener('resize', scheduleSticky);
+		addEventListener('scroll', scheduleSticky, { capture: true, passive: true });
+		addEventListener('resize', scheduleSticky, { passive: true });
 		return () => {
 			removeEventListener('scroll', scheduleSticky, true);
 			removeEventListener('resize', scheduleSticky);

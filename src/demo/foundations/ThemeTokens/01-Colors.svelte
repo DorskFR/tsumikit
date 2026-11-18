@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'Semantic colours',
-		caption: 'Each swatch paints var(--token) live, so switching the theme in the toolbar re-colours this grid; the resolved value is read in $effect.',
+		caption: 'Each swatch paints var(--token) live, so switching the theme in the toolbar re-colours this grid; the resolved value is read a frame after the switch, once the new theme has painted.',
 		layout: 'grid'
 	};
 </script>
@@ -13,8 +13,13 @@
 	let resolved = $state<Record<string, string>>({});
 	$effect(() => {
 		void theme.current;
-		const cs = getComputedStyle(document.documentElement);
-		resolved = Object.fromEntries(colorTokens.map(([t]) => [t, cs.getPropertyValue(t).trim()]));
+		let frame = requestAnimationFrame(() => {
+			frame = requestAnimationFrame(() => {
+				const cs = getComputedStyle(document.documentElement);
+				resolved = Object.fromEntries(colorTokens.map(([t]) => [t, cs.getPropertyValue(t).trim()]));
+			});
+		});
+		return () => cancelAnimationFrame(frame);
 	});
 </script>
 
