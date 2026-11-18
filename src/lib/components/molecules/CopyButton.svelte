@@ -2,8 +2,9 @@
 	// Copy-to-clipboard button. Composes the Button atom; copies `text` via the
 	// async Clipboard API (with a hidden-textarea fallback for non-secure
 	// contexts), then flips to a transient "copied" state (check icon + label)
-	// that resets after `resetMs`. A visually-hidden aria-live region announces
-	// the result for screen readers. Dependency-free.
+	// that resets after `resetMs`. The result is spoken through the shared
+	// live region. Dependency-free.
+	import { announce } from '$lib/announce';
 	import Button from '$lib/components/atoms/Button.svelte';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import { copyToClipboard } from '$lib/clipboard';
@@ -40,7 +41,6 @@
 	const labelShown = $derived(showLabel ?? box === undefined);
 	let copied = $state(false);
 	let run = $state(0);
-	let status = $state('');
 	let timer: ReturnType<typeof setTimeout> | undefined;
 
 	async function copy() {
@@ -48,11 +48,10 @@
 		playSound(ok ? 'success' : 'error', sound);
 		copied = ok;
 		if (ok) run++;
-		status = ok ? copiedLabel : 'Copy failed';
+		announce(ok ? copiedLabel : 'Copy failed');
 		clearTimeout(timer);
 		timer = setTimeout(() => {
 			copied = false;
-			status = '';
 		}, resetMs);
 	}
 </script>
@@ -81,7 +80,6 @@
 		<span class="words" class:copied aria-hidden="true"><span class="word idle">{label}</span><span class="word done">{copiedLabel}</span></span>
 	{/if}
 </Button>
-<span class="sr-only" role="status" aria-live="polite">{status}</span>
 
 <style>
 	/* Both glyphs share one grid cell and both words another, so the swap never

@@ -3,6 +3,7 @@
 	// ancestors shrink to their first letter left → right, then the leaf alone,
 	// then the leaf ellipsised down to `minLeaf` chars. Candidate generation
 	// lives in `$lib/working-dir`; this component only measures and picks.
+	import { announce } from '$lib/announce';
 	import Badge from '$lib/components/atoms/Badge.svelte';
 	import Icon, { type IconName } from '$lib/components/atoms/Icon.svelte';
 	import { copyToClipboard } from '$lib/clipboard';
@@ -50,8 +51,6 @@
 	let rail: HTMLSpanElement | undefined = $state();
 	let txt: HTMLSpanElement | undefined = $state();
 	let probe: HTMLSpanElement | undefined = $state();
-	let status = $state('');
-	let timer: ReturnType<typeof setTimeout> | undefined;
 
 	$effect(() => {
 		if (!rail || full) return;
@@ -79,11 +78,7 @@
 		e.stopPropagation();
 		const ok = await copyToClipboard(normalized);
 		oncopy?.(ok);
-		status = ok ? copiedLabel : 'Copy failed';
-		clearTimeout(timer);
-		timer = setTimeout(() => {
-			status = '';
-		}, 1500);
+		announce(ok ? copiedLabel : 'Copy failed');
 	}
 </script>
 
@@ -109,9 +104,6 @@
 			<span class="probe" bind:this={probe} aria-hidden="true">{'0'.repeat(10)}</span>
 		{/if}
 	</Badge>
-	{#if copy}
-		<span class="sr-only" role="status" aria-live="polite">{status}</span>
-	{/if}
 </span>
 
 <style>

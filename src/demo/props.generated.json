@@ -7318,6 +7318,18 @@
 				"bindable": true
 			},
 			{
+				"name": "onchange",
+				"type": "(open: boolean) => void",
+				"optional": true
+			},
+			{
+				"name": "lazy",
+				"type": "boolean",
+				"optional": true,
+				"default": "false",
+				"description": "Render collapsible content only once first opened, then keep it. Closed content is then absent from SSR output and find-in-page."
+			},
+			{
 				"name": "class",
 				"type": "string",
 				"optional": true,

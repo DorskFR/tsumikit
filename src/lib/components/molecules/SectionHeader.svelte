@@ -5,7 +5,7 @@
 	// it, `sticky` pins it under the app header and publishes its height as
 	// `--section-header-h` on the parent so sibling sticky content can offset
 	// itself. `collapsible` puts a disclosure button inside the heading that
-	// toggles the `children` block rendered beneath. `variant="group"` is the
+	// toggles the `children` block beneath. `variant="group"` is the
 	// non-wrapping list-group row: `lead` · title · count · flexible rule · actions.
 	import type { Snippet } from 'svelte';
 	import Heading from '../atoms/Heading.svelte';
@@ -31,6 +31,8 @@
 		sticky = false,
 		collapsible = false,
 		open = $bindable(true),
+		onchange,
+		lazy = false,
 		class: klass = '',
 		actions,
 		children,
@@ -55,6 +57,10 @@
 		sticky?: boolean;
 		collapsible?: boolean;
 		open?: boolean;
+		onchange?: (open: boolean) => void;
+		/** Render collapsible content only once first opened, then keep it.
+		 *  Closed content is then absent from SSR output and find-in-page. */
+		lazy?: boolean;
 		class?: string;
 		actions?: Snippet;
 		children?: Snippet;
@@ -66,6 +72,14 @@
 	const panelId = `${id}-panel`;
 	let el = $state<HTMLElement>();
 	let height = $state(0);
+	let opened = false;
+	const rendered = $derived(!collapsible || !lazy || (opened ||= open));
+
+	function setOpen(next: boolean) {
+		if (open === next) return;
+		open = next;
+		onchange?.(open);
+	}
 
 	$effect(() => {
 		const parent = el?.parentElement;
@@ -105,8 +119,17 @@
 			<div class="sh-actions">{@render actions()}</div>
 		{/if}
 	</div>
-	{#if children && (!collapsible || open)}
-		<div class="sh-panel" id={panelId}>{@render children()}</div>
+	{#if children}
+		<div
+			class="sh-panel"
+			id={panelId}
+			hidden={!collapsible || open ? undefined : rendered ? 'until-found' : true}
+			onbeforematch={collapsible ? () => setOpen(true) : undefined}
+		>
+			<div class="sh-body">
+				{#if rendered}{@render children()}{/if}
+			</div>
+		</div>
 	{/if}
 </div>
 
@@ -123,8 +146,8 @@
 				type="button"
 				class="sh-toggle"
 				aria-expanded={open}
-				aria-controls={open ? panelId : undefined}
-				onclick={() => (open = !open)}
+				aria-controls={children ? panelId : undefined}
+				onclick={() => setOpen(!open)}
 			>
 				<Icon name="chevron-right" class="sh-chevron" />
 				{#if icon}
@@ -278,10 +301,12 @@
 		rotate: 90deg;
 	}
 	.sh-panel {
-		margin-top: var(--sp-3);
 		transition:
 			opacity var(--dur-base) var(--ease-out),
 			translate var(--dur-base) var(--ease-out);
+	}
+	.sh-body {
+		padding-top: var(--sp-3);
 	}
 	@starting-style {
 		.sh-collapsible.sh-open .sh-panel {

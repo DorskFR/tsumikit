@@ -134,8 +134,10 @@ test('SectionHeader collapsible keeps the heading in the tree with the button in
 	button.click();
 	flushSync();
 	assert.equal(button.getAttribute('aria-expanded'), 'false');
-	assert.equal(button.getAttribute('aria-controls'), null, 'no dangling aria-controls while collapsed');
-	assert.equal($('#section').querySelector('.sh-panel'), null);
+	const panel = $('#section').querySelector('.sh-panel');
+	assert.ok(panel, 'the collapsed panel stays in the DOM so find-in-page can reach it');
+	assert.equal(button.getAttribute('aria-controls'), panel.id, 'aria-controls points at the collapsed panel');
+	assert.equal(panel.getAttribute('hidden'), 'until-found');
 	assert.ok($('#section button.sh-toggle').closest('h2'), 'heading survives the toggle');
 });
 

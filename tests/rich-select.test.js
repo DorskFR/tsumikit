@@ -88,6 +88,8 @@ test('styles: focus ring, hover gated to fine pointers, transform-only press, no
 	assert.match(source, /\.rs-grip \{[^}]*width: 24px;[^}]*min-height: 24px;/);
 });
 
+const wait = (/** @type {number} */ ms) => new Promise((r) => setTimeout(r, ms));
+
 function render(props = {}) {
 	const dom = new JSDOM('<!doctype html><html><body></body></html>', {
 		runScripts: 'outside-only',
@@ -187,17 +189,29 @@ test('keyboard selection while closed changes the value without opening', () => 
 	unmount();
 });
 
-test('closed trigger: accessible name carries the selected option and arrow changes are announced', () => {
+test('closed trigger: accessible name carries the selected option and arrow changes are announced', async () => {
 	const { trigger, doc, key, unmount } = render();
-	const live = doc.querySelector('.rich-select [aria-live="polite"]');
+	const live = () => doc.querySelector('[data-tsu="Announcer"]')?.textContent;
 	assert.equal(accessibleName(doc, trigger), 'Spawn profile, Sonnet daily');
-	assert.equal(live?.textContent, '');
+	assert.equal(live(), undefined, 'nothing is announced on mount');
 	key(trigger, 'ArrowDown');
 	assert.equal(accessibleName(doc, trigger), 'Spawn profile, Haiku quick');
-	assert.equal(live?.textContent, 'Haiku quick');
+	await wait(150);
+	assert.equal(live(), 'Haiku quick');
 	key(trigger, 's');
 	assert.equal(accessibleName(doc, trigger), 'Spawn profile, Sol review');
-	assert.equal(live?.textContent, 'Sol review');
+	await wait(150);
+	assert.equal(live(), 'Sol review');
+	unmount();
+});
+
+test('RichSelect speaks through the shared announce() and owns no live region', () => {
+	assert.match(source, /import \{ announce \} from '\$lib\/announce';/);
+	assert.match(source, /if \(!closeAfter\) announce\(getLabel\(next\)\);/);
+	assert.match(source, /announce\(movedMessage\(getLabel\(moved\), to \+ 1, options\.length\)\)/);
+	assert.doesNotMatch(source, /aria-live/);
+	const { doc, unmount } = render();
+	assert.equal(doc.querySelector('.rich-select [aria-live]'), null);
 	unmount();
 });
 
@@ -306,7 +320,8 @@ test('Alt+ArrowUp/Down reorder the active option and announce the move', async (
 	await settle();
 	assert.equal(out('order'), 'opus,haiku,sonnet,sol');
 	assert.equal(out('value'), 'sonnet', 'reordering keeps the selection');
-	assert.match(doc.querySelector('[aria-live]')?.textContent ?? '', /Sonnet daily moved to position 3 of 4/);
+	await wait(150);
+	assert.match(doc.querySelector('[data-tsu="Announcer"]')?.textContent ?? '', /Sonnet daily moved to position 3 of 4/);
 	assert.equal(doc.querySelectorAll('.rs-grip').length, 4);
 	unmount();
 });

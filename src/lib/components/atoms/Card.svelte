@@ -392,14 +392,6 @@
 				linear-gradient(color-mix(in srgb, var(--accent) 22%, transparent), color-mix(in srgb, var(--accent) 22%, transparent));
 		}
 	}
-	@property --pointer-x {
-		syntax: '*';
-		inherits: false;
-	}
-	@property --pointer-y {
-		syntax: '*';
-		inherits: false;
-	}
 	@property --card-glow {
 		syntax: '<percentage>';
 		inherits: false;

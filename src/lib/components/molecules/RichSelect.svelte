@@ -11,6 +11,7 @@
 
 <script lang="ts" generics="T">
 	import { tick, type Snippet } from 'svelte';
+	import { announce } from '$lib/announce';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import { playSound } from '$lib/sound';
 	import Popover from './Popover.svelte';
@@ -88,7 +89,6 @@
 
 	let root = $state<HTMLDivElement | null>(null);
 	let active = $state(-1);
-	let announcement = $state('');
 	let triggerWidth = $state(0);
 	let dragFrom = $state(-1);
 	let dragTo = $state(-1);
@@ -152,7 +152,7 @@
 		if (key !== value) {
 			value = key;
 			onchange?.(key, next);
-			if (!closeAfter) announcement = getLabel(next);
+			if (!closeAfter) announce(getLabel(next));
 			playSound(closeAfter ? 'click' : 'tick', sound);
 		}
 		if (closeAfter) {
@@ -166,7 +166,7 @@
 		const moved = options[from];
 		onreorder(from, to);
 		active = to;
-		if (moved !== undefined) announcement = movedMessage(getLabel(moved), to + 1, options.length);
+		if (moved !== undefined) announce(movedMessage(getLabel(moved), to + 1, options.length));
 		playSound('tick', sound);
 	}
 
@@ -412,7 +412,6 @@
 		{/if}
 	</Popover>
 	<span class="sr-only" id={nameId}>{triggerName}</span>
-	<span class="sr-only" aria-live="polite">{announcement}</span>
 </div>
 
 <style>
