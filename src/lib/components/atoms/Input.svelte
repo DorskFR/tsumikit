@@ -9,6 +9,7 @@
 	import Icon, { type IconName } from '$lib/components/atoms/Icon.svelte';
 	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
 	import { getInputGroupContext } from '$lib/input-group-context';
+	import { isComposing } from '$lib/ime.js';
 
 	// `size` shadows the native char-width attribute (unused in token-sized
 	// layouts) to expose a height preset instead.
@@ -78,8 +79,9 @@
 
 	function handleKeydown(e: KeyboardEvent & { currentTarget: EventTarget & HTMLInputElement }) {
 		onkeydown?.(e);
-		if (onenter && e.key === 'Enter' && !e.defaultPrevented) onenter(String(value ?? ''));
-		if (onsubmit && e.key === 'Enter' && !e.defaultPrevented) onsubmit(String(value ?? ''));
+		if (e.key !== 'Enter' || e.defaultPrevented || isComposing(e)) return;
+		onenter?.(String(value ?? ''));
+		onsubmit?.(String(value ?? ''));
 	}
 
 	function clear() {

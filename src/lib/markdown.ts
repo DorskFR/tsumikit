@@ -42,12 +42,19 @@ export function stripAnsi(s: string): string {
 }
 
 const SAFE_HREF = /^(?:https?:|mailto:)/i;
+// biome-ignore lint/suspicious/noControlCharactersInRegex: control bytes in a relative href are rejected
+const UNSAFE_RELATIVE = /[\\\s\x00-\x1F\x7F]/;
+const SENTINEL = 'https://tsumikit.invalid';
 
 function safeHref(url: string): string | null {
 	const trimmed = url.trim();
 	if (SAFE_HREF.test(trimmed)) return trimmed;
-	if (/^(?:\/(?!\/)|#)/.test(trimmed)) return trimmed;
-	return null;
+	if (!/^[/#]/.test(trimmed) || UNSAFE_RELATIVE.test(trimmed)) return null;
+	try {
+		return new URL(trimmed, `${SENTINEL}/`).origin === SENTINEL ? trimmed : null;
+	} catch {
+		return null;
+	}
 }
 
 function stash(blocks: string[], html: string): string {

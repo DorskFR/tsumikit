@@ -29,6 +29,7 @@
 	import { autoresize as autoresizeAction, rowsFloor, rowsHeight } from '$lib/autoresize';
 	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
 	import { getInputGroupContext } from '$lib/input-group-context';
+	import { isComposing } from '$lib/ime.js';
 
 	export type TextareaSegment = { text: string; mask?: boolean; class?: string };
 
@@ -144,7 +145,8 @@
 
 	function handleKeydown(e: KeyboardEvent & { currentTarget: EventTarget & HTMLTextAreaElement }) {
 		onkeydown?.(e);
-		if (!onsubmit || e.key !== 'Enter' || e.defaultPrevented || submitMode === 'none') return;
+		if (!onsubmit || e.key !== 'Enter' || e.defaultPrevented || submitMode === 'none' || isComposing(e))
+			return;
 		const mod = e.ctrlKey || e.metaKey;
 		const submits =
 			submitMode === 'enter' ? !e.shiftKey && !mod && !e.altKey : mod && !e.shiftKey && !e.altKey;

@@ -23,6 +23,20 @@ test('links: safe schemes only; javascript:/data: are left as text', () => {
 	assert.doesNotMatch(renderMarkdown('[x](https://a.b/" onclick="1)'), /onclick="/);
 });
 
+test('relative links that a browser would resolve off-origin stay text', () => {
+	for (const bad of ['/\\evil.example', '\\\\evil.example', '/\\/evil.example', '//evil.example', '/\tevil', '/\nevil', '/\t/evil.example', '#\\x', '/a\\b', '/a b']) {
+		assert.doesNotMatch(renderMarkdown(`[x](${bad})`), /<a /, JSON.stringify(bad));
+	}
+	for (const [src, href] of [
+		['/docs#top', '/docs#top'],
+		['#frag', '#frag'],
+		['/a/b?c=1&d=2', '/a/b?c=1&amp;d=2'],
+		['/%5Cevil.example', '/%5Cevil.example']
+	]) {
+		assert.equal(renderMarkdown(`[x](${src})`), `<p><a href="${href}">x</a></p>`, src);
+	}
+});
+
 test('bare URLs autolink with trailing punctuation kept outside, off with autolink:false', () => {
 	assert.equal(
 		renderMarkdown('see https://x.io/a_(b).'),

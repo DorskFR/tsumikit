@@ -10,6 +10,7 @@
 	import AttachmentList from '$lib/components/molecules/AttachmentList.svelte';
 	import FileButton from '$lib/components/molecules/FileButton.svelte';
 	import InputGroup from '$lib/components/molecules/InputGroup.svelte';
+	import { isComposing } from '$lib/ime.js';
 
 	let {
 		value = $bindable(''),
@@ -94,7 +95,7 @@
 	}
 
 	function onkeydown(e: KeyboardEvent) {
-		if (e.key === 'Enter' && !e.isComposing) {
+		if (e.key === 'Enter' && !isComposing(e)) {
 			const mod = e.ctrlKey || e.metaKey;
 			const submits = mode === 'enter' ? !e.shiftKey && !mod && !e.altKey : mod && !e.shiftKey;
 			if (submits) {

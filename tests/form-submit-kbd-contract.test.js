@@ -63,8 +63,8 @@ test('Textarea submit branches on Enter vs mod+Enter and composes onkeydown', ()
 test('Input onsubmit aliases onenter and both fire', () => {
 	assert.match(input, /onenter\?: \(value: string\) => void/);
 	assert.match(input, /onsubmit\?: \(value: string\) => void/);
-	assert.match(input, /if \(onenter && e\.key === 'Enter' && !e\.defaultPrevented\) onenter\(String\(value \?\? ''\)\)/);
-	assert.match(input, /if \(onsubmit && e\.key === 'Enter' && !e\.defaultPrevented\) onsubmit\(String\(value \?\? ''\)\)/);
+	assert.match(input, /if \(e\.key !== 'Enter' \|\| e\.defaultPrevented \|\| isComposing\(e\)\) return;/);
+	assert.match(input, /onenter\?\.\(String\(value \?\? ''\)\);\s*onsubmit\?\.\(String\(value \?\? ''\)\);/);
 	assert.match(input, /onkeydown={onenter \|\| onsubmit \|\| onkeydown \? handleKeydown : undefined}/);
 });
 
