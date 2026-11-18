@@ -37,7 +37,7 @@
 					label={entry.name}
 					href="#{entry.id}"
 					active={active === entry.id}
-					badge={entry.examples.length || undefined}
+					badge={entry.count || undefined}
 				/>
 			{/each}
 		</NavSection>

@@ -8,15 +8,12 @@
 
 <script lang="ts">
 	import { Cluster, Gauge, Text, toasts } from '@dorsk/tsumikit';
+	import { visibleInterval } from '../../fixtures';
 
 	let value = $state(50);
-	$effect(() => {
-		const t = setInterval(() => (value = (value + 7) % 101), 900);
-		return () => clearInterval(t);
-	});
 </script>
 
-<Cluster gap="var(--sp-4)" align="flex-end">
+<Cluster gap="var(--sp-4)" align="flex-end" {@attach visibleInterval(() => (value = (value + 7) % 101), 900)}>
 	<span class="cell"><Gauge {value} label="Default thresholds" /><Text size="xs" tone="muted">70 / 90</Text></span>
 	<span class="cell"><Gauge {value} warnAt={40} dangerAt={60} label="Strict thresholds" /><Text size="xs" tone="muted">40 / 60</Text></span>
 	<span class="cell"><Gauge {value} warnAt={101} label="Never warns" /><Text size="xs" tone="muted">no steps</Text></span>

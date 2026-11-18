@@ -101,38 +101,58 @@ test('section ids are unique across families', () => {
 	assert.equal(new Set(ids).size, ids.length);
 });
 
+const FIXTURE_META = ['atoms/Button', 'atoms/Scrim', 'layouts/AppShell'];
+const FIXTURE_EXAMPLES = ['atoms/Button'];
+
+/** @param {string} pattern @param {(rel: string) => boolean} pick */
+async function globFiles(pattern, pick) {
+	const re = new RegExp(`^${pattern.replace(/[.]/g, '\\.').replace(/\*/g, '[^/]*')}$`);
+	/** @type {string[]} */
+	const out = [];
+	for (const d of dirs)
+		for (const f of d.files) {
+			const rel = `../${d.family}/${d.name}/${f}`;
+			if (re.test(rel) && pick(rel)) out.push(rel);
+		}
+	return out;
+}
+
 /**
- * Bundle the framework with the Button examples wired by hand: esbuild has no
- * import.meta.glob, so the registry module is replaced by a stub holding one entry.
+ * esbuild has no import.meta.glob: expand the globs of the real registry over a
+ * few demo directories, lazy ones recording each import in `globalThis.__imported`.
+ * @param {string} src
  */
+async function expandGlobs(src) {
+	/** @type {string[]} */
+	const hoisted = [];
+	let n = 0;
+	const calls = [...src.matchAll(/import\.meta\.glob<[^>]*>\(\s*'([^']+)'\s*(?:,\s*(\{[\s\S]*?\}))?\s*\)/g)];
+	for (const [call, pattern, opts = ''] of calls) {
+		const eager = /eager:\s*true/.test(opts);
+		const raw = /'\?raw'/.test(opts);
+		const only = pattern.endsWith('meta.ts') ? FIXTURE_META : FIXTURE_EXAMPLES;
+		const files = await globFiles(pattern, (rel) => only.some((dir) => rel.startsWith(`../${dir}/`)));
+		const props = files.map((rel) => {
+			const spec = JSON.stringify(raw ? `${rel}?raw` : rel);
+			if (eager) {
+				hoisted.push(`import * as __glob${n} from ${spec};`);
+				return `${JSON.stringify(rel)}: __glob${n++}`;
+			}
+			const pick = /import:\s*'default'/.test(opts) ? '.then((m) => m.default)' : '';
+			return `${JSON.stringify(rel)}: () => ((globalThis.__imported ??= []).push(${spec}), import(${spec})${pick})`;
+		});
+		src = src.replace(call, `{ ${props.join(', ')} }`);
+	}
+	return `${hoisted.join('\n')}\n${src}`;
+}
+
 async function buildFramework() {
-	const dir = join(DEMO, 'atoms/Button');
-	const files = (await readdir(dir)).filter((f) => f.endsWith('.svelte')).sort();
-	const imports = files
-		.map((f, i) => `import Ex${i}, { meta as m${i} } from '../atoms/Button/${f}';\nimport raw${i} from '../atoms/Button/${f}?raw';`)
-		.join('\n');
-	const examples = files
-		.map((f, i) => `{ id: 'button--' + exampleSlug('${f}'), slug: exampleSlug('${f}'), file: '${f}', meta: m${i}, component: Ex${i}, source: stripModuleScript(raw${i}) }`)
-		.join(',\n');
-	const registry = `
-import { meta } from '../atoms/Button/meta.ts';
-import { exampleSlug, stripModuleScript } from './snippet.ts';
-${imports}
-const button = { id: 'button', name: 'Button', family: 'atoms', meta, examples: [${examples}] };
-const scrim = { id: 'scrim', name: 'Scrim', family: 'atoms', meta: { description: '' }, examples: [] };
-const appShell = { id: 'app-shell', name: 'AppShell', family: 'layouts', meta: { description: '' }, examples: [] };
-export const entries = [button, scrim, appShell];
-export const byName = new Map(entries.map((e) => [e.name, e]));
-export const groups = [{ family: 'atoms', entries: [button, scrim] }, { family: 'layouts', entries: [appShell] }];
-export const searchText = (e) => [e.name, e.id, e.family, e.meta.description, ...(e.meta.keywords ?? [])].join(' ').toLowerCase();
-export const resolveRef = (ref) => byName.get(ref)?.id ?? ref;
-`;
 	const entry = `
 import { flushSync, mount } from 'svelte';
 import DemoShell from '../../src/demo/framework/DemoShell.svelte';
 import DemoSection from '../../src/demo/framework/DemoSection.svelte';
-import { entries } from '../../src/demo/framework/registry';
-globalThis.__fixture = { mount, flushSync, DemoShell, DemoSection, entries };
+import { entries, loadSection, loadedSection } from '../../src/demo/framework/registry';
+globalThis.__fixture = { mount, flushSync, DemoShell, DemoSection, entries, loadSection, loadedSection };
 `;
 	const out = await esbuild.build({
 		stdin: { contents: entry, resolveDir: join(ROOT, 'tests/fixtures'), loader: 'js' },
@@ -149,11 +169,10 @@ globalThis.__fixture = { mount, flushSync, DemoShell, DemoSection, entries };
 				setup(build) {
 					build.onResolve({ filter: /^\$app\/paths$/ }, () => ({ path: 'app-paths', namespace: 'virtual' }));
 					build.onLoad({ filter: /^app-paths$/, namespace: 'virtual' }, () => ({ contents: "export const base = '';", loader: 'js' }));
-					build.onResolve({ filter: /framework\/registry$|^\.\/registry$/ }, () => ({ path: 'registry', namespace: 'virtual' }));
-					build.onLoad({ filter: /^registry$/, namespace: 'virtual' }, () => ({
-						contents: registry,
-						resolveDir: join(DEMO, 'framework'),
-						loader: 'js'
+					build.onLoad({ filter: /framework[\\/]registry\.ts$/ }, async (args) => ({
+						contents: await expandGlobs(await readFile(args.path, 'utf8')),
+						resolveDir: dirname(args.path),
+						loader: 'ts'
 					}));
 					build.onResolve({ filter: /\?raw$/ }, (args) => ({
 						path: join(args.resolveDir, args.path.replace(/\?raw$/, '')),
@@ -180,11 +199,44 @@ function dom() {
 	return d;
 }
 
-test('DemoSection renders the Button examples with anchors, previews and verbatim snippets', () => {
+const settle = () => new Promise((r) => setTimeout(r, 0));
+
+test('the registry keeps meta eager and imports a section only on demand', async () => {
+	const src = await readFile(join(DEMO, 'framework/registry.ts'), 'utf8');
+	const globs = [...src.matchAll(/import\.meta\.glob<[^>]*>\(\s*'([^']+)'\s*(?:,\s*(\{[\s\S]*?\}))?\s*\)/g)];
+	assert.deepEqual(
+		globs.map(([, pattern, opts = '']) => [pattern, /eager:\s*true/.test(opts)]),
+		[['../*/*/meta.ts', true], ['../*/*/*.svelte', false], ['../*/*/*.svelte', false]]
+	);
+	assert.doesNotMatch(src, /^import [^t].*from '\.\/props'/m, 'props JSON stays out of the page chunk');
+	assert.doesNotMatch(await readFile(join(DEMO, 'framework/PropsTable.svelte'), 'utf8'), /^\s*import \{[^}]*\} from '\.\/props'/m);
+
 	const d = dom();
-	const { mount, flushSync, DemoSection, entries } = d.window.__fixture;
-	const entry = entries[0];
-	mount(DemoSection, { target: d.window.document.body, props: { entry } });
+	const w = /** @type {any} */ (d.window);
+	const { entries, loadSection, loadedSection } = w.__fixture;
+	const plain = (/** @type {unknown} */ v) => JSON.parse(JSON.stringify(v));
+	assert.deepEqual(plain(entries.map((/** @type {any} */ e) => [e.id, e.count])), [['button', dirs.find((x) => x.name === 'Button')?.files.filter((f) => f.endsWith('.svelte')).length], ['scrim', 0], ['app-shell', 0]]);
+	assert.equal(w.__imported, undefined, 'no example imported at startup');
+	assert.equal(loadedSection(entries[0]), undefined);
+	const load = loadSection(entries[0]);
+	assert.equal(loadSection(entries[0]), load, 'one load per section');
+	const content = await load;
+	assert.equal(loadedSection(entries[0]), content);
+	assert.ok(w.__imported.length > 0 && w.__imported.every((/** @type {string} */ p) => p.startsWith('../atoms/Button/')));
+	assert.equal(w.__imported.length, content.examples.length * 2, 'component and raw source per example');
+	const files = plain(content.examples.map((/** @type {any} */ e) => e.file));
+	assert.deepEqual(files, [...files].sort((/** @type {string} */ a, /** @type {string} */ b) => exampleOrder(a) - exampleOrder(b)));
+	assert.equal(content.examples[0].id, `button--${exampleSlug(content.examples[0].file)}`);
+	assert.ok(content.props?.some((/** @type {any} */ p) => p.name === 'variant'));
+	assert.equal((await loadSection(entries[1])).examples.length, 0);
+});
+
+test('DemoSection renders the Button examples with anchors, previews and verbatim snippets', async () => {
+	const d = dom();
+	const { mount, flushSync, DemoSection, entries, loadSection } = d.window.__fixture;
+	const entry = { ...entries[0], examples: (await loadSection(entries[0])).examples };
+	mount(DemoSection, { target: d.window.document.body, props: { entry: entries[0] } });
+	await settle();
 	flushSync();
 	const doc = d.window.document;
 
@@ -228,10 +280,11 @@ test('DemoSection renders the Button examples with anchors, previews and verbati
 	assert.ok(!names.includes('disabled'));
 });
 
-test('a section without examples renders no migration notice or legacy link', () => {
+test('a section without examples renders no migration notice or legacy link', async () => {
 	const d = dom();
 	const { mount, flushSync, DemoSection, entries } = d.window.__fixture;
 	mount(DemoSection, { target: d.window.document.body, props: { entry: entries[1] } });
+	await settle();
 	flushSync();
 	const doc = d.window.document;
 	assert.ok(doc.getElementById('scrim'));
@@ -240,10 +293,11 @@ test('a section without examples renders no migration notice or legacy link', ()
 	assert.equal(doc.querySelectorAll('.example').length, 0);
 });
 
-test('DemoShell: AppShell nav grouped by family, filter hides sections, toolbar keeps theme controls', () => {
+test('DemoShell: AppShell nav grouped by family, filter hides sections, toolbar keeps theme controls', async () => {
 	const d = dom();
 	const { mount, flushSync, DemoShell } = d.window.__fixture;
 	mount(DemoShell, { target: d.window.document.body });
+	await settle();
 	flushSync();
 	const doc = d.window.document;
 

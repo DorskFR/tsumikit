@@ -36,7 +36,9 @@ async function bundle(generate) {
 				resolveDir: ROOT,
 			}));
 			b.onLoad({ filter: /^registry$/, namespace: 'v' }, () => ({
-				contents: 'export const resolveRef = (r) => r;',
+				contents: `export const resolveRef = (r) => r;
+export const loadedSection = (e) => ({ examples: e.examples });
+export const loadSection = (e) => ((globalThis.__loaded ??= []).push(e.id), Promise.resolve({ examples: e.examples }));`,
 				loader: 'js',
 			}));
 		},
@@ -114,7 +116,17 @@ function boot(hash) {
 	return {
 		w,
 		flushSync,
-		wake,
+		/** @param {string} id */
+		async wake(id) {
+			await wake(id);
+			flushSync();
+		},
+		async settle() {
+			await tick();
+			flushSync();
+		},
+		/** @returns {string[]} */
+		loaded: () => [...(w.__loaded ?? [])],
 		before,
 		warnings,
 		section,
@@ -149,10 +161,13 @@ test('the server output keeps every example of every section', () => {
 	}
 });
 
-test('hydration adopts the prerendered DOM of dormant sections and makes the deep-linked one live', () => {
+test('hydration adopts the prerendered DOM of dormant sections and mounts the deep-linked one once loaded', async () => {
 	const t = boot('#rich-select--one');
+	assert.equal(t.section('rich-select').querySelector('.counter'), t.before[2], 'server node kept while loading');
+	await t.settle();
 	assert.equal(t.live('rich-select'), true);
 	assert.equal(t.click('rich-select'), 'n=1');
+	assert.deepEqual(t.loaded(), ['rich-select']);
 	for (const [i, id] of ['button', 'toaster'].entries()) {
 		assert.equal(t.live(id), false);
 		assert.equal(t.section(id).querySelector('.counter'), t.before[i], `${id}: server node kept`);
@@ -161,41 +176,46 @@ test('hydration adopts the prerendered DOM of dormant sections and makes the dee
 	assert.deepEqual(t.warnings, []);
 });
 
-test('a section on screen mounts at once, one within the margin at the next idle slot', () => {
+test('a section on screen mounts at once, one within the margin at the next idle slot', async () => {
 	const t = boot('');
 	assert.equal(IDS.some(t.live), false);
 	t.approach('button', 10);
+	await t.settle();
 	assert.equal(t.live('button'), true);
 	assert.equal(t.click('button'), 'n=1');
 	t.approach('toaster', 3000);
+	await t.settle();
 	assert.equal(t.live('toaster'), false);
+	assert.deepEqual(t.loaded(), ['button', 'toaster'], 'code within the margin is fetched ahead');
 	assert.ok(t.runIdle() > 0);
+	await t.settle();
 	assert.equal(t.live('toaster'), true);
-	assert.equal(t.live('rich-select'), false, 'the background trickle waits for load');
+	assert.equal(t.live('rich-select'), false);
 });
 
-test('after load the remaining sections mount one idle slot at a time', async () => {
+test('after load, sections outside the margin stay dormant and their code unloaded', async () => {
 	const t = boot('');
+	t.w.dispatchEvent(new t.w.Event('load'));
 	await tick(400);
-	t.runIdle();
-	assert.equal(IDS.filter(t.live).length, 1);
-	t.runIdle();
-	t.runIdle();
-	assert.equal(IDS.every(t.live), true);
-	assert.equal(t.click('toaster'), 'n=1');
-	assert.equal(t.runIdle(), 1, 'the loop stops once the queue is empty');
-	assert.equal(t.runIdle(), 0);
+	for (let i = 0; i < 4; i++) {
+		t.runIdle();
+		await t.settle();
+	}
+	assert.equal(IDS.some(t.live), false);
+	assert.deepEqual(t.loaded(), []);
+	assert.equal(t.runIdle(), 0, 'no background loop');
 });
 
-test('navigation mounts its target section at once', () => {
+test('navigation mounts its target section once loaded', async () => {
 	const t = boot('');
-	t.wake('toaster');
+	await t.wake('toaster');
 	assert.equal(t.live('toaster'), true);
 	assert.equal(t.live('button'), false);
 	assert.equal(t.click('toaster'), 'n=1');
+	assert.deepEqual(t.loaded(), ['toaster']);
 });
 
-test('a dormant section above the viewport mounts without moving what is on screen', () => {
+test('a dormant section above the viewport mounts without moving what is on screen', async () => {
 	const t = boot('');
 	let y = 0;
 	const tops = { button: -2000, toaster: 40, 'rich-select': 900 };
@@ -209,15 +229,30 @@ test('a dormant section above the viewport mounts without moving what is on scre
 		const top = tops.toaster - y + (t.live('button') ? 300 : 0);
 		return { top, bottom: top + 600 };
 	};
-	t.wake('button');
+	await t.wake('button');
 	assert.equal(t.live('button'), true);
 	assert.equal(toaster.getBoundingClientRect().top, 40);
 });
 
-test('focusing into a dormant section mounts it and keeps focus on the live control', () => {
+test('a section mounting below the top of the viewport measures nothing else', async () => {
+	const t = boot('');
+	/** @type {string[]} */
+	const measured = [];
+	for (const id of IDS)
+		t.section(id).getBoundingClientRect = () => {
+			measured.push(id);
+			return { top: id === 'button' ? -2000 : 400, bottom: 1000 };
+		};
+	t.w.scrollBy = () => assert.fail('no scroll correction');
+	await t.wake('toaster');
+	assert.equal(t.live('toaster'), true);
+	assert.deepEqual(measured, ['toaster']);
+});
+
+test('focusing into a dormant section mounts it and keeps focus on the live control', async () => {
 	const t = boot('');
 	t.section('toaster').querySelector('.counter').focus();
-	t.flushSync();
+	await t.settle();
 	assert.equal(t.live('toaster'), true);
 	const live = t.section('toaster').querySelector('.counter');
 	assert.notEqual(live, t.before[1]);

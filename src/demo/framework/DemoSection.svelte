@@ -2,25 +2,25 @@
 	import { Badge, Cluster, Heading, Link, Text } from '@dorsk/tsumikit';
 	import Example from './Example.svelte';
 	import PropsTable from './PropsTable.svelte';
-	import { SSR, defer, startsLive } from './lazy';
-	import { type DemoEntry, resolveRef } from './registry';
+	import { SSR, defer } from './lazy';
+	import { type DemoEntry, loadSection, loadedSection, resolveRef } from './registry';
 
 	let { entry, hidden = false }: { entry: DemoEntry; hidden?: boolean } = $props();
 
 	let section: HTMLElement;
 	// svelte-ignore state_referenced_locally
-	let live = $state(startsLive(entry.id));
+	let content = $state.raw(SSR ? loadedSection(entry) : undefined);
 	$effect(() => {
-		if (!live) return defer(section, () => (live = true));
+		if (!content) return defer(section, () => loadSection(entry), (c) => (content = c));
 	});
 </script>
 
 {#snippet examples()}
 	<div class="demo-section__examples">
-		{#each entry.examples as example (example.id)}
+		{#each content?.examples ?? [] as example (example.id)}
 			<Example {example} />
 		{/each}
-		<PropsTable {entry} />
+		<PropsTable {entry} rows={content?.props} />
 	</div>
 {/snippet}
 
@@ -33,7 +33,7 @@
 	id={entry.id}
 	class="demo-section"
 	data-demo-section
-	data-demo-live={live && !SSR ? '' : undefined}
+	data-demo-live={content && !SSR ? '' : undefined}
 	{hidden}
 >
 	<header class="demo-section__head">
@@ -51,7 +51,7 @@
 			{/each}
 		</Cluster>
 	{/if}
-	{@render (live ? examples : dormant)()}
+	{@render (content ? examples : dormant)()}
 </section>
 
 <style>

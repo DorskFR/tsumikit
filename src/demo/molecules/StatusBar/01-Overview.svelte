@@ -8,6 +8,7 @@
 
 <script lang="ts">
 	import { Button, StatusBar } from '@dorsk/tsumikit';
+	import { visibleInterval } from '../../fixtures';
 
 	const steps = ['Installing dependencies', 'Type-checking', 'Running 412 tests', 'Building'];
 	let runs = $state(0);
@@ -21,14 +22,10 @@
 		running ? `${steps[step]}…` : runs === 0 ? 'Waiting for a run' : failed ? `${steps[step]} failed` : 'All checks passed'
 	);
 
-	$effect(() => {
-		if (!running) return;
-		const timer = setInterval(() => {
-			ticks += 1;
-			if (ticks >= steps.length * 3) running = false;
-		}, 300);
-		return () => clearInterval(timer);
-	});
+	function tick() {
+		ticks += 1;
+		if (ticks >= steps.length * 3) running = false;
+	}
 
 	function run() {
 		runs += 1;
@@ -37,7 +34,7 @@
 	}
 </script>
 
-<StatusBar {tone} {label}>
+<StatusBar {tone} {label} {@attach visibleInterval(tick, 300, () => running)}>
 	{#snippet trailing()}
 		{#if runs}<span>{(ticks * 0.3).toFixed(1)}s</span>{/if}
 	{/snippet}

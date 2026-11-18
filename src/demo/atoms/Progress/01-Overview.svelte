@@ -9,16 +9,14 @@
 <script lang="ts">
 	import { Progress, Stack, Text } from '@dorsk/tsumikit';
 	import { files } from '../../fixtures';
+	import { visibleInterval } from '../../fixtures';
 
 	let done = $state([0.92, 1, 0.37, 0, 0.61]);
-	$effect(() => {
-		const t = setInterval(() => (done = done.map((d) => (d >= 1 ? 1 : Math.min(1, d + 0.02)))), 400);
-		return () => clearInterval(t);
-	});
+	const tick = () => (done = done.map((d) => (d >= 1 ? 1 : Math.min(1, d + 0.02))));
 	const mb = (n: number) => `${(n / 1_048_576).toFixed(1)} MB`;
 </script>
 
-<Stack gap="var(--sp-3)" style="max-width: 32rem">
+<Stack gap="var(--sp-3)" style="max-width: 32rem" {@attach visibleInterval(tick, 400)}>
 	{#each files as f, i (f.name)}
 		<div class="row">
 			<Text size="sm" truncate style="flex: 1 1 0; min-width: 0">{f.name}</Text>

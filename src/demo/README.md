@@ -93,4 +93,4 @@ showcase, e.g. `#form-atoms` → `#input`). Family lanes never edit it.
 
 ## Lazy sections
 
-Every section is prerendered in full. On the client a section mounts its live examples on demand: the deep-linked one first, then those on screen, near the viewport, and the rest at idle. A mounted section carries `data-demo-live`. Load `/?eager` to mount everything up front (the visual detector and motion checks use it).
+Every section is prerendered in full. On the client a section imports its examples, sources and props table, then mounts them, only when needed: the deep-linked one, one on screen, near the viewport (at idle), focused into or navigated to. Sections never approached stay prerendered markup. A mounted section carries `data-demo-live`. Load `/?eager` to mount everything up front (the visual detector and motion checks use it).

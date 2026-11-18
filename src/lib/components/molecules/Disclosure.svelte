@@ -24,6 +24,7 @@
 		id,
 		onchange,
 		disabled = false,
+		lazy = false,
 		sound = true,
 		class: klass = '',
 		style: styleProp = '',
@@ -47,6 +48,9 @@
 		id?: string;
 		onchange?: (open: boolean) => void;
 		disabled?: boolean;
+		/** Render the panel content only once first opened, then keep it.
+		 *  Closed content is then absent from SSR output and find-in-page. */
+		lazy?: boolean;
 		/** Play UI sounds when enabled globally; false silences this instance. */
 		sound?: boolean;
 		class?: string;
@@ -59,6 +63,8 @@
 	const baseId = $derived(id ?? `disclosure-${uid}`);
 	const buttonId = $derived(`${baseId}-button`);
 	const panelId = $derived(`${baseId}-panel`);
+	let opened = false;
+	const rendered = $derived(!lazy || (opened ||= open));
 
 	function toggle() {
 		open = !open;
@@ -99,7 +105,7 @@
 		aria-labelledby={buttonId}
 		hidden={!open}
 	>
-		{@render children()}
+		{#if rendered}{@render children()}{/if}
 	</div>
 </div>
 

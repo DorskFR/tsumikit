@@ -7,21 +7,16 @@
 </script>
 
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import { Progress } from '@dorsk/tsumikit';
+	import { visibleInterval } from '../../fixtures';
 
 	let value = $state(62);
 
-	onMount(() => {
-		const tick = setInterval(() => {
-			value = value >= 100 ? 0 : Math.min(100, value + 6 + Math.random() * 8);
-		}, 700);
-		return () => clearInterval(tick);
-	});
+	const tick = () => (value = value >= 100 ? 0 : Math.min(100, value + 6 + Math.random() * 8));
 </script>
 
 <Progress variant="liquid" label="Importing wallet" />
 <Progress variant="liquid" tone="info" size="sm" label="Scanning" />
-<Progress variant="stripes" value={Math.round(value)} label="Unpacking archive" showValue />
+<Progress variant="stripes" value={Math.round(value)} label="Unpacking archive" showValue {@attach visibleInterval(tick, 700)} />
 <Progress variant="stripes" tone="success" value={40} label="Verified" />
 <Progress variant="stripes" indeterminate label="Unpacking, size unknown" />

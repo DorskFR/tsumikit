@@ -9,6 +9,7 @@
 
 <script lang="ts">
 	import { Button, Cluster } from '@dorsk/tsumikit';
+	import { visibleInterval } from '../../fixtures';
 
 	let save: boolean | 'done' = $state(false);
 	let upload = $state(0);
@@ -25,20 +26,20 @@
 	function startUpload() {
 		uploading = true;
 		upload = 0;
-		const step = setInterval(() => {
-			upload = Math.min(1, upload + 0.07 + Math.random() * 0.1);
-			if (upload >= 1) {
-				clearInterval(step);
-				setTimeout(() => {
-					uploading = false;
-					upload = 0;
-				}, 1200);
-			}
-		}, 260);
+	}
+
+	function step() {
+		if (upload >= 1) return;
+		upload = Math.min(1, upload + 0.07 + Math.random() * 0.1);
+		if (upload >= 1)
+			setTimeout(() => {
+				uploading = false;
+				upload = 0;
+			}, 1200);
 	}
 </script>
 
-<Cluster>
+<Cluster {@attach visibleInterval(step, 260, () => uploading)}>
 	<Button variant="primary" loading>Deploying</Button>
 	<Button loading="done">Deployed</Button>
 	<Button variant="primary" loadingStyle="morph" loading={save} doneLabel="Saved" onclick={startSave}>Save changes</Button>
