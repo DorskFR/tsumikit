@@ -192,3 +192,4 @@ export const sampleCode = `import { Button, theme } from '@dorsk/tsumikit';
 function greet(name: string) {
   return \`Hello, \${name}!\`;
 }`;
+export { visibleInterval } from './visible';

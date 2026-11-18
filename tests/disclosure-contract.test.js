@@ -202,6 +202,28 @@ test('multiple=false closes the other open items and reports each close', () => 
 	assert.equal(many.item('a').expanded(), true, 'multiple=true leaves the others alone');
 });
 
+test('lazy renders the panel content on first open and keeps it after closing', () => {
+	const ui = render({ lazy: true });
+	assert.equal(ui.panel.hidden, true);
+	assert.equal(ui.panel.querySelector('.probe-panel'), null, 'closed lazy panel is empty');
+	ui.button.click();
+	ui.flush();
+	assert.equal(ui.panel.querySelector('.probe-panel')?.textContent, 'panel');
+	ui.button.click();
+	ui.flush();
+	assert.equal(ui.panel.hidden, true);
+	assert.ok(ui.panel.querySelector('.probe-panel'), 'content stays mounted once opened');
+	assert.ok(render({ lazy: true, open: true }).panel.querySelector('.probe-panel'), 'initially open renders at once');
+});
+
+test('without lazy the closed panel still renders its content', () => {
+	const ui = render();
+	assert.equal(ui.panel.hidden, true);
+	assert.ok(ui.panel.querySelector('.probe-panel'));
+	assert.match(disclosure, /lazy = false,/);
+	assert.match(readme, /`lazy` renders the\npanel content only from the first open on/);
+});
+
 test('Disclosure is exported and documented', () => {
 	assert.match(index, /default as Disclosure,\n\} from '\.\/components\/molecules\/Disclosure\.svelte';/);
 	assert.match(index, /type DisclosureHeaderContext,/);

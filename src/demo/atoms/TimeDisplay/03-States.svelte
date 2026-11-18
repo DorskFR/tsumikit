@@ -8,15 +8,12 @@
 
 <script lang="ts">
 	import { Cluster, Dot, Text, TimeDisplay } from '@dorsk/tsumikit';
+	import { visibleInterval } from '../../fixtures';
 
 	let live = $state(3671);
-	$effect(() => {
-		const t = setInterval(() => live++, 1000);
-		return () => clearInterval(t);
-	});
 </script>
 
-<Cluster gap="var(--sp-4)">
+<Cluster gap="var(--sp-4)" {@attach visibleInterval(() => live++, 1000)}>
 	<span class="cell"><Cluster gap="var(--sp-1)"><Dot color="var(--danger)" glow label="Live" /><TimeDisplay current={live} /></Cluster><Text size="xs" tone="muted">live</Text></span>
 	<span class="cell"><TimeDisplay current={12} duration={Infinity} /><Text size="xs" tone="muted">Infinity</Text></span>
 	<span class="cell"><TimeDisplay current={0} duration={0} /><Text size="xs" tone="muted">empty</Text></span>

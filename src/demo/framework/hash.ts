@@ -37,30 +37,43 @@ export function aiming(): boolean {
 /**
  * `content-visibility` placeholders around the target resize as they render
  * (WebKit has no scroll anchoring) and mounts can scroll the page, so re-aim
- * every frame until the target holds still for `settleMs` of frame time or the
- * user takes over. Frame time, not timers: a busy main thread delays both.
+ * whenever the target or an ancestor resizes, until nothing has moved it for
+ * `settleMs` of frame time or the user takes over. Frame time, not timers: a
+ * busy main thread delays both. Layout is read only in resize callbacks, where
+ * it is already clean.
  */
 export function aim(id: string, settleMs = 1500, maxMs = 8000): void {
 	stopAim?.();
 	let want = Number.NaN;
 	let first = 0;
 	let fixed = 0;
+	let last = 0;
 	let frame = 0;
+	let observer: ResizeObserver | null = null;
+	const correct = () => {
+		const el = document.getElementById(id);
+		if (!el || Math.abs(el.getBoundingClientRect().top - want) <= 1) return;
+		el.scrollIntoView();
+		want = el.getBoundingClientRect().top;
+		fixed = last;
+	};
 	const loop = (now: number) => {
 		const el = document.getElementById(id);
 		if (!el) return stop();
-		first ||= now;
-		if (!(Math.abs(el.getBoundingClientRect().top - want) <= 1)) {
-			el.scrollIntoView();
-			want = el.getBoundingClientRect().top;
-			fixed = now;
+		if (!observer) {
+			observer = new ResizeObserver(correct);
+			for (let n: Element | null = el; n; n = n.parentElement) observer.observe(n);
 		}
+		last = now;
+		first ||= now;
+		fixed ||= now;
 		if (now - fixed >= settleMs || now - first >= maxMs) return stop();
 		frame = requestAnimationFrame(loop);
 	};
 	const inputs = ['pointerdown', 'touchstart', 'keydown', 'wheel'] as const;
 	const stop = () => {
 		cancelAnimationFrame(frame);
+		observer?.disconnect();
 		for (const e of inputs) removeEventListener(e, stop, true);
 		if (stopAim === stop) stopAim = null;
 	};

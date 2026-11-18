@@ -55,7 +55,9 @@ RadioGroup (per-option `description` in every variant, announced via
 `variant="rows"`: bordered rows, per-option `note`,
 `action(option)` trailing control that never toggles, `below(option)` inline panel),
 Tooltip, Disclosure (single collapsible: `header` snippet, bindable `open` or `open` + `onchange` for
-controlled mode, `chevron` start/end/false, `size="compact"` for strip rows, native button with
+controlled mode, `chevron` start/end/false, `size="compact"` for strip rows, `lazy` renders the
+panel content only from the first open on (kept after closing; closed content is absent from SSR
+and find-in-page), native button with
 `aria-expanded`/`aria-controls` over a `region` panel), Accordion (a stack of Disclosures; items take a
 `title` string or a `summary` snippet that receives the `item` it heads, per-item `open`/`onchange`,
 `multiple=false` keeps one open, `variant="plain"` drops the outer border, `size` forwards to every item), CopyButton, FileButton, InputGroup (a field with inset

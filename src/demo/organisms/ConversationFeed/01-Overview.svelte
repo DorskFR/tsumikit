@@ -8,22 +8,19 @@
 
 <script lang="ts">
 	import { Button, Cluster, ConversationFeed, Dot, Text } from '@dorsk/tsumikit';
+	import { visibleInterval } from '../../fixtures';
 	import { event, firstEvents, type DeployEvent } from './data';
 
 	let items = $state<DeployEvent[]>(firstEvents(6));
 	let feed = $state<ReturnType<typeof ConversationFeed<DeployEvent>>>();
 	let streaming = $state(false);
 
-	$effect(() => {
-		if (!streaming) return;
-		const timer = setInterval(() => (items = [...items, event(items.length)]), 700);
-		return () => clearInterval(timer);
-	});
+	const append = () => (items = [...items, event(items.length)]);
 
 	const color = { info: 'var(--text-faint)', ok: 'var(--ok)', warn: 'var(--warn)', danger: 'var(--danger)' };
 </script>
 
-<div class="log">
+<div class="log" {@attach visibleInterval(append, 700, () => streaming)}>
 	<ConversationFeed bind:this={feed} {items} key={(e) => e.id} label="Deploy log">
 		{#snippet item(e)}
 			<div class="line">
@@ -36,7 +33,7 @@
 </div>
 <Cluster>
 	<Button size="sm" variant={streaming ? 'danger' : 'primary'} onclick={() => (streaming = !streaming)}>{streaming ? 'Pause stream' : 'Stream events'}</Button>
-	<Button size="sm" onclick={() => (items = [...items, event(items.length)])}>Append one</Button>
+	<Button size="sm" onclick={append}>Append one</Button>
 	<Button size="sm" variant="ghost" onclick={() => feed?.scrollToBottom('smooth')}>scrollToBottom()</Button>
 </Cluster>
 

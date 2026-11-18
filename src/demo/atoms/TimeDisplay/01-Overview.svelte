@@ -9,19 +9,16 @@
 <script lang="ts">
 	import { Cluster, IconButton, SeekSlider, Text, TimeDisplay } from '@dorsk/tsumikit';
 	import { tracks } from '../../fixtures';
+	import { visibleInterval } from '../../fixtures';
 
 	const track = tracks[0];
 	let position = $state(74);
 	let playing = $state(true);
 	let remaining = $state(false);
-	$effect(() => {
-		if (!playing) return;
-		const t = setInterval(() => (position = (position + 1) % track.durationS), 1000);
-		return () => clearInterval(t);
-	});
+	const tick = () => (position = (position + 1) % track.durationS);
 </script>
 
-<div style="max-width: 28rem">
+<div style="max-width: 28rem" {@attach visibleInterval(tick, 1000, () => playing)}>
 	<Text weight="medium">{track.title}</Text>
 	<Text size="sm" tone="muted">{track.artist} · {track.album}</Text>
 	<SeekSlider bind:value={position} max={track.durationS} />

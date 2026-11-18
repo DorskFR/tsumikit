@@ -48,3 +48,23 @@ test('maxWidth sets an inline max-width and stretches the card', () => {
 	assert.match(card, /class:card-max={maxWidth !== undefined}/);
 	assert.match(card, /\.card-max\s*{\s*width: 100%;/);
 });
+
+test('row mode drops the edge ring, lift, press scale, radius and shadow', () => {
+	assert.match(card, /row\?: boolean;/);
+	assert.match(card, /row = false,/);
+	assert.match(card, /class:card-row={row}/);
+	assert.match(card, /{#if lit && !row}<span class="card-fx" aria-hidden="true"><\/span>{\/if}/);
+	const rule = card.match(/\.card\.card-row\s*{([^}]*)}/)?.[1] ?? '';
+	assert.match(rule, /border-radius: 0;/);
+	assert.match(rule, /--card-shadow-rest: none;/);
+	assert.match(rule, /translate: none;/);
+	assert.match(rule, /scale: none;/);
+	assert.ok(card.indexOf('.card.card-row') > card.lastIndexOf('.card-tap:active'), 'row rule overrides hover lift and press scale');
+});
+
+test('row mode keeps the pointer-following wash', () => {
+	assert.match(card, /\.card-tap:not\(:global\(\[data-fx-card\]:not\(\[data-fx-card='spotlight'\]\)\) \*\)[^{]*{\s*--card-fx: spotlight;\s*background-image: radial-gradient\(/);
+	assert.doesNotMatch(card, /\.card-row[^{]*{[^}]*background(-image)?:/);
+	assert.match(card, /const lit = \$derived\(tap \|\| interactive\);/);
+	assert.match(card, /if \(!node \|\| !lit\) return;/);
+});

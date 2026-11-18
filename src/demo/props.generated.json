@@ -1290,6 +1290,13 @@
 				"default": "false"
 			},
 			{
+				"name": "row",
+				"type": "boolean",
+				"optional": true,
+				"default": "false",
+				"description": "Flush list row: square corners, no shadow; hover is a wash with no edge ring, lift or press scale."
+			},
+			{
 				"name": "as",
 				"type": "'div' | 'button' | 'a' | 'li' | 'section' | 'form'",
 				"optional": true,
@@ -2840,6 +2847,13 @@
 				"type": "boolean",
 				"optional": true,
 				"default": "false"
+			},
+			{
+				"name": "lazy",
+				"type": "boolean",
+				"optional": true,
+				"default": "false",
+				"description": "Render the panel content only once first opened, then keep it. Closed content is then absent from SSR output and find-in-page."
 			},
 			{
 				"name": "sound",

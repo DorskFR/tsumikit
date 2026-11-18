@@ -1,5 +1,6 @@
 import type { Component } from 'svelte';
 import { FAMILIES, type Family } from './catalog';
+import type { PropRow } from './props';
 import { exampleOrder, exampleSlug, kebab, stripModuleScript } from './snippet';
 
 export type ExampleLayout = 'row' | 'stack' | 'grid' | 'center' | 'frame';
@@ -39,18 +40,21 @@ export type DemoEntry = {
 	name: string;
 	family: Family;
 	meta: ComponentMeta;
-	examples: DemoExample[];
+	count: number;
 };
+
+export type SectionContent = { examples: DemoExample[]; props?: PropRow[] };
 
 type ExampleModule = { default: Component; meta?: ExampleMeta };
 
 const metaModules = import.meta.glob<{ meta: ComponentMeta }>('../*/*/meta.ts', { eager: true });
-const exampleModules = import.meta.glob<ExampleModule>('../*/*/*.svelte', { eager: true });
+const exampleModules = import.meta.glob<ExampleModule>('../*/*/*.svelte');
 const exampleSources = import.meta.glob<string>('../*/*/*.svelte', {
-	eager: true,
 	query: '?raw',
 	import: 'default',
 });
+
+const files = new Map<string, string[]>();
 
 const isFamily = (s: string): s is Family => (FAMILIES as readonly string[]).includes(s);
 
@@ -73,11 +77,11 @@ function build(): DemoEntry[] {
 			name: meta.name ?? at.dir,
 			family: at.family,
 			meta,
-			examples: [],
+			count: 0,
 		});
 	}
 
-	for (const [path, mod] of Object.entries(exampleModules)) {
+	for (const path of Object.keys(exampleModules)) {
 		const at = split(path);
 		if (!at) continue;
 		const entry = byDir.get(key(at.family, at.dir));
@@ -85,19 +89,13 @@ function build(): DemoEntry[] {
 			if (import.meta.env.DEV) console.warn(`[demo] ${path} has no meta.ts beside it`);
 			continue;
 		}
-		const slug = exampleSlug(at.file);
-		entry.examples.push({
-			id: `${entry.id}--${slug}`,
-			slug,
-			file: at.file,
-			meta: mod.meta ?? { title: slug },
-			component: mod.default,
-			source: stripModuleScript(exampleSources[path] ?? ''),
-		});
+		entry.count++;
+		files.set(entry.id, [...(files.get(entry.id) ?? []), path]);
 	}
 
+	for (const paths of files.values())
+		paths.sort((a, b) => exampleOrder(a) - exampleOrder(b) || a.localeCompare(b));
 	const entries = [...byDir.values()];
-	for (const e of entries) e.examples.sort((a, b) => exampleOrder(a.file) - exampleOrder(b.file));
 	entries.sort(
 		(a, b) =>
 			FAMILIES.indexOf(a.family) - FAMILIES.indexOf(b.family) ||
@@ -125,4 +123,48 @@ export function searchText(e: DemoEntry): string {
 /** Resolve a `seeAlso` entry (name or id) to a section id. */
 export function resolveRef(ref: string): string {
 	return byName.get(ref)?.id ?? kebab(ref);
+}
+
+const loads = new Map<string, Promise<SectionContent>>();
+const loaded = new Map<string, SectionContent>();
+
+async function example(entry: DemoEntry, path: string): Promise<DemoExample> {
+	const file = path.slice(path.lastIndexOf('/') + 1);
+	const slug = exampleSlug(file);
+	const [mod, raw] = await Promise.all([exampleModules[path](), exampleSources[path]()]);
+	return {
+		id: `${entry.id}--${slug}`,
+		slug,
+		file,
+		meta: mod.meta ?? { title: slug },
+		component: mod.default,
+		source: stripModuleScript(raw),
+	};
+}
+
+/** Import a section's example components, sources and props table; cached per section. */
+export function loadSection(entry: DemoEntry): Promise<SectionContent> {
+	let load = loads.get(entry.id);
+	if (!load) {
+		load = Promise.all([
+			Promise.all((files.get(entry.id) ?? []).map((path) => example(entry, path))),
+			import('./props'),
+		]).then(
+			([examples, props]) => {
+				const content = { examples, props: props.propsFor(entry) };
+				loaded.set(entry.id, content);
+				return content;
+			},
+			(err) => {
+				loads.delete(entry.id);
+				throw err;
+			},
+		);
+		loads.set(entry.id, load);
+	}
+	return load;
+}
+
+export function loadedSection(entry: DemoEntry): SectionContent | undefined {
+	return loaded.get(entry.id);
 }

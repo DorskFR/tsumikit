@@ -7,17 +7,13 @@
 
 <script lang="ts">
 	import { Card, Stack, Text } from '@dorsk/tsumikit';
-	import { onMount } from 'svelte';
+	import { visibleInterval } from '../../fixtures';
 
 	let elapsed = $state(1_201.5);
-	onMount(() => {
-		const id = setInterval(() => (elapsed += 0.1), 100);
-		return () => clearInterval(id);
-	});
 	const shown = $derived(elapsed.toFixed(1));
 </script>
 
-<Card padding="sm">
+<Card padding="sm" {@attach visibleInterval(() => (elapsed += 0.1), 100)}>
 	<Stack gap="var(--sp-1)">
 		<Text variant="caption" tone="muted">Build time</Text>
 		<Text size="xl" weight="semibold" numeric>{shown}s</Text>

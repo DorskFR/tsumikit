@@ -37,6 +37,8 @@
 		type?: 'button' | 'submit' | 'reset';
 		tap?: boolean;
 		interactive?: boolean;
+		/** Flush list row: square corners, no shadow; hover is a wash with no edge ring, lift or press scale. */
+		row?: boolean;
 		as?: 'div' | 'button' | 'a' | 'li' | 'section' | 'form';
 		padding?: 'none' | 'sm' | 'md' | 'lg';
 		surface?: 'base' | 'raised' | 'sunken';
@@ -64,6 +66,7 @@
 	let {
 		tap = false,
 		interactive = false,
+		row = false,
 		as = 'div',
 		type = 'button',
 		padding = 'md',
@@ -170,6 +173,7 @@
 	class:border-dashed={border === 'dashed'}
 	class:border-none={border === 'none'}
 	class:card-tap={tap || interactive}
+	class:card-row={row}
 	class:card-max={maxWidth !== undefined}
 	class:card-ok={t === 'ok'}
 	class:card-warn={t === 'warn'}
@@ -210,7 +214,7 @@
 	{:else}
 		{@render children?.()}
 	{/if}
-	{#if lit}<span class="card-fx" aria-hidden="true"></span>{/if}
+	{#if lit && !row}<span class="card-fx" aria-hidden="true"></span>{/if}
 </svelte:element>
 
 <style>
@@ -408,6 +412,12 @@
 	}
 	.card-max {
 		width: 100%;
+	}
+	.card.card-row {
+		border-radius: 0;
+		--card-shadow-rest: none;
+		translate: none;
+		scale: none;
 	}
 
 	.card-ok {

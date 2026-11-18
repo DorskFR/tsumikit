@@ -1,11 +1,9 @@
 <script lang="ts">
 	import { Badge, Card, type Column, DataTable, Heading } from '@dorsk/tsumikit';
-	import { type PropRow as Prop, propsFor } from './props';
+	import type { PropRow as Prop } from './props';
 	import type { DemoEntry } from './registry';
 
-	let { entry }: { entry: DemoEntry } = $props();
-
-	const rows = $derived(propsFor(entry));
+	let { entry, rows }: { entry: DemoEntry; rows?: Prop[] } = $props();
 
 	const columns: Column<Prop>[] = [
 		{ key: 'name', label: 'Prop', role: 'title', nowrap: true },

@@ -29,7 +29,7 @@
 	>
 		<example.component />
 	</div>
-	<Disclosure size="compact" class="example__code">
+	<Disclosure size="compact" class="example__code" lazy>
 		{#snippet header()}Code · {example.file}{/snippet}
 		<CodeBlock code={example.source} lang="svelte" {highlight} />
 	</Disclosure>

@@ -9,6 +9,7 @@ function setup(hash = '#rich-select') {
 	);
 	const w = dom.window;
 	let aims = 0;
+	let reads = 0;
 	/** @type {Record<string, number>} */
 	const tops = {};
 	w.HTMLElement.prototype.scrollIntoView = function () {
@@ -16,17 +17,37 @@ function setup(hash = '#rich-select') {
 		tops[this.id] = 68;
 	};
 	w.HTMLElement.prototype.getBoundingClientRect = function () {
+		reads++;
 		const top = tops[this.id] ?? 0;
 		return /** @type {DOMRect} */ ({ top, bottom: top + 100 });
 	};
 	/** @type {((t: number) => void)[]} */
 	let queued = [];
+	/** @type {Set<{ cb: () => void, pending: boolean, targets: Element[] }>} */
+	const observers = new Set();
+	class FakeResizeObserver {
+		/** @param {() => void} cb */
+		constructor(cb) {
+			this.o = { cb, pending: false, targets: /** @type {Element[]} */ ([]) };
+			observers.add(this.o);
+		}
+		/** @param {Element} el */
+		observe(el) {
+			this.o.targets.push(el);
+			this.o.pending = true;
+		}
+		unobserve() {}
+		disconnect() {
+			observers.delete(this.o);
+		}
+	}
 	const g = /** @type {any} */ (globalThis);
 	Object.assign(g, {
 		location: w.location,
 		history: w.history,
 		document: w.document,
 		Element: w.Element,
+		ResizeObserver: FakeResizeObserver,
 		addEventListener: w.addEventListener.bind(w),
 		removeEventListener: w.removeEventListener.bind(w),
 		requestAnimationFrame: (/** @type {(t: number) => void} */ fn) => queued.push(fn),
@@ -38,22 +59,29 @@ function setup(hash = '#rich-select') {
 		const run = queued;
 		queued = [];
 		for (const fn of run) fn(t);
+		for (const o of observers) {
+			if (!o.pending) continue;
+			o.pending = false;
+			o.cb();
+		}
 	};
 	const drift = (/** @type {string} */ id, /** @type {number} */ top) => {
 		tops[id] = top;
+		for (const o of observers) o.pending = true;
 	};
+	const observed = () => [...observers].flatMap((o) => o.targets.map((el) => el.id || el.tagName));
 	const click = (/** @type {string} */ id, init = {}) => {
 		const e = new w.MouseEvent('click', { bubbles: true, cancelable: true, button: 0, ...init });
 		w.document.getElementById(id)?.dispatchEvent(e);
 		return e.defaultPrevented;
 	};
-	return { w, aims: () => aims, frame, drift, click };
+	return { w, aims: () => aims, reads: () => reads, frame, drift, click, observed };
 }
 
 const { aim, aiming, aimAtHash, followHashes, resolveHash } = await import('../src/demo/framework/hash.ts');
 const tick = (ms = 0) => new Promise((r) => setTimeout(r, ms));
 
-test('aim re-aims every frame the target drifts, whatever moved it', () => {
+test('aim re-aims on every frame a resize moved the target', () => {
 	const { aims, frame, drift } = setup();
 	aim('rich-select', 10_000);
 	frame(16);
@@ -66,6 +94,21 @@ test('aim re-aims every frame the target drifts, whatever moved it', () => {
 	drift('rich-select', -1032);
 	frame(64);
 	assert.equal(aims(), 3);
+});
+
+test('aim reads no layout on frames where nothing resized, and watches the target and its ancestors', () => {
+	const { aims, reads, frame, drift, observed } = setup();
+	aim('rich-select', 10_000);
+	frame(16);
+	assert.equal(aims(), 1);
+	assert.deepEqual(observed(), ['rich-select', 'BODY', 'HTML']);
+	const settled = reads();
+	for (let t = 32; t <= 640; t += 16) frame(t);
+	assert.equal(reads(), settled, 'quiet frames never touch getBoundingClientRect');
+	drift('rich-select', 300);
+	frame(656);
+	assert.equal(aims(), 2);
+	assert.ok(reads() > settled);
 });
 
 test('aim stops on the first user input', () => {
@@ -104,7 +147,7 @@ test('aim gives up after maxMs on a target that never holds still', () => {
 		frame(t + 1);
 	}
 	assert.equal(aiming(), false);
-	assert.equal(aims(), 7);
+	assert.equal(aims(), 6, 'the frame that gives up stops observing before its resizes land');
 });
 
 test('aimAtHash rewrites a former anchor, mounts and aims at its section', () => {
