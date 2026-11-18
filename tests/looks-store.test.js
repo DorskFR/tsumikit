@@ -220,9 +220,7 @@ test('trackPointer writes box-relative vars only on the hovered spotlight cards,
 	assert.deepEqual(writes, []);
 });
 
-test('pointer vars are registered non-inheriting, so only the written surface restyles', async () => {
+test('pointer vars are not registered: a global @property made every element costlier to restyle', async () => {
 	const card = await readFile(new URL('../src/lib/components/atoms/Card.svelte', import.meta.url), 'utf8');
-	for (const axis of ['x', 'y']) {
-		assert.match(card, new RegExp(`@property --pointer-${axis} \\{\\s*syntax: '\\*';\\s*inherits: false;\\s*\\}`));
-	}
+	assert.doesNotMatch(card, /@property --pointer-/);
 });

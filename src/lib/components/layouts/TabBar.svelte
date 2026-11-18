@@ -2,9 +2,9 @@
 	// Phone bottom tab bar: fixed to the bottom edge with safe-area padding.
 	// Items without `href` form a `tablist` of `tab`s with roving focus; with
 	// `href` the bar is a `<nav>` of `<a aria-current="page">`. While mounted as
-	// a bar it publishes its measured height as `--tabbar-h` on `<html>` so
-	// content can clear it (`padding-bottom: var(--tabbar-h)`); until measured,
-	// a CSS default computed from the tokens holds the same value.
+	// a bar it publishes its height as `--tabbar-h` on `<html>` so content can
+	// clear it (`padding-bottom: var(--tabbar-h)`): the token estimate on mount,
+	// then the measured height. Set it in app CSS to clear the bar before hydration.
 	import Badge from '$lib/components/atoms/Badge.svelte';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import type { IconName } from '$lib/components/atoms/Icon.svelte';
@@ -54,12 +54,12 @@
 		typeof badge === 'number' ? (hasCount(badge) ? formatCount(badge) : '') : (badge ?? '');
 
 	let height = $state(0);
+	const TABBAR_H = 'calc(var(--nav-h) + var(--edge-width) + env(safe-area-inset-bottom, 0px))';
 
 	$effect(() => {
 		if (placement !== 'bar' || typeof document === 'undefined') return;
 		const root = document.documentElement;
-		if (height > 0) root.style.setProperty('--tabbar-h', `${height}px`);
-		else root.style.removeProperty('--tabbar-h');
+		root.style.setProperty('--tabbar-h', height > 0 ? `${height}px` : TABBAR_H);
 		return () => root.style.removeProperty('--tabbar-h');
 	});
 
@@ -145,9 +145,6 @@
 </nav>
 
 <style>
-	:global(:root:has([data-tsu='TabBar'][data-placement='bar'])) {
-		--tabbar-h: calc(var(--nav-h) + var(--edge-width) + env(safe-area-inset-bottom, 0px));
-	}
 	.tabbar {
 		min-width: 0;
 		background: var(--surface-fill);

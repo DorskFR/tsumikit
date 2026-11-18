@@ -322,7 +322,10 @@ container width it collapses to prev / "3 / 12" / next.
 chip), `uppercase` (eyebrow group label), `divider`, `sticky` (pins at
 `--sticky-offset` / `--header-h` and publishes `--section-header-h` on its
 parent), `collapsible` + `bind:open` (title becomes a disclosure button with
-`aria-expanded`; `children` render beneath while open), `actions` snippet.
+`aria-expanded`; `children` stay in the DOM while collapsed as
+`hidden="until-found"`, so Ctrl+F and `#fragment` links open them; `onchange`
+reports each toggle; `lazy` renders `children` only after the first open),
+`actions` snippet.
 `variant="group"` is the non-wrapping list-group row: `lead` snippet (dot /
 badge) · title · `count` · flexible 1px rule · `actions` (sort menu, eye toggle).
 
