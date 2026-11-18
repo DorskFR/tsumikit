@@ -1,6 +1,6 @@
 <script lang="ts">
-	// Renders the toast queue in two live regions: polite for
-	// ok/info/neutral, assertive (role=alert) for errors. Mount once near the
+	// Renders the toast queue in two live regions, inside one region named by
+	// `label`: polite for ok/info/neutral, assertive (role=alert) for errors. Mount once near the
 	// app root. Bottom placements sit above the TabBar, the DataTable selection
 	// bar and `--toaster-offset` (an app's own bottom bars). The stack lives in a manual popover so it paints in the top
 	// layer; without the Popover API the attribute is ignored and the
@@ -17,7 +17,8 @@
 		placement = 'bottom',
 		class: klass = '',
 		style: styleProp = '',
-		sound = true
+		sound = true,
+		label = 'Notifications'
 	}: {
 		/** Where the stack sits; bottom placements clear the bottom bars. */
 		placement?: 'bottom' | 'bottom-start' | 'bottom-end' | 'top';
@@ -25,10 +26,12 @@
 		style?: string;
 		/** Play UI sounds when enabled globally; false silences this instance. */
 		sound?: boolean;
+		/** Accessible name of the region holding both live regions. */
+		label?: string;
 	} = $props();
 
 	let host: HTMLDivElement | undefined = $state();
-	let el: HTMLDivElement | undefined = $state();
+	let el: HTMLElement | undefined = $state();
 	const polite = $derived(toasts.items.filter((t) => t.tone !== 'error'));
 	const assertive = $derived(toasts.items.filter((t) => t.tone === 'error'));
 
@@ -43,14 +46,14 @@
 	}
 
 	let shown = false;
-	function show(stack: HTMLDivElement) {
+	function show(stack: HTMLElement) {
 		if (typeof stack.showPopover !== 'function') return;
 		try {
 			stack.showPopover();
 			shown = true;
 		} catch {}
 	}
-	function hide(stack: HTMLDivElement) {
+	function hide(stack: HTMLElement) {
 		if (!shown || typeof stack.hidePopover !== 'function') return;
 		shown = false;
 		try {
@@ -101,13 +104,63 @@
 		}
 	});
 
-	// Hovering a toast holds its timer; only a real pointer counts.
-	function hold(e: PointerEvent, id: number) {
-		if (e.pointerType === 'mouse') toasts.pause(id);
+	// Hover, focus and a swipe each hold the timer; it resumes once none does.
+	const holds = new Map<number, Set<string>>();
+	function hold(id: number, why: string) {
+		const set = holds.get(id) ?? new Set<string>();
+		if (!set.size) toasts.pause(id);
+		set.add(why);
+		holds.set(id, set);
 	}
-	function release(e: PointerEvent, id: number) {
-		if (e.pointerType === 'mouse') toasts.resume(id);
+	function release(id: number, why: string) {
+		const set = holds.get(id);
+		if (!set?.delete(why) || set.size) return;
+		holds.delete(id);
+		toasts.resume(id);
 	}
+	function hover(e: PointerEvent, id: number) {
+		if (e.pointerType === 'mouse') hold(id, 'hover');
+	}
+	function unhover(e: PointerEvent, id: number) {
+		if (e.pointerType === 'mouse') release(id, 'hover');
+	}
+
+	let focused: number | null = null;
+	let restore: HTMLElement | null = null;
+	function focusIn(e: FocusEvent, id: number) {
+		const from = e.relatedTarget;
+		if (!(from instanceof Node && el?.contains(from))) restore = from instanceof HTMLElement ? from : null;
+		focused = id;
+		hold(id, 'focus');
+	}
+	function focusOut(e: FocusEvent, id: number) {
+		const to = e.relatedTarget;
+		if (to instanceof Node && (e.currentTarget as HTMLElement).contains(to)) return;
+		if (focused === id) focused = null;
+		release(id, 'focus');
+	}
+
+	// A dismissed toast must not drop focus to <body>: return it to where it
+	// came from, else to the next toast.
+	function refocus() {
+		focused = null;
+		const back = restore;
+		restore = null;
+		if (back?.isConnected) {
+			back.focus();
+			if (document.activeElement === back) return;
+		}
+		const next = el?.querySelector<HTMLElement>('.toast:not([data-leaving])');
+		(next?.matches('button') ? next : next?.querySelector<HTMLElement>('button'))?.focus();
+	}
+
+	$effect(() => {
+		const items = toasts.items;
+		for (const id of holds.keys()) if (!items.some((t) => t.id === id)) holds.delete(id);
+		if (focused === null) return;
+		const t = items.find((x) => x.id === focused);
+		if (!t || t.leaving) refocus();
+	});
 
 	// Touch swipe to dismiss. The drag writes `translate` straight to the
 	// element so a move costs no reactive update.
@@ -134,7 +187,7 @@
 			}
 			swipe.locked = true;
 			swallowClick = true;
-			toasts.pause(swipe.id);
+			hold(swipe.id, 'swipe');
 			el.dataset.swiping = '';
 			try {
 				el.setPointerCapture?.(e.pointerId);
@@ -155,7 +208,7 @@
 			toasts.dismiss(id);
 		} else {
 			el.style.removeProperty('translate');
-			toasts.resume(id);
+			release(id, 'swipe');
 		}
 	}
 	function swallowSwipeClick(e: MouseEvent) {
@@ -175,8 +228,10 @@
 			class="toast"
 			{tone}
 			data-leaving={t.leaving || undefined}
-			onpointerenter={(e: PointerEvent) => hold(e, t.id)}
-			onpointerleave={(e: PointerEvent) => release(e, t.id)}
+			onpointerenter={(e: PointerEvent) => hover(e, t.id)}
+			onpointerleave={(e: PointerEvent) => unhover(e, t.id)}
+			onfocusin={(e: FocusEvent) => focusIn(e, t.id)}
+			onfocusout={(e: FocusEvent) => focusOut(e, t.id)}
 			onpointerdown={(e: PointerEvent) => swipeStart(e, t)}
 			onpointermove={swipeMove}
 			onpointerup={(e: PointerEvent) => swipeEnd(e)}
@@ -208,8 +263,10 @@
 			type="button"
 			aria-label="Dismiss: {t.message}"
 			data-leaving={t.leaving || undefined}
-			onpointerenter={(e: PointerEvent) => hold(e, t.id)}
-			onpointerleave={(e: PointerEvent) => release(e, t.id)}
+			onpointerenter={(e: PointerEvent) => hover(e, t.id)}
+			onpointerleave={(e: PointerEvent) => unhover(e, t.id)}
+			onfocusin={(e: FocusEvent) => focusIn(e, t.id)}
+			onfocusout={(e: FocusEvent) => focusOut(e, t.id)}
 			onpointerdown={(e: PointerEvent) => swipeStart(e, t)}
 			onpointermove={swipeMove}
 			onpointerup={(e: PointerEvent) => swipeEnd(e)}
@@ -228,14 +285,22 @@
 {/snippet}
 
 <div class="toaster-host" bind:this={host}>
-	<div class="toaster {klass}" style={styleProp} bind:this={el} popover="manual" data-tsu="Toaster" data-placement={placement}>
+	<section
+		class="toaster {klass}"
+		style={styleProp}
+		bind:this={el}
+		popover="manual"
+		aria-label={label}
+		data-tsu="Toaster"
+		data-placement={placement}
+	>
 		<div class="region" role="status" aria-live="polite">
 			{#each polite as t (t.id)}{@render toast(t)}{/each}
 		</div>
 		<div class="region" role="alert" aria-live="assertive">
 			{#each assertive as t (t.id)}{@render toast(t)}{/each}
 		</div>
-	</div>
+	</section>
 </div>
 
 <style>

@@ -15,7 +15,9 @@ test('Drawer is a native <dialog> that follows a bound `open` and closes on Esca
 	assert.match(source, /const controlled = \$derived\(open !== undefined\);/);
 	assert.match(source, /if \(open && !dialogEl\.open\) {\s*dialogEl\.showModal\(\);/);
 	assert.match(source, /} else if \(!open && dialogEl\.open\) dialogEl\.close\(\);/);
-	assert.match(source, /function requestClose\(\) {\s*if \(controlled\) open = false;\s*else playSound\('close', sound\);\s*onclose\?\.\(\);/s);
+	assert.match(source, /function requestClose\(\) {\s*if \(controlled\) open = false;\s*else {\s*dismissed = true;\s*playSound\('close', sound\);\s*}\s*onclose\?\.\(\);/s);
+	assert.match(source, /function onDialogClose\(\) {\s*const forced = controlled \? open : !dismissed;\s*dismissed = false;\s*if \(controlled\) open = false;\s*if \(controlled \|\| forced\) playSound\('close', sound\);\s*if \(forced\) onclose\?\.\(\);/s);
+	assert.match(source, /onclose={onDialogClose}/);
 	assert.match(source, /oncancel={\(e\) => {\s*e\.preventDefault\(\);\s*requestClose\(\);/s);
 	assert.match(source, /pressOnBackdrop = e\.target === dialogEl;/);
 	assert.match(source, /const outside = pressOnBackdrop && e\.target === dialogEl;\s*pressOnBackdrop = false;\s*if \(outside\) requestClose\(\);/s);
@@ -24,10 +26,11 @@ test('Drawer is a native <dialog> that follows a bound `open` and closes on Esca
 	assert.match(source, /closeLabel = 'Close panel'/);
 });
 
-test('Drawer locks body scroll while shown and restores it on close', () => {
-	assert.match(source, /const shown = \$derived\(!controlled \|\| open === true\);/);
-	assert.match(source, /if \(!browser \|\| !shown\) return;\s*const previous = document\.body\.style\.overflow;\s*document\.body\.style\.overflow = 'hidden';/s);
-	assert.match(source, /document\.body\.style\.overflow = previous;/);
+test('Drawer contains scroll with CSS instead of locking body overflow', () => {
+	assert.doesNotMatch(source, /\.style\.overflow/);
+	assert.match(source, /\n\t\.drawer\s*{[^}]*overflow: hidden;\s*overscroll-behavior: contain;/s);
+	assert.match(source, /\.drawer::backdrop\s*{\s*overflow: hidden;\s*overscroll-behavior: contain;/s);
+	assert.match(source, /\.panel-body\s*{[^}]*overflow-y: auto;\s*overscroll-behavior: contain;/s);
 });
 
 test('Drawer sides, width clamp and full-screen narrow layout', () => {

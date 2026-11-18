@@ -90,7 +90,7 @@ class Toasts {
 		if (duration > 0) this.#arm(id, duration);
 		return id;
 	}
-	/** Hold the auto-dismiss (pointer over the toast); `resume` restarts the remaining time. */
+	/** Hold the auto-dismiss (pointer over, focus inside or a swipe on the toast); `resume` restarts the remaining time. */
 	pause(id: number) {
 		const due = this.#due.get(id);
 		if (due === undefined) return;

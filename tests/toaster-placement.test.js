@@ -17,7 +17,7 @@ test('bottom placements clear the safe area, TabBar, selection bar and --toaster
 test('placement prop defaults to bottom and lands on the stack as data-placement', () => {
 	assert.match(src, /placement = 'bottom',/);
 	assert.match(src, /placement\?: 'bottom' \| 'bottom-start' \| 'bottom-end' \| 'top';/);
-	assert.match(src, /data-tsu="Toaster" data-placement={placement}/);
+	assert.match(src, /data-tsu="Toaster"\s+data-placement={placement}/);
 });
 
 test('start/end/top placements reposition without the centring transform', () => {
