@@ -13,7 +13,8 @@
 		onItem,
 		size = 'default',
 		variant = 'default',
-		lazy = false
+		lazy = false,
+		region = false
 	}: {
 		open?: boolean;
 		chevron?: 'start' | 'end' | false;
@@ -25,6 +26,7 @@
 		size?: 'default' | 'compact';
 		variant?: 'default' | 'plain';
 		lazy?: boolean;
+		region?: boolean;
 	} = $props();
 
 	const items = $derived<AccordionItem[]>([
@@ -44,7 +46,7 @@
 	>
 {/snippet}
 
-<Disclosure id="probe" bind:open {chevron} {size} {lazy} {onchange}>
+<Disclosure id="probe" bind:open {chevron} {size} {lazy} {region} {onchange}>
 	{#snippet header({ open })}
 		<span class="probe-header">Details</span><span class="probe-header-state">{open ? 'on' : 'off'}</span>
 	{/snippet}

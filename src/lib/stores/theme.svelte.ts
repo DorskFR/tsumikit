@@ -86,6 +86,8 @@ export const THEMES = [
 
 /** Pre-paint script for the built-in themes; inline it in <head>. */
 export const THEME_PREPAINT = themePrepaint(KEY, THEMES);
+/** CSP `script-src` hash of `THEME_PREPAINT`; matches only when it is the whole body of its own `<script>`. */
+export const THEME_PREPAINT_HASH = 'sha256-Y77g/7xsP2Ma6+fbGMHJXWMJiUrxoeutq+mVDs77Ifs=';
 
 export type Mode = (typeof THEMES)[number]['id'];
 export type ThemeMode = (typeof THEMES)[number]['mode'];

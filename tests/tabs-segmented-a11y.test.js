@@ -140,7 +140,7 @@ test('Accordion: two instances with the same item ids get distinct button/panel 
 	for (const b of buttons) {
 		const panel = ui.doc.getElementById(b.getAttribute('aria-controls') ?? '');
 		assert.ok(panel, `${b.id} controls a panel`);
-		assert.equal(panel.getAttribute('aria-labelledby'), b.id);
+		assert.equal(panel.getAttribute('role'), null, 'accordion panels are not landmarks');
 		assert.equal(b.closest('[data-tsu="Accordion"]'), panel.closest('[data-tsu="Accordion"]'));
 	}
 });

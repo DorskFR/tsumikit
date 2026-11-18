@@ -2,6 +2,8 @@
 // first, then a fixed tag set is re-introduced, so no raw HTML survives.
 // Highlighting is an optional hook returning safe HTML; no runtime deps.
 
+import { type HTMLValue, libraryHTML } from './trusted-html';
+
 export type Highlight = (code: string, lang: string) => string;
 
 export type RenderMarkdownOptions = {
@@ -284,4 +286,11 @@ export function renderMarkdown(src: string, opts: RenderMarkdownOptions = {}): s
 	s = inline(s, autolink);
 	s = blocks(s.split('\n'));
 	return restore(s, saved);
+}
+
+/** `renderMarkdown` wrapped by the `tsumikit` Trusted Types policy when the browser
+ *  has Trusted Types, for `Prose` under `require-trusted-types-for 'script'`.
+ *  A `highlight` hook's output is trusted as-is. */
+export function renderTrustedMarkdown(src: string, opts: RenderMarkdownOptions = {}): HTMLValue {
+	return libraryHTML(renderMarkdown(src, opts));
 }

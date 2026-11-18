@@ -1,18 +1,23 @@
 <script lang="ts">
 	// Markdown style contract: headings, paragraphs, inline/block code, tables,
 	// quotes, lists and images, driven by the --md-* tokens. Feed it rendered
-	// `html` (already sanitised upstream) or children markup.
+	// `html` or children markup.
 	import type { Snippet } from 'svelte';
+	import { type HTMLValue, type SanitizeOptions, sanitizedHTML } from '$lib/trusted-html';
 
 	let {
 		html,
+		sanitize,
 		children,
 		compact = false,
 		class: klass = '',
 		style: styleProp = ''
 	}: {
-		/** Pre-rendered, trusted HTML. */
-		html?: string;
+		/** Rendered as-is: it MUST be trusted or sanitized, tsumikit does not sanitize
+		 *  it unless `sanitize` is set. Pass `TrustedHTML` under Trusted Types. */
+		html?: HTMLValue;
+		/** Sanitize `html` client-side: `setHTML` where supported, else `fallback`. */
+		sanitize?: boolean | SanitizeOptions;
 		children?: Snippet;
 		/** Tighter vertical rhythm for chat bubbles. */
 		compact?: boolean;
@@ -21,9 +26,13 @@
 	} = $props();
 </script>
 
-<div data-tsu="Prose" class="prose {klass}" class:compact style={styleProp}>
-	{#if html !== undefined}{@html html}{:else}{@render children?.()}{/if}
-</div>
+{#if sanitize && html !== undefined}
+	<div data-tsu="Prose" class="prose {klass}" class:compact style={styleProp} {@attach sanitizedHTML(html, sanitize === true ? {} : sanitize)}></div>
+{:else}
+	<div data-tsu="Prose" class="prose {klass}" class:compact style={styleProp}>
+		{#if html !== undefined}{@html html}{:else}{@render children?.()}{/if}
+	</div>
+{/if}
 
 <style>
 	.prose {

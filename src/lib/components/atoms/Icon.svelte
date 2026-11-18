@@ -128,6 +128,21 @@
 
 	// Glyphs that read better filled than stroked.
 	const FILLED = new Set<IconName>(['stop', 'star', 'live']);
+
+	type GlyphNode = [tag: string, attrs: Record<string, string>];
+	const NODES = new Map<IconName, GlyphNode[]>();
+
+	function glyphNodes(name: IconName): GlyphNode[] {
+		let nodes = NODES.get(name);
+		if (!nodes) {
+			nodes = Array.from(ICONS[name].matchAll(/<(\w+)([^>]*?)\s*\/>/g), ([, tag, attrs]): GlyphNode => [
+				tag,
+				Object.fromEntries(Array.from(attrs.matchAll(/([\w-]+)="([^"]*)"/g), ([, k, v]) => [k, v])),
+			]);
+			NODES.set(name, nodes);
+		}
+		return nodes;
+	}
 </script>
 
 <script lang="ts">
@@ -193,8 +208,17 @@
 	{#if children}
 		{@render children()}
 	{:else if name}
-		<!-- eslint-disable-next-line svelte/no-at-html-tags -- trusted, static path data -->
-		{@html ICONS[name]}
+		{#each glyphNodes(name) as [tag, a], i (i)}
+			{#if tag === 'path'}
+				<path d={a.d} fill={a.fill} />
+			{:else if tag === 'circle'}
+				<circle cx={a.cx} cy={a.cy} r={a.r} fill={a.fill} />
+			{:else if tag === 'rect'}
+				<rect x={a.x} y={a.y} width={a.width} height={a.height} rx={a.rx} ry={a.ry} fill={a.fill} />
+			{:else if tag === 'line'}
+				<line x1={a.x1} x2={a.x2} y1={a.y1} y2={a.y2} />
+			{/if}
+		{/each}
 	{/if}
 </svg>
 

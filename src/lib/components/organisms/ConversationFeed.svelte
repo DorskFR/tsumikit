@@ -173,6 +173,11 @@
 		flex-direction: column;
 		gap: var(--sp-3);
 	}
+	/* The newest entries sit in view at the bottom, so they always render. */
+	.feed-items > :global(:not(:nth-last-child(-n + 8))) {
+		content-visibility: auto;
+		contain-intrinsic-block-size: auto 6rem;
+	}
 	.jump {
 		position: absolute;
 		inset-inline: 0;

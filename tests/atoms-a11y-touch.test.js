@@ -66,6 +66,7 @@ test('Slider aria-valuetext comes from the mark label, else a passed format', ()
 
 test('autoresize re-measures when the inline size changes, not on height-only changes', () => {
 	const { win, doc, fx } = env();
+	win.CSS.supports = () => false;
 	/** @type {ResizeObserverCallback | undefined} */
 	let cb;
 	let disconnected = false;

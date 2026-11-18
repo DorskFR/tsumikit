@@ -8,7 +8,7 @@
 
 <script lang="ts">
 	// Single collapsible: a native <button aria-expanded aria-controls> (so Enter
-	// and Space activate it without a keydown handler) toggling a region panel.
+	// and Space activate it without a keydown handler) toggling a panel.
 	// `open` is bindable; an unbound `open` plus `onchange` gives controlled mode.
 	import type { Snippet } from 'svelte';
 	import type { HTMLAttributes } from 'svelte/elements';
@@ -25,6 +25,7 @@
 		onchange,
 		disabled = false,
 		lazy = false,
+		region = false,
 		sound = true,
 		class: klass = '',
 		style: styleProp = '',
@@ -51,6 +52,9 @@
 		/** Render the panel content only once first opened, then keep it.
 		 *  Closed content is then absent from SSR output and find-in-page. */
 		lazy?: boolean;
+		/** Expose the panel as a labelled `region` landmark. Keep it for a few
+		 *  large panels; a stack of small ones would flood the landmark list. */
+		region?: boolean;
 		/** Play UI sounds when enabled globally; false silences this instance. */
 		sound?: boolean;
 		class?: string;
@@ -69,6 +73,12 @@
 	function toggle() {
 		open = !open;
 		playSound(open ? 'open' : 'close', sound);
+		onchange?.(open);
+	}
+
+	function reveal() {
+		if (open) return;
+		open = true;
 		onchange?.(open);
 	}
 </script>
@@ -101,11 +111,14 @@
 	<div
 		id={panelId}
 		class="disclosure__panel {panelClass}"
-		role="region"
-		aria-labelledby={buttonId}
-		hidden={!open}
+		role={region ? 'region' : undefined}
+		aria-labelledby={region ? buttonId : undefined}
+		hidden={open ? false : rendered ? 'until-found' : true}
+		onbeforematch={reveal}
 	>
-		{#if rendered}{@render children()}{/if}
+		<div class="disclosure__body">
+			{#if rendered}{@render children()}{/if}
+		</div>
 	</div>
 </div>
 
@@ -160,12 +173,14 @@
 		rotate: 180deg;
 	}
 	.disclosure__panel {
-		padding: var(--disclosure-panel-pad, 0 var(--sp-4) var(--sp-4));
 		font-size: var(--disclosure-fs, var(--fs-sm));
 		color: var(--text-muted);
 		transition:
 			opacity var(--dur-base) var(--ease-out),
 			translate var(--dur-base) var(--ease-out);
+	}
+	.disclosure__body {
+		padding: var(--disclosure-panel-pad, 0 var(--sp-4) var(--sp-4));
 	}
 	@starting-style {
 		.disclosure__panel:not([hidden]) {
@@ -178,7 +193,7 @@
 		--disclosure-fs: var(--fs-xs);
 		--disclosure-panel-pad: 0 var(--sp-2) var(--sp-2);
 	}
-	.disclosure__panel[hidden] {
+	.disclosure__panel[hidden]:not([hidden='until-found']) {
 		display: none;
 	}
 </style>

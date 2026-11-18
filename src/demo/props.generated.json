@@ -1569,7 +1569,7 @@
 				"name": "markdown",
 				"type": "string",
 				"optional": true,
-				"description": "Rendered through `renderMarkdown` into `Prose` when `children` is absent."
+				"description": "Rendered through `renderTrustedMarkdown` into `Prose` when `children` is absent."
 			},
 			{
 				"name": "actions",
@@ -1825,15 +1825,21 @@
 			},
 			{
 				"name": "html",
-				"type": "string",
+				"type": "HTMLValue",
 				"optional": true,
-				"description": "Pre-highlighted HTML (overrides `highlight`)."
+				"description": "Pre-highlighted HTML (overrides `highlight`). MUST be trusted or sanitized: tsumikit does not sanitize it unless `sanitize` is set."
 			},
 			{
 				"name": "highlight",
-				"type": "(code: string, lang?: string) => string",
+				"type": "(code: string, lang?: string) => HTMLValue",
 				"optional": true,
-				"description": "Highlighter callback returning HTML for `code`."
+				"description": "Highlighter callback returning HTML for `code`; same trust rule as `html`."
+			},
+			{
+				"name": "sanitize",
+				"type": "boolean | SanitizeOptions",
+				"optional": true,
+				"description": "Sanitize `html` / `highlight` output client-side: `setHTML` where supported, else `fallback`."
 			},
 			{
 				"name": "filename",
@@ -2854,6 +2860,13 @@
 				"optional": true,
 				"default": "false",
 				"description": "Render the panel content only once first opened, then keep it. Closed content is then absent from SSR output and find-in-page."
+			},
+			{
+				"name": "region",
+				"type": "boolean",
+				"optional": true,
+				"default": "false",
+				"description": "Expose the panel as a labelled `region` landmark. Keep it for a few large panels; a stack of small ones would flood the landmark list."
 			},
 			{
 				"name": "sound",
@@ -6595,9 +6608,15 @@
 		"props": [
 			{
 				"name": "html",
-				"type": "string",
+				"type": "HTMLValue",
 				"optional": true,
-				"description": "Pre-rendered, trusted HTML."
+				"description": "Rendered as-is: it MUST be trusted or sanitized, tsumikit does not sanitize it unless `sanitize` is set. Pass `TrustedHTML` under Trusted Types."
+			},
+			{
+				"name": "sanitize",
+				"type": "boolean | SanitizeOptions",
+				"optional": true,
+				"description": "Sanitize `html` client-side: `setHTML` where supported, else `fallback`."
 			},
 			{
 				"name": "children",

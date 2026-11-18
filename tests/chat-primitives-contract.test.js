@@ -19,7 +19,8 @@ test('chat primitives are exported', () => {
 });
 
 test('Prose: html or children, compact rhythm, --md-* token driven', () => {
-	assert.match(prose, /html\?: string;/);
+	assert.match(prose, /html\?: HTMLValue;/);
+	assert.match(prose, /sanitize\?: boolean \| SanitizeOptions;/);
 	assert.match(prose, /compact\?: boolean;/);
 	assert.match(prose, /{#if html !== undefined}{@html html}{:else}{@render children\?\.\(\)}{\/if}/);
 	assert.match(prose, /color: var\(--md-code, var\(--text\)\);/);

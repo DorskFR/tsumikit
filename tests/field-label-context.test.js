@@ -20,7 +20,7 @@ const [ctx, index, field, input, select, textarea, checkbox, sw, slider, filterI
 
 test('field-context exports the key, type and helpers', () => {
 	assert.match(ctx, /export const FIELD_KEY = Symbol\('tsu-field'\)/);
-	assert.match(ctx, /export type FieldContext = {\s*id: string;\s*describedBy\?: string;\s*invalid: boolean;\s*}/);
+	assert.match(ctx, /export type FieldContext = {\s*id: string;\s*describedBy\?: string;\s*invalid: boolean;\s*report\?: \(message: string \| null\) => void;\s*}/);
 	assert.match(ctx, /export function setFieldContext\(ctx: FieldContext\)/);
 	assert.match(ctx, /export function getFieldContext\(\): FieldContext \| undefined/);
 	assert.match(ctx, /export function warnUnlabelled\(el: HTMLElement \| null \| undefined, name: string\)/);
@@ -45,10 +45,11 @@ test('Field generates an id, publishes context and ids its hint/error', () => {
 	assert.match(field, /const forId = \$derived\(forProp \?\? uid\)/);
 	assert.match(field, /const hintId = \$derived\(`\$\{forId\}-hint`\)/);
 	assert.match(field, /const errorId = \$derived\(`\$\{forId\}-err`\)/);
-	assert.match(field, /setFieldContext\({\s*get id\(\) {\s*return forId;\s*},\s*get describedBy\(\) {\s*return describedBy;\s*},\s*get invalid\(\) {\s*return !!error;\s*}\s*}\)/);
+	assert.match(field, /setFieldContext\({\s*get id\(\) {\s*return forId;\s*},\s*get describedBy\(\) {\s*return describedBy;\s*},\s*get invalid\(\) {\s*return !!shownError;\s*},\s*report\(message\) {\s*nativeError = message;\s*}\s*}\)/);
+	assert.match(field, /const shownError = \$derived\(error \|\| nativeError \|\| undefined\)/);
 	assert.match(field, /<label class="label" for={forId} style:width={labelWidth}>/);
 	assert.match(field, /<span class="hint" id={hintId}>/);
-	assert.match(field, /<span class="error" id={errorId}>/);
+	assert.match(field, /<span class="error" id={errorId}><Icon name="alert-circle" label="Error" \/> {shownError}<\/span>/);
 	assert.doesNotMatch(field, /<span class="label"/);
 });
 
@@ -76,7 +77,8 @@ for (const [name, src] of Object.entries(controls)) {
 		if (name === 'FilterInput') {
 			assert.match(src, /aria-invalid={ariaInvalid \?\? \(field\?\.invalid \? 'true' : undefined\)}/);
 		} else {
-			assert.match(src, /const isInvalid = \$derived\(invalid \|\| !!field\?\.invalid(?: \|\| !!group\?\.invalid)?\)/);
+			const tail = name === 'Switch' || name === 'Slider' ? '' : ' \\|\\| validity\\.invalid';
+			assert.match(src, new RegExp(`const isInvalid = \\$derived\\(invalid \\|\\| !!field\\?\\.invalid(?: \\|\\| !!group\\?\\.invalid)?${tail}\\)`));
 			assert.match(src, /aria-invalid={ariaInvalid \?\? \(isInvalid \? 'true' : undefined\)}/);
 		}
 	});

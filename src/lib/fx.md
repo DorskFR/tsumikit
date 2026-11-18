@@ -43,7 +43,7 @@ All effects take their colours from the theme, fall back to a static state chang
   the non-default families in localStorage under `tsumikit-fx` and writes `data-fx-*` on `<html>`. Defaults
   leave the attribute absent.
 - `FX_PREPAINT` paints the saved attributes before first paint. Inline it in `<head>` next to
-  `THEME_PREPAINT`.
+  `THEME_PREPAINT`, in its own `<script>` if a CSP allows it by `FX_PREPAINT_HASH`.
 - `fx.onchange` and `fx.hydrate(settings)` let an app keep the settings in its own (server-side) store.
 - `FX`, `FX_FAMILIES`, `DEFAULT_FX` and `parseFx` expose the registry for custom controls.
 

@@ -53,6 +53,9 @@ first paint:
 </svelte:head>
 ```
 
+Under a strict CSP, allow it with `THEME_PREPAINT_HASH` (`script-src`); see
+[Untrusted HTML, Trusted Types and CSP](../../../docs/components.md#untrusted-html-trusted-types-and-csp).
+
 If you register your own themes, build the script with
 `themePrepaint('tsumikit-theme', [...THEMES, ...yours])` so legacy single-id values resolve.
 

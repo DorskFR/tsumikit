@@ -93,16 +93,8 @@
 		color-mix(in oklab, color-mix(in oklab, var(--accent) 30%, var(--depth-ink)) 45%, transparent),
 		color-mix(in oklab, var(--depth-ink) 75%, transparent)
 	);
-	--depth-spot-on: radial-gradient(
-		22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem),
-		color-mix(in oklab, var(--accent) 8%, transparent),
-		transparent 70%
-	);
-	--depth-spot-tap: radial-gradient(
-		18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%),
-		color-mix(in oklab, var(--accent) 12%, transparent),
-		transparent 70%
-	);
+	--depth-spot-on-tint: color-mix(in oklab, var(--accent) 8%, transparent);
+	--depth-spot-tap-tint: color-mix(in oklab, var(--accent) 12%, transparent);
 
 	--surface-shadow: var(--depth-hl), var(--depth-drop-1);
 	--surface-shadow-hover: var(--depth-hl-strong), var(--depth-drop-1), 0 14px 40px -12px var(--depth-glow-c);
@@ -202,16 +194,8 @@
 		color-mix(in oklab, var(--accent) 18%, transparent),
 		color-mix(in oklab, var(--depth-ink) 38%, transparent)
 	);
-	--depth-spot-on: radial-gradient(
-		22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem),
-		color-mix(in oklab, var(--accent) 5%, transparent),
-		transparent 70%
-	);
-	--depth-spot-tap: radial-gradient(
-		18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%),
-		color-mix(in oklab, var(--accent) 8%, transparent),
-		transparent 70%
-	);
+	--depth-spot-on-tint: color-mix(in oklab, var(--accent) 5%, transparent);
+	--depth-spot-tap-tint: color-mix(in oklab, var(--accent) 8%, transparent);
 
 	--skeleton: color-mix(in oklab, var(--depth-line) 6%, transparent);
 	--attention-bg: color-mix(in oklab, var(--warn) 8%, var(--bg-elevated));
@@ -883,10 +867,18 @@
 }
 @media (hover: hover) and (pointer: fine) {
 	:root[data-look="depth"] .card:hover {
-		--depth-spot: var(--depth-spot-on);
+		--depth-spot: radial-gradient(
+			22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem),
+			var(--depth-spot-on-tint),
+			transparent 70%
+		);
 	}
 	:root[data-look="depth"] .card.card-tap:hover {
-		--depth-spot: var(--depth-spot-tap);
+		--depth-spot: radial-gradient(
+			18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%),
+			var(--depth-spot-tap-tint),
+			transparent 70%
+		);
 		--depth-card-edge: color-mix(in oklab, var(--accent) 75%, transparent) color-mix(in oklab, var(--accent) 45%, transparent)
 			color-mix(in oklab, var(--accent) 22%, transparent);
 		border-color: var(--depth-card-edge);

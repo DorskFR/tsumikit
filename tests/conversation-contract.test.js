@@ -77,7 +77,7 @@ test('new pieces are exported and demoed', async () => {
 	assert.match(index, /default as StatusBar } from '\.\/components\/molecules\/StatusBar\.svelte'/);
 	assert.match(index, /default as ConversationFeed } from '\.\/components\/organisms\/ConversationFeed\.svelte'/);
 	assert.match(index, /default as ConversationPanel } from '\.\/components\/organisms\/ConversationPanel\.svelte'/);
-	assert.match(index, /escapeHtml,\s+type Highlight,\s+type RenderMarkdownOptions,\s+renderMarkdown,\s+stripAnsi,\s+} from '\.\/markdown'/);
+	assert.match(index, /escapeHtml,\s+type Highlight,\s+type RenderMarkdownOptions,\s+renderMarkdown,\s+renderTrustedMarkdown,\s+stripAnsi,\s+} from '\.\/markdown'/);
 	assert.match(readme, /### ConversationPanel, ConversationFeed, StatusBar/);
 	for (const name of ['StatusBar', 'ConversationFeed', 'ConversationPanel']) assert.ok(await demoed(name), name);
 });
