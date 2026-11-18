@@ -53,7 +53,7 @@ test('moves the stack into the topmost open modal dialog so it is neither covere
 	assert.match(component, /d\.matches\(':modal'\)/);
 	assert.match(component, /const target = topModal\(\) \?\? home;\s*if \(stack\.parentNode !== target\) {\s*hide\(stack\);\s*target\.appendChild\(stack\);/s);
 	assert.match(component, /observer\.observe\(document\.body, { attributes: true, attributeFilter: \['open'\], subtree: true }\)/);
-	assert.match(component, /<div class="toaster-host" bind:this={host}>\s*<div class="toaster {klass}"/);
+	assert.match(component, /<div class="toaster-host" bind:this={host}>\s*<section\s+class="toaster {klass}"/);
 	assert.match(component, /\.toaster-host\s*{\s*display: contents;/);
 });
 

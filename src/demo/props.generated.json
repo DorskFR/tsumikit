@@ -5416,7 +5416,7 @@
 				"type": "boolean",
 				"optional": true,
 				"default": "false",
-				"description": "Work in flight: body is inert, a spinner sits by the title and Escape, backdrop and the close button stop closing until it clears."
+				"description": "Work in flight: body is inert, a spinner sits by the title and Escape, backdrop and the close button stop closing until it clears. A close the browser forces (repeated Escape, Android back) still closes and calls `onclose`."
 			},
 			{
 				"name": "resizeKey",
@@ -9410,6 +9410,13 @@
 				"optional": true,
 				"default": "true",
 				"description": "Play UI sounds when enabled globally; false silences this instance."
+			},
+			{
+				"name": "label",
+				"type": "string",
+				"optional": true,
+				"default": "'Notifications'",
+				"description": "Accessible name of the region holding both live regions."
 			}
 		]
 	},

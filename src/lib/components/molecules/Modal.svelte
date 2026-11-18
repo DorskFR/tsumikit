@@ -55,7 +55,9 @@
 		/** Title glyph + 3px top border in the semantic colour. */
 		tone?: Tone;
 		/** Work in flight: body is inert, a spinner sits by the title and Escape,
-		 *  backdrop and the close button stop closing until it clears. */
+		 *  backdrop and the close button stop closing until it clears. A close
+		 *  the browser forces (repeated Escape, Android back) still closes and
+		 *  calls `onclose`. */
 		busy?: boolean;
 		/** Desktop width preset (sm 24rem / md 34rem / lg 48rem / xl 72rem). A
 		 *  `resizeKey` drag still overrides it. */
@@ -107,11 +109,23 @@
 		synced = true;
 	});
 
+	let dismissed = false;
 	function requestClose() {
 		if (busy) return;
 		if (controlled) open = false;
-		else playSound('close', sound);
+		else {
+			dismissed = true;
+			playSound('close', sound);
+		}
 		onclose?.();
+	}
+
+	function onDialogClose() {
+		const forced = controlled ? open : !dismissed;
+		dismissed = false;
+		if (controlled) open = false;
+		if (controlled || forced) playSound('close', sound);
+		if (forced) onclose?.();
 	}
 
 	// Click outside: <dialog fills the viewport; clicks on its padding-free self
@@ -183,9 +197,10 @@
 		e.preventDefault(); /* keep parent the source of truth for open state */
 		requestClose();
 	}}
-	onclose={() => {
-		if (controlled) open = false;
-		playSound('close', sound);
+	onclose={onDialogClose}
+	onscroll={(e) => {
+		e.currentTarget.scrollTop = 0;
+		e.currentTarget.scrollLeft = 0;
 	}}
 	onpointerdown={onDialogPointerDown}
 	onclick={onDialogClick}
@@ -232,14 +247,17 @@
 <style>
 	/* Reset the UA dialog box: we own the surface via the inner .sheet. The
 	   dialog itself is just the centering/backdrop layer. It must never scroll:
-	   the UA `overflow: auto` lets the initial focus scroll the sheet into view
-	   while it still sits at `translate: 0 100%`, which eats the slide-in. */
+	   the initial focus would scroll the sheet into view while it still sits at
+	   `translate: 0 100%`, which eats the slide-in. `overflow: hidden` keeps it a
+	   scroll container so `overscroll-behavior` stops chaining to the page, and
+	   the scroll handler pins it at 0. */
 	.modal {
 		margin: 0;
 		padding: 0;
 		border: 0;
 		background: none;
-		overflow: clip;
+		overflow: hidden;
+		overscroll-behavior: contain;
 		max-width: 100vw;
 		max-height: 100dvh;
 		width: 100%;
@@ -258,6 +276,8 @@
 		display: none;
 	}
 	.modal::backdrop {
+		overflow: hidden;
+		overscroll-behavior: contain;
 		background: rgba(0, 0, 0, 0.55);
 		opacity: 0;
 		transition:
@@ -378,6 +398,7 @@
 	.sheet-body {
 		padding: var(--sp-4);
 		overflow-y: auto;
+		overscroll-behavior: contain;
 		-webkit-overflow-scrolling: touch;
 	}
 	.sheet-foot {

@@ -1,9 +1,8 @@
 <script lang="ts">
 	// Side panel on the native <dialog>: top layer, focus trap, inert background,
 	// focus restoration and Escape come from the platform. Adds click-outside,
-	// body scroll lock, an optional page-nav column and a sticky footer.
+	// scroll containment, an optional page-nav column and a sticky footer.
 	import type { Snippet } from 'svelte';
-	import { browser } from '$lib/env';
 	import Icon, { type IconName } from '$lib/components/atoms/Icon.svelte';
 	import IconButton from '$lib/components/molecules/IconButton.svelte';
 	import { playSound } from '$lib/sound';
@@ -65,7 +64,6 @@
 
 	let dialogEl = $state<HTMLDialogElement | null>(null);
 	const controlled = $derived(open !== undefined);
-	const shown = $derived(!controlled || open === true);
 
 	// Mounting (or mounting with `open` already true) is a sync, not a
 	// transition, so it stays silent.
@@ -83,19 +81,22 @@
 		synced = true;
 	});
 
-	$effect(() => {
-		if (!browser || !shown) return;
-		const previous = document.body.style.overflow;
-		document.body.style.overflow = 'hidden';
-		return () => {
-			document.body.style.overflow = previous;
-		};
-	});
-
+	let dismissed = false;
 	function requestClose() {
 		if (controlled) open = false;
-		else playSound('close', sound);
+		else {
+			dismissed = true;
+			playSound('close', sound);
+		}
 		onclose?.();
+	}
+
+	function onDialogClose() {
+		const forced = controlled ? open : !dismissed;
+		dismissed = false;
+		if (controlled) open = false;
+		if (controlled || forced) playSound('close', sound);
+		if (forced) onclose?.();
 	}
 
 	// A drag that starts in the panel and ends on the backdrop fires click on the
@@ -122,10 +123,7 @@
 		e.preventDefault();
 		requestClose();
 	}}
-	onclose={() => {
-		if (controlled) open = false;
-		playSound('close', sound);
-	}}
+	onclose={onDialogClose}
 	onpointerdown={onDialogPointerDown}
 	onclick={onDialogClick}
 >
@@ -174,6 +172,8 @@
 		max-height: none;
 		width: auto;
 		height: auto;
+		overflow: hidden;
+		overscroll-behavior: contain;
 		color: var(--text);
 		display: flex;
 		justify-content: flex-end;
@@ -193,6 +193,8 @@
 		justify-content: flex-end;
 	}
 	.drawer::backdrop {
+		overflow: hidden;
+		overscroll-behavior: contain;
 		background: rgba(0, 0, 0, 0.55);
 		opacity: 0;
 		transition:
@@ -296,6 +298,7 @@
 		grid-area: body;
 		padding: var(--drawer-body-pad, var(--sp-4));
 		overflow-y: auto;
+		overscroll-behavior: contain;
 		-webkit-overflow-scrolling: touch;
 	}
 	.panel-foot {

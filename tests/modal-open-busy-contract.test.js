@@ -15,12 +15,14 @@ test('Modal keeps mount-to-open by default and follows a bound `open` when provi
 	assert.match(source, /if \(!controlled\) {\s*dialogEl\.showModal\(\);\s*return;\s*}/s);
 	assert.match(source, /if \(open && !dialogEl\.open\) {\s*dialogEl\.showModal\(\);\s*if \(synced\) playSound\('open', sound\);\s*}/);
 	assert.match(source, /else if \(!open && dialogEl\.open\) dialogEl\.close\(\);/);
-	assert.match(source, /function requestClose\(\) {\s*if \(busy\) return;\s*if \(controlled\) open = false;\s*else playSound\('close', sound\);\s*onclose\?\.\(\);/s);
-	assert.match(source, /onclose={\(\) => {\s*if \(controlled\) open = false;/s);
+	assert.match(source, /function requestClose\(\) {\s*if \(busy\) return;\s*if \(controlled\) open = false;\s*else {\s*dismissed = true;\s*playSound\('close', sound\);\s*}\s*onclose\?\.\(\);/s);
+	assert.match(source, /function onDialogClose\(\) {\s*const forced = controlled \? open : !dismissed;\s*dismissed = false;\s*if \(controlled\) open = false;\s*if \(controlled \|\| forced\) playSound\('close', sound\);\s*if \(forced\) onclose\?\.\(\);/s);
+	assert.match(source, /onclose={onDialogClose}/);
 });
 
-test('Modal busy makes the body inert, shows a spinner and blocks every close path', () => {
+test('Modal busy makes the body inert, shows a spinner and blocks every close path it can', () => {
 	assert.match(source, /busy\?: boolean;/);
+	assert.match(source, /A close\s*\*\s*the browser forces \(repeated Escape, Android back\) still closes and\s*\*\s*calls `onclose`\./);
 	assert.match(source, /aria-busy={busy \|\| undefined}/);
 	assert.match(source, /<div class="sheet-body" inert={busy}>/);
 	assert.match(source, /{#if busy}<Spinner label="Working" \/>{\/if}/);

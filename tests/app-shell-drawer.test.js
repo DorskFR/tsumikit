@@ -56,7 +56,7 @@ function render(init = {}, { mobile = true } = {}) {
 }
 
 const CLOSED = { asideOpen: false, expanded: 'false', scrim: false, mainInert: false, bodyOverflow: '' };
-const OPEN = { asideOpen: true, expanded: 'true', scrim: true, mainInert: true, bodyOverflow: 'hidden' };
+const OPEN = { asideOpen: true, expanded: 'true', scrim: true, mainInert: true, bodyOverflow: '' };
 
 test('the hamburger opens the mobile drawer and reports it through onOpenChange and bind:open', () => {
 	const r = render();
@@ -148,4 +148,23 @@ test('the docs cover bind:open, onOpenChange and closeOnNavigate', () => {
 	assert.match(readme, /onOpenChange/);
 	assert.match(readme, /closeOnNavigate/);
 	assert.match(readme, /afterNavigate/);
+});
+
+test("the mobile drawer leaves the consumer's body overflow alone", () => {
+	const r = render();
+	r.doc.body.style.overflow = 'scroll';
+	r.toggle();
+	assert.equal(r.doc.body.style.overflow, 'scroll');
+	r.toggle();
+	assert.equal(r.doc.body.style.overflow, 'scroll');
+});
+
+test('the mobile drawer contains scroll with CSS; the desktop column does not', () => {
+	assert.doesNotMatch(source, /\.style\.overflow/);
+	const style = source.slice(source.indexOf('<style>'));
+	const desktop = style.indexOf('@media (min-width: 48rem)');
+	const mobile = style.slice(0, desktop);
+	assert.match(mobile, /\.shell-sidebar\s*{[^}]*overflow-y: auto;[^}]*overscroll-behavior: contain;/s);
+	assert.match(mobile, /\.shell-scrim\s*{[^}]*overflow: hidden;\s*overscroll-behavior: contain;\s*touch-action: none;/s);
+	assert.match(style.slice(desktop), /\.shell-sidebar\s*{[^}]*overscroll-behavior: auto;/s);
 });

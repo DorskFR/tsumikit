@@ -7,7 +7,7 @@
 	//     nav content collapse to icons.
 	//   • mobile: the sidebar becomes an off-canvas drawer that slides in over a
 	//     scrim; AppShell renders the hamburger toggle for you (shown only on
-	//     mobile), locks body scroll while open, closes on Escape / scrim click /
+	//     mobile), keeps scroll from leaking to the page, closes on Escape / scrim click /
 	//     a same-origin link click inside it, and marks the rest of the page
 	//     (all but the hamburger) `inert`. Opening focuses the first control in
 	//     the drawer; closing returns focus to the toggle. `bind:open` to drive it.
@@ -154,15 +154,6 @@
 			};
 		});
 	}
-
-	// Lock body scroll while the mobile drawer is open.
-	$effect(() => {
-		if (!browser) return;
-		document.body.style.overflow = open && isMobile ? 'hidden' : '';
-		return () => {
-			document.body.style.overflow = '';
-		};
-	});
 
 	// Background is inert (untabbable, hidden from AT) when the drawer is open.
 	const bgInert = $derived(open && isMobile);
@@ -332,6 +323,7 @@
 		z-index: var(--z-drawer);
 		overflow-y: auto;
 		overflow-x: hidden; /* overflow-y:auto would otherwise make x auto too */
+		overscroll-behavior: contain;
 		-webkit-overflow-scrolling: touch;
 		background: var(--surface-fill);
 		border-right: var(--edge-width) solid var(--surface-edge);
@@ -363,6 +355,9 @@
 		z-index: calc(var(--z-drawer) - 1);
 		background: rgba(0, 0, 0, 0.5);
 		border: 0;
+		overflow: hidden;
+		overscroll-behavior: contain;
+		touch-action: none;
 		cursor: pointer;
 		opacity: 0;
 		transition:
@@ -411,6 +406,7 @@
 			transition: none;
 			z-index: auto;
 			box-shadow: none;
+			overscroll-behavior: auto;
 			border-right: var(--edge-width) solid var(--surface-edge);
 		}
 		.shell.sticky-sidebar .shell-sidebar {
