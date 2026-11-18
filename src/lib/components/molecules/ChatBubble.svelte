@@ -7,7 +7,7 @@
 	import CopyButton from '$lib/components/molecules/CopyButton.svelte';
 	import Prose from '$lib/components/molecules/Prose.svelte';
 	import Timestamp from '$lib/components/molecules/Timestamp.svelte';
-	import { renderMarkdown } from '$lib/markdown';
+	import { renderTrustedMarkdown } from '$lib/markdown';
 	import type { TimeInput } from '$lib/timestamp';
 
 	let {
@@ -41,7 +41,7 @@
 		meta?: Snippet;
 		/** Muted row under the body: durations, token usage, file info. */
 		footer?: Snippet;
-		/** Rendered through `renderMarkdown` into `Prose` when `children` is absent. */
+		/** Rendered through `renderTrustedMarkdown` into `Prose` when `children` is absent. */
 		markdown?: string;
 		actions?: Snippet;
 		state?: 'sending' | 'failed';
@@ -61,7 +61,7 @@
 
 	const side = $derived(align ?? (role === 'user' ? 'end' : 'start'));
 	let expanded = $state(false);
-	const html = $derived(children || markdown === undefined ? undefined : renderMarkdown(markdown));
+	const html = $derived(children || markdown === undefined ? undefined : renderTrustedMarkdown(markdown));
 </script>
 
 <article

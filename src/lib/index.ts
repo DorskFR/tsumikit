@@ -6,6 +6,7 @@
 // then use the components below.
 
 export type { AnchorAttributes } from './anchor';
+export { announce } from './announce';
 export { artworkGradient, artworkHue, initials } from './artwork';
 export { autoresize } from './autoresize';
 export { avatarHue, avatarInitial } from './avatar';
@@ -235,6 +236,7 @@ export {
 	type Highlight,
 	type RenderMarkdownOptions,
 	renderMarkdown,
+	renderTrustedMarkdown,
 	stripAnsi,
 } from './markdown';
 export { type Media, media, mq } from './media.svelte';
@@ -294,11 +296,17 @@ export { type OptionSection, sectionOptions } from './select-options';
 export type { ControlSize } from './size';
 export { playSound, type SoundMuted, type SoundName } from './sound';
 export { fontScale, SCALE_LEVELS, type ScaleLevel } from './stores/fontscale.svelte';
-export { FX_PREPAINT, fx } from './stores/fx.svelte';
+export { FX_PREPAINT, FX_PREPAINT_HASH, fx } from './stores/fx.svelte';
 // ---- stores / actions ----
 export { sound } from './stores/sound.svelte';
 export type { PersistOptions } from './stores/storage';
-export { type Mode, THEME_PREPAINT, THEMES, theme } from './stores/theme.svelte';
+export {
+	type Mode,
+	THEME_PREPAINT,
+	THEME_PREPAINT_HASH,
+	THEMES,
+	theme,
+} from './stores/theme.svelte';
 export {
 	type Toast,
 	type ToastAction,
@@ -336,5 +344,11 @@ export {
 } from './timestamp';
 export { canonicalTone, type Tone } from './tone';
 export { pathCandidates, type TruncateMode, type TruncateOptions, truncate } from './truncate';
+export {
+	type HTMLValue,
+	type SanitizeOptions,
+	TRUSTED_TYPES_POLICY,
+	type TrustedHTML,
+} from './trusted-html';
 export { isModifiedClick, type UrlState, type UrlStateOptions, urlState } from './url-state.svelte';
 export { normalizeWorkingDir, type WorkingDirOptions, workingDirCandidates } from './working-dir';

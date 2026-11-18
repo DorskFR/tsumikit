@@ -58,7 +58,7 @@ Tooltip, Disclosure (single collapsible: `header` snippet, bindable `open` or `o
 controlled mode, `chevron` start/end/false, `size="compact"` for strip rows, `lazy` renders the
 panel content only from the first open on (kept after closing; closed content is absent from SSR
 and find-in-page), native button with
-`aria-expanded`/`aria-controls` over a `region` panel), Accordion (a stack of Disclosures; items take a
+`aria-expanded`/`aria-controls` over a panel that Ctrl+F and `#fragment` links can reach while collapsed, via `hidden="until-found"`; `region` makes it a labelled landmark), Accordion (a stack of Disclosures; items take a
 `title` string or a `summary` snippet that receives the `item` it heads, per-item `open`/`onchange`,
 `multiple=false` keeps one open, `variant="plain"` drops the outer border, `size` forwards to every item), CopyButton, FileButton, InputGroup (a field with inset
 leading/trailing controls fused into one bordered unit, see below),
@@ -78,7 +78,7 @@ readout above a full-width track, `capLabel`/`capValueText` localise the ARIA
 strings),
 StatusBar (thin `role="status"` row: `tone` idle/busy/ok/warn/error dot or spinner, `label` or
 `children`, `trailing`), ChatBubble (`timestamp`, `footer` snippet, `markdown` body rendered
-through `renderMarkdown` into `Prose` when there are no `children`),
+through `renderTrustedMarkdown` into `Prose` when there are no `children`),
 Composer (`toolbarStart`/`toolbarEnd` snippets move attach + send into a row under the field),
 Drawer (side-panel `<dialog>`: `side` left/right, or `bottom` for a full-width sheet
 capped at `--drawer-max-h`; `width` clamped to the viewport, full-screen
@@ -481,7 +481,9 @@ into HTML for `Prose`: everything is escaped first, then headings, emphasis,
 inline/fenced code, lists, blockquotes, rules, GFM tables and links with safe
 schemes only (`javascript:`/`data:` stay text). `highlight(code, lang)` is an
 optional hook returning safe HTML for fenced blocks; `stripAnsi` and
-`escapeHtml` are exported too. `ChatBubble` takes `markdown` directly, plus
+`escapeHtml` are exported too. `renderTrustedMarkdown` returns the same HTML as
+`TrustedHTML` when the browser has Trusted Types (see
+[Untrusted HTML, Trusted Types and CSP](#untrusted-html-trusted-types-and-csp)). `ChatBubble` takes `markdown` directly, plus
 `timestamp` (after the role pill) and a `footer` snippet. `Composer` takes
 `toolbarStart` / `toolbarEnd`: either one moves attach and send into a row
 under the field, start slot left, end slot then send right.
@@ -758,3 +760,52 @@ label, copy, line numbers, wrap, scroll) and takes code three ways: plain
 </script>
 <CodeBlock {code} lang="typescript" highlight={hl} showLineNumbers />
 ```
+
+`html` and the `highlight` return value are rendered as-is, like `Prose` `html`:
+they MUST be trusted or sanitized. highlight.js and Prism escape the code they
+highlight; anything else needs `sanitize` (below).
+
+### Untrusted HTML, Trusted Types and CSP
+
+tsumikit does not sanitize `Prose` `html`, `CodeBlock` `html` or `CodeBlock`
+`highlight` output by default. For server, LLM or user HTML, set `sanitize`:
+
+- `sanitize` (or `sanitize={{ sanitizer }}`) calls `Element.setHTML(html, { sanitizer })`
+  where the Sanitizer API exists; omit `sanitizer` for the browser's safe default.
+- `sanitize={{ fallback }}` is used where `setHTML` is missing: `fallback(html)` returns the
+  markup to insert, e.g. DOMPurify's `sanitize`. tsumikit bundles no sanitizer.
+- With neither available, the markup is shown as plain text, never parsed.
+- Sanitization runs in the browser only: SSR renders an empty container that fills on
+  hydration.
+
+```svelte
+<script>
+  import DOMPurify from 'dompurify';
+</script>
+<Prose html={llmHtml} sanitize={{ fallback: (h) => DOMPurify.sanitize(h) }} />
+```
+
+Under `Content-Security-Policy: require-trusted-types-for 'script'` the HTML props also
+accept `TrustedHTML`; a plain string throws at the sink. The kit is ready for it:
+
+- `Icon` renders its glyphs as SVG elements, with no HTML sink.
+- `ChatBubble` `markdown` and `renderTrustedMarkdown` go through one policy named `tsumikit`
+  (`TRUSTED_TYPES_POLICY`), created on first use. Allow it next to Svelte's own:
+  `trusted-types tsumikit svelte-trusted-html`. The policy only wraps HTML the kit builds
+  by escaping first; a `highlight` hook's output is trusted as-is.
+- Your own `html` must arrive as `TrustedHTML` from your policy (DOMPurify:
+  `RETURN_TRUSTED_TYPE: true`). `sanitize` with `setHTML` needs no policy.
+
+`THEME_PREPAINT_HASH` and `FX_PREPAINT_HASH` are the `sha256-…` CSP sources for the two
+prepaint scripts, for `script-src` without `'unsafe-inline'`. A hash matches only when the
+script is the whole body of its own `<script>`, so inline them in separate tags. The
+`{@html '<script>…'}` snippet works through SSR output; a client-only render inserts it
+through `innerHTML`, which neither runs scripts nor passes Trusted Types.
+
+```ts
+import { FX_PREPAINT_HASH, THEME_PREPAINT_HASH } from '@dorsk/tsumikit';
+const scriptSrc = `script-src 'self' '${THEME_PREPAINT_HASH}' '${FX_PREPAINT_HASH}'`;
+```
+
+The hashes change whenever the theme, look or effect registries do; read them from the
+installed version rather than copying the values.

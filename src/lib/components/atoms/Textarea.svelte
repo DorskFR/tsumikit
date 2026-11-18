@@ -30,6 +30,7 @@
 	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
 	import { getInputGroupContext } from '$lib/input-group-context';
 	import { isComposing } from '$lib/ime.js';
+	import { controlValidity } from '$lib/user-validity.svelte';
 
 	export type TextareaSegment = { text: string; mask?: boolean; class?: string };
 
@@ -97,7 +98,8 @@
 	const field = getFieldContext();
 	const group = getInputGroupContext();
 	const sizeEff = $derived(size ?? group?.size ?? 'md');
-	const isInvalid = $derived(invalid || !!field?.invalid || !!group?.invalid);
+	const validity = controlValidity(field, () => value);
+	const isInvalid = $derived(invalid || !!field?.invalid || !!group?.invalid || validity.invalid);
 	const isDisabled = $derived(disabled || !!group?.disabled);
 
 	$effect(() => warnUnlabelled(el, 'Textarea'));
@@ -266,6 +268,7 @@
 			disabled={isDisabled}
 			style:max-height={maxHeight}
 			bind:value
+			{@attach validity.attach}
 			use:autoresizeAction={typeof value === 'string' ? value : ''}
 			{...rest}
 			placeholder={rest.placeholder ?? (field ? ' ' : undefined)}
@@ -290,6 +293,7 @@
 			disabled={isDisabled}
 			style:max-height={maxHeight}
 			bind:value
+			{@attach validity.attach}
 			{...rest}
 			placeholder={rest.placeholder ?? (field ? ' ' : undefined)}
 			onkeydown={onsubmit || onkeydown ? handleKeydown : undefined}
@@ -440,14 +444,14 @@
 			font-size: max(16px, var(--control-fs-lg));
 		}
 	}
-	.textarea[aria-invalid='true'],
-	.textarea[aria-invalid='true']:focus {
+	.textarea:is([aria-invalid='true'], :user-invalid),
+	.textarea:is([aria-invalid='true'], :user-invalid):focus {
 		border-color: var(--danger);
 	}
 	.textarea {
 		--focus-tint: var(--accent);
 	}
-	.textarea[aria-invalid='true'] {
+	.textarea:is([aria-invalid='true'], :user-invalid) {
 		--focus-tint: var(--danger);
 	}
 	/* Focus bloom: a solid ring whose soft halo swells, then settles to a quieter glow. */
@@ -549,7 +553,7 @@
 		background: var(--accent);
 	}
 	@media (hover: hover) and (pointer: fine) {
-		.textarea:hover:not(:disabled, :focus, [aria-invalid='true']) {
+		.textarea:hover:not(:disabled, :focus, [aria-invalid='true'], :user-invalid) {
 			border-color: var(--control-edge-hover);
 		}
 		.resize-handle:hover::after {

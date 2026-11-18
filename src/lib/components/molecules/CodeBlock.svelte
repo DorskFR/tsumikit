@@ -3,19 +3,22 @@
 	// highlighter (that would break the zero-dep promise and bloat the bundle).
 	// Three ways to feed it, cheapest first:
 	//   • plain `code` (no highlighting, fully escaped);
-	//   • a `highlight` callback (code, lang) => HTML string you provide;
+	//   • a `highlight` callback (code, lang) => HTML you provide;
 	//   • pre-rendered `html` (e.g. from a server/build step).
+	// HTML from either is rendered as-is unless `sanitize` is set.
 	// Class-based highlighters (highlight.js, Prism) are auto-themed: their token
 	// classes are mapped to the --syn-* theme tokens globally (see app.css), so
 	// the colors track every theme. Provides a language label, copy button,
 	// optional line numbers and soft-wrap toggle.
 	import CopyButton from '$lib/components/molecules/CopyButton.svelte';
+	import { type HTMLValue, type SanitizeOptions, sanitizedHTML } from '$lib/trusted-html';
 
 	let {
 		code,
 		lang,
 		html,
 		highlight,
+		sanitize,
 		filename,
 		showLineNumbers = false,
 		wrap = false,
@@ -30,10 +33,13 @@
 		code: string;
 		/** Language label (and hint passed to `highlight`). */
 		lang?: string;
-		/** Pre-highlighted HTML (overrides `highlight`). */
-		html?: string;
-		/** Highlighter callback returning HTML for `code`. */
-		highlight?: (code: string, lang?: string) => string;
+		/** Pre-highlighted HTML (overrides `highlight`). MUST be trusted or sanitized:
+		 *  tsumikit does not sanitize it unless `sanitize` is set. */
+		html?: HTMLValue;
+		/** Highlighter callback returning HTML for `code`; same trust rule as `html`. */
+		highlight?: (code: string, lang?: string) => HTMLValue;
+		/** Sanitize `html` / `highlight` output client-side: `setHTML` where supported, else `fallback`. */
+		sanitize?: boolean | SanitizeOptions;
 		filename?: string;
 		showLineNumbers?: boolean;
 		wrap?: boolean;
@@ -76,9 +82,12 @@
 				{#each { length: lines } as _, i (i)}<span>{i + 1}</span>{/each}
 			</span>
 		{/if}
-		<pre class="cb-pre"><code class="cb-code" class:hljs={!!rendered}
-				>{#if rendered}{@html rendered}{:else}{code}{/if}</code
-			></pre>
+		<pre class="cb-pre">{#if sanitize && rendered}<code
+					class="cb-code hljs"
+					{@attach sanitizedHTML(rendered, sanitize === true ? {} : sanitize)}
+				></code>{:else}<code class="cb-code" class:hljs={!!rendered}
+					>{#if rendered}{@html rendered}{:else}{code}{/if}</code
+				>{/if}</pre>
 	</div>
 </figure>
 

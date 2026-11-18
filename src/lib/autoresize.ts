@@ -31,7 +31,52 @@ export function borderBlock(node: HTMLTextAreaElement): number {
 	return (parseFloat(cs.borderTopWidth) || 0) + (parseFloat(cs.borderBottomWidth) || 0);
 }
 
+export function fieldSizingSupported(): boolean {
+	return (
+		typeof CSS !== 'undefined' &&
+		typeof CSS.supports === 'function' &&
+		CSS.supports('field-sizing', 'content')
+	);
+}
+
 export function autoresize(node: HTMLTextAreaElement, _value?: string) {
+	return fieldSizingSupported() ? nativeAutoresize(node) : scriptAutoresize(node);
+}
+
+// `min-height` carries both floors: rows and the drag handle's.
+function nativeAutoresize(node: HTMLTextAreaElement) {
+	let applied = node.style.minHeight;
+	let drag = parseFloat(applied) || 0;
+	let rows = node.rows;
+	let klass = node.className;
+	const apply = () => {
+		const floor = Math.max(drag, rowsFloor(node));
+		applied = floor ? `${floor}px` : '';
+		node.style.minHeight = applied;
+	};
+	const onInput = () => {
+		if (node.style.minHeight === applied) return;
+		drag = parseFloat(node.style.minHeight) || 0;
+		apply();
+	};
+	node.style.setProperty('field-sizing', 'content');
+	apply();
+	node.addEventListener('input', onInput);
+	return {
+		update() {
+			if (node.rows === rows && node.className === klass) return;
+			rows = node.rows;
+			klass = node.className;
+			apply();
+		},
+		destroy() {
+			node.removeEventListener('input', onInput);
+			node.style.removeProperty('field-sizing');
+		},
+	};
+}
+
+function scriptAutoresize(node: HTMLTextAreaElement) {
 	const resize = () => {
 		// A manual drag handle may set `min-height` as a user-chosen floor; grow
 		// with content but never collapse below it. Content always wins the lower

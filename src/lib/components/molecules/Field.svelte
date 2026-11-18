@@ -6,7 +6,9 @@
 	// aria-describedby for hint/error and aria-invalid) automatically.
 	// `layout="inline"` puts the label beside the control (fixed `labelWidth`
 	// aligns a column of them); hint/error then follow the control on the row.
-	import type { Snippet } from 'svelte';
+	import { type Snippet, untrack } from 'svelte';
+	import Icon from '$lib/components/atoms/Icon.svelte';
+	import { announce } from '$lib/announce';
 	import { setFieldContext } from '$lib/field-context';
 
 	let {
@@ -40,8 +42,10 @@
 	const forId = $derived(forProp ?? uid);
 	const hintId = $derived(`${forId}-hint`);
 	const errorId = $derived(`${forId}-err`);
+	let nativeError = $state<string | null>(null);
+	const shownError = $derived(error || nativeError || undefined);
 	const describedBy = $derived(
-		[hint ? hintId : null, error ? errorId : null].filter(Boolean).join(' ') || undefined
+		[hint ? hintId : null, shownError ? errorId : null].filter(Boolean).join(' ') || undefined
 	);
 
 	setFieldContext({
@@ -52,12 +56,24 @@
 			return describedBy;
 		},
 		get invalid() {
-			return !!error;
+			return !!shownError;
+		},
+		report(message) {
+			nativeError = message;
 		}
+	});
+
+	let root = $state<HTMLDivElement | null>(null);
+	let prevError = untrack(() => shownError);
+	$effect(() => {
+		const message = shownError;
+		const appeared = !!message && !prevError;
+		prevError = message;
+		if (appeared && root && !root.contains(document.activeElement)) announce(message);
 	});
 </script>
 
-<div class="field {klass}" class:field-grow={grow} class:field-no-shrink={!shrink} class:field-inline={layout === 'inline'} data-tsu="Field">
+<div bind:this={root} class="field {klass}" class:field-grow={grow} class:field-no-shrink={!shrink} class:field-inline={layout === 'inline'} data-tsu="Field">
 	{#if label}
 		<label class="label" for={forId} style:width={labelWidth}><span class="label-text">{label}</span></label>
 	{/if}
@@ -65,7 +81,7 @@
 	{#if hint}
 		<span class="hint" id={hintId}>{#if typeof hint === 'function'}{@render hint()}{:else}{hint}{/if}</span>
 	{/if}
-	{#if error}<span class="error" id={errorId}>{error}</span>{/if}
+	{#if shownError}<span class="error" id={errorId}><Icon name="alert-circle" label="Error" /> {shownError}</span>{/if}
 </div>
 
 <style>
@@ -102,6 +118,9 @@
 	.error {
 		font-size: var(--fs-xs);
 		color: var(--danger);
+		& > :global(.icon) {
+			vertical-align: -0.125em;
+		}
 	}
 
 	/* Spring label: over a md text field the label rests inside the control and
@@ -153,7 +172,7 @@
 		&:has(:global(:is(.input, .textarea):focus)) > .label {
 			color: var(--accent);
 		}
-		&:has(:global([aria-invalid='true'])) > .label {
+		&:has(:global(:is([aria-invalid='true'], :user-invalid))) > .label {
 			color: var(--danger);
 		}
 	}

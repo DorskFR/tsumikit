@@ -171,7 +171,7 @@ test('disclosure chevrons rotate and panels fade in from --shift-xs; closing sta
 		assert.match(s, /@starting-style\s*{[^}]*{\s*opacity: 0;\s*translate: 0 calc\(-1 \* var\(--shift-xs\)\);/, name);
 		assert.doesNotMatch(rule(s, panel).transition ?? '', /display|height/, name);
 	}
-	assert.ok(hasDecl(css(files.Disclosure), '.disclosure__panel[hidden]', 'display', 'none'));
+	assert.ok(hasDecl(css(files.Disclosure), ".disclosure__panel[hidden]:not([hidden='until-found'])", 'display', 'none'));
 	assert.ok(hasDecl(css(files.Disclosure), '.disclosure__button:disabled', 'opacity', 'var(--disabled-opacity)'));
 });
 

@@ -47,6 +47,7 @@
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
 	import { sectionOptions } from '$lib/select-options';
+	import { controlValidity } from '$lib/user-validity.svelte';
 
 	// `size` shadows the native option-count attribute (unused in token layouts) to
 	// expose the sm|md height scale instead.
@@ -94,7 +95,8 @@
 	}: Props = $props();
 
 	const field = getFieldContext();
-	const isInvalid = $derived(invalid || !!field?.invalid);
+	const validity = controlValidity(field, () => value);
+	const isInvalid = $derived(invalid || !!field?.invalid || validity.invalid);
 	let el = $state<HTMLSelectElement | null>(null);
 
 	$effect(() => warnUnlabelled(el, 'Select'));
@@ -136,6 +138,7 @@
 		class="select ghost {klass}"
 		data-tsu="Select"
 		bind:value
+		{@attach validity.attach}
 		{...rest}
 		id={id ?? field?.id}
 		aria-describedby={ariaDescribedby ?? field?.describedBy}
@@ -161,6 +164,7 @@
 			class:embedded={variant === 'embedded'}
 			class:has-face={hasFace}
 			bind:value
+			{@attach validity.attach}
 			{...rest}
 			id={id ?? field?.id}
 			aria-describedby={ariaDescribedby ?? field?.describedBy}
@@ -275,14 +279,14 @@
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset);
 	}
-	.select[aria-invalid='true'],
-	.select[aria-invalid='true']:focus {
+	.select:is([aria-invalid='true'], :user-invalid),
+	.select:is([aria-invalid='true'], :user-invalid):focus {
 		border-color: var(--danger);
 	}
 	.select {
 		--focus-tint: var(--accent);
 	}
-	.select[aria-invalid='true'] {
+	.select:is([aria-invalid='true'], :user-invalid) {
 		--focus-tint: var(--danger);
 	}
 	/* Focus bloom: a solid ring whose soft halo swells, then settles to a quieter glow. */
@@ -401,7 +405,7 @@
 		right: var(--control-px-sm);
 	}
 	@media (hover: hover) and (pointer: fine) {
-		.select:hover:not(:disabled, :focus, [aria-invalid='true'], .ghost, .embedded) {
+		.select:hover:not(:disabled, :focus, [aria-invalid='true'], :user-invalid, .ghost, .embedded) {
 			border-color: var(--control-edge-hover);
 		}
 	}

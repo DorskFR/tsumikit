@@ -7,6 +7,7 @@
 	import { getFieldContext } from '$lib/field-context';
 	import type { ControlSize } from '$lib/size';
 	import { playSound } from '$lib/sound';
+	import { controlValidity } from '$lib/user-validity.svelte';
 
 	let {
 		checked = $bindable(false),
@@ -43,7 +44,8 @@
 	} = $props();
 
 	const field = getFieldContext();
-	const isInvalid = $derived(invalid || !!field?.invalid);
+	const validity = controlValidity(field, () => checked);
+	const isInvalid = $derived(invalid || !!field?.invalid || validity.invalid);
 	let armed = $state(false);
 
 	function change(e: Event & { currentTarget: EventTarget & HTMLInputElement }) {
@@ -69,6 +71,7 @@
 		bind:this={el}
 		type="checkbox"
 		bind:checked
+		{@attach validity.attach}
 		{...rest}
 		onchange={change}
 		id={id ?? field?.id}
@@ -337,7 +340,7 @@
 		outline-offset: var(--focus-ring-offset);
 		box-shadow: var(--control-shadow), var(--focus-glow);
 	}
-	input[aria-invalid='true']:not(:checked):not(:indeterminate) + .box {
+	input:is([aria-invalid='true'], :user-invalid):not(:checked):not(:indeterminate) + .box {
 		border-color: var(--danger);
 	}
 	input:disabled ~ * {

@@ -6,6 +6,7 @@ export type FieldContext = {
 	id: string;
 	describedBy?: string;
 	invalid: boolean;
+	report?: (message: string | null) => void;
 };
 
 export function setFieldContext(ctx: FieldContext): FieldContext {

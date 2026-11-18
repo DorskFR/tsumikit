@@ -35,7 +35,7 @@ function render(init = {}) {
 		props: live,
 		flush: flushSync,
 		button: /** @type {HTMLButtonElement} */ (root.querySelector('button')),
-		panel: /** @type {HTMLElement} */ (root.querySelector('[role="region"]')),
+		panel: /** @type {HTMLElement} */ (root.querySelector('.disclosure__panel')),
 		root,
 		/** @param {string} id */
 		item(id) {
@@ -43,19 +43,19 @@ function render(init = {}) {
 			return {
 				el,
 				button: /** @type {HTMLButtonElement} */ (el.querySelector('button')),
-				panel: /** @type {HTMLElement} */ (el.querySelector('[role="region"]')),
+				panel: /** @type {HTMLElement} */ (el.querySelector('.disclosure__panel')),
 				expanded: () => el.querySelector('button')?.getAttribute('aria-expanded') === 'true'
 			};
 		}
 	};
 }
 
-test('Disclosure is a native button over a region panel, no keydown interception', () => {
+test('Disclosure is a native button over a panel, no keydown interception', () => {
 	const src = normalize(disclosure);
 	assert.match(src, /<button type="button" id=\{buttonId\}/);
 	assert.match(src, /aria-expanded=\{open\}/);
 	assert.match(src, /aria-controls=\{panelId\}/);
-	assert.match(src, /role="region" aria-labelledby=\{buttonId\} hidden=\{!open\}/);
+	assert.match(src, /hidden=\{open \? false : rendered \? 'until-found' : true\} onbeforematch=\{reveal\}/);
 	assert.doesNotMatch(disclosure, /onkeydown|onkeyup/);
 	assert.match(disclosure, /data-tsu="Disclosure"/);
 	assert.match(disclosure, /open = \$bindable\(false\)/);
@@ -71,7 +71,7 @@ test('the chevron is the kit icon, rotated on open through the rotate property o
 });
 
 test('ARIA wiring: button controls the panel, the panel is labelled by the button', () => {
-	const ui = render();
+	const ui = render({ region: true });
 	assert.equal(ui.button.id, 'probe-button');
 	assert.equal(ui.panel.id, 'probe-panel');
 	assert.equal(ui.button.getAttribute('aria-controls'), ui.panel.id);
@@ -155,7 +155,8 @@ test('Accordion is built on Disclosure and accepts title or summary per item', (
 	ui.flush();
 	assert.equal(ui.item('b').button.querySelector('.probe-state')?.textContent, 'on');
 	assert.equal(ui.item('b').panel.hidden, false);
-	assert.equal(ui.item('b').panel.getAttribute('aria-labelledby'), ui.item('b').button.id);
+	assert.equal(ui.item('b').button.getAttribute('aria-controls'), ui.item('b').panel.id);
+	assert.equal(ui.item('b').panel.getAttribute('role'), null, 'accordion items are not landmarks');
 });
 
 test('per-item open is controlled by the parent and reports through both onchange hooks', () => {
@@ -240,7 +241,7 @@ test('Disclosure size="compact" shrinks header and panel through custom properti
 	assert.match(disclosure, /class:disclosure--compact={size === 'compact'}/);
 	assert.ok(hasDecl(disclosure, '.disclosure__button', 'padding', 'var(--disclosure-pad, var(--sp-3) var(--sp-4))'));
 	assert.ok(hasDecl(disclosure, '.disclosure__button', 'font-size', 'var(--disclosure-fs, var(--fs-sm))'));
-	assert.ok(hasDecl(disclosure, '.disclosure__panel', 'padding', 'var(--disclosure-panel-pad, 0 var(--sp-4) var(--sp-4))'));
+	assert.ok(hasDecl(disclosure, '.disclosure__body', 'padding', 'var(--disclosure-panel-pad, 0 var(--sp-4) var(--sp-4))'));
 	const compact = rule(disclosure, '.disclosure--compact');
 	assert.equal(compact['--disclosure-pad'], 'var(--sp-1) var(--sp-2)');
 	assert.equal(compact['--disclosure-fs'], 'var(--fs-xs)');
@@ -296,4 +297,65 @@ test('Accordion variant="plain" drops the outer border and radius, keeps the div
 		render().doc.querySelector('[data-tsu="Accordion"]')?.classList.contains('accordion--plain'),
 		false
 	);
+});
+
+test('a closed panel stays findable: hidden=until-found, and beforematch opens it', () => {
+	/** @type {boolean[]} */
+	const seen = [];
+	const ui = render({ open: false, onchange: (/** @type {boolean} */ o) => seen.push(o) });
+	assert.equal(ui.panel.getAttribute('hidden'), 'until-found');
+	ui.panel.dispatchEvent(new ui.win.Event('beforematch'));
+	ui.flush();
+	assert.equal(ui.button.getAttribute('aria-expanded'), 'true');
+	assert.equal(ui.panel.hasAttribute('hidden'), false);
+	assert.equal(ui.props.open, true, 'bind:open flows back to the parent');
+	assert.deepEqual(seen, [true]);
+	ui.panel.dispatchEvent(new ui.win.Event('beforematch'));
+	ui.flush();
+	assert.deepEqual(seen, [true], 'an open panel ignores a repeat match');
+	ui.button.click();
+	ui.flush();
+	assert.equal(ui.panel.getAttribute('hidden'), 'until-found');
+});
+
+test('an accordion item opened by find-in-page reports through the accordion', () => {
+	/** @type {string[]} */
+	const log = [];
+	const ui = render({ multiple: false, itemOpen: { a: true }, onItemChange: (/** @type {string} */ id, /** @type {boolean} */ o) => log.push(`${id}:${o}`) });
+	assert.equal(ui.item('c').panel.getAttribute('hidden'), 'until-found');
+	ui.item('c').panel.dispatchEvent(new ui.win.Event('beforematch'));
+	ui.flush();
+	assert.equal(ui.item('c').expanded(), true);
+	assert.equal(ui.item('a').expanded(), false);
+	assert.deepEqual(log, ['c:true', 'a:false']);
+});
+
+test('a lazy panel with nothing rendered falls back to plain hidden', () => {
+	const ui = render({ lazy: true });
+	assert.equal(ui.panel.getAttribute('hidden'), '');
+	ui.button.click();
+	ui.flush();
+	ui.button.click();
+	ui.flush();
+	assert.equal(ui.panel.getAttribute('hidden'), 'until-found', 'kept content is findable once rendered');
+});
+
+test('until-found panels are never display:none and carry no box of their own', () => {
+	assert.equal(rule(disclosure, '.disclosure__panel[hidden]').display, undefined);
+	assert.ok(hasDecl(disclosure, ".disclosure__panel[hidden]:not([hidden='until-found'])", 'display', 'none'));
+	const panel = rule(disclosure, '.disclosure__panel');
+	for (const prop of ['padding', 'border', 'margin']) assert.equal(panel[prop], undefined, prop);
+	const ui = render();
+	assert.ok(ui.panel.firstElementChild?.classList.contains('disclosure__body'));
+	assert.ok(ui.panel.querySelector('.disclosure__body > .probe-panel'));
+});
+
+test('the panel is a landmark only when region is set', () => {
+	const plain = render();
+	assert.equal(plain.panel.getAttribute('role'), null);
+	assert.equal(plain.panel.getAttribute('aria-labelledby'), null);
+	const landmark = render({ region: true });
+	assert.equal(landmark.panel.getAttribute('role'), 'region');
+	assert.equal(landmark.panel.getAttribute('aria-labelledby'), landmark.button.id);
+	assert.match(disclosure, /region = false,/);
 });

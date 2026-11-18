@@ -10,6 +10,7 @@
 	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
 	import { getInputGroupContext } from '$lib/input-group-context';
 	import { isComposing } from '$lib/ime.js';
+	import { controlValidity } from '$lib/user-validity.svelte';
 
 	// `size` shadows the native char-width attribute (unused in token-sized
 	// layouts) to expose a height preset instead.
@@ -70,7 +71,8 @@
 	const field = getFieldContext();
 	const group = getInputGroupContext();
 	const sizeEff = $derived(size ?? group?.size ?? 'md');
-	const isInvalid = $derived(invalid || !!field?.invalid || !!group?.invalid);
+	const validity = controlValidity(field, () => value);
+	const isInvalid = $derived(invalid || !!field?.invalid || !!group?.invalid || validity.invalid);
 	const isDisabled = $derived(disabled || !!group?.disabled);
 
 	$effect(() => warnUnlabelled(el, 'Input'));
@@ -107,6 +109,7 @@
 		class:has-clear={clearable}
 		style:width={wrapped ? undefined : width}
 		bind:value
+		{@attach validity.attach}
 		{...rest}
 		placeholder={rest.placeholder ?? (field ? ' ' : undefined)}
 		disabled={isDisabled}
@@ -209,16 +212,16 @@
 		border-radius: var(--input-radius, var(--r-pill));
 		padding-inline: var(--sp-4);
 	}
-	.input[aria-invalid='true'] {
+	.input:is([aria-invalid='true'], :user-invalid) {
 		border-color: var(--danger);
 	}
-	.input[aria-invalid='true']:focus {
+	.input:is([aria-invalid='true'], :user-invalid):focus {
 		border-color: var(--danger);
 	}
 	.input {
 		--focus-tint: var(--accent);
 	}
-	.input[aria-invalid='true'] {
+	.input:is([aria-invalid='true'], :user-invalid) {
 		--focus-tint: var(--danger);
 	}
 	/* Focus bloom: a solid ring whose soft halo swells, then settles to a quieter glow. */
@@ -336,7 +339,7 @@
 		scale: var(--press-scale-sm);
 	}
 	@media (hover: hover) and (pointer: fine) {
-		.input:hover:not(:disabled, :focus, [aria-invalid='true']) {
+		.input:hover:not(:disabled, :focus, [aria-invalid='true'], :user-invalid) {
 			border-color: var(--control-edge-hover);
 		}
 		.input-clear:hover {

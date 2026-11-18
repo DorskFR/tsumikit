@@ -579,4 +579,13 @@
 			transition-timing-function: ease, var(--ease-spring-bounce);
 		}
 	}
+	/* Forced colours drop backgrounds and shadows, so every variant marks the selected tab with a border. */
+	@media (forced-colors: active) {
+		.indicator {
+			display: none;
+		}
+		.tab.selected {
+			border-bottom: 2px solid Highlight !important;
+		}
+	}
 </style>

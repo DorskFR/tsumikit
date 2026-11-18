@@ -18,6 +18,8 @@ import { readStorage, writeStorage } from './storage';
 const KEY = 'tsumikit-fx';
 
 export const FX_PREPAINT = fxPrepaint(KEY);
+/** CSP `script-src` hash of `FX_PREPAINT`; matches only when it is the whole body of its own `<script>`. */
+export const FX_PREPAINT_HASH = 'sha256-T9fLgp0MgTzS7DFenHTFDJ4e7txXFSUIzcHbvqCX0UM=';
 
 class Fx {
 	settings = $state<FxSettings>({ ...DEFAULT_FX });
