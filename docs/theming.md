@@ -35,6 +35,13 @@
   `{"mode","light","dark"}`. A bare theme id written by a version before 0.47
   still loads and pins its own slot; a version before 0.47 cannot read the blob
   and falls back to the default theme.
+- **App-owned persistence:** an app that stores the theme and text size itself
+  (per user, rendered server-side) calls `theme.configure({ persist: false })`
+  and `fontScale.configure({ persist: false })` before the first render. The
+  stores then drop and delete their `localStorage` copy and never write one.
+  Replay the app's values with `theme.hydrate(pref)` / `fontScale.hydrate(id)`
+  and mirror changes with `theme.onchange` / `fontScale.onchange`. Leave out
+  the `THEME_PREPAINT` head snippet in this mode: it reads the same key.
 
 ## Looks
 

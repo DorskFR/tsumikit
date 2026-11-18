@@ -2,7 +2,7 @@ import type { ComponentMeta } from '../../framework/registry';
 
 export const meta: ComponentMeta = {
 	description:
-		'Bottom-centred toast stack fed by the toasts store: four tones, timed or sticky, an optional async action, undo with optimistic apply, pause on hover, moves into an open modal.',
+		'Bottom-centred toast stack fed by the toasts store: four tones, timed or sticky, an optional async action, undo with optimistic apply, pause on hover, swipe sideways on touch to dismiss, moves into an open modal.',
 	keywords: [
 		'toast',
 		'notification',
@@ -12,6 +12,7 @@ export const meta: ComponentMeta = {
 		'status',
 		'live region',
 		'store',
+		'swipe',
 	],
 	seeAlso: ['Callout', 'Modal', 'StatusBar'],
 };

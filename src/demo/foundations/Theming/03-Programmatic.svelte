@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'Driving the store from code',
-		caption: 'theme.all lists built-ins and registered themes; theme.set(id), theme.toggle() and theme.next read and write the same persisted preference.',
+		caption: 'theme.all lists built-ins and registered themes; theme.set(id), theme.toggle() and theme.next read and write the same persisted preference. An app that stores the preference itself calls theme.configure({ persist: false }) before the first render, replays it with theme.hydrate(pref) and listens on theme.onchange.',
 		layout: 'stack'
 	};
 </script>

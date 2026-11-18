@@ -13,7 +13,7 @@ import {
 	type ThemePreference,
 	themePrepaint,
 } from '$lib/theme-mode';
-import { readStorage, writeStorage } from './storage';
+import { type PersistOptions, readStorage, removeStorage, writeStorage } from './storage';
 
 // Theme registry. Built-ins live in THEMES (+ one [data-theme="id"] block in
 // styles/themes.css); consumers append their own with theme.register() and ship
@@ -112,6 +112,8 @@ class Theme {
 	private registered = $state<ThemeDef[]>([]);
 	private fallback: ThemeId = 'dark';
 	private saved: string | null = null;
+	private stored = false;
+	private persistent = true;
 
 	constructor() {
 		if (browser) {
@@ -122,6 +124,7 @@ class Theme {
 				this.paint();
 			});
 			this.saved = readStorage(KEY);
+			this.stored = this.saved !== null;
 			this.resolve();
 		}
 	}
@@ -187,9 +190,21 @@ class Theme {
 		this.current = this.resolved;
 		this.apply();
 	}
+	/** Call before the first render, ahead of `hydrate()`. */
+	configure({ persist }: PersistOptions = {}) {
+		if (persist === undefined || persist === this.persistent) return;
+		this.persistent = persist;
+		if (persist || !browser) return;
+		removeStorage(KEY);
+		if (!this.stored) return;
+		this.stored = false;
+		this.saved = null;
+		this.resolve();
+	}
 	private persist() {
 		this.saved = JSON.stringify(this.pref);
-		if (browser) writeStorage(KEY, this.saved);
+		this.stored = false;
+		if (browser && this.persistent) writeStorage(KEY, this.saved);
 		this.onchange?.(this.pref);
 	}
 	private apply() {
@@ -245,6 +260,7 @@ class Theme {
 	hydrate(pref: ThemePreference) {
 		this.pref = withLook(pref, 'look' in pref ? pref.look : this.pref.look);
 		this.saved = JSON.stringify(this.pref);
+		this.stored = false;
 		this.paint();
 	}
 }
