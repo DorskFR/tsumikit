@@ -99,7 +99,7 @@
 	let el = $state<HTMLElement>();
 	const lit = $derived(tap || interactive);
 
-	// The spotlight follows the pointer itself unless the app already runs trackPointer().
+	// Works without trackPointer(); both write the same properties.
 	$effect(() => {
 		const node = el;
 		if (!node || !lit) return;
@@ -109,8 +109,10 @@
 		const flush = () => {
 			frame = 0;
 			const r = node.getBoundingClientRect();
-			node.style.setProperty('--pointer-x', `${x - r.left}px`);
-			node.style.setProperty('--pointer-y', `${y - r.top}px`);
+			const px = `${x - r.left}px`;
+			const py = `${y - r.top}px`;
+			if (node.style.getPropertyValue('--pointer-x') !== px) node.style.setProperty('--pointer-x', px);
+			if (node.style.getPropertyValue('--pointer-y') !== py) node.style.setProperty('--pointer-y', py);
 		};
 		const move = (e: PointerEvent) => {
 			if (e.pointerType !== 'mouse') return;
@@ -385,6 +387,14 @@
 				),
 				linear-gradient(color-mix(in srgb, var(--accent) 22%, transparent), color-mix(in srgb, var(--accent) 22%, transparent));
 		}
+	}
+	@property --pointer-x {
+		syntax: '*';
+		inherits: false;
+	}
+	@property --pointer-y {
+		syntax: '*';
+		inherits: false;
 	}
 	@property --card-glow {
 		syntax: '<percentage>';

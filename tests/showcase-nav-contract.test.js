@@ -24,8 +24,10 @@ test('the sidebar links every entry and tracks the active section', () => {
 
 test('the scroll-spy marks the last section past the line, not the one filling a band', () => {
 	assert.doesNotMatch(scrollspy, /new IntersectionObserver/);
-	assert.match(page, /if \(el\.getBoundingClientRect\(\)\.top > line\) break;/);
-	assert.match(page, /window\.innerHeight \+ window\.scrollY >= document\.documentElement\.scrollHeight/);
+	assert.match(scrollspy, /tops = els\.map\(\(el\) => el\.getBoundingClientRect\(\)\.top \+ y\);/);
+	assert.match(scrollspy, /if \(tops\[mid\] <= target\)/);
+	assert.match(scrollspy, /pageHeight = document\.documentElement\.scrollHeight;/);
+	assert.match(scrollspy, /if \(viewport \+ y >= pageHeight - 2\)/);
 });
 
 test('the footer leaves scroll room so the last anchors can reach the header', () => {

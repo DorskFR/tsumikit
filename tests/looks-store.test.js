@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import test from 'node:test';
@@ -176,12 +177,13 @@ test('LookPicker lists the looks, badges experimental ones and drives the store'
 	assert.equal(stable.querySelectorAll('[role="radio"]').length, 3);
 });
 
-test('trackPointer sets box-relative vars on the hovered [data-tsu] chain, mouse only, until disposed', () => {
+test('trackPointer writes box-relative vars only on the hovered spotlight cards, mouse only, until disposed', () => {
 	const r = boot();
 	const doc = r.win.document;
-	doc.body.innerHTML = '<div data-tsu="Card" id="outer"><span><button data-tsu="Button" id="inner">x</button></span></div>';
-	const outer = /** @type {HTMLElement} */ (doc.getElementById('outer'));
-	const inner = /** @type {HTMLElement} */ (doc.getElementById('inner'));
+	doc.body.innerHTML =
+		'<div data-tsu="AppShell" id="shell"><div data-tsu="Card" class="card card-tap" id="outer"><div data-tsu="Card" class="card metric" id="inner"><span><button data-tsu="Button" id="btn">x</button></span></div></div></div>';
+	const $ = (/** @type {string} */ id) => /** @type {HTMLElement} */ (doc.getElementById(id));
+	const [shell, outer, inner, btn] = ['shell', 'outer', 'inner', 'btn'].map($);
 	outer.getBoundingClientRect = () => /** @type {DOMRect} */ ({ left: 10, top: 20 });
 	inner.getBoundingClientRect = () => /** @type {DOMRect} */ ({ left: 40, top: 50 });
 	/** @type {Function[]} */
@@ -190,18 +192,37 @@ test('trackPointer sets box-relative vars on the hovered [data-tsu] chain, mouse
 	const move = (/** @type {string} */ pointerType, /** @type {number} */ x, /** @type {number} */ y) => {
 		const e = new r.win.MouseEvent('pointermove', { bubbles: true, clientX: x, clientY: y });
 		Object.defineProperty(e, 'pointerType', { value: pointerType });
-		inner.dispatchEvent(e);
+		btn.dispatchEvent(e);
 		for (const f of frames.splice(0)) f();
 	};
+	/** @type {string[]} */
+	const writes = [];
+	for (const el of [shell, outer, inner, btn]) {
+		const set = el.style.setProperty.bind(el.style);
+		el.style.setProperty = (name, value) => {
+			writes.push(`${el.id}${name}=${value}`);
+			set(name, value);
+		};
+	}
 	const stop = r.trackPointer(doc);
 	move('touch', 100, 100);
-	assert.equal(inner.style.getPropertyValue('--pointer-x'), '');
+	assert.deepEqual(writes, []);
 	move('mouse', 100, 100);
-	assert.equal(inner.style.getPropertyValue('--pointer-x'), '60px');
-	assert.equal(inner.style.getPropertyValue('--pointer-y'), '50px');
-	assert.equal(outer.style.getPropertyValue('--pointer-x'), '90px');
-	assert.equal(outer.style.getPropertyValue('--pointer-y'), '80px');
+	assert.deepEqual(writes, ['inner--pointer-x=60px', 'inner--pointer-y=50px', 'outer--pointer-x=90px', 'outer--pointer-y=80px']);
+	writes.length = 0;
+	move('mouse', 100, 100);
+	assert.deepEqual(writes, [], 'unchanged values are not rewritten');
+	move('mouse', 100, 110);
+	assert.deepEqual(writes, ['inner--pointer-y=60px', 'outer--pointer-y=90px']);
+	writes.length = 0;
 	stop();
 	move('mouse', 200, 200);
-	assert.equal(inner.style.getPropertyValue('--pointer-x'), '60px');
+	assert.deepEqual(writes, []);
+});
+
+test('pointer vars are registered non-inheriting, so only the written surface restyles', async () => {
+	const card = await readFile(new URL('../src/lib/components/atoms/Card.svelte', import.meta.url), 'utf8');
+	for (const axis of ['x', 'y']) {
+		assert.match(card, new RegExp(`@property --pointer-${axis} \\{\\s*syntax: '\\*';\\s*inherits: false;\\s*\\}`));
+	}
 });

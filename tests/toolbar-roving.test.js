@@ -168,8 +168,9 @@ test('Toolbar wires the roving ring to the bar and ties the role to it (TSU-127)
 });
 
 test('the ring is re-read from the DOM as children collapse or change', () => {
-	assert.match(toolbar, /new MutationObserver\(sync\)/);
-	assert.match(toolbar, /attributeFilter: \['disabled', 'hidden', 'aria-hidden', 'class', 'style'\]/);
+	assert.match(toolbar, /new MutationObserver\(schedule\)/);
+	assert.match(toolbar, /frame \|\|= requestAnimationFrame\(/);
+	assert.match(toolbar, /attributeFilter: \['disabled', 'hidden', 'aria-hidden', 'data-overflow', 'data-collapsed'\]/);
 	assert.match(toolbar, /toolbarStops\(el, \(node\) => node\.getClientRects\(\)\.length === 0\)/);
 	assert.match(toolbar, /class:collapsed/);
 });

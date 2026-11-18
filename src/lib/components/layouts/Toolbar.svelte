@@ -8,6 +8,8 @@
 	// roving tabindex makes it one tab stop and ←/→/Home/End move between the
 	// controls actually visible, the `…` trigger included. Children are arbitrary
 	// snippet content, so the ring is read from the DOM rather than a list prop.
+	// Take a stop out with `hidden`, `disabled` or `aria-hidden`: class and style
+	// changes are not watched.
 	import type { Snippet } from 'svelte';
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import Menu, { type MenuItem } from '$lib/components/molecules/Menu.svelte';
@@ -90,6 +92,7 @@
 	const stops = () => toolbarStops(el, (node) => node.getClientRects().length === 0);
 
 	function rove(list: HTMLElement[], index: number) {
+		if (activeStop && !list.includes(activeStop)) activeStop.tabIndex = -1;
 		activeStop = list[index] ?? null;
 		list.forEach((node, i) => {
 			node.setAttribute(TOOLBAR_STOP_ATTR, '');
@@ -112,16 +115,26 @@
 		if (!roving || !el) return;
 		const node = el;
 		sync();
-		// Only attributes the caller owns are observed: writing tabindex and
-		// TOOLBAR_STOP_ATTR back must not re-enter this.
-		const mo = new MutationObserver(sync);
+		let frame = 0;
+		const schedule = () => {
+			frame ||= requestAnimationFrame(() => {
+				frame = 0;
+				sync();
+			});
+		};
+		// Writing tabindex and TOOLBAR_STOP_ATTR back must not re-enter this, and
+		// class/style churn (pointer spotlights, transitions) must not force layout.
+		const mo = new MutationObserver(schedule);
 		mo.observe(node, {
 			childList: true,
 			subtree: true,
 			attributes: true,
-			attributeFilter: ['disabled', 'hidden', 'aria-hidden', 'class', 'style']
+			attributeFilter: ['disabled', 'hidden', 'aria-hidden', 'data-overflow', 'data-collapsed']
 		});
-		return () => mo.disconnect();
+		return () => {
+			mo.disconnect();
+			cancelAnimationFrame(frame);
+		};
 	});
 
 	function onKeydown(event: KeyboardEvent) {

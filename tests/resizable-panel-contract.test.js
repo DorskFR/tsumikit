@@ -27,7 +27,8 @@ test('collapse handle placement is selectable and sticks to the viewport via rAF
 	assert.match(source, /\.collapse-control\.top\s*{[^}]*top: var\(--sp-2\);/s);
 	assert.match(source, /\.collapse-control\.bottom\s*{[^}]*bottom: var\(--sp-2\);/s);
 	assert.match(source, /requestAnimationFrame\(\(\) => {[\s\S]*computeSticky\(\)/);
-	assert.match(source, /addEventListener\('scroll', scheduleSticky, true\)/);
+	assert.match(source, /addEventListener\('scroll', scheduleSticky, { capture: true, passive: true }\)/);
+	assert.match(source, /new IntersectionObserver/);
 	assert.match(source, /style="transform: translateY\({stickyShift}px\)"/);
 });
 
