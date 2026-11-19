@@ -11,6 +11,7 @@
 	import { browser } from '$lib/env';
 	import { readStorage, writeStorage } from '$lib/stores/storage';
 	import { playSound } from '$lib/sound';
+	import { pinScroll, showModalUnscrolled } from '$lib/dialog';
 	import Icon, { type IconName } from '$lib/components/atoms/Icon.svelte';
 	import Spinner from '$lib/components/atoms/Spinner.svelte';
 	import IconButton from '$lib/components/molecules/IconButton.svelte';
@@ -99,11 +100,11 @@
 	$effect(() => {
 		if (!dialogEl) return;
 		if (!controlled) {
-			dialogEl.showModal();
+			showModalUnscrolled(dialogEl);
 			return;
 		}
 		if (open && !dialogEl.open) {
-			dialogEl.showModal();
+			showModalUnscrolled(dialogEl);
 			if (synced) playSound('open', sound);
 		} else if (!open && dialogEl.open) dialogEl.close();
 		synced = true;
@@ -198,10 +199,7 @@
 		requestClose();
 	}}
 	onclose={onDialogClose}
-	onscroll={(e) => {
-		e.currentTarget.scrollTop = 0;
-		e.currentTarget.scrollLeft = 0;
-	}}
+	onscroll={(e) => pinScroll(e.currentTarget)}
 	onpointerdown={onDialogPointerDown}
 	onclick={onDialogClick}
 >
@@ -246,11 +244,9 @@
 
 <style>
 	/* Reset the UA dialog box: we own the surface via the inner .sheet. The
-	   dialog itself is just the centering/backdrop layer. It must never scroll:
-	   the initial focus would scroll the sheet into view while it still sits at
-	   `translate: 0 100%`, which eats the slide-in. `overflow: hidden` keeps it a
-	   scroll container so `overscroll-behavior` stops chaining to the page, and
-	   the scroll handler pins it at 0. */
+	   dialog itself is just the centering/backdrop layer. It must never scroll
+	   (see showModalUnscrolled). `overflow: hidden` keeps it a scroll container so
+	   `overscroll-behavior` stops chaining to the page. */
 	.modal {
 		margin: 0;
 		padding: 0;

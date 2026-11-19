@@ -6,6 +6,7 @@
 	import Icon, { type IconName } from '$lib/components/atoms/Icon.svelte';
 	import IconButton from '$lib/components/molecules/IconButton.svelte';
 	import { playSound } from '$lib/sound';
+	import { pinScroll, showModalUnscrolled } from '$lib/dialog';
 
 	let {
 		open = $bindable(),
@@ -71,11 +72,11 @@
 	$effect(() => {
 		if (!dialogEl) return;
 		if (!controlled) {
-			dialogEl.showModal();
+			showModalUnscrolled(dialogEl);
 			return;
 		}
 		if (open && !dialogEl.open) {
-			dialogEl.showModal();
+			showModalUnscrolled(dialogEl);
 			if (synced) playSound('open', sound);
 		} else if (!open && dialogEl.open) dialogEl.close();
 		synced = true;
@@ -124,6 +125,7 @@
 		requestClose();
 	}}
 	onclose={onDialogClose}
+	onscroll={(e) => pinScroll(e.currentTarget)}
 	onpointerdown={onDialogPointerDown}
 	onclick={onDialogClick}
 >

@@ -13,7 +13,7 @@ test('Drawer is a native <dialog> that follows a bound `open` and closes on Esca
 	assert.match(source, /<dialog\s+bind:this={dialogEl}\s+data-tsu="Drawer"/);
 	assert.match(source, /open = \$bindable\(\)/);
 	assert.match(source, /const controlled = \$derived\(open !== undefined\);/);
-	assert.match(source, /if \(open && !dialogEl\.open\) {\s*dialogEl\.showModal\(\);/);
+	assert.match(source, /if \(open && !dialogEl\.open\) {\s*showModalUnscrolled\(dialogEl\);/);
 	assert.match(source, /} else if \(!open && dialogEl\.open\) dialogEl\.close\(\);/);
 	assert.match(source, /function requestClose\(\) {\s*if \(controlled\) open = false;\s*else {\s*dismissed = true;\s*playSound\('close', sound\);\s*}\s*onclose\?\.\(\);/s);
 	assert.match(source, /function onDialogClose\(\) {\s*const forced = controlled \? open : !dismissed;\s*dismissed = false;\s*if \(controlled\) open = false;\s*if \(controlled \|\| forced\) playSound\('close', sound\);\s*if \(forced\) onclose\?\.\(\);/s);
