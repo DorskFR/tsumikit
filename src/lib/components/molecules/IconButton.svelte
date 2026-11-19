@@ -41,8 +41,7 @@
 		inline?: boolean;
 		hoverDanger?: boolean;
 		// Two-state icon toggle (star/pin/favourite): sets `aria-pressed` and tints
-		// the glyph with the accent when on. Override the tint per-instance with
-		// `style="--btn-on: var(--warn)"`.
+		// the glyph with the accent when on.
 		pressed?: boolean;
 		// Render as a link (`<a href>`) while keeping icon-button chrome — e.g. an
 		// open-on-GitHub action. Forwarded to Button; `href` implies `as="a"`.

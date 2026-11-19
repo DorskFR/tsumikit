@@ -108,7 +108,6 @@
 	class:split-sm={size === 'sm'}
 	class:split-lg={size === 'lg'}
 	style={styleProp}
-	style:--split-height={height}
 >
 	<span class="split-main">
 		<Button
@@ -127,7 +126,7 @@
 			{@render children()}
 		</Button>
 	</span>
-	<span class="split-caret">
+	<span class="split-caret" style:width={caret === 'half' ? `calc(${height} / 2)` : height}>
 		<Menu
 			{label}
 			{items}
@@ -159,21 +158,21 @@
 	.split-main {
 		display: flex;
 		position: relative;
-		--btn-radius: var(--r-md) 0 0 var(--r-md);
+	}
+	.split .split-main :global(.btn) {
+		border-radius: var(--r-md) 0 0 var(--r-md);
 	}
 	/* The caret is as wide as the control is tall; its border overlaps the
 	   primary's so the two 1px lines read as one divider. */
 	.split-caret {
 		display: flex;
 		position: relative;
-		width: var(--split-height);
 		flex: none;
 		margin-inline-start: calc(-1 * var(--edge-width));
-		--pop-trigger-radius: 0 var(--r-md) var(--r-md) 0;
-		--pop-trigger-pad: 0;
 	}
-	.split-half .split-caret {
-		width: calc(var(--split-height) / 2);
+	.split .split-caret :global(.pop-trigger) {
+		border-radius: 0 var(--r-md) var(--r-md) 0;
+		padding: 0;
 	}
 	.caret-glyph {
 		display: inline-flex;

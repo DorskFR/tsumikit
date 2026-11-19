@@ -61,7 +61,7 @@ test('pressed sets aria-pressed and keeps the accent ring on stacked slots', () 
 	const el = render();
 	assert.equal(el('snippet').getAttribute('aria-pressed'), 'true');
 	assert.equal(el('plain').getAttribute('aria-pressed'), null);
-	assert.ok(hasDecl(button, ".btn-stacked[aria-pressed='true']", 'box-shadow', 'inset 0 0 0 1px var(--btn-on, var(--accent))'));
+	assert.ok(hasDecl(button, ".btn-stacked[aria-pressed='true']", 'box-shadow', 'inset 0 0 0 1px var(--accent)'));
 });
 
 test('inline layout is unchanged', () => {
@@ -72,11 +72,11 @@ test('inline layout is unchanged', () => {
 });
 
 test('stacked heights follow size from tokens; danger paints border and ink', () => {
-	assert.ok(hasDecl(button, '.btn-stacked.btn-sm', 'min-height', 'var(--btn-size, var(--control-height-default))'));
+	assert.ok(hasDecl(button, '.btn-stacked.btn-sm', 'min-height', 'var(--control-height-default)'));
 	assert.ok(
-		hasDecl(button, '.btn-stacked.btn-lg', 'min-height', 'var(--btn-size, calc(var(--control-height-large) + var(--sp-2) + var(--sp-0-5)))')
+		/\.btn-stacked\.btn-lg,\s*\.btn-stacked\.btn-xl\s*{\s*min-height: calc\(var\(--control-height-large\) \+ var\(--sp-2\) \+ var\(--sp-0-5\)\);/.test(button)
 	);
-	assert.match(button, /\.btn-stacked,\s*\.btn-stacked\.btn-sm,[^{]*{[^}]*min-height: var\(--btn-size, var\(--control-height-large\)\);/s);
+	assert.match(button, /\.btn-stacked,\s*\.btn-stacked\.btn-sm,[^{]*{[^}]*min-height: var\(--control-height-large\);/s);
 	assert.match(button, /\.btn-stacked\.btn-danger,\s*\.btn-stacked\.btn-tone-danger\s*{\s*color: var\(--danger\);\s*border-color: var\(--danger\);/);
 	assert.ok(hasDecl(button, '.btn-shortcut', 'color', 'var(--text-faint)'));
 	assert.ok(hasDecl(button, '.btn-shortcut', 'font-family', 'var(--font-label)'));

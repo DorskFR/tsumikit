@@ -156,21 +156,19 @@
 			transition-timing-function: ease, var(--ease-spring-bounce), var(--ease-out);
 		}
 		& .sparks {
-			--spark-a: color-mix(in srgb, var(--ok) 85%, transparent);
-			--spark-b: color-mix(in srgb, var(--accent) 85%, transparent);
 			position: absolute;
 			inset: -9px;
 			display: block;
 			pointer-events: none;
 			background:
-				radial-gradient(circle at 50% 4%, var(--spark-a) 1.6px, transparent 2.2px),
-				radial-gradient(circle at 83% 17%, var(--spark-b) 1.3px, transparent 1.9px),
-				radial-gradient(circle at 96% 50%, var(--spark-a) 1.6px, transparent 2.2px),
-				radial-gradient(circle at 83% 83%, var(--spark-b) 1.3px, transparent 1.9px),
-				radial-gradient(circle at 50% 96%, var(--spark-a) 1.6px, transparent 2.2px),
-				radial-gradient(circle at 17% 83%, var(--spark-b) 1.3px, transparent 1.9px),
-				radial-gradient(circle at 4% 50%, var(--spark-a) 1.6px, transparent 2.2px),
-				radial-gradient(circle at 17% 17%, var(--spark-b) 1.3px, transparent 1.9px);
+				radial-gradient(circle at 50% 4%, color-mix(in srgb, var(--ok) 85%, transparent) 1.6px, transparent 2.2px),
+				radial-gradient(circle at 83% 17%, color-mix(in srgb, var(--accent) 85%, transparent) 1.3px, transparent 1.9px),
+				radial-gradient(circle at 96% 50%, color-mix(in srgb, var(--ok) 85%, transparent) 1.6px, transparent 2.2px),
+				radial-gradient(circle at 83% 83%, color-mix(in srgb, var(--accent) 85%, transparent) 1.3px, transparent 1.9px),
+				radial-gradient(circle at 50% 96%, color-mix(in srgb, var(--ok) 85%, transparent) 1.6px, transparent 2.2px),
+				radial-gradient(circle at 17% 83%, color-mix(in srgb, var(--accent) 85%, transparent) 1.3px, transparent 1.9px),
+				radial-gradient(circle at 4% 50%, color-mix(in srgb, var(--ok) 85%, transparent) 1.6px, transparent 2.2px),
+				radial-gradient(circle at 17% 17%, color-mix(in srgb, var(--accent) 85%, transparent) 1.3px, transparent 1.9px);
 			opacity: 0;
 		}
 		&.copied .sparks {
