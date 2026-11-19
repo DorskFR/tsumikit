@@ -56,7 +56,7 @@
 		</nav>
 	{/snippet}
 	{#snippet footer()}
-		<Text size="xs" tone="faint">Full-page version: <Link href="shell">AppShell demo</Link></Text>
+		<Text size="xs" tone="faint">Full-page version: <Link href="../shell">AppShell demo</Link></Text>
 	{/snippet}
 	<Container size="none" pad>
 		<Stack>

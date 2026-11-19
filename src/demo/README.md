@@ -1,15 +1,15 @@
 # Showcase examples
 
-`src/demo/` is the component showcase rendered by `src/routes/+page.svelte`. It is not packaged.
-The nav, sections and snippets are generated from the file tree: adding a component never
-touches a shared file.
+`src/demo/` is the component showcase rendered by `src/routes/(demo)/`: an index at `/` and one
+page per component at `/<family>/<id>` (`/molecules/drawer`). It is not packaged. The nav, pages
+and snippets are generated from the file tree: adding a component never touches a shared file.
 
 ## Add a component
 
 Create `src/demo/<family>/<Component>/` where `<family>` is `atoms`, `molecules`, `organisms`,
 `layouts` or `foundations` (topics such as `Typography`, `ThemeTokens`), and `<Component>` is the
-exported name (`SegmentedControl`). The section id is the kebab-cased directory name
-(`#segmented-control`).
+exported name (`SegmentedControl`). The section id is the kebab-cased directory name and
+names its page (`/molecules/segmented-control`).
 
 ```
 src/demo/molecules/SegmentedControl/
@@ -85,12 +85,12 @@ a `meta.ts` and at least two examples (`tests/demo-coverage.test.js`).
 
 ## Framework
 
-`src/demo/framework/` owns the shell: `DemoShell` (AppShell, filter, scrollspy, hash redirects),
-`DemoNav`, `DemoToolbar` (theme and font scale pickers, an `extras` snippet slot for global
-controls), `DemoSection`, `Example`, `registry.ts` (the globs), `highlight.ts`, `catalog.ts`
-(families and their labels), `hash.ts` (redirects for anchors of the former single-page
-showcase, e.g. `#form-atoms` → `#input`). Family lanes never edit it.
+`src/demo/framework/` owns the shell: `DemoShell` (AppShell around every page), `DemoNav`,
+`DemoIndex` (the `/` grid), `DemoToolbar` (theme and font scale pickers, an `extras` snippet slot
+for global controls), `DemoSection`, `Example`, `registry.ts` (the globs), `routes.ts` (page URLs),
+`filter.svelte.ts` (the sidebar filter, shared with the index), `highlight.ts`, `catalog.ts`
+(families and their labels), `hash.ts` (where anchors of the former single-page showcase now live:
+`/#drawer` → `/molecules/drawer`, `/#drawer--states` keeps the example anchor, `#form-atoms` →
+`/atoms/input`). Family lanes never edit it.
 
-## Lazy sections
-
-Every section is prerendered in full. On the client a section imports its examples, sources and props table, then mounts them, only when needed: the deep-linked one, one on screen, near the viewport (at idle), focused into or navigated to. Sections never approached stay prerendered markup. A mounted section carries `data-demo-live`. Load `/?eager` to mount everything up front (the visual detector and motion checks use it).
+Every component page is prerendered and loads only its own examples, sources and props table.

@@ -1,15 +1,12 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import { AppShell, Heading, LOOKS, SelectButton, Text, theme } from '@dorsk/tsumikit';
+	import { base } from '$app/paths';
 	import DemoNav from './DemoNav.svelte';
-	import DemoSection from './DemoSection.svelte';
 	import DemoToolbar from './DemoToolbar.svelte';
-	import { aimAtHash, followHashes, sectionOf } from './hash';
-	import { wake } from './lazy';
-	import { entries, searchText } from './registry';
-	import { createScrollspy } from './scrollspy.svelte';
 
-	let { toolbar }: { toolbar?: Snippet } = $props();
+	let { toolbar, active = '', children }: { toolbar?: Snippet; active?: string; children?: Snippet } =
+		$props();
 
 	const looks = LOOKS.map((l) => ({
 		value: l.id,
@@ -17,31 +14,10 @@
 	}));
 	const lookLabel = $derived(LOOKS.find((l) => l.id === theme.look)?.label ?? theme.look);
 
-	let filter = $state('');
 	let navOpen = $state(false);
-	const query = $derived(filter.trim().toLowerCase());
-	const visible = $derived(
-		new Set(entries.filter((e) => !query || searchText(e).includes(query)).map((e) => e.id))
-	);
-
-	const spy = createScrollspy({
-		sections: () =>
-			[...document.querySelectorAll<HTMLElement>('[data-demo-section]')].filter((el) => !el.hidden),
-		line: () =>
-			(document.querySelector('[data-tsu="AppShell"] > header')?.getBoundingClientRect().height ?? 0) + 48,
-		deps: () => visible
-	});
 
 	$effect(() => {
-		document
-			.querySelector(`[data-demo-nav] a[href="#${spy.active}"]`)
-			?.scrollIntoView({ block: 'nearest' });
-	});
-
-	$effect(() => {
-		const reach = (id: string) => wake(sectionOf(id));
-		aimAtHash(reach);
-		return followHashes(reach);
+		if (active) document.querySelector('[data-demo-nav] [aria-current="page"]')?.scrollIntoView({ block: 'nearest' });
 	});
 </script>
 
@@ -55,7 +31,7 @@
 	navLabel="Components"
 >
 	{#snippet header()}
-		<Heading level={1} size="md"><a href="#top" class="demo-brand">@dorsk/tsumikit</a></Heading>
+		<Heading level={1} size="md"><a href="{base}/" class="demo-brand">@dorsk/tsumikit</a></Heading>
 		<Text variant="caption" tone="muted" class="cq-hide">Svelte 5 · pure CSS · zero deps</Text>
 		<DemoToolbar extras={toolbar} />
 	{/snippet}
@@ -72,13 +48,11 @@
 				onchange={(v) => theme.setLook(v)}
 			/>
 		</div>
-		<DemoNav bind:filter active={spy.active} {visible} />
+		<DemoNav {active} />
 	{/snippet}
 
-	<div class="demo-page" id="top">
-		{#each entries as entry (entry.id)}
-			<DemoSection {entry} hidden={!visible.has(entry.id)} />
-		{/each}
+	<div class="demo-page">
+		{@render children?.()}
 		<footer class="demo-footer">
 			<Text variant="caption" tone="muted">MIT · @dorsk/tsumikit</Text>
 		</footer>

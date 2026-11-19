@@ -4,13 +4,11 @@ import test from 'node:test';
 import { readDemo } from './helpers/demo-source.js';
 
 const page = await readDemo();
-const scrollspy = await readFile(new URL('../src/demo/framework/scrollspy.svelte.ts', import.meta.url), 'utf8');
 const reset = await readFile(new URL('../src/lib/styles/reset.css', import.meta.url), 'utf8');
 
-test('nav entries and sections render from the same registry entries, in the same order', () => {
-	assert.match(page, /\{#each entries as entry \(entry\.id\)\}\s*<DemoSection \{entry\}/);
-	assert.match(page, /<section\s+bind:this=\{section\}\s+id=\{entry\.id\}\s+class="demo-section"\s+data-demo-section/);
+test('nav and index render from the same registry groups', () => {
 	assert.match(page, /export const groups[^=]*= FAMILIES\.map\(\(family\) => \(\{\s*family,\s*entries: entries\.filter/);
+	assert.equal([...page.matchAll(/groups\s*\.map\(\(g\) => \(\{ \.\.\.g, entries: g\.entries\.filter\(\(e\) => demoFilter\.visible\.has\(e\.id\)\)/g)].length, 2);
 });
 
 test('the sidebar groups entries by family in labelled nav sections', () => {
@@ -18,16 +16,8 @@ test('the sidebar groups entries by family in labelled nav sections', () => {
 	assert.match(page, /<NavSection label=\{FAMILY_LABEL\[group\.family\]\}>/);
 });
 
-test('the sidebar links every entry and tracks the active section', () => {
-	assert.match(page, /href="#\{entry\.id\}"\s*active=\{active === entry\.id\}/);
-});
-
-test('the scroll-spy marks the last section past the line, not the one filling a band', () => {
-	assert.doesNotMatch(scrollspy, /new IntersectionObserver/);
-	assert.match(scrollspy, /tops = els\.map\(\(el\) => el\.getBoundingClientRect\(\)\.top \+ y\);/);
-	assert.match(scrollspy, /if \(tops\[mid\] <= target\)/);
-	assert.match(scrollspy, /pageHeight = document\.documentElement\.scrollHeight;/);
-	assert.match(scrollspy, /if \(viewport \+ y >= pageHeight - 2\)/);
+test('the sidebar links every entry to its page and marks the current one', () => {
+	assert.match(page, /href=\{pageOf\(entry\)\}\s*active=\{active === entry\.id\}/);
 });
 
 test('the footer leaves scroll room so the last anchors can reach the header', () => {

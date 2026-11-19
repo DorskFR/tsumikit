@@ -28,94 +28,17 @@ export function sectionOf(hash: string): string {
 	return resolveHash(hash).split('--')[0];
 }
 
-let stopAim: (() => void) | null = null;
-
-export function aiming(): boolean {
-	return stopAim !== null;
-}
-
 /**
- * `content-visibility` placeholders around the target resize as they render
- * (WebKit has no scroll anchoring) and mounts can scroll the page, so re-aim
- * whenever the target or an ancestor resizes, until nothing has moved it for
- * `settleMs` of frame time or the user takes over. Frame time, not timers: a
- * busy main thread delays both. Layout is read only in resize callbacks, where
- * it is already clean.
+ * The page a `#hash` of the single-page showcase now lives on: the section's
+ * route, keeping an example anchor. `undefined` for an unknown section.
  */
-export function aim(id: string, settleMs = 1500, maxMs = 8000): void {
-	stopAim?.();
-	let want = Number.NaN;
-	let first = 0;
-	let fixed = 0;
-	let last = 0;
-	let frame = 0;
-	let observer: ResizeObserver | null = null;
-	const correct = () => {
-		const el = document.getElementById(id);
-		if (!el || Math.abs(el.getBoundingClientRect().top - want) <= 1) return;
-		el.scrollIntoView();
-		want = el.getBoundingClientRect().top;
-		fixed = last;
-	};
-	const loop = (now: number) => {
-		const el = document.getElementById(id);
-		if (!el) return stop();
-		if (!observer) {
-			observer = new ResizeObserver(correct);
-			for (let n: Element | null = el; n; n = n.parentElement) observer.observe(n);
-		}
-		last = now;
-		first ||= now;
-		fixed ||= now;
-		if (now - fixed >= settleMs || now - first >= maxMs) return stop();
-		frame = requestAnimationFrame(loop);
-	};
-	const inputs = ['pointerdown', 'touchstart', 'keydown', 'wheel'] as const;
-	const stop = () => {
-		cancelAnimationFrame(frame);
-		observer?.disconnect();
-		for (const e of inputs) removeEventListener(e, stop, true);
-		if (stopAim === stop) stopAim = null;
-	};
-	stopAim = stop;
-	for (const e of inputs) addEventListener(e, stop, { capture: true, passive: true });
-	frame = requestAnimationFrame(loop);
-}
-
-/** Former anchors are rewritten in the URL first; `reach` runs before aiming. */
-export function aimAtHash(reach: (id: string) => void = () => {}): void {
-	const raw = location.hash.slice(1);
-	if (!raw) return;
-	const id = resolveHash(raw);
-	if (id !== raw) history.replaceState(null, '', `#${id}`);
-	reach(id);
-	aim(id);
-}
-
-/**
- * Every in-page navigation (link click, including the current hash and former
- * anchors, back/forward, an edited URL) lands through `aim`.
- */
-export function followHashes(reach: (id: string) => void = () => {}): () => void {
-	const onclick = (e: MouseEvent) => {
-		if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey)
-			return;
-		const a =
-			e.target instanceof Element ? e.target.closest<HTMLAnchorElement>('a[href^="#"]') : null;
-		const raw = a?.getAttribute('href')?.slice(1);
-		if (!raw) return;
-		const id = resolveHash(raw);
-		if (!document.getElementById(id)) return;
-		e.preventDefault();
-		if (location.hash !== `#${id}`) history.pushState(null, '', `#${id}`);
-		reach(id);
-		aim(id);
-	};
-	const onhash = () => aimAtHash(reach);
-	addEventListener('click', onclick);
-	addEventListener('hashchange', onhash);
-	return () => {
-		removeEventListener('click', onclick);
-		removeEventListener('hashchange', onhash);
-	};
+export function pageFor(
+	hash: string,
+	pathOf: (section: string) => string | undefined,
+): string | undefined {
+	const id = resolveHash(hash);
+	const section = id.split('--')[0];
+	const path = section ? pathOf(section) : undefined;
+	if (!path) return undefined;
+	return id === section ? path : `${path}#${id}`;
 }

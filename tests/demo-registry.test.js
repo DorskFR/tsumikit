@@ -96,6 +96,18 @@ test('every demo directory has a meta.ts with a description and well-named examp
 	}
 });
 
+test('every seeAlso names a demoed component, so it links to a page', async () => {
+	const ids = new Set(dirs.map((d) => kebab(d.name)));
+	/** @type {string[]} */
+	const dangling = [];
+	for (const d of dirs) {
+		const meta = await readFile(join(d.dir, 'meta.ts'), 'utf8');
+		const list = meta.match(/seeAlso:\s*\[([^\]]*)\]/)?.[1] ?? '';
+		for (const [, ref] of list.matchAll(/'([^']+)'/g)) if (!ids.has(kebab(ref))) dangling.push(`${d.name} → ${ref}`);
+	}
+	assert.deepEqual(dangling, []);
+});
+
 test('section ids are unique across families', () => {
 	const ids = dirs.map((d) => kebab(d.name));
 	assert.equal(new Set(ids).size, ids.length);
@@ -151,8 +163,9 @@ async function buildFramework() {
 import { flushSync, mount } from 'svelte';
 import DemoShell from '../../src/demo/framework/DemoShell.svelte';
 import DemoSection from '../../src/demo/framework/DemoSection.svelte';
+import DemoIndex from '../../src/demo/framework/DemoIndex.svelte';
 import { entries, loadSection, loadedSection } from '../../src/demo/framework/registry';
-globalThis.__fixture = { mount, flushSync, DemoShell, DemoSection, entries, loadSection, loadedSection };
+globalThis.__fixture = { mount, flushSync, DemoShell, DemoSection, DemoIndex, entries, loadSection, loadedSection };
 `;
 	const out = await esbuild.build({
 		stdin: { contents: entry, resolveDir: join(ROOT, 'tests/fixtures'), loader: 'js' },
@@ -234,8 +247,9 @@ test('the registry keeps meta eager and imports a section only on demand', async
 test('DemoSection renders the Button examples with anchors, previews and verbatim snippets', async () => {
 	const d = dom();
 	const { mount, flushSync, DemoSection, entries, loadSection } = d.window.__fixture;
-	const entry = { ...entries[0], examples: (await loadSection(entries[0])).examples };
-	mount(DemoSection, { target: d.window.document.body, props: { entry: entries[0] } });
+	const content = await loadSection(entries[0]);
+	const entry = { ...entries[0], examples: content.examples };
+	mount(DemoSection, { target: d.window.document.body, props: { entry: entries[0], content } });
 	await settle();
 	flushSync();
 	const doc = d.window.document;
@@ -282,8 +296,8 @@ test('DemoSection renders the Button examples with anchors, previews and verbati
 
 test('a section without examples renders no migration notice or legacy link', async () => {
 	const d = dom();
-	const { mount, flushSync, DemoSection, entries } = d.window.__fixture;
-	mount(DemoSection, { target: d.window.document.body, props: { entry: entries[1] } });
+	const { mount, flushSync, DemoSection, entries, loadSection } = d.window.__fixture;
+	mount(DemoSection, { target: d.window.document.body, props: { entry: entries[1], content: await loadSection(entries[1]) } });
 	await settle();
 	flushSync();
 	const doc = d.window.document;
@@ -293,24 +307,26 @@ test('a section without examples renders no migration notice or legacy link', as
 	assert.equal(doc.querySelectorAll('.example').length, 0);
 });
 
-test('DemoShell: AppShell nav grouped by family, filter hides sections, toolbar keeps theme controls', async () => {
+test('DemoShell: AppShell nav links each component page, filter narrows nav and index, toolbar keeps theme controls', async () => {
 	const d = dom();
-	const { mount, flushSync, DemoShell } = d.window.__fixture;
-	mount(DemoShell, { target: d.window.document.body });
+	const { mount, flushSync, DemoShell, DemoIndex } = d.window.__fixture;
+	const doc = d.window.document;
+	mount(DemoShell, { target: doc.body, props: { active: 'scrim' } });
+	const index = doc.createElement('div');
+	doc.body.append(index);
+	mount(DemoIndex, { target: index });
 	await settle();
 	flushSync();
-	const doc = d.window.document;
 
 	assert.ok(doc.querySelector('[data-tsu="AppShell"]'));
 	const nav = doc.querySelector('[data-demo-nav]');
 	assert.ok(nav, 'sidebar nav');
 	const sections = [...nav.querySelectorAll('[data-tsu="NavSection"]')];
 	assert.ok(sections.length >= 2, 'NavSection per family');
-	assert.deepEqual(
-		[...nav.querySelectorAll('a[href^="#"]')].map((a) => a.getAttribute('href')),
-		['#button', '#scrim', '#app-shell']
-	);
-	assert.equal(nav.querySelector('a[href="#button"] [data-tsu="Badge"]')?.textContent?.trim(), String(doc.querySelectorAll('#button .example').length));
+	const links = (/** @type {Element} */ root) => [...root.querySelectorAll('a[href]')].map((a) => a.getAttribute('href'));
+	assert.deepEqual(links(nav), ['/atoms/button', '/atoms/scrim', '/layouts/app-shell']);
+	assert.equal(nav.querySelector('[aria-current="page"]')?.getAttribute('href'), '/atoms/scrim');
+	assert.equal(nav.querySelector('a[href="/atoms/button"] [data-tsu="Badge"]')?.textContent?.trim(), String(dirs.find((x) => x.name === 'Button')?.files.filter((f) => f.endsWith('.svelte')).length));
 
 	const toolbar = doc.querySelector('[data-tsu="AppShell"] > header .demo-toolbar');
 	assert.ok(toolbar, 'toolbar in the header');
@@ -321,17 +337,18 @@ test('DemoShell: AppShell nav grouped by family, filter hides sections, toolbar 
 	assert.ok(toolbar.querySelector('a[href="https://github.com/DorskFR/tsumikit"]'));
 	assert.match(toolbar.textContent, /v\d+\.\d+\.\d+/);
 
-	assert.equal(doc.querySelectorAll('[data-demo-section]').length, 3);
-	assert.equal(doc.querySelectorAll('[data-demo-section][hidden]').length, 0);
+	const grid = /** @type {Element} */ (doc.querySelector('[data-demo-index]'));
+	assert.deepEqual(links(grid), ['/atoms/button', '/atoms/scrim', '/layouts/app-shell']);
+	assert.equal(doc.querySelectorAll('[data-demo-section]').length, 0, 'the index mounts no section');
 	const filter = /** @type {HTMLInputElement} */ (nav.querySelector('input'));
 	filter.value = 'scr';
 	filter.dispatchEvent(new d.window.Event('input', { bubbles: true }));
 	flushSync();
-	assert.deepEqual([...nav.querySelectorAll('a[href^="#"]')].map((a) => a.getAttribute('href')), ['#scrim']);
-	assert.equal(doc.getElementById('button')?.hidden, true);
-	assert.equal(doc.getElementById('scrim')?.hidden, false);
+	assert.deepEqual(links(nav), ['/atoms/scrim']);
+	assert.deepEqual(links(grid), ['/atoms/scrim']);
 	filter.value = 'zzz';
 	filter.dispatchEvent(new d.window.Event('input', { bubbles: true }));
 	flushSync();
 	assert.match(nav.textContent, /No component matches/);
+	assert.match(grid.textContent, /No component matches/);
 });
