@@ -177,12 +177,6 @@
 		border-radius: var(--r-sm);
 		box-shadow: inset 0 0 0 1px var(--border);
 	}
-	.swatch[data-theme='dark'] {
-		--c-bg: #0f1115;
-		--c-surface: #21262f;
-		--c-text: #e6e9ef;
-		--c-accent: #4cc3f0;
-	}
 	.q {
 		display: block;
 	}
@@ -197,6 +191,18 @@
 	}
 	.q.accent {
 		background: var(--c-accent);
+	}
+	.swatch[data-theme='dark'] .q.bg {
+		background: #0f1115;
+	}
+	.swatch[data-theme='dark'] .q.surface {
+		background: #21262f;
+	}
+	.swatch[data-theme='dark'] .q.text {
+		background: #e6e9ef;
+	}
+	.swatch[data-theme='dark'] .q.accent {
+		background: #4cc3f0;
 	}
 	.panel {
 		padding: var(--sp-2);
@@ -220,7 +226,6 @@
 		gap: var(--sp-1);
 	}
 	.cell {
-		--cell-scale-dur: var(--dur-fast);
 		display: inline-flex;
 		padding: var(--sp-0-5);
 		border: 2px solid transparent;
@@ -230,7 +235,7 @@
 		transition:
 			background-color var(--dur-fast) ease,
 			border-color var(--dur-fast) ease,
-			scale var(--cell-scale-dur) var(--ease-out);
+			scale var(--dur-fast) var(--ease-out);
 	}
 	/* Concentric with the cell: outer radius minus border and padding. */
 	.cell .swatch {
@@ -239,7 +244,7 @@
 		border-radius: calc(var(--r-md) - var(--sp-1));
 	}
 	.cell:active {
-		--cell-scale-dur: var(--dur-press);
+		transition-duration: var(--dur-fast), var(--dur-fast), var(--dur-press);
 		scale: var(--press-scale-sm);
 	}
 	.cell.current {

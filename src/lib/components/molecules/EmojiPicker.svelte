@@ -176,7 +176,7 @@
 						role="listbox"
 						tabindex={-1}
 						aria-label={label}
-						style:--emoji-columns={columns}
+						style:grid-template-columns={`repeat(${columns}, 1fr)`}
 						onclick={(e) => onGridClick(e, close)}
 						onkeydown={(e) => onGridKeydown(e, close)}
 					>
@@ -230,11 +230,10 @@
 		font-size: var(--fs-lg);
 		line-height: var(--lh-none);
 		cursor: pointer;
-		--cell-scale-dur: var(--dur-fast);
 		transition:
 			background-color var(--dur-fast) ease,
 			border-color var(--dur-fast) ease,
-			scale var(--cell-scale-dur) var(--ease-out);
+			scale var(--dur-fast) var(--ease-out);
 	}
 	.tab.on,
 	.cell.on {
@@ -249,7 +248,7 @@
 	}
 	.tab:active,
 	.cell:active {
-		--cell-scale-dur: var(--dur-press);
+		transition-duration: var(--dur-fast), var(--dur-fast), var(--dur-press);
 		scale: var(--press-scale-sm);
 	}
 	@media (hover: hover) and (pointer: fine) {
@@ -261,7 +260,6 @@
 	}
 	.grid {
 		display: grid;
-		grid-template-columns: repeat(var(--emoji-columns), 1fr);
 		gap: var(--sp-1);
 		max-height: 14rem;
 		overflow-y: auto;

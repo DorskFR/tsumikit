@@ -45,10 +45,11 @@ test('ThemePicker: popover grid of data-theme scoped 2x2 swatches reading the ra
 
 test('the dark swatch carries the :root palette values (tokens.css stays theme-less)', () => {
 	assert.doesNotMatch(tokens.replace(/\/\*[\s\S]*?\*\//g, ''), /\[data-theme/);
+	assert.doesNotMatch(themePicker, /--c-[a-z-]+\s*:/);
 	for (const k of ['bg', 'surface', 'text', 'accent']) {
 		const root = tokens.match(new RegExp(`^  --c-${k}: (#[0-9a-f]+);`, 'm'))?.[1];
 		assert.ok(root, k);
-		assert.match(themePicker, new RegExp(`\\.swatch\\[data-theme='dark'\\]\\s*{[^}]*--c-${k}: ${root};`, 's'), k);
+		assert.match(themePicker, new RegExp(`\\.swatch\\[data-theme='dark'\\] \\.q\\.${k}\\s*{\\s*background: ${root};`), k);
 	}
 });
 

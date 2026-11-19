@@ -66,7 +66,7 @@
 	let hideTimer: ReturnType<typeof setTimeout> | undefined;
 
 	function reposition() {
-		if (wrapEl && tipEl) place(wrapEl, tipEl, `${placement}-center`, 6);
+		if (wrapEl && tipEl) place(wrapEl, tipEl, `${placement}-center`, 6, false);
 	}
 
 	// Escape must dismiss a hover-opened bubble even while focus sits elsewhere.
@@ -213,7 +213,7 @@
 		line-height: var(--lh-snug);
 		white-space: normal;
 		pointer-events: none; /* non-interactive: never steals hover/clicks */
-		transform-origin: var(--tsu-origin, bottom center);
+		transform-origin: bottom center;
 		opacity: 0;
 		scale: var(--tip-scale);
 		transition:

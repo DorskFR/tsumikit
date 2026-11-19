@@ -108,18 +108,17 @@
 		font-weight: var(--fw-bold);
 		line-height: var(--lh-none);
 		cursor: pointer;
-		--end-scale-dur: var(--dur-fast);
 		transition:
 			background-color var(--dur-fast) ease,
 			color var(--dur-fast) ease,
-			scale var(--end-scale-dur) var(--ease-out);
+			scale var(--dur-fast) var(--ease-out);
 	}
 	.end:focus-visible {
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset-inset);
 	}
 	.end:active {
-		--end-scale-dur: var(--dur-press);
+		transition-duration: var(--dur-fast), var(--dur-fast), var(--dur-press);
 		scale: var(--press-scale-sm);
 	}
 	@media (hover: hover) and (pointer: fine) {

@@ -37,8 +37,8 @@
 		/** Extra class on the trigger button, for a stylesheet you already load
 		 *  globally. Your *scoped* CSS cannot reach it: the element is rendered by
 		 *  `Popover`, so it carries `Popover`'s scope hash, not yours, and a
-		 *  selector like `.toolbar .my-trigger` matches nothing. Use `style` and
-		 *  the published `--pop-trigger-*` / `--pop-box` properties instead. */
+		 *  selector like `.toolbar .my-trigger` matches nothing. Use `style`, or a
+		 *  `:global(.pop-trigger)` descendant selector from your own root. */
 		triggerClass?: string;
 		/** Drop the default ghost-icon chrome so the trigger is an unstyled button
 		 *  you fully own (pair with `triggerClass`). */
@@ -55,7 +55,7 @@
 		/** Shared square box scale (`--box-xs/sm/md/lg`) for an icon-only trigger,
 		 *  pinning the square exactly. The default trigger floors at the `sm` box
 		 *  and grows with its content; override that floor with
-		 *  `style="--pop-box: …"` for any square the four tiers do not cover. */
+		 *  `style="min-width: …; min-height: …"` for any other square. */
 		box?: 'xs' | 'sm' | 'md' | 'lg';
 		/** Fully rounded trigger (`--r-pill`), as on `Button`. */
 		pill?: boolean;
@@ -142,19 +142,9 @@
 	const counted = $derived(hasCount(count));
 	const countText = $derived(hasCount(count) ? formatCount(count, countMax) : '');
 	const triggerName = $derived(counted ? `${label}, ${count}` : label);
-	const toneVar = $derived(
-		{ none: undefined, accent: 'var(--accent)', success: 'var(--ok)', info: 'var(--info)', warn: 'var(--warn)', danger: 'var(--danger)' }[
-			tone
-		]
-	);
 	// The count pill is absolutely positioned against the chip, which therefore
-	// needs to be its containing block; Popover's scoped CSS cannot reach an
-	// element rendered by `Toggle`, so the two declarations ride inline.
-	const toggleStyle = $derived(
-		[counted ? 'position:relative' : '', toneVar ? `--toggle-accent:${toneVar}` : '', styleProp]
-			.filter(Boolean)
-			.join(';')
-	);
+	// needs to be its containing block.
+	const toggleStyle = $derived([counted ? 'position:relative' : '', styleProp].filter(Boolean).join(';'));
 
 	const id = `pop-${Math.random().toString(36).slice(2, 8)}`;
 	let triggerEl = $state<HTMLElement | null>(null);
@@ -301,6 +291,7 @@
 		{pressed}
 		{pill}
 		size={size === 'md' ? 'md' : 'sm'}
+		tone={tone === 'none' ? 'accent' : tone}
 		data-tsu="Popover"
 		class="pop-trigger trigger-toggle {triggerClass} {klass}"
 		style={toggleStyle}
@@ -334,9 +325,12 @@
 	class:trigger-control={control}
 	class:trigger-block={block}
 	class:trigger-box={box !== undefined}
+	class:trigger-box-xs={box === 'xs'}
+	class:trigger-box-sm={box === 'sm'}
+	class:trigger-box-md={box === 'md'}
+	class:trigger-box-lg={box === 'lg'}
 	class:trigger-pill={pill}
 	class:hit-compact={hitArea === 'compact'}
-	style:--pop-box={box ? `var(--box-${box})` : undefined}
 	class:trigger-tone-accent={tone === 'accent'}
 	class:trigger-tone-success={tone === 'success'}
 	class:trigger-tone-info={tone === 'info'}
@@ -382,33 +376,33 @@
 	/* Default trigger chrome. Zero specificity (`:where`) so any consumer class
 	   (triggerClass) overrides it; `:not(.bare)` keeps it off bare triggers such
 	   as the Timestamp <time>, which stay plain inline text. */
-	/* The square is one knob, `--pop-box`: the `box` prop sets it inline, and a
-	   consumer reaches it with `style="--pop-box: var(--box-xs)"` — a plain
-	   width/height would not have beaten a `min-*` floor. */
 	:where(.pop-trigger:not(.bare)) {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		min-height: var(--pop-box, var(--box-sm));
-		min-width: var(--pop-box, var(--box-sm));
-		padding: var(--pop-trigger-pad, var(--sp-1));
-		border: var(--edge-width) solid var(--pop-trigger-border, transparent);
-		border-radius: var(--pop-trigger-radius, var(--r-md));
-		background: var(--pop-trigger-bg, transparent);
-		color: var(--pop-trigger-fg, var(--text));
-		font-size: var(--pop-trigger-size, inherit);
-		--icon-size: var(--control-icon-md);
-		--pop-scale-dur: var(--dur-fast);
+		min-height: var(--box-sm);
+		min-width: var(--box-sm);
+		padding: var(--sp-1);
+		border: var(--edge-width) solid transparent;
+		border-radius: var(--r-md);
+		background: transparent;
+		color: var(--text);
+		font-size: inherit;
 		transition:
 			background-color var(--dur-fast) var(--ease),
 			border-color var(--dur-fast) var(--ease),
 			color var(--dur-fast) var(--ease),
 			box-shadow var(--dur-fast) var(--ease),
 			translate var(--dur-fast) var(--ease),
-			scale var(--pop-scale-dur) var(--ease-out);
+			scale var(--dur-fast) var(--ease-out);
+	}
+	:where(.pop-trigger:not(.bare)) :global(.icon) {
+		font-size: var(--control-icon-md);
+	}
+	:where(.pop-trigger:not(.bare, .trigger-toggle):active:not(:disabled, .is-disabled)) {
+		transition-duration: var(--dur-fast), var(--dur-fast), var(--dur-fast), var(--dur-fast), var(--dur-fast), var(--dur-press);
 	}
 	.pop-trigger:not(.bare, .trigger-toggle):active:not(:disabled, .is-disabled) {
-		--pop-scale-dur: var(--dur-press);
 		scale: var(--press-scale-sm);
 	}
 	.pop-trigger.canonical:active:not(:disabled, .is-disabled) {
@@ -438,13 +432,25 @@
 			background: color-mix(in srgb, var(--danger) 14%, transparent);
 			border-color: var(--danger);
 		}
-		.pop-trigger.trigger-tone-accent:hover:not(:disabled),
-		.pop-trigger.trigger-tone-success:hover:not(:disabled),
-		.pop-trigger.trigger-tone-info:hover:not(:disabled),
-		.pop-trigger.trigger-tone-warn:hover:not(:disabled),
+		.pop-trigger.trigger-tone-accent:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--accent) 14%, transparent);
+			border-color: var(--accent);
+		}
+		.pop-trigger.trigger-tone-success:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--ok) 14%, transparent);
+			border-color: var(--ok);
+		}
+		.pop-trigger.trigger-tone-info:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--info) 14%, transparent);
+			border-color: var(--info);
+		}
+		.pop-trigger.trigger-tone-warn:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--warn) 14%, transparent);
+			border-color: var(--warn);
+		}
 		.pop-trigger.trigger-tone-danger:hover:not(:disabled) {
-			background: color-mix(in srgb, var(--pop-trigger-tone) 14%, transparent);
-			border-color: var(--pop-trigger-tone);
+			background: color-mix(in srgb, var(--danger) 14%, transparent);
+			border-color: var(--danger);
 		}
 		.pop-trigger.trigger-primary.trigger-tone-success:hover:not(:disabled) {
 			background: var(--ok);
@@ -457,62 +463,86 @@
 	.pop-trigger.canonical {
 		min-width: 0;
 		min-height: var(--control-height-default);
-		padding: var(--pop-trigger-pad, var(--sp-2) var(--btn-px-md));
-		border-color: var(--pop-trigger-border, var(--btn-edge));
-		background: var(--pop-trigger-bg, var(--btn-fill));
+		padding: var(--sp-2) var(--btn-px-md);
+		border-color: var(--btn-edge);
+		background: var(--btn-fill);
 		box-shadow: var(--btn-shadow);
 		font-weight: var(--fw-medium);
-		font-size: var(--pop-trigger-size, var(--control-fs-md));
+		font-size: var(--control-fs-md);
 		line-height: var(--lh-none);
 		user-select: none;
 		white-space: nowrap;
 	}
 	.pop-trigger.trigger-primary {
-		background: var(--pop-trigger-bg, var(--btn-primary-fill));
-		border-color: var(--pop-trigger-border, var(--btn-primary-edge));
+		background: var(--btn-primary-fill);
+		border-color: var(--btn-primary-edge);
 		box-shadow: var(--btn-primary-shadow);
-		color: var(--pop-trigger-fg, var(--text-on-accent));
+		color: var(--text-on-accent);
 		font-weight: var(--fw-semibold);
 	}
 	.pop-trigger.trigger-ghost {
-		background: var(--pop-trigger-bg, transparent);
-		border-color: var(--pop-trigger-border, transparent);
+		background: transparent;
+		border-color: transparent;
 	}
 	.pop-trigger.trigger-danger {
-		color: var(--pop-trigger-fg, var(--danger));
-		border-color: var(--pop-trigger-border, color-mix(in srgb, var(--danger) 50%, var(--border)));
+		color: var(--danger);
+		border-color: color-mix(in srgb, var(--danger) 50%, var(--border));
 	}
 	.pop-trigger.trigger-sm {
 		height: var(--control-height-compact);
 		min-height: var(--control-height-compact);
-		padding: var(--pop-trigger-pad, var(--sp-1) var(--btn-px-sm));
-		font-size: var(--pop-trigger-size, var(--control-fs-sm));
-		--icon-size: var(--control-icon-sm);
+		padding: var(--sp-1) var(--btn-px-sm);
+		font-size: var(--control-fs-sm);
+	}
+	.pop-trigger.trigger-sm :global(.icon) {
+		font-size: var(--control-icon-sm);
 	}
 	.pop-trigger.trigger-lg {
 		min-height: var(--control-height-large);
-		padding: var(--pop-trigger-pad, var(--sp-3) var(--btn-px-lg));
-		font-size: var(--pop-trigger-size, var(--control-fs-lg));
-		--icon-size: var(--control-icon-lg);
+		padding: var(--sp-3) var(--btn-px-lg);
+		font-size: var(--control-fs-lg);
+	}
+	.pop-trigger.trigger-lg :global(.icon) {
+		font-size: var(--control-icon-lg);
 	}
 	.pop-trigger.trigger-control {
 		height: var(--control-height);
 		min-height: var(--control-height);
-		padding: var(--pop-trigger-pad, 0 var(--sp-3));
+		padding: 0 var(--sp-3);
 	}
 	.pop-trigger.trigger-block {
 		width: 100%;
 	}
 	.pop-trigger.trigger-pill {
-		border-radius: var(--pop-trigger-radius, var(--r-pill));
+		border-radius: var(--r-pill);
 	}
 	.pop-trigger.trigger-box {
-		width: var(--pop-box);
-		min-width: var(--pop-box);
-		height: var(--pop-box);
-		min-height: var(--pop-box);
-		padding: var(--pop-trigger-pad, 0);
+		padding: 0;
 		flex: none;
+	}
+	.pop-trigger.trigger-box-xs {
+		width: var(--box-xs);
+		min-width: var(--box-xs);
+		height: var(--box-xs);
+		min-height: var(--box-xs);
+	}
+	.pop-trigger.trigger-box-sm {
+		width: var(--box-sm);
+		min-width: var(--box-sm);
+		height: var(--box-sm);
+		min-height: var(--box-sm);
+	}
+	.pop-trigger.trigger-box-md {
+		width: var(--box-md);
+		min-width: var(--box-md);
+		height: var(--box-md);
+		min-height: var(--box-md);
+	}
+	.pop-trigger.trigger-box-lg {
+		width: var(--box-lg);
+		min-width: var(--box-lg);
+		height: var(--box-lg);
+		min-height: var(--box-lg);
 	}
 	/* Coarse pointers: icon-only triggers extend their hit area towards --touch-target
 	   via an invisible slab; layout does not move. Same geometry as Button.svelte:
@@ -530,32 +560,29 @@
 		}
 	}
 	.pop-trigger.trigger-tone-accent {
-		--pop-trigger-tone: var(--accent);
+		color: var(--accent);
+		border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
 	}
 	.pop-trigger.trigger-tone-success {
-		--pop-trigger-tone: var(--ok);
+		color: var(--ok);
+		border-color: color-mix(in srgb, var(--ok) 50%, var(--border));
 	}
 	.pop-trigger.trigger-tone-info {
-		--pop-trigger-tone: var(--info);
+		color: var(--info);
+		border-color: color-mix(in srgb, var(--info) 50%, var(--border));
 	}
 	.pop-trigger.trigger-tone-warn {
-		--pop-trigger-tone: var(--warn);
+		color: var(--warn);
+		border-color: color-mix(in srgb, var(--warn) 50%, var(--border));
 	}
 	.pop-trigger.trigger-tone-danger {
-		--pop-trigger-tone: var(--danger);
-	}
-	.pop-trigger.trigger-tone-accent,
-	.pop-trigger.trigger-tone-success,
-	.pop-trigger.trigger-tone-info,
-	.pop-trigger.trigger-tone-warn,
-	.pop-trigger.trigger-tone-danger {
-		color: var(--pop-trigger-fg, var(--pop-trigger-tone));
-		border-color: var(--pop-trigger-border, color-mix(in srgb, var(--pop-trigger-tone) 50%, var(--border)));
+		color: var(--danger);
+		border-color: color-mix(in srgb, var(--danger) 50%, var(--border));
 	}
 	.pop-trigger.trigger-primary.trigger-tone-success {
-		background: var(--pop-trigger-bg, var(--ok));
-		border-color: var(--pop-trigger-border, var(--ok));
-		color: var(--pop-trigger-fg, var(--text-on-success));
+		background: var(--ok);
+		border-color: var(--ok);
+		color: var(--text-on-success);
 	}
 	.pop-trigger:disabled,
 	.pop-trigger.is-disabled {
@@ -583,12 +610,12 @@
 		align-items: center;
 		justify-content: center;
 		box-sizing: border-box;
-		min-width: var(--pop-count-size, 1.125rem);
-		height: var(--pop-count-size, 1.125rem);
+		min-width: 1.125rem;
+		height: 1.125rem;
 		padding: 0 var(--sp-1);
 		border-radius: var(--r-pill);
-		background: var(--pop-count-bg, var(--accent));
-		color: var(--pop-count-fg, var(--text-on-accent));
+		background: var(--accent);
+		color: var(--text-on-accent);
 		font-size: var(--fs-xs);
 		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
@@ -599,23 +626,24 @@
 	.trigger-sm .pop-count,
 	.bare .pop-count,
 	.pop-count.count-sm {
-		--pop-count-size: 1rem;
+		min-width: 1rem;
+		height: 1rem;
 		font-size: calc(var(--fs-xs) * 0.85);
 	}
 	.trigger-primary .pop-count {
-		background: var(--pop-count-bg, var(--text-on-accent));
-		color: var(--pop-count-fg, var(--accent));
+		background: var(--text-on-accent);
+		color: var(--accent);
 	}
 	/* `bare`: strip the chrome down to a plain button the consumer styles. */
 	:where(.pop-trigger.bare) {
 		display: inline;
-		padding: var(--pop-trigger-pad, 0);
+		padding: 0;
 		border: 0;
-		border-radius: var(--pop-trigger-radius, 0);
-		background: var(--pop-trigger-bg, none);
-		color: var(--pop-trigger-fg, inherit);
+		border-radius: 0;
+		background: none;
+		color: inherit;
 		font: inherit;
-		font-size: var(--pop-trigger-size, inherit);
+		font-size: inherit;
 		line-height: inherit;
 		vertical-align: baseline;
 		cursor: pointer;
@@ -632,7 +660,7 @@
 		border: var(--edge-width) solid var(--raised-edge);
 		border-radius: var(--r-md);
 		box-shadow: var(--raised-shadow);
-		transform-origin: var(--tsu-origin, top left);
+		transform-origin: top left;
 		opacity: 0;
 		scale: var(--enter-scale);
 		transition:

@@ -31,8 +31,9 @@ export function place(
 	floating: HTMLElement,
 	placement: Placement = 'bottom-start',
 	gap = 6,
+	enterShift = true,
 ): void {
-	placeAt(trigger.getBoundingClientRect(), floating, placement, gap);
+	placeAt(trigger.getBoundingClientRect(), floating, placement, gap, enterShift);
 }
 
 // The enter transition starts the panel at `scale: var(--enter-scale)`, so a
@@ -42,12 +43,17 @@ function layoutSize(el: HTMLElement): { width: number; height: number } {
 	return { width: el.offsetWidth || width, height: el.offsetHeight || height };
 }
 
-/** `place` against a viewport rect instead of an element. */
+/**
+ * `place` against a viewport rect instead of an element. `enterShift` publishes
+ * `--tsu-shift` for a `@starting-style` entry offset; pass `false` when the
+ * floating element's entry does not translate.
+ */
 export function placeAt(
 	t: AnchorRect,
 	floating: HTMLElement,
 	placement: Placement = 'bottom-start',
 	gap = 6,
+	enterShift = true,
 ): void {
 	const f = layoutSize(floating);
 	const vw = document.documentElement.clientWidth;
@@ -96,8 +102,8 @@ export function placeAt(
 	const cx = Math.round(clamp(t.left + t.width / 2 - left, 0, f.width));
 	const cy = Math.round(clamp(t.top + t.height / 2 - top, 0, f.height));
 	floating.dataset.side = resolved;
-	floating.style.setProperty('--tsu-origin', ORIGIN[resolved](cx, cy));
-	floating.style.setProperty('--tsu-shift', SHIFT[resolved]);
+	floating.style.transformOrigin = ORIGIN[resolved](cx, cy);
+	if (enterShift) floating.style.setProperty('--tsu-shift', SHIFT[resolved]);
 }
 
 // Enter motion grows out of the trigger: the origin sits on the trigger-facing

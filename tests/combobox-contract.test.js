@@ -93,7 +93,10 @@ test('Combobox source contract: anchor, top-layer listbox, active-descendant wir
 	assert.match(source, /placeAt\(r, panelEl, placement, gap\)/);
 	assert.match(source, /panelClass\?: string/);
 	assert.match(floating, /export function placeAt\(/);
-	assert.match(floating, /placeAt\(trigger\.getBoundingClientRect\(\), floating, placement, gap\)/);
+	assert.match(floating, /placeAt\(trigger\.getBoundingClientRect\(\), floating, placement, gap, enterShift\)/);
+	assert.match(floating, /floating\.style\.transformOrigin = ORIGIN\[resolved\]\(cx, cy\);/);
+	assert.match(floating, /if \(enterShift\) floating\.style\.setProperty\('--tsu-shift', SHIFT\[resolved\]\);/);
+	assert.doesNotMatch(floating + source, /--tsu-origin|--cb-/);
 });
 
 test('Combobox is exported, documented and demoed', async () => {

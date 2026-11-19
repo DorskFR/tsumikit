@@ -149,7 +149,15 @@
 	/* The inert face takes no pointer events: mirror ghost hover, press and the
 	   focus ring from the select overlaying it. */
 	.select-button:active :global(.btn-ghost) {
-		--btn-scale-dur: var(--dur-press);
+		transition:
+			background var(--dur-fast) ease,
+			border-color var(--dur-fast) ease,
+			box-shadow var(--dur-fast) ease,
+			color var(--dur-fast) ease,
+			opacity var(--dur-fast) ease,
+			filter var(--dur-fast) ease,
+			translate var(--dur-fast) var(--ease-out),
+			scale var(--dur-press) var(--ease-out);
 		scale: var(--press-scale-sm);
 	}
 	.select-button.disabled:active :global(.btn-ghost) {
