@@ -13,7 +13,9 @@ const bundled = await esbuild.build({
 import Progress from '../src/lib/components/atoms/Progress.svelte';
 import CapBar from '../src/lib/components/molecules/CapBar.svelte';
 import GlyphStack from '../src/lib/components/molecules/GlyphStack.svelte';
-export { render, Progress, CapBar, GlyphStack };`,
+import Popover from '../src/lib/components/molecules/Popover.svelte';
+import { createRawSnippet } from 'svelte';
+export { render, Progress, CapBar, GlyphStack, Popover, createRawSnippet };`,
 		resolveDir: HERE,
 		loader: 'js'
 	},
@@ -26,7 +28,7 @@ export { render, Progress, CapBar, GlyphStack };`,
 	alias: { $lib: `${HERE}/../src/lib` },
 	plugins: [sveltePlugin({ compilerOptions: { generate: 'server', css: 'injected' } })]
 });
-const { render, Progress, CapBar, GlyphStack } = await import(
+const { render, Progress, CapBar, GlyphStack, Popover, createRawSnippet } = await import(
 	`data:text/javascript;base64,${Buffer.from(bundled.outputFiles[0].text).toString('base64')}`
 );
 
@@ -65,4 +67,11 @@ test('prerendered Progress carries only the flag classes that hold', () => {
 	for (const flag of ['indeterminate', 'gradient', 'striped']) {
 		assert.ok(set.includes(flag), `missing ${flag} in ${set.join(' ')}`);
 	}
+});
+
+test('prerendered Popover trigger carries `counted` only with a count', () => {
+	const trigger = createRawSnippet(() => ({ render: () => '<span>Menu</span>' }));
+	const plain = rootClasses(Popover, { label: 'Menu', trigger }, 'pop-trigger');
+	assert.ok(!plain.includes('counted'), `unexpected counted in ${plain.join(' ')}`);
+	assert.ok(rootClasses(Popover, { label: 'Menu', trigger, count: 3 }, 'pop-trigger').includes('counted'));
 });
