@@ -101,8 +101,6 @@
 
 <style>
 	.empty {
-		/* The tone hue the chip pulls from; neutral falls back to accent. */
-		--empty-tone: var(--accent);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -110,21 +108,6 @@
 		text-align: center;
 		gap: var(--sp-3);
 		padding: var(--sp-8) var(--sp-5);
-	}
-	:global(.empty-ok) {
-		--empty-tone: var(--ok);
-	}
-	:global(.empty-warn) {
-		--empty-tone: var(--warn);
-	}
-	:global(.empty-danger) {
-		--empty-tone: var(--danger);
-	}
-	:global(.empty-info) {
-		--empty-tone: var(--info);
-	}
-	:global(.empty-accent) {
-		--empty-tone: var(--accent);
 	}
 	.empty-compact {
 		gap: var(--sp-2);
@@ -140,9 +123,9 @@
 		height: 3rem;
 		border-radius: var(--r-lg);
 		font-size: var(--fs-xl);
-		color: var(--empty-tone);
-		background: color-mix(in srgb, var(--empty-tone) 14%, transparent);
-		border: 1px solid color-mix(in srgb, var(--empty-tone) 30%, transparent);
+		color: var(--accent);
+		background: color-mix(in srgb, var(--accent) 14%, transparent);
+		border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
 	}
 	.empty-compact .empty-chip {
 		width: 2.25rem;
@@ -182,7 +165,7 @@
 	}
 	.empty-desc {
 		margin: 0;
-		max-inline-size: var(--measure, 68ch);
+		max-inline-size: var(--measure);
 		font-size: var(--fs-sm);
 		color: var(--text-muted);
 		line-height: var(--lh-normal);

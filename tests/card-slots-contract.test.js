@@ -18,25 +18,29 @@ test('default rendering is untouched: no frame classes and children render bare'
 	assert.match(card, /class:card-framed={framed}/);
 	assert.match(card, /class:card-gap={!framed && gap !== undefined}/);
 	assert.match(card, /{:else}\s*{@render children\?\.\(\)}\s*{\/if}\s*{#if lit && !row}<span class="card-fx" aria-hidden="true"><\/span>{\/if}\s*<\/svelte:element>/);
-	assert.match(card, /\.card\s*{\s*--card-pad: var\(--sp-4\);[^}]*padding: var\(--card-pad\);/s);
-	assert.match(card, /\.pad-sm\s*{\s*--card-pad: var\(--sp-2\);\s*padding: var\(--sp-2\);/);
-	assert.match(card, /\.pad-lg\s*{\s*--card-pad: var\(--sp-6\);\s*padding: var\(--sp-6\);/);
-	assert.match(card, /\.pad-none\s*{\s*--card-pad: 0;\s*padding: 0;/);
+	assert.match(card, /\.card\s*{[^}]*padding: var\(--sp-4\);/s);
+	assert.match(card, /\.pad-sm\s*{\s*padding: var\(--sp-2\);/);
+	assert.match(card, /\.pad-lg\s*{\s*padding: var\(--sp-6\);/);
+	assert.match(card, /\.pad-none\s*{\s*padding: 0;/);
+	assert.doesNotMatch(card, /--card-pad/);
 });
 
 test('title renders a SectionHeader in the head; header/footer sit outside the padded body behind dividers', () => {
 	assert.match(card, /import SectionHeader from '\.\.\/molecules\/SectionHeader\.svelte'/);
 	assert.match(card, /{#if title}\s*<div class="card-head">\s*<SectionHeader {title} {subtitle} {actions} level=\{3\} size="md" \/>/);
 	assert.match(card, /{:else if header}\s*<div class="card-head">{@render header\(\)}<\/div>/);
-	assert.match(card, /<div class="card-body" class:card-gap={gap !== undefined}>{@render children\?\.\(\)}<\/div>/);
+	assert.match(card, /<div class="card-body" class:card-gap={gap !== undefined} style:gap={gap}>{@render children\?\.\(\)}<\/div>/);
 	assert.match(card, /{#if footer}\s*<div class="card-foot">{@render footer\(\)}<\/div>/);
 	assert.match(card, /\.card-framed\s*{\s*padding: 0;/);
-	assert.match(card, /\.card-head,\s*\.card-body,\s*\.card-foot\s*{\s*padding: var\(--card-pad\);/);
+	assert.match(card, /\.card-head,\s*\.card-body,\s*\.card-foot\s*{\s*padding: var\(--sp-4\);/);
+	for (const [pad, value] of [['none', '0'], ['sm', 'var\\(--sp-2\\)'], ['lg', 'var\\(--sp-6\\)']]) {
+		assert.match(card, new RegExp(`\\.pad-${pad} > \\.card-head,\\s*\\.pad-${pad} > \\.card-body,\\s*\\.pad-${pad} > \\.card-foot\\s*{\\s*padding: ${value};`));
+	}
 	assert.match(card, /\.card-head\s*{\s*border-bottom: var\(--edge-width\) solid var\(--surface-edge\);/);
 	assert.match(card, /\.card-foot\s*{\s*border-top: var\(--edge-width\) solid var\(--surface-edge\);/);
 });
 
-test('gap stacks children as a flex column via --card-gap', () => {
-	assert.match(card, /style:--card-gap={gap}/);
-	assert.match(card, /\.card-gap\s*{\s*display: flex;\s*flex-direction: column;\s*gap: var\(--card-gap\);/);
+test('gap stacks children as a flex column with an inline gap', () => {
+	assert.match(card, /style:gap={framed \? undefined : gap}/);
+	assert.match(card, /\.card-gap\s*{\s*display: flex;\s*flex-direction: column;\s*}/);
 });

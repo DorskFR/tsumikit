@@ -125,7 +125,7 @@
 		};
 		const enter = (e: PointerEvent) => {
 			if (e.pointerType !== 'mouse' || globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
-			if (getComputedStyle(node).getPropertyValue('--card-fx').trim() !== 'spotlight') return;
+			if ((node.parentElement?.closest('[data-fx-card]')?.getAttribute('data-fx-card') ?? 'spotlight') !== 'spotlight') return;
 			move(e);
 			node.addEventListener('pointermove', move, { passive: true });
 		};
@@ -188,7 +188,7 @@
 	class:stack-info={stacked && stackTone === 'info'}
 	class:card-framed={framed}
 	class:card-gap={!framed && gap !== undefined}
-	style:--card-gap={gap}
+	style:gap={framed ? undefined : gap}
 	style:max-width={maxWidth}
 	style:overflow={overflow}
 	style={`${stackStyle}${style}`}
@@ -207,7 +207,7 @@
 		{:else if header}
 			<div class="card-head">{@render header()}</div>
 		{/if}
-		<div class="card-body" class:card-gap={gap !== undefined}>{@render children?.()}</div>
+		<div class="card-body" class:card-gap={gap !== undefined} style:gap={gap}>{@render children?.()}</div>
 		{#if footer}
 			<div class="card-foot">{@render footer()}</div>
 		{/if}
@@ -219,20 +219,16 @@
 
 <style>
 	.card {
-		--card-pad: var(--sp-4);
 		min-width: 0;
 		background: var(--surface-fill);
-		--card-border-style: solid;
-		border: var(--edge-width) var(--card-border-style) var(--surface-edge);
+		border: var(--edge-width) solid var(--surface-edge);
 		border-radius: var(--r-lg);
-		--card-shadow-rest: var(--surface-shadow);
-		box-shadow: var(--card-shadow-rest);
-		padding: var(--card-pad);
+		box-shadow: var(--surface-shadow);
+		padding: var(--sp-4);
 	}
 	.card-gap {
 		display: flex;
 		flex-direction: column;
-		gap: var(--card-gap);
 	}
 	.card-framed {
 		padding: 0;
@@ -240,7 +236,7 @@
 	.card-head,
 	.card-body,
 	.card-foot {
-		padding: var(--card-pad);
+		padding: var(--sp-4);
 	}
 	.card-head {
 		border-bottom: var(--edge-width) solid var(--surface-edge);
@@ -258,27 +254,39 @@
 		background: var(--surface-fill-2);
 	}
 	.border-dashed {
-		--card-border-style: dashed;
+		border-style: dashed;
 	}
 	.border-none {
-		--card-border-style: none;
+		border-style: none;
 	}
 	.pad-none {
-		--card-pad: 0;
 		padding: 0;
 	}
 	.pad-sm {
-		--card-pad: var(--sp-2);
 		padding: var(--sp-2);
 	}
 	.pad-lg {
-		--card-pad: var(--sp-6);
 		padding: var(--sp-6);
 	}
 	.card-framed.pad-none,
 	.card-framed.pad-sm,
 	.card-framed.pad-lg {
 		padding: 0;
+	}
+	.pad-none > .card-head,
+	.pad-none > .card-body,
+	.pad-none > .card-foot {
+		padding: 0;
+	}
+	.pad-sm > .card-head,
+	.pad-sm > .card-body,
+	.pad-sm > .card-foot {
+		padding: var(--sp-2);
+	}
+	.pad-lg > .card-head,
+	.pad-lg > .card-body,
+	.pad-lg > .card-foot {
+		padding: var(--sp-6);
 	}
 	.card-tap {
 		cursor: pointer;
@@ -298,27 +306,12 @@
 		.card-tap:hover {
 			border-color: var(--surface-edge-strong);
 			translate: 0 calc(-1 * var(--hover-lift));
-			--card-shadow-rest: var(--surface-shadow-hover);
+			box-shadow: var(--surface-shadow-hover);
 			--card-glow: 100%;
-			--card-lit: 1;
-			--card-fade: var(--dur-fast);
-			--card-spin: var(--card-orbit-spin);
 		}
 	}
 	.card-tap:focus-visible {
 		--card-glow: 100%;
-		--card-lit: 1;
-		--card-fade: var(--dur-fast);
-		--card-spin: var(--card-orbit-spin);
-	}
-
-	@media (hover: hover) and (pointer: fine) {
-		.card-tap:hover > .card-fx {
-			--card-orbit: 360deg;
-		}
-	}
-	.card-tap:focus-visible > .card-fx {
-		--card-orbit: 360deg;
 	}
 
 	/* Hover light for tappable cards: a wash on the surface plus a ring on the edge. */
@@ -331,13 +324,25 @@
 		padding: 1.5px;
 		border-radius: inherit;
 		pointer-events: none;
-		opacity: var(--card-lit, 0);
+		opacity: 0;
 		mask:
 			linear-gradient(var(--text), var(--text)) content-box exclude,
 			linear-gradient(var(--text), var(--text));
 		transition:
-			opacity var(--card-fade, var(--dur-exit)) ease,
-			--card-orbit var(--card-spin, var(--dur-instant)) var(--ease-out);
+			opacity var(--dur-exit) ease,
+			--card-orbit var(--dur-instant) var(--ease-out);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.card-tap:hover > .card-fx {
+			opacity: 1;
+			--card-orbit: 360deg;
+			transition-duration: var(--dur-fast), var(--dur-instant);
+		}
+	}
+	.card-tap:focus-visible > .card-fx {
+		opacity: 1;
+		--card-orbit: 360deg;
+		transition-duration: var(--dur-fast), var(--dur-instant);
 	}
 	.card-tap:not(:global([data-fx-card='none']) *),
 	:global(:is([data-fx-card='spotlight'], [data-fx-card='orbit'])) .card-tap:not(:global(:is([data-fx-card='spotlight'], [data-fx-card='orbit']) [data-fx-card='none']) *) {
@@ -347,23 +352,40 @@
 			box-shadow var(--dur-fast) var(--ease),
 			translate var(--dur-fast) var(--ease-out),
 			scale var(--dur-fast) var(--ease-out),
-			--card-glow var(--card-fade, var(--dur-exit)) ease;
+			--card-glow var(--dur-exit) ease;
+		@media (hover: hover) and (pointer: fine) {
+			&:hover {
+				transition:
+					border-color var(--dur-fast) var(--ease),
+					background var(--dur-fast) var(--ease),
+					box-shadow var(--dur-fast) var(--ease),
+					translate var(--dur-fast) var(--ease-out),
+					scale var(--dur-fast) var(--ease-out),
+					--card-glow var(--dur-fast) ease;
+			}
+		}
+		&:focus-visible {
+			transition:
+				border-color var(--dur-fast) var(--ease),
+				background var(--dur-fast) var(--ease),
+				box-shadow var(--dur-fast) var(--ease),
+				translate var(--dur-fast) var(--ease-out),
+				scale var(--dur-fast) var(--ease-out),
+				--card-glow var(--dur-fast) ease;
+		}
 	}
 
 	/* Spotlight: a soft light follows the pointer and lights the nearest edge. */
 	.card-tap:not(:global([data-fx-card]:not([data-fx-card='spotlight'])) *),
 	:global([data-fx-card='spotlight']) .card-tap:not(:global([data-fx-card='spotlight'] [data-fx-card]:not([data-fx-card='spotlight'])) *) {
-		--card-fx: spotlight;
 		background-image: radial-gradient(
-			circle 11rem at var(--card-spot-x) var(--card-spot-y),
+			circle 11rem at var(--pointer-x, 50%) var(--pointer-y, 33%),
 			color-mix(in srgb, var(--accent) calc(var(--card-glow) * 0.2), transparent),
 			transparent 70%
 		);
-		--card-spot-x: var(--pointer-x, 50%);
-		--card-spot-y: var(--pointer-y, 33%);
 		& .card-fx {
 			background: radial-gradient(
-				circle 7rem at calc(var(--card-spot-x) + var(--edge-width)) calc(var(--card-spot-y) + var(--edge-width)),
+				circle 7rem at calc(var(--pointer-x, 50%) + var(--edge-width)) calc(var(--pointer-y, 33%) + var(--edge-width)),
 				var(--accent) 15%,
 				transparent
 			);
@@ -372,13 +394,19 @@
 
 	/* Border orbit: on hover-enter a comet makes exactly one revolution of the edge, then rests. */
 	:global([data-fx-card='orbit']) .card-tap:not(:global([data-fx-card='orbit'] [data-fx-card]:not([data-fx-card='orbit'])) *) {
-		--card-fx: orbit;
 		background-image: linear-gradient(
 			160deg,
 			color-mix(in srgb, var(--accent) calc(var(--card-glow) * 0.09), transparent),
 			transparent 55%
 		);
-		--card-orbit-spin: calc(var(--dur-slow) * 4);
+		@media (hover: hover) and (pointer: fine) {
+			&:hover > .card-fx {
+				transition-duration: var(--dur-fast), calc(var(--dur-slow) * 4);
+			}
+		}
+		&:focus-visible > .card-fx {
+			transition-duration: var(--dur-fast), calc(var(--dur-slow) * 4);
+		}
 		& .card-fx {
 			background:
 				conic-gradient(
@@ -407,39 +435,36 @@
 	}
 	.card.card-row {
 		border-radius: 0;
-		--card-shadow-rest: none;
+		box-shadow: none;
 		translate: none;
 		scale: none;
 	}
 
 	.card-ok {
-		--card-tone: var(--ok);
+		border-color: color-mix(in srgb, var(--ok) 55%, var(--surface-edge));
+		background: color-mix(in srgb, var(--ok) 8%, var(--surface-fill));
 	}
 	.card-warn {
-		--card-tone: var(--warn);
+		border-color: color-mix(in srgb, var(--warn) 55%, var(--surface-edge));
+		background: color-mix(in srgb, var(--warn) 8%, var(--surface-fill));
 	}
 	.card-danger {
-		--card-tone: var(--danger);
+		border-color: color-mix(in srgb, var(--danger) 55%, var(--surface-edge));
+		background: color-mix(in srgb, var(--danger) 8%, var(--surface-fill));
 	}
 	.card-info {
-		--card-tone: var(--info);
-	}
-	.card-attention {
-		--card-tone: var(--attention-bar);
+		border-color: color-mix(in srgb, var(--info) 55%, var(--surface-edge));
+		background: color-mix(in srgb, var(--info) 8%, var(--surface-fill));
 	}
 	.card-accent {
-		--card-tone: var(--accent);
-	}
-	.card-ok,
-	.card-warn,
-	.card-danger,
-	.card-info,
-	.card-accent,
-	.card-attention {
-		border-color: color-mix(in srgb, var(--card-tone) 55%, var(--surface-edge));
-		background: color-mix(in srgb, var(--card-tone) 8%, var(--surface-fill));
+		border-color: color-mix(in srgb, var(--accent) 55%, var(--surface-edge));
+		background: color-mix(in srgb, var(--accent) 8%, var(--surface-fill));
 	}
 	.card-attention {
+		border-color: color-mix(in srgb, var(--attention-bar) 55%, var(--surface-edge));
+		background: color-mix(in srgb, var(--attention-bar) 8%, var(--surface-fill));
+	}
+	.card.card-attention {
 		background: var(--attention-bg);
 		box-shadow: inset 3px 0 0 var(--attention-bar);
 	}
@@ -448,11 +473,6 @@
 	   surface keeps its own background so the layers only show at the edges. */
 	.card-stacked {
 		position: relative;
-		/* Defaults; overridden inline by the stackY/stackX props. */
-		--stack-y: 8px;
-		--stack-x: 2px;
-		--stack-bg: var(--surface-fill-2);
-		--stack-border: var(--surface-edge);
 		/* Reserve room for the two peeking layers so they aren't clipped. */
 		margin-right: calc(var(--stack-x) * 2);
 		margin-bottom: calc(var(--stack-y) * 2);
@@ -465,8 +485,16 @@
 		border-radius: inherit;
 		/* Opaque fill so each layer fully hides the one behind it — only the
 		   bottom-right peek (and its single border line) stays visible. */
-		background: var(--stack-bg);
-		border: var(--edge-width) var(--card-border-style) var(--stack-border);
+		background: var(--surface-fill-2);
+		border: var(--edge-width) solid var(--surface-edge);
+	}
+	.card-stacked.border-dashed::before,
+	.card-stacked.border-dashed::after {
+		border-style: dashed;
+	}
+	.card-stacked.border-none::before,
+	.card-stacked.border-none::after {
+		border-style: none;
 	}
 	/* Nearest back layer — sits just under the front surface. */
 	.card-stacked::before {
@@ -482,20 +510,24 @@
 		);
 	}
 
-	.stack-ok {
-		--stack-border: color-mix(in srgb, var(--ok) 45%, transparent);
-		--stack-bg: color-mix(in srgb, var(--ok) 12%, var(--bg-elevated));
+	.stack-ok::before,
+	.stack-ok::after {
+		border-color: color-mix(in srgb, var(--ok) 45%, transparent);
+		background: color-mix(in srgb, var(--ok) 12%, var(--bg-elevated));
 	}
-	.stack-warn {
-		--stack-border: color-mix(in srgb, var(--warn) 45%, transparent);
-		--stack-bg: color-mix(in srgb, var(--warn) 12%, var(--bg-elevated));
+	.stack-warn::before,
+	.stack-warn::after {
+		border-color: color-mix(in srgb, var(--warn) 45%, transparent);
+		background: color-mix(in srgb, var(--warn) 12%, var(--bg-elevated));
 	}
-	.stack-danger {
-		--stack-border: color-mix(in srgb, var(--danger) 45%, transparent);
-		--stack-bg: color-mix(in srgb, var(--danger) 12%, var(--bg-elevated));
+	.stack-danger::before,
+	.stack-danger::after {
+		border-color: color-mix(in srgb, var(--danger) 45%, transparent);
+		background: color-mix(in srgb, var(--danger) 12%, var(--bg-elevated));
 	}
-	.stack-info {
-		--stack-border: color-mix(in srgb, var(--info) 45%, transparent);
-		--stack-bg: color-mix(in srgb, var(--info) 12%, var(--bg-elevated));
+	.stack-info::before,
+	.stack-info::after {
+		border-color: color-mix(in srgb, var(--info) 45%, transparent);
+		background: color-mix(in srgb, var(--info) 12%, var(--bg-elevated));
 	}
 </style>

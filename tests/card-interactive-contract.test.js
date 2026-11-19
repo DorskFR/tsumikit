@@ -38,9 +38,8 @@ test('clicks and keys from nested interactive elements are ignored', () => {
 test('attention tone adds a class, a left bar and the attention background', () => {
 	assert.match(card, /type Tone = SharedTone \| 'attention'/);
 	assert.match(card, /class:card-attention={t === 'attention'}/);
-	assert.match(card, /\.card-attention\s*{\s*--card-tone: var\(--attention-bar\);/);
-	assert.match(card, /box-shadow: inset 3px 0 0 var\(--attention-bar\)/);
-	assert.match(card, /background: var\(--attention-bg\)/);
+	assert.match(card, /\.card-attention\s*{\s*border-color: color-mix\(in srgb, var\(--attention-bar\) \d+%, var\(--surface-edge\)\);/);
+	assert.match(card, /\.card\.card-attention\s*{\s*background: var\(--attention-bg\);\s*box-shadow: inset 3px 0 0 var\(--attention-bar\);/);
 });
 
 test('maxWidth sets an inline max-width and stretches the card', () => {
@@ -56,14 +55,15 @@ test('row mode drops the edge ring, lift, press scale, radius and shadow', () =>
 	assert.match(card, /{#if lit && !row}<span class="card-fx" aria-hidden="true"><\/span>{\/if}/);
 	const rule = card.match(/\.card\.card-row\s*{([^}]*)}/)?.[1] ?? '';
 	assert.match(rule, /border-radius: 0;/);
-	assert.match(rule, /--card-shadow-rest: none;/);
+	assert.match(rule, /box-shadow: none;/);
 	assert.match(rule, /translate: none;/);
 	assert.match(rule, /scale: none;/);
 	assert.ok(card.indexOf('.card.card-row') > card.lastIndexOf('.card-tap:active'), 'row rule overrides hover lift and press scale');
 });
 
 test('row mode keeps the pointer-following wash', () => {
-	assert.match(card, /\.card-tap:not\(:global\(\[data-fx-card\]:not\(\[data-fx-card='spotlight'\]\)\) \*\)[^{]*{\s*--card-fx: spotlight;\s*background-image: radial-gradient\(/);
+	assert.match(card, /\.card-tap:not\(:global\(\[data-fx-card\]:not\(\[data-fx-card='spotlight'\]\)\) \*\)[^{]*{\s*background-image: radial-gradient\(\s*circle 11rem at var\(--pointer-x, 50%\) var\(--pointer-y, 33%\),/);
+	assert.match(card, /node\.parentElement\?\.closest\('\[data-fx-card\]'\)\?\.getAttribute\('data-fx-card'\) \?\? 'spotlight'\) !== 'spotlight'\) return;/);
 	assert.doesNotMatch(card, /\.card-row[^{]*{[^}]*background(-image)?:/);
 	assert.match(card, /const lit = \$derived\(tap \|\| interactive\);/);
 	assert.match(card, /if \(!node \|\| !lit\) return;/);

@@ -41,9 +41,9 @@ test('title is a Heading at the given level; count is muted, normal-weight tabul
 	assert.match(component, /<Text variant="caption" class="sh-subtitle">{subtitle}<\/Text>/);
 });
 
-test('hue renders a swatch chip driven by --sh-hue; icon glyphs resolve from the registry', () => {
-	assert.match(component, /{#if hue !== undefined}\s*<span class="sh-swatch" style:--sh-hue={hue} aria-hidden="true">/);
-	assert.match(component, /background: hsl\(var\(--sh-hue\) 70% 55%\)/);
+test('hue renders a swatch chip coloured inline; icon glyphs resolve from the registry', () => {
+	assert.match(component, /{#if hue !== undefined}\s*<span class="sh-swatch" style:background="hsl\({hue} 70% 55%\)" aria-hidden="true">/);
+	assert.doesNotMatch(component, /--sh-hue/);
 	assert.match(component, /<Icon name="chevron-right" class="sh-chevron" \/>/);
 	assert.match(icon, /^\s+'chevron-right': '/m);
 });
@@ -57,7 +57,7 @@ test('layout: wrapping flex row, actions pushed to the inline end, divider under
 
 test('sticky pins under the app header and publishes --section-header-h on the parent', () => {
 	assert.match(component, /class:sh-sticky={sticky}/);
-	assert.match(component, /\.sh-sticky\s*{[^}]*position: sticky;[^}]*top: var\(--sticky-offset, var\(--header-h, 0\)\);/s);
+	assert.match(component, /\.sh-sticky\s*{[^}]*position: sticky;[^}]*top: var\(--sticky-offset, var\(--header-h\)\);[^}]*background: var\(--bg\);/s);
 	assert.match(component, /bind:offsetHeight={height}/);
 	assert.match(component, /parent\.style\.setProperty\('--section-header-h', `\$\{height\}px`\)/);
 	assert.match(component, /parent\.style\.removeProperty\('--section-header-h'\)/);
@@ -70,10 +70,16 @@ test('collapsible turns the title into a disclosure button controlling the child
 	assert.match(component, /\.sh-open :global\(\.sh-chevron\)\s*{\s*rotate: 90deg;/);
 });
 
-test('tone token --sh-tone maps to semantic colours and tints the title', () => {
-	for (const t of ['ok', 'warn', 'danger', 'info']) {
-		assert.match(component, new RegExp(`\\.sh-${t}\\s*{\\s*--sh-tone: var\\(--${t}\\);`));
+test('each tone tints the title and icon from its semantic token', () => {
+	for (const t of ['ok', 'warn', 'danger', 'info', 'accent']) {
+		assert.match(component, new RegExp(`\\.sh-${t} :global\\(\\.sh-title\\)\\s*{\\s*color: var\\(--${t}\\);`));
+		assert.match(component, new RegExp(`\\.sh-${t} \\.sh-icon\\s*{\\s*color: var\\(--${t}\\);`));
 	}
-	assert.match(component, /\.section-header :global\(\.sh-title\)\s*{[^}]*color: var\(--sh-tone\);/s);
+	for (const t of ['ok', 'warn', 'danger', 'info']) {
+		assert.match(component, new RegExp(`\\.sh-${t}\\.sh-uppercase :global\\(\\.sh-title\\)\\s*{\\s*color: var\\(--${t}\\);`));
+	}
+	assert.doesNotMatch(component, /\.sh-accent\.sh-uppercase/);
+	assert.match(component, /\.section-header :global\(\.sh-title\)\s*{[^}]*color: var\(--text\);/s);
+	assert.doesNotMatch(component, /--sh-tone/);
 	assert.match(component, /\.sh-uppercase :global\(\.sh-title\)\s*{[^}]*text-transform: uppercase;/s);
 });

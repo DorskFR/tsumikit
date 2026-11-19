@@ -138,7 +138,7 @@
 		<span class="sh-lead">{@render lead()}</span>
 	{/if}
 	{#if hue !== undefined}
-		<span class="sh-swatch" style:--sh-hue={hue} aria-hidden="true"></span>
+		<span class="sh-swatch" style:background="hsl({hue} 70% 55%)" aria-hidden="true"></span>
 	{/if}
 	{#if collapsible}
 		<Heading {level} {size} class="sh-title">
@@ -168,24 +168,6 @@
 {/snippet}
 
 <style>
-	.section-header {
-		--sh-tone: var(--text);
-	}
-	.sh-ok {
-		--sh-tone: var(--ok);
-	}
-	.sh-warn {
-		--sh-tone: var(--warn);
-	}
-	.sh-danger {
-		--sh-tone: var(--danger);
-	}
-	.sh-info {
-		--sh-tone: var(--info);
-	}
-	.sh-accent {
-		--sh-tone: var(--accent);
-	}
 	.sh-row {
 		display: flex;
 		align-items: center;
@@ -220,14 +202,29 @@
 	}
 	.sh-sticky {
 		position: sticky;
-		top: var(--sticky-offset, var(--header-h, 0));
+		top: var(--sticky-offset, var(--header-h));
 		z-index: 1;
-		background: var(--section-header-bg, var(--bg));
+		background: var(--bg);
 	}
 	.section-header :global(.sh-title) {
-		color: var(--sh-tone);
+		color: var(--text);
 		min-width: 0;
 		overflow-wrap: anywhere;
+	}
+	.sh-ok :global(.sh-title) {
+		color: var(--ok);
+	}
+	.sh-warn :global(.sh-title) {
+		color: var(--warn);
+	}
+	.sh-danger :global(.sh-title) {
+		color: var(--danger);
+	}
+	.sh-info :global(.sh-title) {
+		color: var(--info);
+	}
+	.sh-accent :global(.sh-title) {
+		color: var(--accent);
 	}
 	.sh-uppercase :global(.sh-title) {
 		text-transform: uppercase;
@@ -235,24 +232,44 @@
 		font-size: var(--fs-xs);
 		color: var(--text-muted);
 	}
-	.sh-ok.sh-uppercase :global(.sh-title),
-	.sh-warn.sh-uppercase :global(.sh-title),
-	.sh-danger.sh-uppercase :global(.sh-title),
+	.sh-ok.sh-uppercase :global(.sh-title) {
+		color: var(--ok);
+	}
+	.sh-warn.sh-uppercase :global(.sh-title) {
+		color: var(--warn);
+	}
+	.sh-danger.sh-uppercase :global(.sh-title) {
+		color: var(--danger);
+	}
 	.sh-info.sh-uppercase :global(.sh-title) {
-		color: var(--sh-tone);
+		color: var(--info);
 	}
 	.sh-icon {
 		display: inline-flex;
 		flex: none;
-		color: var(--sh-tone);
+		color: var(--text);
 		line-height: var(--lh-none);
+	}
+	.sh-ok .sh-icon {
+		color: var(--ok);
+	}
+	.sh-warn .sh-icon {
+		color: var(--warn);
+	}
+	.sh-danger .sh-icon {
+		color: var(--danger);
+	}
+	.sh-info .sh-icon {
+		color: var(--info);
+	}
+	.sh-accent .sh-icon {
+		color: var(--accent);
 	}
 	.sh-swatch {
 		flex: none;
 		width: 0.625rem;
 		height: 0.625rem;
 		border-radius: var(--r-sm);
-		background: hsl(var(--sh-hue) 70% 55%);
 		box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--text) 20%, transparent);
 	}
 	.section-header :global(.sh-subtitle) {

@@ -48,7 +48,7 @@
 	class:square={shape === 'square'}
 	class:selected
 	class:interactive
-	style:--swatch-color={color}
+	style:background={color}
 	role={!interactive && label ? 'img' : undefined}
 	aria-label={interactive ? (label ?? color) : label}
 	aria-hidden={!interactive && !label ? 'true' : undefined}
@@ -61,30 +61,32 @@
 
 <style>
 	.swatch {
-		--swatch-size: 1rem;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		flex: none;
-		width: var(--swatch-size);
-		height: var(--swatch-size);
+		width: 1rem;
+		height: 1rem;
 		padding: 0;
 		margin: 0;
 		border: var(--edge-width) solid var(--border);
 		border-radius: var(--r-pill);
-		background: var(--swatch-color);
 		color: var(--text);
 		font: inherit;
-		font-size: calc(var(--swatch-size) * 0.6);
+		font-size: 0.6rem;
 		line-height: var(--lh-none);
 		vertical-align: middle;
 		box-sizing: border-box;
 	}
 	.sm {
-		--swatch-size: 0.75rem;
+		width: 0.75rem;
+		height: 0.75rem;
+		font-size: 0.45rem;
 	}
 	.lg {
-		--swatch-size: 1.5rem;
+		width: 1.5rem;
+		height: 1.5rem;
+		font-size: 0.9rem;
 	}
 	.square {
 		border-radius: var(--r-sm);
@@ -100,14 +102,16 @@
 	}
 	.interactive {
 		cursor: pointer;
-		--swatch-scale-dur: var(--dur-fast);
 		transition:
-			scale var(--swatch-scale-dur) var(--ease-out),
+			scale var(--dur-fast) var(--ease-out),
 			border-color var(--dur-fast) ease,
 			box-shadow var(--dur-fast) ease;
 	}
 	.interactive:active {
-		--swatch-scale-dur: var(--dur-press);
+		transition:
+			scale var(--dur-press) var(--ease-out),
+			border-color var(--dur-fast) ease,
+			box-shadow var(--dur-fast) ease;
 		scale: var(--press-scale-sm);
 	}
 	.interactive:focus-visible {

@@ -36,18 +36,17 @@
 
 <style>
 	.prose {
-		color: var(--md-text, var(--text));
+		color: var(--md-text);
 		font-size: var(--fs-sm);
 		line-height: var(--lh-normal);
 		max-inline-size: var(--measure);
 		overflow-wrap: anywhere;
-		--prose-gap: var(--sp-3);
-	}
-	.prose.compact {
-		--prose-gap: var(--sp-2);
 	}
 	.prose :global(> * + *) {
-		margin-top: var(--prose-gap);
+		margin-top: var(--sp-3);
+	}
+	.compact :global(> * + *) {
+		margin-top: var(--sp-2);
 	}
 	.prose :global(p) {
 		margin: 0;
@@ -57,7 +56,7 @@
 	.prose :global(h3),
 	.prose :global(h4) {
 		margin: 0;
-		color: var(--md-heading, var(--text));
+		color: var(--md-heading);
 		font-weight: var(--fw-semibold);
 		line-height: var(--lh-tight);
 	}
@@ -74,7 +73,7 @@
 		font-size: var(--fs-base);
 	}
 	.prose :global(strong) {
-		color: var(--md-strong, var(--text));
+		color: var(--md-strong);
 		font-weight: var(--fw-semibold);
 	}
 	.prose :global(a) {
@@ -85,8 +84,8 @@
 	.prose :global(code) {
 		font-family: var(--font-mono);
 		font-size: 0.92em;
-		color: var(--md-code, var(--text));
-		background: var(--md-code-bg, var(--surface-fill-2));
+		color: var(--md-code);
+		background: var(--md-code-bg);
 		padding: 0.1em 0.35em;
 		border-radius: var(--r-sm);
 	}

@@ -83,37 +83,35 @@
 
 <style>
 	:global(.card.callout) {
-		--callout-tone: var(--text-muted);
 		display: flex;
 		flex-wrap: wrap;
 		align-items: flex-start;
 		gap: var(--sp-3);
 		padding: var(--sp-3);
 	}
-	:global(.card.callout-ok) {
-		--callout-tone: var(--ok);
-	}
-	:global(.card.callout-warn) {
-		--callout-tone: var(--warn);
-	}
-	:global(.card.callout-danger) {
-		--callout-tone: var(--danger);
-	}
-	:global(.card.callout-info) {
-		--callout-tone: var(--info);
-	}
-	:global(.card.callout-accent) {
-		--callout-tone: var(--accent);
-	}
-
 	.callout-icon {
 		display: inline-flex;
 		flex: none;
 		align-items: center;
-		color: var(--callout-tone);
+		color: var(--text-muted);
 		font-size: var(--fs-lg);
 		line-height: var(--lh-none);
 		min-height: 1.4em;
+	}
+	:global(.card.callout-ok) .callout-icon {
+		color: var(--ok);
+	}
+	:global(.card.callout-warn) .callout-icon {
+		color: var(--warn);
+	}
+	:global(.card.callout-danger) .callout-icon {
+		color: var(--danger);
+	}
+	:global(.card.callout-info) .callout-icon {
+		color: var(--info);
+	}
+	:global(.card.callout-accent) .callout-icon {
+		color: var(--accent);
 	}
 	.callout-body {
 		flex: 1 1 12rem;

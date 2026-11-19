@@ -77,7 +77,7 @@ test('control renders a box at the kit control height and radius', () => {
 	assert.equal(el.style.width, '100%');
 	const [bar] = bars(el);
 	assert.equal(bar.style.height, 'var(--control-height-default)');
-	assert.equal(bar.style.borderRadius, 'var(--input-radius, var(--r-md))');
+	assert.equal(bar.style.borderRadius, 'var(--r-md)');
 });
 
 test('decorative hooks, variants and an explicit radius are kept', () => {
@@ -87,7 +87,9 @@ test('decorative hooks, variants and an explicit radius are kept', () => {
 	}
 	const pulse = get('pulse');
 	assert.ok(pulse.classList.contains('v-pulse'));
-	assert.deepEqual(bars(pulse).map((b) => b.style.getPropertyValue('--i')), ['0', '1']);
+	assert.deepEqual(bars(pulse).map((b) => b.style.animationDelay), ['calc(0s)', 'calc(0.13s)']);
+	assert.match(source, /style:animation-delay={variant === 'pulse' \? `calc\(0\.13s \* \${i \+ phase}\)` : undefined}/);
+	assert.match(source, /phase = 0,/);
 	assert.equal(bars(pulse)[0].style.borderRadius, 'var(--r-pill)');
 	assert.match(source, /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.skeleton-bar\s*{\s*animation: none;/);
 });
