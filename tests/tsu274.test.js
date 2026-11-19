@@ -27,11 +27,12 @@ test('DataTable: the sort button covers the whole sortable header cell', () => {
 });
 
 test('Card tone="accent" gets the same tinted border and wash as the other tones', () => {
-	const m = normalize(style(card)).match(/((?:\.card-[a-z]+, )+\.card-[a-z]+) \{ border-color: color-mix\(in srgb, var\(--card-tone\) 55%, var\(--surface-edge\)\); background: color-mix\(in srgb, var\(--card-tone\) 8%, var\(--surface-fill\)\);/);
-	assert.ok(m, 'tint rule present');
-	const list = m[1].split(', ');
-	for (const t of ['ok', 'warn', 'danger', 'info', 'accent']) assert.ok(list.includes(`.card-${t}`), `.card-${t} is tinted`);
-	assert.ok(hasDecl(style(card), '.card-accent', '--card-tone', 'var(--accent)'));
+	for (const t of ['ok', 'warn', 'danger', 'info', 'accent']) {
+		const r = rule(style(card), `.card-${t}`);
+		assert.equal(r['border-color'], `color-mix(in srgb, var(--${t}) 55%, var(--surface-edge))`, `.card-${t} border is tinted`);
+		assert.equal(r.background, `color-mix(in srgb, var(--${t}) 8%, var(--surface-fill))`, `.card-${t} wash is tinted`);
+	}
+	assert.doesNotMatch(style(card), /--card-tone/);
 	assert.match(callout, /<Card\s+tone=\{t\}/);
 });
 

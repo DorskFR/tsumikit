@@ -226,19 +226,19 @@ test('no component keeps its own reduced-motion transition kill, raw durations o
 		assert.doesNotMatch(style, /transition:\s*all\b/, name);
 		assert.doesNotMatch(style, /transition[^;]*\b\d+(\.\d+)?m?s\b/, `${name} has a raw transition duration`);
 	}
-	assert.match(css(files.PullToRefresh), /prefers-reduced-motion: reduce\)\s*{\s*\.ptr-indicator :global\(\.ptr-arrow\)\s*{\s*rotate: none;/);
+	assert.match(css(files.PullToRefresh), /prefers-reduced-motion: reduce\)\s*{\s*\.ptr-indicator :global\(\.ptr-arrow\)\s*{\s*rotate: none !important;/);
 });
 
 test('slider thumbs scale on press, halo on hover and never animate layout', () => {
 	const slider = css(files.Slider);
 	assert.match(slider, /input\[type='range'\]:not\(:disabled\):active::-webkit-slider-thumb\s*{\s*scale: 1\.15;/);
-	assert.match(slider, /@media \(hover: hover\) and \(pointer: fine\)\s*{\s*input\[type='range'\]:not\(:disabled\):hover::-webkit-slider-thumb\s*{\s*box-shadow: var\(--thumb-shadow\), var\(--halo\);/);
+	assert.match(slider, /@media \(hover: hover\) and \(pointer: fine\)\s*{\s*input\[type='range'\]:not\(:disabled\):hover::-webkit-slider-thumb\s*{\s*box-shadow: var\(--thumb-shadow\), 0 0 0 4px color-mix\(in srgb, var\(--accent\) 20%, transparent\);/);
 	assert.match(rule(slider, "input[type='range']::-webkit-slider-thumb").transition, /scale var\(--dur-press\) var\(--ease-out\), box-shadow var\(--dur-fast\) var\(--ease\)/);
 	assert.equal(rule(slider, "input[type='range']:disabled").opacity, 'var(--disabled-opacity)');
 
 	const seek = css(files.SeekSlider);
 	assert.equal(rule(seek, '.seek-track').transition, 'scale var(--dur-fast) var(--ease)');
-	assert.match(seek, /\.seek--dragging \.seek-track\s*{\s*scale: 1 var\(--seek-track-grow\);/);
+	assert.match(seek, /\.seek--dragging \.seek-track\s*{\s*scale: 1 1\.6;/);
 	assert.match(seek, /\.seek--dragging \.seek-thumb\s*{\s*scale: 1\.15;/);
 	assert.doesNotMatch(seek, /transition:[^;]*\b(height|margin-top|width)\b/);
 	assert.equal(rule(seek, '.seek--inert').cursor, 'not-allowed');
@@ -250,20 +250,19 @@ test('slider thumbs scale on press, halo on hover and never animate layout', () 
 });
 
 test('value indicators and the carousel move on compositor properties only', () => {
-	for (const [name, sel] of [
-		['Progress', '.bar'],
-		['SegmentedProgress', '.bar'],
-		['CapBar', '.fill']
+	for (const [name, sel, inline] of [
+		['Progress', '.bar', 'style:translate={indeterminate ? undefined : `${pct - 100}% 0`}'],
+		['SegmentedProgress', '.bar', 'style:translate="{pct(seg) - 100}% 0"'],
+		['CapBar', '.fill', 'style:translate="calc({pct}% - 100%) 0"']
 	]) {
 		const r = rule(css(files[name]), sel);
-		assert.match(r.translate, /^calc\(/, name);
+		assert.ok(files[name].includes(inline), name);
 		assert.equal(r.transition, 'translate var(--dur-base) var(--ease-out)', name);
 	}
-	assert.match(files.Progress, /style={indeterminate \? undefined : `--p: \${pct \/ 100}`}/);
 	assert.equal(rule(css(files.Gauge), '.fill').transition, 'scale var(--dur-base) var(--ease-out), background var(--dur-fast) var(--ease)');
 	assert.equal(rule(css(files.SegmentedProgress), '.stacked .segment').transition, undefined);
 	assert.doesNotMatch(css(files.PullToRefresh), /transition:[^;]*\bheight\b/);
-	assert.match(css(files.PullToRefresh), /\.ptr-indicator\s*{[^}]*translate: 0 calc\(var\(--ptr-offset, 0px\) - 100%\);/);
+	assert.match(files.PullToRefresh, /class="ptr-indicator"[^>]*style:translate="0 calc\({offset}px - 100%\)"/);
 	assert.match(files.Carousel, /style:translate="{-index \* 100}% 0"/);
 	assert.equal(rule(css(files.Carousel), '.track').transition, 'translate var(--dur-sheet) var(--ease-in-out)');
 	assert.match(css(files.ResizablePanel), /\.resizing \.panel\s*{\s*transition: none;/);
@@ -274,10 +273,10 @@ test('value indicators and the carousel move on compositor properties only', () 
 });
 
 test('CapBar keeps the hidden bubble inside the track at both ends', () => {
-	const bubble = rule(css(files.CapBar), '.bubble');
-	assert.equal(bubble.left, 'clamp(0%, var(--cap), 100%)');
-	assert.equal(bubble.translate, 'calc(-1 * clamp(0%, var(--cap), 100%)) 0');
-	assert.match(files.CapBar, /<div class="fill-clip"><div class="fill"><\/div><\/div>/);
+	const bubble = files.CapBar.match(/<div[^>]*class="bubble"[^>]*>/)?.[0] ?? '';
+	assert.ok(bubble.includes('style:left="clamp(0%, {capPct}%, 100%)"'));
+	assert.ok(bubble.includes('style:translate="calc(-1 * clamp(0%, {capPct}%, 100%)) 0"'));
+	assert.match(files.CapBar, /<div class="fill-clip"><div class="fill" style:translate="[^"]*"><\/div><\/div>/);
 	assert.equal(rule(css(files.CapBar), '.fill-clip').overflow, 'hidden');
 });
 

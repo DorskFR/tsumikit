@@ -301,7 +301,8 @@ test('Composer is rebuilt on InputGroup with the send button trailing and the at
 test('exported and documented', () => {
 	assert.match(index, /export { default as InputGroup } from '\.\/components\/molecules\/InputGroup\.svelte';/);
 	assert.match(readme, /### InputGroup/);
-	assert.match(readme, /--ig-leading-w/);
+	assert.match(readme, /measured with a `ResizeObserver` and applied as the\s+field's inline padding/);
+	assert.doesNotMatch(readme, /--ig-/);
 });
 
 test('adornments fill the field inside its border and follow its outer corners', () => {

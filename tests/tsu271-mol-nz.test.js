@@ -108,16 +108,16 @@ for (const [path, tokens] of Object.entries(USES)) {
 	});
 }
 
-test('per-component hooks stay the first fallback', () => {
+test('the role tokens are read directly, with no per-component hook in front', () => {
 	const pop = src('molecules/Popover.svelte');
-	assert.match(pop, /border-color: var\(--pop-trigger-border, var\(--btn-edge\)\);/);
-	assert.match(pop, /background: var\(--pop-trigger-bg, var\(--btn-fill\)\);/);
-	assert.match(pop, /background: var\(--pop-trigger-bg, var\(--btn-primary-fill\)\);/);
-	assert.match(src('molecules/Prose.svelte'), /background: var\(--md-code-bg, var\(--surface-fill-2\)\);/);
-	assert.match(
-		src('layouts/MasterDetail.svelte'),
-		/border-right: var\(--md-divider, var\(--edge-width\) solid var\(--surface-edge\)\);/
-	);
+	assert.match(pop, /border-color: var\(--btn-edge\);/);
+	assert.match(pop, /background: var\(--btn-fill\);/);
+	assert.match(pop, /background: var\(--btn-primary-fill\);/);
+	assert.doesNotMatch(pop, /--pop-trigger-/);
+	assert.match(src('molecules/Prose.svelte'), /background: var\(--md-code-bg\);/);
+	const md = src('layouts/MasterDetail.svelte');
+	assert.match(md, /border-right: var\(--edge-width\) solid var\(--surface-edge\);/);
+	assert.doesNotMatch(md, /--md-divider/);
 });
 
 test('hover lift lives inside the fine-pointer hover block and is transitioned', () => {

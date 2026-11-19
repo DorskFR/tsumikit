@@ -52,23 +52,32 @@ test('Progress exposes variant default|liquid|stripes, default unchanged', () =>
 	assert.match(n, /\.progress\.v-stripes \.bar::after {[^}]*animation: tsu-progress-stripes 0\.7s linear infinite; }/);
 	assert.match(n, /@keyframes tsu-progress-liquid { to { transform: translateX\(282%\); } }/);
 	assert.match(n, /@keyframes tsu-progress-stripes { from { transform: translateX\(-1\.4142rem\); } to { transform: translateX\(0\); } }/);
-	assert.match(n, /\.progress\.v-liquid\.indeterminate { background: color-mix\(in srgb, var\(--fill, var\(--accent\)\) 35%, transparent\); }/);
+	assert.match(n, /\.progress\.v-liquid\.indeterminate { background: color-mix\(in srgb, var\(--accent\) 35%, transparent\); }/);
+	assert.match(n, /\.progress\.v-liquid\.indeterminate\.colored { background: color-mix\(in srgb, var\(--fill\) 35%, transparent\); }/);
 	assert.match(n, /\.progress\.v-stripes \.bar::after { animation: none; }/);
-	assert.match(css.Progress, /var\(--fill, var\(--accent\)\) 35% 65%/, 'liquid pulses follow the tone');
+	for (const [tone, token] of [['success', '--ok'], ['info', '--info'], ['neutral', '--text-faint'], ['warn', '--warn'], ['danger', '--danger']]) {
+		assert.ok(
+			n.includes(`.progress.v-liquid.indeterminate.tone-${tone}::before, .progress.v-liquid.indeterminate.tone-${tone}::after { background: linear-gradient(90deg, transparent, var(${token}) 35% 65%, transparent); }`),
+			`liquid pulses follow tone ${tone}`
+		);
+	}
+	assert.ok(n.includes('.progress.v-liquid.indeterminate.colored::after { background: linear-gradient(90deg, transparent, var(--fill) 35% 65%, transparent); }'), 'and the color prop');
+	assert.match(files.Progress, /style:--fill={liquid \? color : undefined}/, 'the variable exists only for the liquid pseudo-elements');
 });
 
 test('Skeleton exposes variant shimmer|sheen|pulse with a staggered pulse and a static sheen pose', () => {
 	assert.match(files.Skeleton, /variant = 'shimmer',/);
 	assert.match(files.Skeleton, /variant\?: 'shimmer' \| 'sheen' \| 'pulse';/);
 	assert.match(files.Skeleton, /class="skeleton v-\{variant\} \{klass\}"/);
-	assert.match(files.Skeleton, /style:--i=\{i\}/);
+	assert.match(files.Skeleton, /phase\?: number;/);
+	assert.match(files.Skeleton, /style:animation-delay=\{variant === 'pulse' \? `calc\(0\.13s \* \$\{i \+ phase\}\)` : undefined\}/, 'each bar a beat behind, offset by phase');
 	const n = normalize(css.Skeleton);
 	assert.match(n, /\.v-sheen \.skeleton-bar { position: relative; overflow: hidden; animation: none; }/);
 	assert.match(n, /\.v-sheen \.skeleton-bar::after {[^}]*width: 45%;[^}]*transform: translateX\(-100%\); animation: tsu-skeleton-sheen 2s var\(--ease-in-out\) infinite; }/);
-	assert.match(n, /\.v-pulse \.skeleton-bar { animation: tsu-skeleton-pulse 1\.6s var\(--ease-in-out\) infinite; animation-delay: calc\(0\.13s \* \(var\(--i, 0\) \+ var\(--skeleton-phase, 0\)\)\); }/);
+	assert.match(n, /\.v-pulse \.skeleton-bar { animation: tsu-skeleton-pulse 1\.6s var\(--ease-in-out\) infinite; }/);
 	assert.match(n, /@keyframes tsu-skeleton-sheen { 70%, 100% { transform: translateX\(260%\); } }/);
 	assert.match(n, /\.v-pulse \.skeleton-bar { animation: none; } \.v-sheen \.skeleton-bar::after { animation: none; transform: translateX\(60%\); }/);
-	assert.match(css.Skeleton, /\.v-sheen \.skeleton-bar,\s*\.v-pulse \.skeleton-bar \{\s*background: var\(--sk-base\);/);
+	assert.match(css.Skeleton, /\.v-sheen \.skeleton-bar,\s*\.v-pulse \.skeleton-bar \{\s*background: color-mix\(in srgb, var\(--text\) 7%, transparent\);/);
 });
 
 test('Thinking atom: dots default, sheen text with caret, role=status, exported with a demo', () => {

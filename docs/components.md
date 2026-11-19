@@ -13,16 +13,16 @@ Text, Heading, Button, Input (`icon` inset leading glyph,
 `onenter(value)`; the bare `<input>` DOM stays a plain `<input>` unless `icon`/`clearable`
 is used), Textarea, Select (`options` array with per-option `icon`/`emoji`/`hint`/`disabled`;
 the trigger overlays the selected option's glyph + muted hint on the native control), Switch, Checkbox (`size`
-sm/md/lg as on `Switch`, or `--cb-box` for the box alone),
+sm/md/lg as on `Switch`),
 Slider (`ticks` draws a dot per step for a segmented slider), Progress, Gauge (vertical consumption cell, `variant` continuous/segments,
 threshold tones via `warnAt`/`dangerAt`, `corner` snippet), Artwork (lazy cover image with seeded gradient + initials
 fallback, `aspect`, `status` overlay, `srcset`/`sizes` passed to the `<img>`), Avatar (grapheme-safe initial or `glyph`, hue hashed from
 `seed`/`name` or a fixed `tone`, `size` xs–lg or px, `shape` circle/square, `decorative`, corner `status`), Card (`tone` tints the surface for inline banners), Badge
 (`tone` semantic palette (the shared `Tone`, `success` = `ok`, plus `muted`/`violet`) or `color` for any CSS colour, `size` xs/sm/md (sm/xs on `--fs-xs`), `dot`,
-`icon`, `numeric`, `truncate`, `variant="text"`, `removable`/`onremove` or any
+`icon`, `numeric`, `truncate`, `variant="text"` (no chip) or `"solid"` (filled with the tone),
+`removable`/`onremove` or any
 trailing action via `actionIcon`/`actionLabel`/`onaction`, `removed` mutes and
-strikes the pill for a restorable entry; all tints derive from
-`--badge-tone`), Dot (`ring` dark halo over artwork), Swatch (colour chip:
+strikes the pill for a restorable entry), Dot (`ring` dark halo over artwork), Swatch (colour chip:
 `color` any CSS colour, `size` sm/md/lg, `shape` circle/square, `label` → role=img
 else aria-hidden, `interactive` renders a button with `onclick` + `aria-pressed`
 from `selected`), Divider (standalone
@@ -47,7 +47,7 @@ sizes the panel; an item with a `control` snippet renders as a non-button row ho
 labels may repeat, and an optional `id` keeps a row's identity when the list reorders),
 Tabs (omit `panel` for a strip-only tablist of document tabs: `closable` + `onclose(id)`
 close through the ✕, Delete and middle-click, per-tab `leading` snippet, `title`,
-trailing `actions` snippet; `--tab-max-width` truncates long labels),
+trailing `actions` snippet; `tabMaxWidth` truncates long labels),
 Breadcrumb (`maxItems` collapses the middle, `size` sm/md, `wrap={false}` keeps one
 line with the current crumb ellipsised, `collapseCurrent` keeps only the ancestors),
 RadioGroup (per-option `description` in every variant, announced via
@@ -81,8 +81,8 @@ StatusBar (thin `role="status"` row: `tone` idle/busy/ok/warn/error dot or spinn
 through `renderTrustedMarkdown` into `Prose` when there are no `children`),
 Composer (`toolbarStart`/`toolbarEnd` snippets move attach + send into a row under the field),
 Drawer (side-panel `<dialog>`: `side` left/right, or `bottom` for a full-width sheet
-capped at `--drawer-max-h`; `width` clamped to the viewport, full-screen
-under 48rem; `--drawer-body-pad` sets the body padding; `nav` page column that turns into a horizontal strip on narrow
+capped at 85dvh; `width` clamped to the viewport, full-screen
+under 48rem; `flush` drops the body padding; `nav` page column that turns into a horizontal strip on narrow
 screens, or `navMobile`; sticky `footer`; Escape / scrim / close button all close),
 NotificationItem (tone icon, title, two-line `text` with Show more, relative `time`,
 unread Dot, `state` label for resolved items, up to two `actions` plus a "…" Menu,
@@ -113,7 +113,7 @@ replaces a header cell (a select-all checkbox);
 `hideHeader` clips the header but keeps it for assistive tech, `rowTone(row)`
 paints a left accent bar + `data-tone`, `rowClass(row)`, `rowActions` snippet
 for a hover/focus-revealed trailing cell (always visible on touch; under
-`layout="fixed"` its column is `--dt-actions-w`, default 3.5rem),
+`layout="fixed"` its column is 3.5rem wide),
 `stickyOffset` for the sticky header's `top` (it sticks within the table's own
 scroller, so give the table a bounded height), `size="sm"`, `loading` (no rows:
 `loadingRows` skeleton rows at data-row height, default 5; with rows: one trailing
@@ -131,8 +131,7 @@ hooks on head/row/cell; `responsive="stack"` turns rows into cards below
 `stackBelow` (48rem, measured on the table's own box) using `Column.role`
 `title | detail | meta | actions | hidden` — detail cells get a `data-label`
 prefix, `Column.stackLabel: false` drops it so metas join on one `·` line
-and details share lines, `--dt-meta-font` restyles meta values (e.g. `var(--font-sans)`; a
-literal `inherit` falls back to mono), stacked tables use `table-layout: fixed`,
+and details share lines, meta values are set in `--font-mono`, stacked tables use `table-layout: fixed`,
 `stackActions="end"` closes every card with its actions, cells that render
 nothing get `data-empty` and are hidden and skipped by the `·` separators, the `<table>`
 stays a table for assistive tech), NotificationCenter (bell with unread badge,
@@ -170,11 +169,13 @@ for the inset-bar active look), MasterDetail (list + detail columns that
 become two pages — one pane at a time with a sticky 44px back header, keeping the
 list's scroll and focus — below
 their own `breakpoint`, so `selected` can be driven from the URL; `gap` spaces
-the columns and `divider="none"` drops the seam, both also settable as the
-`--md-gap` / `--md-divider` custom properties), Container, Stack
+the columns and `divider="none"` drops the seam), Container, Stack
 (vertical), Cluster (wrapping row; `stackAt="xs|sm|md|lg"` makes it its own
 query container and stacks children full-width below 18/30/40/48rem — phone
-action rows without a viewport query), AutoGrid (intrinsically responsive
+action rows without a viewport query; `size` sm/md/lg sets the default size of the
+control buttons and triggers inside it — `Button`, `IconButton`, `Popover` and picker triggers,
+`FileButton`, `SegmentedControl`, `SplitButton` — through context, not a variable, and a
+control's own `size` still wins), AutoGrid (intrinsically responsive
 columns — no media/container query needed; a child marked
 `data-span="2|3|4|full"` claims that many tracks, so a primary action can sit
 at 2 of 4 columns and take the whole row once the columns halve).
@@ -188,8 +189,9 @@ shorthands (tones `neutral|ok|error|info`; `danger` aliases `error`). An `action
 (`{ label, run }`) renders a button; the toast shows a loading state while `run`
 settles, then dismisses, and action toasts stay 7s instead of 4s (`duration: 0` is
 sticky). `Toaster` renders in the browser top layer (`popover="manual"`), so toasts
-paint above an open `Modal`; `--toast-max-width` (28rem) caps the stack.
-`placement` is `bottom` (default, centred), `bottom-start`, `bottom-end` or `top`.
+paint above an open `Modal`; the stack is capped at 28rem.
+`placement` is `bottom` (default, centred), `bottom-start`, `bottom-end` or `top`;
+`position` (`left` | `center` | `right`) picks the side of that edge the stack hugs.
 Bottom placements sit above the `TabBar` (`--tabbar-h`) and the DataTable
 selection bar (`--selectionbar-h`) with no setup; add an app's own bottom bars
 with `--toaster-offset` (`:root { --toaster-offset: var(--player-h, 0px) }`),
@@ -206,8 +208,8 @@ insecure-context fallback; returns whether it succeeded.
 `align="start"` drops the centering. `fullWidth` is a *viewport* breakout for
 edge-to-edge sections — inside AppShell's main column use `size="none"` instead;
 `inset="<left> <right>"` keeps a `fullWidth` container clear of docked panels.
-Children can bleed to the column edge with
-`margin-inline: calc(-1 * var(--container-gutter))`.
+Children can bleed to the column edge with a negative `margin-inline` of the
+gutter (`--sp-4`, or the `gutter` you passed).
 
 ### ResizablePanel
 
@@ -360,8 +362,8 @@ by the consumer) keeps its own border and spans the whole group width; the
 `leading`/`trailing` snippets are overlaid inside it and the field pads its
 text past them. This is a hard constraint, not a look: Firefox Android zooms to
 the focused element's rect, so a field laid out beside its buttons zooms the
-page. Adornment widths are measured with a `ResizeObserver` into
-`--ig-leading-w`/`--ig-trailing-w`, so a trailing label that changes
+page. Adornment widths are measured with a `ResizeObserver` and applied as the
+field's inline padding, so a trailing label that changes
 (`Send (42s)`) never runs under the text.
 
 The adornments sit flush inside the field's padding as ghost/primary controls,
@@ -538,8 +540,7 @@ surface and ink tokens at ratios that clear 4.5:1 at every hue on every bundled
 theme. `size` xs | sm | md | lg (1.25–2.5rem) or a pixel number, `shape` circle |
 square, `decorative` drops it from the accessibility tree when the row already
 names the person (otherwise `role="img"`), `status` overlays a Dot on the
-top-right corner, ringed with `--avatar-status-ring` (default `--bg-elevated`).
-`--avatar-bg` / `--avatar-fg` override the colours from outside;
+top-right corner, ringed with `--bg-elevated`.
 `avatarInitial(name)` and `avatarHue(seed)` are exported.
 
 ```svelte
@@ -563,7 +564,7 @@ or the ancestor whose `container-name` is `container`) and folds below
 compact variant in the grid — a full `Badge` inline, a tinted initial tile
 stacked — or render free-form `children`, where each direct child is a cell.
 The grid is visual only: DOM order, tab order and reading order are those of
-the inline run. `--glyph-stack-gap` sets the inline gap (default `--sp-1`).
+the inline run. The inline gap is `--sp-1`.
 
 Folded cells are 1rem — hard to hit on touch. `expand` none | tap | slide
 (default `none`, `items` only, active while stacked) makes a press open the
@@ -575,9 +576,8 @@ corner to arm that tile and release to fire it — the item's `action`, else a
 click on the tile's first control. The panel closes after firing unless that
 opened a nested popover; a release in place, or on a tile with nothing to
 fire, leaves it open as in `tap`. An item's `expanded` snippet replaces
-`inline` in its tile; `--glyph-stack-tile` (default `3rem`) and
-`--glyph-stack-zoom` (default `1.75`) size the tiles; `expandLabel` names the
-panel.
+`inline` in its tile; tiles are at least 3rem, their content zoomed 1.75×;
+`expandLabel` names the panel.
 
 ```svelte
 <GlyphStack stackBelow="34rem" items={[
@@ -603,14 +603,14 @@ panel.
 a `Scrim` (`scrim={false}` drops it; a click outside still closes). `arc`
 `{ from, to }` is in degrees, 0 = right, counter-clockwise; the default
 `{ from: 200, to: -20 }` is an upward fan. Petals sit at equal angles at
-`radius` (default `--radial-radius`, else `8.5rem`) and are `petalSize` wide
-(default `--radial-petal-size`, else `3.5rem`, never under `--touch-target`).
+`radius` (default `8.5rem`) and are `petalSize` wide
+(default `3.5rem`, never under `--touch-target`).
 The panel lives in the top layer, so it escapes `overflow: hidden` parents and
 a fixed bottom bar; the radius shrinks, and then the fan shifts, to keep every
 petal inside the viewport and its safe-area insets. `status` renders a line
 centred above the arc.
 
-The default trigger is a `--radial-fab-size` (3.75rem) circle with a 2px ring
+The default trigger is a 3.75rem circle with a 2px ring
 in `tone` (default `accent`) that swaps `icon` for `closeIcon` while open and
 shows an optional `caption` (string or snippet); `trigger` replaces its content
 and receives `{ open }`. `open` is bindable, with `onopen` / `onclose`; rest
@@ -671,8 +671,7 @@ its edges. On the keyboard the grip is a "Reorder {name}" button: Space/Enter
 grabs, ↑/↓ moves, Home/End jumps, Space/Enter drops, Escape restores.
 Alt+↑/↓ moves the focused row in one step. A polite live region announces each
 step; override any string through `messages` (defaults in
-`SORTABLE_LIST_MESSAGES`). `size` is `sm` (1.875rem rows) or `md` (2.25rem);
-`--sortable-row-h` overrides both.
+`SORTABLE_LIST_MESSAGES`). `size` is `sm` (1.875rem rows) or `md` (2.25rem).
 
 ```svelte
 <SortableList

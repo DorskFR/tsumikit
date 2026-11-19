@@ -192,11 +192,11 @@ test('toggle marks spring in and fade out faster; motion reads tokens only', () 
 
 test('polish: ladder heights, focus tokens, disabled token, no literal px/rem spacing left', () => {
 	assert.ok(hasDecl(css(files.Tabs), '.tab', 'min-height', 'var(--control-md)'));
-	assert.ok(hasDecl(css(files.SegmentedControl), '.seg', '--seg-h', 'var(--control-md)'));
-	assert.ok(hasDecl(css(files.Badge), '.badge', '--badge-h', 'var(--chip-md)'));
-	assert.ok(hasDecl(css(files.Switch), '.switch', '--sw-h', 'var(--chip-md)'));
-	assert.ok(hasDecl(css(files.Checkbox), '.box', 'width', 'var(--cb-box, var(--chip-sm))'));
-	assert.ok(hasDecl(css(files.Toggle), '.toggle', 'height', 'var(--toggle-size, var(--control-sm))'));
+	assert.ok(hasDecl(css(files.SegmentedControl), '.seg', 'height', 'var(--control-md)'));
+	assert.ok(hasDecl(css(files.Badge), '.badge', 'min-height', 'var(--chip-md)'));
+	assert.ok(hasDecl(css(files.Switch), '.switch', 'height', 'var(--chip-md)'));
+	assert.ok(hasDecl(css(files.Checkbox), '.box', 'width', 'var(--chip-sm)'));
+	assert.ok(hasDecl(css(files.Toggle), '.toggle', 'height', 'var(--control-sm)'));
 	for (const [name, src] of Object.entries(files)) {
 		const style = css(src);
 		assert.doesNotMatch(style, /outline: 2px|outline-offset: -?\d+px/, `${name} focus ring literal`);
@@ -216,5 +216,5 @@ test('polish: ladder heights, focus tokens, disabled token, no literal px/rem sp
 test('GlyphStack defaults to tap-to-expand on coarse pointers only', () => {
 	assert.match(files.GlyphStack, /const mode = \$derived\(expand !== 'none' \? expand : coarse \? 'tap' : 'none'\)/);
 	assert.match(files.GlyphStack, /matchMedia\('\(pointer: coarse\)'\)/);
-	assert.ok(hasDecl(css(files.GlyphStack), '.stacked > :global(*)', '--focus-ring-offset', 'var(--focus-ring-offset-inset)'));
+	assert.ok(hasDecl(css(files.GlyphStack), '.glyph-stack.stacked > :global(:focus-visible)', 'outline-offset', 'var(--focus-ring-offset-inset)'));
 });

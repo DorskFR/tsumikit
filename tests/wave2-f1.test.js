@@ -213,11 +213,9 @@ test('press feedback: scale from the press tokens, press-in at --dur-press on --
 	assert.match(press[1], /\.loading/);
 	assert.match(press[1], /\.btn-link/);
 	assert.match(press[2], /scale: var\(--press-scale\);/);
-	assert.match(press[2], /--btn-scale-dur: var\(--dur-press\);/);
-	assert.match(press[2], /--btn-scale-ease: var\(--ease-out\);/);
+	assert.match(press[2], /transition:[^;]*scale var\(--dur-press\) var\(--ease-out\);/);
 	assert.match(button, /\.btn-icon:active:not\([^)]*\),[\s\S]*?{\s*scale: var\(--press-scale-sm\);/);
-	assert.match(button, /--btn-scale-dur: var\(--dur-release\);\s*--btn-scale-ease: var\(--ease-spring-bounce\);/);
-	assert.match(button, /scale var\(--btn-scale-dur\) var\(--btn-scale-ease\)/);
+	assert.match(button, /scale var\(--dur-release\) var\(--ease-spring-bounce\)/);
 	for (const [f, sel, token] of [
 		['molecules/FileButton.svelte', '.file-btn:active:not(.disabled)', '--press-scale'],
 		['molecules/OptionButton.svelte', '.opt:active:not(:disabled)', '--press-scale'],
@@ -249,7 +247,17 @@ test('polish sweeps: no literal disabled opacity, focus ring, radius, line-heigh
 		assert.doesNotMatch(css, /border-radius: [1-9]/, `${f}: radius literal`);
 		assert.doesNotMatch(css, /line-height: [0-9.]+(rem)?;/, `${f}: line-height literal`);
 		assert.doesNotMatch(css, /(gap|padding|top|left): [0-9.]+(px|rem)\b(?! solid)/, `${f}: spacing literal`);
-		assert.doesNotMatch(css, /font-size: [0-9.]+(rem|em)/, `${f}: font-size literal`);
+		const doneCheck = /\.btn \.btn-check :global\(\.icon\),\s*\.btn \.btn-layer-done :global\(\.icon\) \{\s*font-size: 0\.9em;\s*\}/;
+		const swatchGlyph = f === 'atoms/Swatch.svelte' ? /font-size: 0\.(?:6|45|9)rem;/g : /(?!)/;
+		assert.doesNotMatch(css.replace(doneCheck, '').replace(swatchGlyph, ''), /font-size: [0-9.]+(rem|em)/, `${f}: font-size literal`);
+	}
+	for (const [sel, box, glyph] of [
+		['.swatch', '1rem', '0.6rem'],
+		['.sm', '0.75rem', '0.45rem'],
+		['.lg', '1.5rem', '0.9rem']
+	]) {
+		assert.ok(hasDecl(styleOf('atoms/Swatch.svelte'), sel, 'width', box), `Swatch ${sel} box`);
+		assert.ok(hasDecl(styleOf('atoms/Swatch.svelte'), sel, 'font-size', glyph), `Swatch ${sel} glyph is 0.6 of its box`);
 	}
 	assert.doesNotMatch(sources['molecules/SplitButton.svelte'], /size=\{size === 'sm' \? 14 : 16\}/);
 	assert.doesNotMatch(sources['molecules/Breadcrumb.svelte'], /size=\{size === 'md' \? 16 : 14\}/);
@@ -259,15 +267,15 @@ test('Button reads the per-tier tokens: height ladder, label size, padding, icon
 	const css = styleOf('atoms/Button.svelte');
 	assert.ok(hasDecl(css, '.btn', 'padding', 'var(--sp-2) var(--btn-px-md)'));
 	assert.ok(hasDecl(css, '.btn', 'font-size', 'var(--control-fs-md)'));
-	assert.ok(hasDecl(css, '.btn', '--icon-size', 'var(--control-icon-md)'));
+	assert.ok(hasDecl(css, '.btn :global(.icon)', 'font-size', 'var(--control-icon-md)'));
 	assert.ok(hasDecl(css, '.btn', 'line-height', 'var(--lh-none)'));
 	assert.ok(hasDecl(css, '.btn-sm', 'padding', 'var(--sp-1) var(--btn-px-sm)'));
 	assert.ok(hasDecl(css, '.btn-sm', 'font-size', 'var(--control-fs-sm)'));
-	assert.ok(hasDecl(css, '.btn-sm', '--icon-size', 'var(--control-icon-sm)'));
+	assert.ok(hasDecl(css, '.btn-sm :global(.icon)', 'font-size', 'var(--control-icon-sm)'));
 	assert.ok(hasDecl(css, '.btn-lg', 'padding', 'var(--sp-3) var(--btn-px-lg)'));
 	assert.ok(hasDecl(css, '.btn-lg', 'font-size', 'var(--control-fs-lg)'));
-	assert.ok(hasDecl(css, '.btn-lg', '--icon-size', 'var(--control-icon-lg)'));
-	assert.ok(hasDecl(css, '.btn-glyph', 'font-size', 'var(--icon-size)'));
+	assert.ok(hasDecl(css, '.btn-lg :global(.icon)', 'font-size', 'var(--control-icon-lg)'));
+	assert.ok(hasDecl(css, '.btn-glyph', 'font-size', 'var(--control-icon-md)'));
 	assert.ok(hasDecl(css, '.btn:disabled', 'opacity', 'var(--disabled-opacity)'));
 	assert.ok(hasDecl(css, '.btn-spinner', 'border-radius', 'var(--r-pill)'));
 	assert.match(css, /@starting-style\s*{\s*\.btn-spinner\s*{\s*opacity: 0;/);

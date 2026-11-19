@@ -16,58 +16,41 @@ const [badge, popover, menu, fontScale, themePicker, readme, showcase] = await P
 	readDemo()
 ]);
 
-test('Badge reads --badge-fs / --badge-fw on the base chip, defaulting to today values', () => {
+test('Badge sets its type from the root scale on the base chip', () => {
 	const base = rule(badge, '.badge');
-	assert.equal(base['font-size'], 'var(--badge-fs, var(--fs-xs))');
-	assert.equal(base['font-weight'], 'var(--badge-fw, var(--fw-medium))');
+	assert.equal(base['font-size'], 'var(--fs-xs)');
+	assert.equal(base['font-weight'], 'var(--fw-medium)');
 });
 
-test('Badge sm/xs step down through --badge-fs, so setting it wins over the size prop', () => {
-	assert.match(
-		normalize(badge),
-		/\.badge-sm, \.badge-xs \{ font-size: var\(--badge-fs, var\(--fs-xs\)\);/
-	);
+test('Badge sm/xs keep the xs type step', () => {
+	assert.match(normalize(badge), /\.badge-sm, \.badge-xs \{ font-size: var\(--fs-xs\);/);
 });
 
-test('Badge variant typography reads --badge-fw too, keeping its own weight as the fallback', () => {
-	assert.equal(rule(badge, '.mono')['font-weight'], 'var(--badge-fw, var(--fw-normal))');
-	assert.equal(rule(badge, '.uppercase')['font-weight'], 'var(--badge-fw, var(--fw-semibold))');
+test('Badge variant typography keeps its own weight', () => {
+	assert.equal(rule(badge, '.mono')['font-weight'], 'var(--fw-normal)');
+	assert.equal(rule(badge, '.uppercase')['font-weight'], 'var(--fw-semibold)');
 });
 
-test('Badge numeric squares off with --badge-min-size, unset keeping 1.5em wide and the chip ladder height', () => {
+test('Badge numeric is 1.5em wide, centred, on the chip ladder height', () => {
 	const numeric = rule(badge, '.numeric');
-	assert.equal(numeric['min-width'], 'var(--badge-min-size, 1.5em)');
-	assert.equal(numeric['min-height'], 'var(--badge-min-size, var(--badge-h))');
+	assert.equal(numeric['min-width'], '1.5em');
+	assert.equal(numeric['min-height'], 'var(--chip-md)');
 	assert.equal(numeric['justify-content'], 'center');
+	assert.equal(rule(badge, '.numeric.badge-sm')['min-height'], 'var(--chip-sm)');
+	assert.equal(rule(badge, '.numeric.badge-xs')['min-height'], 'var(--chip-xs)');
 });
 
-test('every --badge-* size hook is read with a fallback, so unset renders exactly as before', () => {
-	for (const [prop, fallbacks] of [
-		['--badge-fs', ['var(--fs-xs)']],
-		['--badge-fw', ['var(--fw-medium)', 'var(--fw-normal)', 'var(--fw-semibold)']],
-		['--badge-min-size', ['1.5em', 'var(--badge-h)']]
-	]) {
-		const reads = [...normalize(badge).matchAll(new RegExp(`var\\(${prop}([^)]*\\)*?)`, 'g'))];
-		assert.ok(reads.length > 0, `${prop} is never read`);
-		for (const [, tail] of reads) {
-			assert.ok(tail.startsWith(', '), `${prop} is read without a fallback`);
-		}
-		for (const fb of fallbacks) {
-			assert.ok(normalize(badge).includes(`var(${prop}, ${fb})`), `${prop} lost its ${fb} default`);
-		}
-	}
+test('Badge reads and declares no --badge-* variable', () => {
+	assert.doesNotMatch(badge, /--badge-/);
 });
 
-test('Badge publishes the size axis in the docs table', () => {
-	const row = readme.match(/\| `Badge` \|([^\n]*)\|/)?.[1] ?? '';
-	for (const prop of ['--badge-fs', '--badge-fw', '--badge-min-size']) assert.ok(row.includes(prop), prop);
+test('the docs publish no Badge style hooks', () => {
+	assert.doesNotMatch(readme, /--badge-/);
 });
 
-test('the showcase builds a square count chip from numeric + the size hooks', () => {
-	assert.match(
-		normalize(showcase),
-		/<Badge numeric size="sm" tone="info" style="--badge-min-size: 1\.5rem; --badge-fs: var\(--fs-sm\); --badge-fw: var\(--fw-semibold\)">/
-	);
+test('the showcase sets no Badge hook and still shows the numeric chip', () => {
+	assert.doesNotMatch(showcase, /--badge-/);
+	assert.match(normalize(showcase), /<Badge numeric /);
 });
 
 for (const [name, src] of [
@@ -102,11 +85,11 @@ test('Popover takes a pill prop and puts --r-pill on the trigger', () => {
 	assert.match(normalize(popover), /pill = false,/);
 	assert.match(normalize(popover), /pill\?: boolean;/);
 	assert.match(normalize(popover), /class:trigger-pill=\{pill\}/);
-	assert.equal(rule(popover, '.pop-trigger.trigger-pill')['border-radius'], 'var(--pop-trigger-radius, var(--r-pill))');
+	assert.equal(rule(popover, '.pop-trigger.trigger-pill')['border-radius'], 'var(--r-pill)');
 });
 
 test('the pill rule outranks the zero-specificity default radius, so it composes with every chrome prop', () => {
-	assert.match(normalize(popover), /:where\(\.pop-trigger:not\(\.bare\)\) \{[^}]*border-radius: var\(--pop-trigger-radius, var\(--r-md\)\);/);
+	assert.match(normalize(popover), /:where\(\.pop-trigger:not\(\.bare\)\) \{[^}]*border-radius: var\(--r-md\);/);
 	const pillAt = popover.indexOf('.pop-trigger.trigger-pill');
 	for (const sel of ['.pop-trigger.canonical {', '.pop-trigger.trigger-box {', '.pop-trigger.trigger-sm {']) {
 		assert.ok(popover.includes(sel), sel);
@@ -121,61 +104,45 @@ test('Menu forwards pill through its TriggerChrome Pick<>', () => {
 	assert.match(normalize(menu).match(/<Popover[^>]*>/)?.[0] ?? '', /\{pill\}/);
 });
 
-test('the default trigger reads every paint axis, defaulting to the values it draws today', () => {
+test('the default trigger paints a transparent ghost from root tokens', () => {
 	const base = normalize(popover).match(/:where\(\.pop-trigger:not\(\.bare\)\) \{([^}]*)\}/)?.[1] ?? '';
-	assert.match(base, /border: var\(--edge-width\) solid var\(--pop-trigger-border, transparent\);/);
-	assert.match(base, /background: var\(--pop-trigger-bg, transparent\);/);
-	assert.match(base, /color: var\(--pop-trigger-fg, var\(--text\)\);/);
-	assert.match(base, /font-size: var\(--pop-trigger-size, inherit\);/);
+	assert.match(base, /border: var\(--edge-width\) solid transparent;/);
+	assert.match(base, /background: transparent;/);
+	assert.match(base, /color: var\(--text\);/);
+	assert.match(base, /font-size: inherit;/);
 });
 
-test('the canonical and variant triggers read the same hooks, each keeping its own value as the fallback', () => {
+test('the canonical and variant triggers paint from the button role tokens', () => {
 	const canonical = rule(popover, '.pop-trigger.canonical');
-	assert.equal(canonical.background, 'var(--pop-trigger-bg, var(--btn-fill))');
-	assert.equal(canonical['border-color'], 'var(--pop-trigger-border, var(--btn-edge))');
-	assert.equal(canonical['font-size'], 'var(--pop-trigger-size, var(--control-fs-md))');
+	assert.equal(canonical.background, 'var(--btn-fill)');
+	assert.equal(canonical['border-color'], 'var(--btn-edge)');
+	assert.equal(canonical['font-size'], 'var(--control-fs-md)');
 
 	const primary = rule(popover, '.pop-trigger.trigger-primary');
-	assert.equal(primary.background, 'var(--pop-trigger-bg, var(--btn-primary-fill))');
-	assert.equal(primary.color, 'var(--pop-trigger-fg, var(--text-on-accent))');
+	assert.equal(primary.background, 'var(--btn-primary-fill)');
+	assert.equal(primary.color, 'var(--text-on-accent)');
 
-	assert.equal(rule(popover, '.pop-trigger.trigger-sm')['font-size'], 'var(--pop-trigger-size, var(--control-fs-sm))');
-	assert.equal(rule(popover, '.pop-trigger.trigger-lg')['font-size'], 'var(--pop-trigger-size, var(--control-fs-lg))');
-	assert.equal(rule(popover, '.pop-trigger.trigger-danger').color, 'var(--pop-trigger-fg, var(--danger))');
+	assert.equal(rule(popover, '.pop-trigger.trigger-sm')['font-size'], 'var(--control-fs-sm)');
+	assert.equal(rule(popover, '.pop-trigger.trigger-lg')['font-size'], 'var(--control-fs-lg)');
+	assert.equal(rule(popover, '.pop-trigger.trigger-danger').color, 'var(--danger)');
 });
 
-test('a bare trigger still takes bg/fg/radius/size, keeping its stripped defaults', () => {
+test('a bare trigger is stripped to inherited text', () => {
 	const bare = normalize(popover).match(/:where\(\.pop-trigger\.bare\) \{([^}]*)\}/)?.[1] ?? '';
-	assert.match(bare, /border-radius: var\(--pop-trigger-radius, 0\);/);
-	assert.match(bare, /background: var\(--pop-trigger-bg, none\);/);
-	assert.match(bare, /color: var\(--pop-trigger-fg, inherit\);/);
-	assert.match(bare, /font: inherit; font-size: var\(--pop-trigger-size, inherit\);/);
+	assert.match(bare, /border-radius: 0;/);
+	assert.match(bare, /background: none;/);
+	assert.match(bare, /color: inherit;/);
+	assert.match(bare, /font: inherit; font-size: inherit;/);
 	assert.match(bare, /border: 0;/);
 });
 
-test('every --pop-trigger-* hook is read with a fallback, so unset triggers are byte-identical', () => {
-	for (const [, tail] of normalize(popover).matchAll(/var\(--pop-trigger-(?:bg|fg|border|radius|size|pad)([^)]*\)*?)/g)) {
-		assert.ok(tail.startsWith(', '), 'a --pop-trigger-* hook is read without a fallback');
-	}
+test('Popover reads no --pop-* variable and the docs publish none', () => {
+	assert.doesNotMatch(popover.slice(popover.indexOf('<style>')), /--pop-/);
+	assert.doesNotMatch(readme, /--pop-/);
 });
 
-test('Popover is in the docs property table with its trigger hooks and --pop-box', () => {
-	const row = readme.match(/\| `Popover` \|([^\n]*)\|/)?.[1];
-	assert.ok(row, 'Popover is missing from the published-properties table');
-	for (const prop of [
-		'--pop-trigger-bg',
-		'--pop-trigger-fg',
-		'--pop-trigger-border',
-		'--pop-trigger-radius',
-		'--pop-trigger-size',
-		'--pop-trigger-pad',
-		'--pop-box'
-	])
-		assert.ok(row.includes(prop), prop);
-});
-
-test('--pop-trigger-pad reads on every padding tier, each keeping its own value', () => {
-	for (const [selector, fallback] of [
+test('every padding tier writes its own padding', () => {
+	for (const [selector, padding] of [
 		[':where(.pop-trigger:not(.bare))', 'var(--sp-1)'],
 		['.pop-trigger.canonical', 'var(--sp-2) var(--btn-px-md)'],
 		['.pop-trigger.trigger-sm', 'var(--sp-1) var(--btn-px-sm)'],
@@ -184,21 +151,21 @@ test('--pop-trigger-pad reads on every padding tier, each keeping its own value'
 		['.pop-trigger.trigger-box', '0'],
 		[':where(.pop-trigger.bare)', '0']
 	]) {
-		assert.equal(rule(popover, selector).padding, `var(--pop-trigger-pad, ${fallback})`, selector);
+		assert.equal(rule(popover, selector).padding, padding, selector);
 	}
 });
 
-test('a Toggle-shaped trigger needs no canonical chrome: pill + --pop-box: auto + the paint hooks', () => {
+test('the default trigger floors at the sm box and grows with its content', () => {
 	const sized = normalize(popover).match(/:where\(\.pop-trigger:not\(\.bare\)\) \{([^}]*)\}/)?.[1] ?? '';
 	assert.match(sized, /display: inline-flex;/);
-	assert.match(sized, /min-height: var\(--pop-box, var\(--box-sm\)\);/);
-	assert.match(sized, /min-width: var\(--pop-box, var\(--box-sm\)\);/);
+	assert.match(sized, /min-height: var\(--box-sm\);/);
+	assert.match(sized, /min-width: var\(--box-sm\);/);
 	assert.equal(rule(popover, ':where(.pop-trigger:not(.bare))')['line-height'], undefined);
 	assert.equal(rule(popover, ':where(.pop-trigger:not(.bare))').height, undefined);
 });
 
-test('the showcase sits a pill trigger in a row of Toggles', () => {
-	assert.match(normalize(showcase), /<Toggle pill pressed=\{failing\}[\s\S]*?<Popover label="More filters" pill style="--pop-box: auto;/);
+test('the showcase sets no Popover trigger hook', () => {
+	assert.doesNotMatch(showcase, /--pop-(?:box|trigger-)/);
 });
 
 test('triggerClass no longer claims a consumer scoped stylesheet reaches the trigger', () => {

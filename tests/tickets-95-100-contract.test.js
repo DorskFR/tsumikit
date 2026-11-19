@@ -11,11 +11,14 @@ const [autoGrid, popover, fsp, icon] = await Promise.all([
 ]);
 
 test('AutoGrid with max emits a definite auto-fill template inline (TSU-95)', () => {
-	assert.match(autoGrid, /max != null && maxCols == null\s*\? `grid-template-columns: repeat\(auto-fill, minmax\(min\(100%, \${min}\), \${max}\)\)`/);
+	assert.match(autoGrid, /let track = \$derived\(max != null \? max : '1fr'\);/);
+	assert.match(autoGrid, /let mode = \$derived\(max != null \|\| fill \? 'auto-fill' : 'auto-fit'\);/);
+	assert.match(autoGrid, /`grid-template-columns: \${template \?\? `repeat\(\${mode}, minmax\(min\(100%, \${floor}\), \${track}\)\)`}`/);
+	assert.doesNotMatch(autoGrid.slice(autoGrid.indexOf('<style>')), /grid-template-columns/);
 });
 
 test('Popover bare reset is zero-specificity so triggerClass wins (TSU-96)', () => {
-	assert.match(popover, /:where\(\.pop-trigger\.bare\)\s*{[^}]*padding: var\(--pop-trigger-pad, 0\);/s);
+	assert.match(popover, /:where\(\.pop-trigger\.bare\)\s*{[^}]*padding: 0;/s);
 	assert.doesNotMatch(popover, /\n\t\.pop-trigger\.bare\s*{/);
 });
 
@@ -29,7 +32,7 @@ test('pin, pin-off and life-buoy glyphs are registered (TSU-99, TSU-100)', () =>
 });
 
 test('bare trigger keeps its text line box; box sizing applies to non-bare only; coarse slab covers bare (TSU-101)', () => {
-	assert.match(popover, /:where\(\.pop-trigger:not\(\.bare\)\)\s*{[^}]*min-height: var\(--pop-box, var\(--box-sm\)\);[^}]*padding: var\(--pop-trigger-pad, var\(--sp-1\)\);/s);
+	assert.match(popover, /:where\(\.pop-trigger:not\(\.bare\)\)\s*{[^}]*min-height: var\(--box-sm\);[^}]*padding: var\(--sp-1\);/s);
 	assert.doesNotMatch(popover, /\n\t\.pop-trigger\s*{[^}]*min-height/s);
 	assert.match(popover, /:where\(\.pop-trigger\.bare\)\s*{[^}]*display: inline;[^}]*line-height: inherit;/s);
 	assert.match(popover, /\.pop-trigger:not\(\.canonical, \.hit-compact\)::after/);

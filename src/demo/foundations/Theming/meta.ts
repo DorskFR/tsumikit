@@ -13,6 +13,6 @@ export const meta: ComponentMeta = {
 		'auto',
 		'system',
 	],
-	seeAlso: ['ThemePicker', 'ThemeTokens', 'StyleHooks'],
+	seeAlso: ['ThemePicker', 'ThemeTokens'],
 	order: 3,
 };

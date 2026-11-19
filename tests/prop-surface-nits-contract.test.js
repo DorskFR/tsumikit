@@ -41,7 +41,8 @@ test('kusaritoi nits: Tooltip inline/width/tabindex fallback', () => {
 test('kusaritoi nits: Progress color/showValue, IconButton spin/loading, Icon filled/tone', () => {
 	assert.match(progress, /color\?: string;/);
 	assert.match(progress, /showValue\?: boolean;/);
-	assert.match(progress, /style:--fill={color}/);
+	assert.match(progress, /style:background-color={color && !gradient \? color : undefined}/, 'the bar takes the colour inline');
+	assert.match(progress, /style:--fill={liquid \? color : undefined}/, 'only the liquid pseudo-elements read the variable');
 	assert.match(iconButton, /spin\?: boolean;/);
 	assert.match(iconButton, /loading\?: boolean;/);
 	assert.match(iconButton, /<Icon name={icon} {size} {spin} {filled} \/>/);
@@ -111,7 +112,7 @@ test('cctui nits: SegmentedControl onchange/justify/wrap, RadioGroup swatch, Nav
 
 test('cctui nits: AutoGrid template, Tabs panelPadding, Modal maxHeight, Badge href/external, SegmentedProgress rest, filterQuery namespace', () => {
 	assert.match(autoGrid, /template\?: string;/);
-	assert.match(autoGrid, /template\s*\? `grid-template-columns: \${template}`/);
+	assert.ok(autoGrid.includes('`grid-template-columns: ${template ?? `repeat(${mode}, minmax(min(100%, ${floor}), ${track}))`}`'));
 	assert.match(tabs, /panelPadding\?: 'none' \| 'sm' \| 'md';/);
 	assert.match(modal, /maxHeight\?: string;/);
 	assert.match(modal, /style:max-height={maxHeight}/);

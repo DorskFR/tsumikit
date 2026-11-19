@@ -134,7 +134,7 @@ test('Input sm: coarse pointers grow the box to the compact target (inputs canno
 	const block = coarse(input);
 	assert.equal(
 		rule(block, '.input-sm:not(.grouped)')['min-height'],
-		'max(var(--touch-target-compact), var(--input-size, var(--control-height-compact)))'
+		'max(var(--touch-target-compact), var(--control-height-compact))'
 	);
-	assert.equal(rule(input, '.input-sm')['min-height'], 'var(--input-size, var(--control-height-compact))');
+	assert.equal(rule(input, '.input-sm')['min-height'], 'var(--control-height-compact)');
 });

@@ -512,7 +512,7 @@
 				"name": "height",
 				"type": "string",
 				"optional": true,
-				"description": "Any CSS length. Defaults to a viewport-relative height capped by --backdrop-h."
+				"description": "Any CSS length. Defaults to `min(45svh, 22rem)`."
 			},
 			{
 				"name": "fade",
@@ -615,10 +615,10 @@
 			},
 			{
 				"name": "variant",
-				"type": "'chip' | 'text'",
+				"type": "'chip' | 'text' | 'solid'",
 				"optional": true,
 				"default": "'chip'",
-				"description": "`text` drops the chip (no fill, ring or padding) but keeps badge typography and tint — for mono metadata that must not read as a pill."
+				"description": "`text` drops the chip (no fill, ring or padding) but keeps badge typography and tint — for mono metadata that must not read as a pill. `solid` fills the pill with its tone (accent when there is none)."
 			},
 			{
 				"name": "mono",
@@ -828,9 +828,8 @@
 			},
 			{
 				"name": "size",
-				"type": "ControlSize",
-				"optional": true,
-				"default": "'md'"
+				"type": "ControlSize | 'xl'",
+				"optional": true
 			},
 			{
 				"name": "control",
@@ -895,7 +894,7 @@
 				"type": "boolean",
 				"optional": true,
 				"default": "false",
-				"description": "Square text/icon control whose side equals the current height contract: `size` tier, or `--control-height` with `control`."
+				"description": "Square text/icon control whose side equals the current height contract: `size` tier, or the control height with `control`."
 			},
 			{
 				"name": "chip",
@@ -971,7 +970,7 @@
 				"name": "count",
 				"type": "number",
 				"optional": true,
-				"description": "Corner count indicator (unread, selected, pending). Hidden at 0/undefined; shows `${countMax}+` past the cap while the accessible name carries the exact number. Tint via `--btn-count-bg` / `--btn-count-fg`."
+				"description": "Corner count indicator (unread, selected, pending). Hidden at 0/undefined; shows `${countMax}+` past the cap while the accessible name carries the exact number."
 			},
 			{
 				"name": "countMax",
@@ -1682,7 +1681,7 @@
 				"type": "ControlSize",
 				"optional": true,
 				"default": "'md'",
-				"description": "Box + label scale, as on `Switch`. Override the box alone with `style=\"--cb-box: 1rem\"`."
+				"description": "Box + label scale, as on `Switch`."
 			},
 			{
 				"name": "sound",
@@ -2835,7 +2834,14 @@
 				"type": "DisclosureSize",
 				"optional": true,
 				"default": "'default'",
-				"description": "Header/panel density. `compact` shrinks both to `--fs-xs` and tighter padding for strip rows; tune either with `--disclosure-pad`, `--disclosure-fs`, `--disclosure-panel-pad`."
+				"description": "Header/panel density. `compact` shrinks both to `--fs-xs` and tighter padding for strip rows."
+			},
+			{
+				"name": "flush",
+				"type": "boolean",
+				"optional": true,
+				"default": "false",
+				"description": "Drop the padding around the header and the panel, so both line up with the surrounding content."
 			},
 			{
 				"name": "id",
@@ -3007,7 +3013,7 @@
 				"type": "'left' | 'right' | 'bottom'",
 				"optional": true,
 				"default": "'right'",
-				"description": "`bottom` is a sheet rising from the bottom edge, full width, at most `--drawer-max-h` (85dvh) tall."
+				"description": "`bottom` is a sheet rising from the bottom edge, full width, at most 85dvh tall."
 			},
 			{
 				"name": "width",
@@ -3022,6 +3028,13 @@
 				"optional": true,
 				"default": "'150px'",
 				"description": "Width of the `nav` column on wide viewports."
+			},
+			{
+				"name": "flush",
+				"type": "boolean",
+				"optional": true,
+				"default": "false",
+				"description": "Drop the padding around the content."
 			},
 			{
 				"name": "title",
@@ -3555,7 +3568,6 @@
 				"name": "size",
 				"type": "ControlSize",
 				"optional": true,
-				"default": "'md'",
 				"description": "Match the Button atom's sizes so a FileButton lines up with buttons in the same row."
 			},
 			{
@@ -3563,7 +3575,7 @@
 				"type": "boolean",
 				"optional": true,
 				"default": "false",
-				"description": "Uniform `--control-height`, like Button's `control`, so it lines up in a composer/toolbar row."
+				"description": "Uniform control height, like Button's `control`, so it lines up in a composer/toolbar row; follows a sized `Cluster`."
 			},
 			{
 				"name": "box",
@@ -3932,7 +3944,7 @@
 				"type": "'xs' | 'sm' | 'md' | 'lg'",
 				"optional": true,
 				"default": "'md'",
-				"description": "Shared square box scale (`--box-xs/sm/md/lg`) for an icon-only trigger, pinning the square exactly. The default trigger floors at the `sm` box and grows with its content; override that floor with `style=\"--pop-box: …\"` for any square the four tiers do not cover."
+				"description": "Shared square box scale (`--box-xs/sm/md/lg`) for an icon-only trigger, pinning the square exactly. The default trigger floors at the `sm` box and grows with its content; override that floor with `style=\"min-width: …; min-height: …\"` for any other square."
 			},
 			{
 				"name": "placement",
@@ -3966,7 +3978,7 @@
 				"name": "control",
 				"type": "boolean",
 				"optional": true,
-				"description": "Use the shared `--control-height` toolbar/composer contract."
+				"description": "Uniform toolbar/composer control height; follows a sized `Cluster`."
 			},
 			{
 				"name": "block",
@@ -4441,7 +4453,7 @@
 				"name": "pressed",
 				"type": "boolean",
 				"optional": true,
-				"description": "Two-state icon toggle (star/pin/favourite): sets `aria-pressed` and tints the glyph with the accent when on. Override the tint per-instance with `style=\"--btn-on: var(--warn)\"`."
+				"description": "Two-state icon toggle (star/pin/favourite): sets `aria-pressed` and tints the glyph with the accent when on."
 			},
 			{
 				"name": "showLabel",
@@ -4919,7 +4931,7 @@
 				"name": "control",
 				"type": "boolean",
 				"optional": true,
-				"description": "Adopt the shared `--control-height` toolbar contract (like Popover/Button `control`) so the whole segmented control height-matches its siblings."
+				"description": "Uniform toolbar control height (like Popover/Button `control`) so the whole segmented control height-matches its siblings; follows a sized `Cluster`."
 			},
 			{
 				"name": "block",
@@ -5003,7 +5015,7 @@
 				"type": "'border' | 'none'",
 				"optional": true,
 				"default": "'border'",
-				"description": "Seam between the panes; `--md-divider` overrides it with any border shorthand."
+				"description": "Seam between the panes."
 			},
 			{
 				"name": "selected",
@@ -5092,7 +5104,7 @@
 				"name": "box",
 				"type": "'xs' | 'sm' | 'md' | 'lg'",
 				"optional": true,
-				"description": "Shared square box scale (`--box-xs/sm/md/lg`) for an icon-only trigger, pinning the square exactly. The default trigger floors at the `sm` box and grows with its content; override that floor with `style=\"--pop-box: …\"` for any square the four tiers do not cover."
+				"description": "Shared square box scale (`--box-xs/sm/md/lg`) for an icon-only trigger, pinning the square exactly. The default trigger floors at the `sm` box and grows with its content; override that floor with `style=\"min-width: …; min-height: …\"` for any other square."
 			},
 			{
 				"name": "pill",
@@ -5104,7 +5116,7 @@
 				"name": "control",
 				"type": "boolean",
 				"optional": true,
-				"description": "Use the shared `--control-height` toolbar/composer contract."
+				"description": "Uniform toolbar/composer control height; follows a sized `Cluster`."
 			},
 			{
 				"name": "block",
@@ -5115,7 +5127,7 @@
 				"name": "triggerClass",
 				"type": "string",
 				"optional": true,
-				"description": "Extra class on the trigger button, for a stylesheet you already load globally. Your *scoped* CSS cannot reach it: the element is rendered by `Popover`, so it carries `Popover`'s scope hash, not yours, and a selector like `.toolbar .my-trigger` matches nothing. Use `style` and the published `--pop-trigger-*` / `--pop-box` properties instead."
+				"description": "Extra class on the trigger button, for a stylesheet you already load globally. Your *scoped* CSS cannot reach it: the element is rendered by `Popover`, so it carries `Popover`'s scope hash, not yours, and a selector like `.toolbar .my-trigger` matches nothing. Use `style`, or a `:global(.pop-trigger)` descendant selector from your own root."
 			},
 			{
 				"name": "bare",
@@ -5507,7 +5519,7 @@
 				"type": "'xs' | 'sm' | 'md' | 'lg'",
 				"optional": true,
 				"default": "size",
-				"description": "Shared square box scale (`--box-xs/sm/md/lg`) for an icon-only trigger, pinning the square exactly. The default trigger floors at the `sm` box and grows with its content; override that floor with `style=\"--pop-box: …\"` for any square the four tiers do not cover."
+				"description": "Shared square box scale (`--box-xs/sm/md/lg`) for an icon-only trigger, pinning the square exactly. The default trigger floors at the `sm` box and grows with its content; override that floor with `style=\"min-width: …; min-height: …\"` for any other square."
 			},
 			{
 				"name": "placement",
@@ -5536,7 +5548,7 @@
 				"name": "control",
 				"type": "boolean",
 				"optional": true,
-				"description": "Use the shared `--control-height` toolbar/composer contract."
+				"description": "Uniform toolbar/composer control height; follows a sized `Cluster`."
 			},
 			{
 				"name": "block",
@@ -5628,7 +5640,7 @@
 				"name": "center",
 				"type": "Snippet",
 				"optional": true,
-				"description": "Fills a notch in the middle of the row (`--navbar-center-w`), may rise above it (`--navbar-center-raise`)."
+				"description": "Fills a notch in the middle of the row (`centerWidth`), may rise above it (`centerRaise`)."
 			},
 			{
 				"name": "placement",
@@ -5656,13 +5668,26 @@
 				"type": "'fit' | 'truncate' | 'full'",
 				"optional": true,
 				"default": "'fit'",
-				"description": "Stacked labels that run out of room. 'fit' shrinks the font down to `--navbar-label-min` (10px) so the longest word fits, then wraps to two lines, then ellipsis. 'truncate' = one line with ellipsis at full size. 'full' never clips: labels spill past their item."
+				"description": "Stacked labels that run out of room. 'fit' shrinks the font down to 10px so the longest word fits, then wraps to two lines, then ellipsis. 'truncate' = one line with ellipsis at full size. 'full' never clips: labels spill past their item."
 			},
 			{
 				"name": "maxWidth",
 				"type": "string",
 				"optional": true,
 				"description": "Caps and centres the row of items."
+			},
+			{
+				"name": "centerWidth",
+				"type": "string",
+				"optional": true,
+				"default": "'4.5rem'",
+				"description": "Width of the `center` notch (any CSS length)."
+			},
+			{
+				"name": "centerRaise",
+				"type": "string",
+				"optional": true,
+				"description": "How far `center` rises above the row (any CSS length)."
 			},
 			{
 				"name": "class",
@@ -6100,6 +6125,13 @@
 				"default": "false"
 			},
 			{
+				"name": "tone",
+				"type": "Tone",
+				"optional": true,
+				"default": "'accent'",
+				"description": "Colour of the selected ring and tint."
+			},
+			{
 				"name": "row",
 				"type": "boolean",
 				"optional": true,
@@ -6304,7 +6336,7 @@
 				"type": "string",
 				"optional": true,
 				"default": "''",
-				"description": "Extra class on the trigger button, for a stylesheet you already load globally. Your *scoped* CSS cannot reach it: the element is rendered by `Popover`, so it carries `Popover`'s scope hash, not yours, and a selector like `.toolbar .my-trigger` matches nothing. Use `style` and the published `--pop-trigger-*` / `--pop-box` properties instead."
+				"description": "Extra class on the trigger button, for a stylesheet you already load globally. Your *scoped* CSS cannot reach it: the element is rendered by `Popover`, so it carries `Popover`'s scope hash, not yours, and a selector like `.toolbar .my-trigger` matches nothing. Use `style`, or a `:global(.pop-trigger)` descendant selector from your own root."
 			},
 			{
 				"name": "bare",
@@ -6341,7 +6373,7 @@
 				"name": "box",
 				"type": "'xs' | 'sm' | 'md' | 'lg'",
 				"optional": true,
-				"description": "Shared square box scale (`--box-xs/sm/md/lg`) for an icon-only trigger, pinning the square exactly. The default trigger floors at the `sm` box and grows with its content; override that floor with `style=\"--pop-box: …\"` for any square the four tiers do not cover."
+				"description": "Shared square box scale (`--box-xs/sm/md/lg`) for an icon-only trigger, pinning the square exactly. The default trigger floors at the `sm` box and grows with its content; override that floor with `style=\"min-width: …; min-height: …\"` for any other square."
 			},
 			{
 				"name": "pill",
@@ -6355,7 +6387,7 @@
 				"type": "boolean",
 				"optional": true,
 				"default": "false",
-				"description": "Use the shared `--control-height` toolbar/composer contract."
+				"description": "Uniform toolbar/composer control height; follows a sized `Cluster`."
 			},
 			{
 				"name": "block",
@@ -6779,13 +6811,13 @@
 				"name": "radius",
 				"type": "string",
 				"optional": true,
-				"description": "Preferred arc radius; defaults to `--radial-radius`, else 8.5rem."
+				"description": "Preferred arc radius; defaults to 8.5rem."
 			},
 			{
 				"name": "petalSize",
 				"type": "string",
 				"optional": true,
-				"description": "Petal diameter; defaults to `--radial-petal-size`, else 3.5rem."
+				"description": "Petal diameter; defaults to 3.5rem."
 			},
 			{
 				"name": "scrim",
@@ -7508,15 +7540,14 @@
 			{
 				"name": "size",
 				"type": "ControlSize",
-				"optional": true,
-				"default": "'md'"
+				"optional": true
 			},
 			{
 				"name": "control",
 				"type": "boolean",
 				"optional": true,
 				"default": "false",
-				"description": "Adopt the shared `--control-height` toolbar contract (like Popover/Button `control`) so the whole segmented control height-matches its siblings."
+				"description": "Uniform toolbar control height (like Popover/Button `control`) so the whole segmented control height-matches its siblings; follows a sized `Cluster`."
 			},
 			{
 				"name": "box",
@@ -7893,6 +7924,13 @@
 				"default": "'shimmer'"
 			},
 			{
+				"name": "phase",
+				"type": "number",
+				"optional": true,
+				"default": "0",
+				"description": "Beats to delay a `pulse` set by, so a later set follows an earlier one."
+			},
+			{
 				"name": "class",
 				"type": "string",
 				"optional": true,
@@ -8146,7 +8184,7 @@
 				"type": "'xs' | 'sm' | 'md' | 'lg'",
 				"optional": true,
 				"default": "size",
-				"description": "Shared square box scale (`--box-xs/sm/md/lg`) for an icon-only trigger, pinning the square exactly. The default trigger floors at the `sm` box and grows with its content; override that floor with `style=\"--pop-box: …\"` for any square the four tiers do not cover."
+				"description": "Shared square box scale (`--box-xs/sm/md/lg`) for an icon-only trigger, pinning the square exactly. The default trigger floors at the `sm` box and grows with its content; override that floor with `style=\"min-width: …; min-height: …\"` for any other square."
 			},
 			{
 				"name": "placement",
@@ -8175,7 +8213,7 @@
 				"name": "control",
 				"type": "boolean",
 				"optional": true,
-				"description": "Use the shared `--control-height` toolbar/composer contract."
+				"description": "Uniform toolbar/composer control height; follows a sized `Cluster`."
 			},
 			{
 				"name": "block",
@@ -8299,15 +8337,14 @@
 			{
 				"name": "size",
 				"type": "ControlSize",
-				"optional": true,
-				"default": "'md'"
+				"optional": true
 			},
 			{
 				"name": "control",
 				"type": "boolean",
 				"optional": true,
 				"default": "false",
-				"description": "Use the shared `--control-height` toolbar/composer contract."
+				"description": "Uniform toolbar/composer control height; follows a sized `Cluster`."
 			},
 			{
 				"name": "caret",
@@ -8839,6 +8876,12 @@
 				"description": "Accessible name of each close control."
 			},
 			{
+				"name": "tabMaxWidth",
+				"type": "string",
+				"optional": true,
+				"description": "Widest a tab may grow before its label truncates (any CSS length)."
+			},
+			{
 				"name": "leading",
 				"type": "Snippet<[TabItem]>",
 				"optional": true,
@@ -9128,7 +9171,7 @@
 				"type": "'xs' | 'sm' | 'md' | 'lg'",
 				"optional": true,
 				"default": "'md'",
-				"description": "Shared square box scale (`--box-xs/sm/md/lg`) for an icon-only trigger, pinning the square exactly. The default trigger floors at the `sm` box and grows with its content; override that floor with `style=\"--pop-box: …\"` for any square the four tiers do not cover."
+				"description": "Shared square box scale (`--box-xs/sm/md/lg`) for an icon-only trigger, pinning the square exactly. The default trigger floors at the `sm` box and grows with its content; override that floor with `style=\"min-width: …; min-height: …\"` for any other square."
 			},
 			{
 				"name": "placement",
@@ -9162,7 +9205,7 @@
 				"name": "control",
 				"type": "boolean",
 				"optional": true,
-				"description": "Use the shared `--control-height` toolbar/composer contract."
+				"description": "Uniform toolbar/composer control height; follows a sized `Cluster`."
 			},
 			{
 				"name": "block",
@@ -9438,6 +9481,12 @@
 				"description": "Where the stack sits; bottom placements clear the bottom bars."
 			},
 			{
+				"name": "position",
+				"type": "'left' | 'center' | 'right'",
+				"optional": true,
+				"description": "Which side of that edge the stack hugs. Defaults to the side `placement` names (`bottom-start` left, `bottom-end` right), otherwise the centre."
+			},
+			{
 				"name": "class",
 				"type": "string",
 				"optional": true,
@@ -9486,6 +9535,13 @@
 				"type": "boolean",
 				"optional": true,
 				"default": "false"
+			},
+			{
+				"name": "tone",
+				"type": "Tone",
+				"optional": true,
+				"default": "'accent'",
+				"description": "Colour of the pressed tint."
 			},
 			{
 				"name": "size",

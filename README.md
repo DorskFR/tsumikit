@@ -12,7 +12,7 @@ Svelte 5 UI components styled with plain CSS variables: 31 themes, WCAG AA contr
   <img alt="tsumikit showcase page: breadcrumb, page header with actions, four metric cards, a settings form with inputs, selects, checkboxes, switches, slider, radio group and segmented control, and a panel of button variants, sizes, tones, split buttons and a menu" src="docs/assets/hero-light.png" width="900">
 </picture>
 
-Every colour, space, radius and size is a CSS custom property: a theme is one block of variables, a component is restyled with `style="--btn-bg: …"`. Interactive parts use `<dialog>`, the Popover API and native form controls; a design lint and [design principles](principles/README.md) ship in the package.
+Every colour, space, radius and size is a CSS custom property: a theme is one block of variables, and every component styles itself from those tokens. Interactive parts use `<dialog>`, the Popover API and native form controls; a design lint and [design principles](principles/README.md) ship in the package.
 
 [Live demo with every component and prop](https://dorskfr.github.io/tsumikit)
 
@@ -47,7 +47,7 @@ Import the stylesheet once at the app root. Pressing Save shows an `ok` toast.
 
 Copy [`examples/starter`](examples/starter) and replace `"file:../.."` with a version. Contents: [examples/starter/README.md](examples/starter/README.md).
 
-Upgrading from 0.82 or older: [docs/MIGRATION-0.83.md](docs/MIGRATION-0.83.md) (and [0.82](docs/MIGRATION-0.82.md)).
+Upgrading: [docs/MIGRATION-0.94.md](docs/MIGRATION-0.94.md) (style hooks removed); from 0.82 or older, [docs/MIGRATION-0.83.md](docs/MIGRATION-0.83.md) (and [0.82](docs/MIGRATION-0.82.md)).
 
 ## Theming
 
@@ -68,11 +68,7 @@ theme.setDefault('acme');
 }
 ```
 
-```svelte
-<Button style="--btn-bg: var(--c-violet); --btn-fg: #fff; --btn-radius: 0">Ship</Button>
-```
-
-Theme contract, looks, stylesheets and typeface: [docs/theming.md](docs/theming.md). Per-component custom properties and test ids: [docs/styling.md](docs/styling.md).
+Theme contract, looks, stylesheets and typeface: [docs/theming.md](docs/theming.md). Styling from outside and test ids: [docs/styling.md](docs/styling.md).
 
 ## Components
 
@@ -100,7 +96,7 @@ Layers: `tokens.css`, atoms (the only raw `<button>`/`<input>`/`<select>`), mole
 
 - Svelte 5 only.
 - No bundled syntax highlighter: `CodeBlock` takes a `highlight` callback ([details](docs/components.md#syntax-highlighting-codeblock)).
-- Internal class names (`.btn`) and `data-tsu` markers are private and may change in any release. Style through the published custom properties, not `:global()`.
+- Internal class names (`.btn`) and `data-tsu` markers are private and may change in any release. Style through tokens and props, not `:global()`.
 - Pre-1.0: minor releases can change defaults. Migration notes are in [`docs/`](docs/).
 
 ## Development

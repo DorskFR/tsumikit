@@ -144,7 +144,7 @@ opaque and the blur is dropped; `prefers-contrast: more` also uses the opaque sc
 `Textarea` (and `Composer`, which forwards it) accepts `segments`, a function that splits the
 current value into spans for a mirror overlay rendered behind a text-transparent native textarea.
 Each segment's `text` is rendered verbatim so glyph widths match 1:1; `mask: true` keeps the span's
-layout but hides its glyphs under a token fill (`--textarea-mask` overrides it); `class` is added
+layout but hides its glyphs under a token fill (`--text` at 18%); `class` is added
 to the span. The texts must concatenate back to the value. Caret, selection, IME composition, undo,
 autoresize and scrolling stay native. The overlay is `aria-hidden`: assistive tech and the form
 still get the raw value. Without `segments` the Textarea is a plain native textarea.

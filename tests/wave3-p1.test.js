@@ -78,7 +78,7 @@ test('ConversationFeed leaves the scroll alone for pointer focus and for control
 
 test('GlyphStack: folded cells draw focus rings inset and an expandable stack is a single press target', () => {
 	assert.ok(
-		hasDecl(glyphCss, '.stacked > :global(*) :global(:focus-visible),\n\t.stacked > :global(:focus-visible)', 'outline-offset', 'var(--focus-ring-offset-inset)'),
+		hasDecl(glyphCss, '.glyph-stack.stacked > :global(*) :global(:focus-visible),\n\t.glyph-stack.stacked > :global(:focus-visible)', 'outline-offset', 'var(--focus-ring-offset-inset)'),
 		'controls inside 1rem cells ring inset, so the cell overflow never cuts it',
 	);
 	assert.ok(hasDecl(glyphCss, '.glyph-stack[data-expand] > .cell', 'pointer-events', 'none'));

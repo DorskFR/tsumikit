@@ -12,8 +12,8 @@ Use the `.cq-*` utilities (`.cq-hide`, `.cq-stack`, `.cq-truncate`,
 `sidebar` container to drop labels below ~8rem; `AppShell resizableSidebar` lets
 you drag the sidebar down to that icon rail (width persisted).
 
-AppShell exposes `--shell-header-h` (the header plus the top safe-area inset) for
-sticky offsets under `viewport-fit=cover`.
+AppShell's header is `--header-h` plus the top safe-area inset tall; offset sticky
+content under `viewport-fit=cover` with `calc(var(--header-h) + var(--safe-top))`.
 
 ## Sizing & zoom
 
@@ -50,7 +50,7 @@ the roomier shared `--control-height` composer contract is required.
 itself, not a copy of its chrome — so a popover trigger sitting next to a
 `Toggle` in a toolbar shares one box. `size` (`sm` default, `md`), `pill`,
 `pressed` and `tone` behave as they do on `Toggle`; a `Toggle`'s height comes
-from `--toggle-size`, never from its content, so an emoji, an `Icon` and text
+from its `size` (`--control-sm` / `--control-md`), never from its content, so an emoji, an `Icon` and text
 all leave the chip the same height.
 
 ```svelte
@@ -77,9 +77,8 @@ action, `tone="success"` gives neutral controls a success tint; combine it with
 count pill (unread, selected, queued) on any size, variant or `box`. It hides at
 `0`/`undefined`, displays `99+` past `countMax`, and the exact number joins the
 accessible name (`"Inbox, 120"`) whether that comes from `aria-label`, `label`
-or the button's text. The pill is accent on accent-ink, inverted on `primary`;
-retint one with `--btn-count-bg` / `--btn-count-fg` (`--pop-count-*` on a
-Popover). `formatCount(n, max)` / `hasCount(n)` are exported for a matching
+or the button's text. The pill is accent on accent-ink, inverted on `primary`.
+`formatCount(n, max)` / `hasCount(n)` are exported for a matching
 counter elsewhere.
 
 ```svelte

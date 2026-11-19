@@ -105,18 +105,22 @@ test('NavBar defaults to labels="fit" and sizes every label from the widest word
 	const nav = /** @type {HTMLElement} */ (doc.querySelector('nav'));
 	assert.ok(nav.classList.contains('labels-fit'));
 	assert.ok(nav.classList.contains('stacked'));
-	assert.match(nav.getAttribute('style') ?? '', /^--navbar-label-em: 4\.60;/, 'Grammar = G r a m m a r');
+	assert.ok(!nav.hasAttribute('style'), 'the bar carries no variable');
+	const fit = (/** @type {string} */ em) => `font-size: clamp(calc(0.625rem * var(--fs-scale)), 100cqi / ${em}, 1em);`;
 	const labels = [...doc.querySelectorAll('.navbar-label')];
 	assert.deepEqual(labels.map((l) => l.textContent), STUDY.map((i) => i.label));
-	assert.ok(labels.every((l) => !l.hasAttribute('style')), 'one size for the whole bar');
+	assert.ok(labels.every((l) => l.getAttribute('style') === fit('4.60')), 'Grammar = G r a m m a r, one size for the whole bar');
 	const multi = html(NavBar, { items: [{ value: 'a', label: 'Saturday farmers market' }, { value: 'b', label: 'Go' }], label: 'M', maxWidth: '20rem', style: 'color: red' });
-	assert.equal(multi.querySelector('nav')?.getAttribute('style'), '--navbar-label-em: 4.52; --navbar-max: 20rem;color: red', 'longest word, not the whole label');
+	assert.equal(multi.querySelector('nav')?.getAttribute('style'), 'color: red');
+	assert.equal(multi.querySelector('.navbar-row')?.getAttribute('style'), 'max-width: 20rem;');
+	assert.equal(multi.querySelector('.navbar-label')?.getAttribute('style'), fit('4.52'), 'longest word, not the whole label');
 	const cjk = html(NavBar, { items: [{ value: 'a', label: '設定画面' }], label: 'M' });
-	assert.match(cjk.querySelector('nav')?.getAttribute('style') ?? '', /--navbar-label-em: 4\.00;/);
+	assert.equal(cjk.querySelector('.navbar-label')?.getAttribute('style'), fit('4.00'));
 	for (const labels of ['truncate', 'full']) {
 		const d = html(NavBar, { items: STUDY, label: 'Main', labels });
 		assert.ok(d.querySelector('nav')?.classList.contains(`labels-${labels}`), labels);
 		assert.ok(!d.querySelector('nav')?.classList.contains('labels-fit'));
+		assert.ok([...d.querySelectorAll('.navbar-label')].every((l) => !l.hasAttribute('style')), 'only fit sizes the label');
 	}
 });
 
@@ -128,21 +132,24 @@ test('NavBar label mode survives a client mount', () => {
 	flushSync();
 	const nav = /** @type {HTMLElement} */ (window.document.querySelector('nav'));
 	assert.ok(nav.classList.contains('labels-full'));
-	assert.match(nav.getAttribute('style') ?? '', /--navbar-label-em: 4\.60;/);
+	assert.ok(!nav.hasAttribute('style'));
+	assert.ok([...nav.querySelectorAll('.navbar-label')].every((l) => !l.getAttribute('style')), 'full leaves the label at its own size');
 });
 
 test('fit shrinks the stacked label with a container clamp, then wraps two lines, then ellipsis', () => {
 	const css = flat(navCss);
 	assert.match(navSrc, /labels\?: 'fit' \| 'truncate' \| 'full';/);
 	assert.match(navSrc, /labels = 'fit',/);
-	assert.match(navSrc, /`--navbar-label-min` \(10px\)/, 'the floor token is documented on the prop');
+	assert.match(navSrc, /'fit' shrinks the font down to\s+\* 10px/, 'the floor is documented on the prop');
 	assert.match(css, /\.stacked\.labels-fit :is\(\.navbar-inner, \.navbar-side\) \{ gap: 0; \}/, 'items give their gap to the label');
 	const link = css.match(/\.stacked\.labels-fit \.navbar-link \{([^}]*)\}/)?.[1] ?? '';
 	assert.match(link, /container-type: inline-size;/);
 	assert.match(link, /contain-intrinsic-inline-size: 4rem;/, 'shrink-to-fit navs keep a sane width');
 	assert.match(link, /padding-inline: 0;/);
 	const label = css.match(/\.stacked\.labels-fit \.navbar-label \{([^}]*)\}/)?.[1] ?? '';
-	assert.match(label, /font-size: clamp\(var\(--navbar-label-min, calc\(0\.625rem \* var\(--fs-scale\)\)\), 100cqi \/ var\(--navbar-label-em\), 1em\);/);
+	assert.ok(navSrc.includes("orientation === 'stacked' && labels === 'fit'\n\t\t\t? `clamp(calc(0.625rem * var(--fs-scale)), 100cqi / ${labelEm}, 1em)`"), 'the clamp is set inline on each label');
+	assert.match(navSrc, /<span class="navbar-label" style:font-size=\{fitFontSize\}>/);
+	assert.doesNotMatch(label, /font-size/);
 	assert.match(label, /-webkit-line-clamp: 2;/);
 	assert.match(label, /white-space: normal;/);
 	assert.match(label, /text-align: center;/);

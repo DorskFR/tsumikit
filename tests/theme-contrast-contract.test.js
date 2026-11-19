@@ -40,9 +40,13 @@ test('a dim tier sits between the bright and dark extremes', () => {
 });
 
 test('the floors model the tints the components paint', () => {
-	assert.ok(badge.includes(`color: var(--badge-fg, color-mix(in oklab, var(--badge-tone) ${pct(1 - BADGE_INK)}, var(--text)));`));
-	assert.ok(badge.includes(`color-mix(in srgb, var(--badge-tone) ${pct(BADGE_TINT)}, transparent)`));
-	assert.ok(card.includes(`background: color-mix(in srgb, var(--card-tone) ${pct(CARD_TINT)}, var(--surface-fill));`));
+	for (const tone of ['ok', 'warn', 'danger', 'info', 'accent', 'text-muted', 'c-violet']) {
+		assert.ok(badge.includes(`color: color-mix(in oklab, var(--${tone}) ${pct(1 - BADGE_INK)}, var(--text));`), tone);
+		assert.ok(badge.includes(`background: color-mix(in srgb, var(--${tone}) ${pct(BADGE_TINT)}, transparent);`), tone);
+	}
+	for (const tone of ['ok', 'warn', 'danger', 'info', 'accent', 'attention-bar']) {
+		assert.ok(card.includes(`background: color-mix(in srgb, var(--${tone}) ${pct(CARD_TINT)}, var(--surface-fill));`), tone);
+	}
 });
 
 test('control boundaries and focus rings stay solid', () => {
@@ -50,8 +54,9 @@ test('control boundaries and focus rings stay solid', () => {
 	assert.match(badge, /\.action \{[^}]*\}/);
 	assert.doesNotMatch(badge.match(/\.action \{[^}]*\}/)?.[0] ?? '', /opacity/);
 	for (const src of fields) {
-		assert.match(src, /0 0 0 var\(--focus-ring-width\) var\(--focus-tint\),/);
-		assert.doesNotMatch(src, /0 0 0 \d+px color-mix\(in srgb, var\(--focus-tint\)/);
+		assert.match(src, /0 0 0 var\(--focus-ring-width\) var\(--accent\),/);
+		assert.match(src, /0 0 0 var\(--focus-ring-width\) var\(--danger\),/);
+		assert.doesNotMatch(src, /0 0 0 [^,;]* color-mix\(/, 'the ring itself is never a tint');
 	}
 	for (const src of [fields[0], fields[2]]) assert.match(src, /::placeholder \{\s*color: var\(--text-faint\);\s*opacity: 1;/);
 });

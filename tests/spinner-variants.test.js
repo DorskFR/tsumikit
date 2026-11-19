@@ -143,14 +143,16 @@ test('every variant has keyframes and a static pose under reduced motion', () =>
 	);
 });
 
-test('Skeleton tints from --text (token-overridable) and sweeps once, viewport-anchored, in sync', () => {
-	assert.ok(hasDecl(skeletonCss, '.skeleton-bar', '--sk-base', 'var(--skeleton, color-mix(in srgb, var(--text) 7%, transparent))'));
-	assert.ok(hasDecl(skeletonCss, '.skeleton-bar', '--sk-hi', 'var(--skeleton-highlight, color-mix(in srgb, var(--text) 13%, transparent))'));
+test('Skeleton tints from --text and sweeps once, viewport-anchored, in sync', () => {
+	const base = 'color-mix(in srgb, var(--text) 7%, transparent)';
+	const hi = 'color-mix(in srgb, var(--text) 13%, transparent)';
+	assert.ok(normalize(skeletonCss).includes(`.skeleton-bar { display: block; width: 100%; background: linear-gradient(100deg, ${base} 42%, ${hi} 50%, ${base} 58%) ${base};`));
+	assert.doesNotMatch(skeletonCss, /--sk-|--skeleton/);
 	assert.ok(hasDecl(skeletonCss, '.skeleton-bar', 'background-size', '200vw 100%'));
 	assert.ok(hasDecl(skeletonCss, '.skeleton-bar', 'background-attachment', 'fixed'));
 	assert.ok(hasDecl(skeletonCss, '.skeleton-bar', 'animation', 'tsu-shimmer 1.8s linear infinite'));
 	assert.match(normalize(skeletonCss), /@keyframes tsu-shimmer { 0% { background-position: 100% 0; } 75%, 100% { background-position: 0% 0; } }/);
-	assert.match(normalize(skeletonCss), /@media \(prefers-reduced-motion: reduce\) { \.skeleton-bar { animation: none; background: var\(--sk-base\); } }/);
+	assert.match(normalize(skeletonCss), /@media \(prefers-reduced-motion: reduce\) { \.skeleton-bar { animation: none; background: color-mix\(in srgb, var\(--text\) 7%, transparent\); } }/);
 	assert.doesNotMatch(skeletonCss, /--bg-elevated/);
 	const el = render().skeleton;
 	assert.equal(el.querySelectorAll('.skeleton-bar').length, 2);

@@ -46,11 +46,12 @@ test('ambient loops are infinite keyframes on transform-only properties', () => 
 });
 
 test('press scales in over --dur-press and springs back over --dur-release; ember presses lighter and sinks half a --shift-xs', () => {
-	assert.match(style, /--btn-scale-dur: var\(--dur-release\);\s*--btn-scale-ease: var\(--ease-spring-bounce\);/);
-	assert.match(style, /scale var\(--btn-scale-dur\) var\(--btn-scale-ease\);/);
-	assert.match(style, /\.btn:active:not\(:disabled, \[aria-disabled='true'\], \.loading, \.btn-link\) \{\s*--btn-scale-dur: var\(--dur-press\);\s*--btn-scale-ease: var\(--ease-out\);\s*scale: var\(--press-scale\);/);
-	assert.ok(hoverBlock.includes(`${closest('ember')} {\n\t\t\t--press-scale: var(--press-scale-lg);`));
-	assert.match(hoverBlock, /translate: 0 calc\(var\(--shift-xs\) \/ 2 - var\(--hover-lift\)\);\s*--btn-shadow-rest: none;/);
+	assert.match(style, /scale var\(--dur-release\) var\(--ease-spring-bounce\);/);
+	assert.match(style, /\.btn:active:not\(:disabled, \[aria-disabled='true'\], \.loading, \.btn-link\) \{\s*transition:[^;]*scale var\(--dur-press\) var\(--ease-out\);\s*scale: var\(--press-scale\);/);
+	const pressed = ":active:not(:disabled, [aria-disabled='true'], .loading, .btn-link)";
+	assert.ok(hoverBlock.includes(`${closest('ember')}:where(:not(.btn-icon, .btn-box, .btn-square, .btn-icon-inline))${pressed} {\n\t\t\tscale: var(--press-scale-lg);`));
+	assert.ok(hoverBlock.includes(`${closest('ember')}${pressed} {\n\t\t\ttranslate: 0 calc(var(--shift-xs) / 2 - var(--hover-lift));`));
+	assert.ok(hoverBlock.includes(`${closest('ember')}${pressed}:not(.btn-stacked[aria-pressed='true']) {\n\t\t\tbox-shadow: none;`));
 	for (const m of style.matchAll(/transition:([^;]+);/g)) {
 		for (const part of m[1].split(',')) {
 			const ms = part.match(/(\d+)ms/);
@@ -68,7 +69,7 @@ test('reduced motion is left to the global reset: no per-component block, the si
 test('colours come from theme tokens; literal colours only feed masks', () => {
 	const lines = fxBlock.split('\n').filter((l) => /#[0-9a-f]{3,8}\b|rgb\(|hsl\(|\bwhite\b|\bblack\b/i.test(l));
 	assert.deepEqual(lines.filter((l) => !/mask(-image)?:/.test(l)), []);
-	for (const tok of ['--accent', '--text-on-accent', '--warn', '--info', '--ok', '--danger', '--btn-tone']) assert.ok(fxBlock.includes(`var(${tok}`), tok);
+	for (const tok of ['--accent', '--text-on-accent', '--warn', '--info', '--ok', '--danger']) assert.ok(fxBlock.includes(`var(${tok}`), tok);
 });
 
 test('loadingStyle is optional, defaults to the inline spinner and keeps the old markup for it', () => {
@@ -89,14 +90,14 @@ test('morph stacks label, spinner and done check in one grid cell; fill drives a
 	assert.match(src, /<span class="btn-layer btn-layer-spin" aria-hidden="true"><\/span>/);
 	assert.match(src, /<span class="btn-layer btn-layer-done" aria-hidden="true"><Icon name="check" \/>\{#if doneLabel !== undefined\}\{doneLabel\}\{:else\}\{@render children\?\.\(\)\}\{\/if\}<\/span>/);
 	assert.match(src, /doneLabel\?: string;/);
-	assert.match(src, /<span class="btn-layer btn-layer-ink" aria-hidden="true">\{@render children\?\.\(\)\}<\/span>/);
-	assert.match(src, /\{#if loadingStyle === 'fill'\}<span class="btn-fill-bar" aria-hidden="true"><\/span>\{\/if\}/);
-	assert.match(src, /style:--btn-progress=\{loadingStyle === 'fill' && progress !== undefined \? Math\.min\(1, Math\.max\(0, progress\)\) : undefined\}/);
+	assert.match(src, /<span class="btn-layer btn-layer-ink" style:clip-path="inset\(0 \{\(1 - fillProgress\) \* 100\}% 0 0\)" aria-hidden="true">\{@render children\?\.\(\)\}<\/span>/);
+	assert.match(src, /\{#if loadingStyle === 'fill'\}<span class="btn-fill-bar" style:scale="\{fillProgress\} 1" aria-hidden="true"><\/span>\{\/if\}/);
+	assert.match(src, /const fillProgress = \$derived\(loadingStyle === 'fill' && progress !== undefined \? Math\.min\(1, Math\.max\(0, progress\)\) : 0\);/);
 	assert.match(style, /\.btn-layers \{\s*position: relative;\s*display: grid;\s*place-items: center;/);
 	assert.match(style, /\.btn-layer \{\s*grid-area: 1 \/ 1;/);
-	assert.match(style, /\.btn-fill-bar \{[^}]*scale: var\(--btn-progress, 0\) 1;\s*transform-origin: left;\s*transition: scale var\(--dur-slow\) var\(--ease-out\);/);
-	assert.match(style, /\.btn-layer-ink \{\s*position: absolute;\s*inset: 0;\s*justify-content: center;\s*color: var\(--btn-progress-fg\);\s*clip-path: inset\(0 calc\(\(1 - var\(--btn-progress, 0\)\) \* 100%\) 0 0\);/);
-	assert.match(style, /\.btn-fill\.btn-primary \{\s*--btn-progress-fill: color-mix\(in srgb, var\(--text-on-accent\) 22%, transparent\);/);
+	assert.match(style, /\.btn-fill-bar \{[^}]*background: var\(--accent\);\s*transform-origin: left;\s*transition: scale var\(--dur-slow\) var\(--ease-out\);/);
+	assert.match(style, /\.btn-layer-ink \{\s*position: absolute;\s*inset: 0;\s*justify-content: center;\s*color: var\(--text-on-accent\);\s*transition: clip-path var\(--dur-slow\) var\(--ease-out\);/);
+	assert.match(style, /\.btn-fill\.btn-primary \.btn-fill-bar \{\s*background: color-mix\(in srgb, var\(--text-on-accent\) 22%, transparent\);/);
 	assert.doesNotMatch(style.slice(style.indexOf('/* Loading styles')), /transition:[^;]*\b(width|height|top|left|margin|padding|transform)\b/);
 });
 
@@ -112,9 +113,8 @@ test('the demo shows the four hover variants on wrappers and the three loading s
 
 test('FileButton mirrors the spring press release', async () => {
 	const file = await read('src/lib/components/molecules/FileButton.svelte');
-	assert.match(file, /--file-scale-dur: var\(--dur-release\);\s*--file-scale-ease: var\(--ease-spring-bounce\);/);
-	assert.match(file, /scale var\(--file-scale-dur\) var\(--file-scale-ease\);/);
-	assert.match(file, /\.file-btn:active:not\(\.disabled\) \{\s*--file-scale-dur: var\(--dur-press\);\s*--file-scale-ease: var\(--ease-out\);/);
+	assert.match(file, /scale var\(--dur-release\) var\(--ease-spring-bounce\);/);
+	assert.match(file, /\.file-btn:active:not\(\.disabled\) \{\s*transition:[^;]*scale var\(--dur-press\) var\(--ease-out\);\s*scale: var\(--press-scale\);/);
 });
 
 test('the closest data-fx-hover ancestor wins: a wrapper overrides the root, in jsdom', async () => {

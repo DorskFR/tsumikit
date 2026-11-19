@@ -4,76 +4,66 @@
 
 ## Styling a component from outside
 
-A Svelte consumer's **scoped** CSS cannot reach a child component's markup — the
-scoping attribute is only added to elements the consumer itself renders. `class`
-passthrough therefore only helps for layout hooks (margin, flex, grid placement).
-CSS custom properties *do* cross the component boundary, so they are the
-sanctioned escape hatch for everything else.
+A component has no knobs of its own. It styles itself directly from the root
+theme tokens (`--accent`, `--text*`, `--surface*`, `--border*`, `--sp-*`,
+`--r-*`, `--fs-*`, `--control-*`, `--box-*`, `--dur-*`, …) and reads no
+per-component custom property: a `--<component>-<axis>` variable set on a
+component or an ancestor does nothing (the style hooks were removed in 0.94, see
+[MIGRATION-0.94.md](MIGRATION-0.94.md)). Three ways to change how something
+looks, in order of preference:
 
-- **Naming:** `--<prefix>-<axis>`, where `<prefix>` is the component's short
-  prefix (`btn`, `badge`, `txt`, `select`, `input`, `textarea`, `card`, `md`, …)
-  and `<axis>` is one of `bg`, `fg`, `border`, `size`, `radius`, plus a few
-  component-specific ones (`--btn-tone`, `--badge-max-width`, `--gauge-w`).
-  `Text` uses `txt` because `--text*` is already the theme's foreground token.
-- **Setting them:** per instance via `style`, or on any ancestor for a subtree.
+- **Tokens.** A theme, a look or your own `:root` block changes every component
+  at once: `--r-control` for control corners, `--font-label` for eyebrow labels,
+  `--control-height-default` for the md control height, the `--c-*` palette for
+  colour ([theming.md](theming.md)). A token set on a container applies to the
+  subtree: `.dense { --control-height-default: 2rem; }`.
+- **Props.** What varies per instance is a prop: `tone`, `variant`, `size`,
+  `shape`, `box`, `pill`, `flush`, `width`, … ([components.md](components.md)).
+- **Your own CSS, in your app.** `class` and `style` are forwarded to the root
+  element, so layout (margin, flex, grid placement, width) is yours to set. A
+  Svelte consumer's **scoped** CSS cannot reach a child component's markup — the
+  scoping attribute is only added to elements the consumer itself renders — so a
+  rule for a component's root goes in a stylesheet you load globally, keyed on
+  your own class.
 
 ```svelte
-<Button style="--btn-bg: var(--c-violet); --btn-fg: #fff; --btn-radius: 0">Ship</Button>
+<Button variant="primary" tone="danger" size="xl" class="ship">Ship</Button>
 
-<div class="danger-zone">
-  <Button>Delete</Button>   <!-- inherits the block below -->
+<div class="dense">
+  <Input placeholder="Filter" />
 </div>
 
 <style>
-  .danger-zone { --btn-border: var(--danger); --btn-fg: var(--danger); }
+  .dense { --control-height-default: 2rem; }
+  :global(.ship) { margin-inline-start: auto; }
 </style>
 ```
 
-- Every property is read as `var(--x, <default>)`, so leaving it unset renders
-  the default look.
 - **`:global()` into kit internals is unsupported.** Class names like `.btn`,
   `.badge`, `.select-wrap` or `.textarea` are private and change without a major
-  bump. If an axis you need is missing, open an issue — do not reach in.
+  bump. If a prop you need is missing, open an issue — do not reach in.
 
-| component | published properties |
-| --- | --- |
-| `Button` | `--btn-bg`, `--btn-fg`, `--btn-border`, `--btn-size`, `--btn-radius`, `--btn-tone`, `--btn-on`, `--btn-box`, `--btn-count-bg`, `--btn-count-fg`, `--btn-count-size` |
-| `Badge` | `--badge-bg`, `--badge-fg`, `--badge-border`, `--badge-radius`, `--badge-tone`, `--badge-max-width`, `--badge-fs`, `--badge-fw`, `--badge-min-size` |
-| `Text` | `--txt-fg`, `--txt-size` |
-| `Tabs` | `--tab-max-width` |
-| `Select` | `--select-bg`, `--select-fg`, `--select-border`, `--select-size`, `--select-radius` |
-| `Input` | `--input-bg`, `--input-fg`, `--input-border`, `--input-size`, `--input-radius` |
-| `Textarea` | `--textarea-bg`, `--textarea-fg`, `--textarea-border`, `--textarea-size`, `--textarea-radius` |
-| `Card` | `--card-pad`, `--card-gap`, `--card-border-style` |
-| `Divider` | `--divider-color`, `--divider-spacing` |
-| `Gauge` | `--gauge-w`, `--gauge-h`, `--gauge-fill` |
-| `MasterDetail` | `--md-list-w`, `--md-gap`, `--md-divider` |
-| `NavBar` | `--navbar-max`, `--navbar-center-w`, `--navbar-center-raise` |
-| `Callout` | `--callout-tone` |
-| `Fieldset` | `--fieldset-pad`, `--fieldset-border` |
-| `GitRef` | `--git-ref-tone`, `--git-ref-max-width` |
-| `EmptyState` | `--empty-tone` |
-| `Combobox` | `--cb-bg`, `--cb-border`, `--cb-radius`, `--cb-active-bg`, `--cb-min-width`, `--cb-max-height` |
-| `Toggle` | `--toggle-accent`, `--toggle-size` |
-| `Popover` | `--pop-trigger-bg`, `--pop-trigger-fg`, `--pop-trigger-border`, `--pop-trigger-radius`, `--pop-trigger-size`, `--pop-trigger-pad`, `--pop-box`, `--pop-count-bg`, `--pop-count-fg`, `--pop-count-size` |
-| `SortableList` | `--sortable-row-h` |
-| `RadialMenu` | `--radial-radius`, `--radial-petal-size`, `--radial-fab-size` |
+The custom properties a component still sets are runtime values, not an API:
+registered `@property` variables animated for a gradient (`Card`, `Link`,
+`Spinner`), values a pseudo-element reads (`Slider`, `Progress`, `CapBar`,
+`Tabs`, `Card`, the floating panels), and the page-layout signals in the table
+below. `tests/no-component-custom-properties.test.js` fails on any other.
 
-`tests/css-custom-property-contract.test.js` reads this table and fails if a
-listed property is not actually read by its component, so the docs cannot drift.
-
-`Popover`'s hooks paint the **trigger**; hover states keep their own feedback
-colours. `--pop-box: auto` releases the square floor, so `pill` plus
-`--pop-trigger-pad` reshapes the default trigger into a chip of any height. `--pop-trigger-border` needs the chromed trigger — `bare` means no ring
-by definition. `Badge`'s `--badge-min-size` pairs with `numeric` (already centred
-and tabular) to turn a count badge into a square/circular counter.
+| page-layout signal | written by | read as |
+| --- | --- | --- |
+| `--tabbar-h` | `TabBar`, on `<html>` | `padding-bottom: var(--tabbar-h)` on content under the bar |
+| `--selectionbar-h` | `DataTable` selection bar, on `<html>` | read by `Toaster` |
+| `--section-header-h` | sticky `SectionHeader`, on its parent | `top` of sibling sticky content |
+| `--toaster-offset`, `--toaster-offset-top` | your app, on `:root` | extra clearance for the `Toaster` stack |
+| `--sticky-offset` | your app | `top` of a sticky `SectionHeader` (default `--header-h`) |
+| `--fs-scale` | the font-scale store, on `<html>` | every `--fs-*` token |
 
 A `triggerClass` on `Popover` (or `class` on the pickers that wrap it) is a hook
 for a **globally loaded** stylesheet only. Your component's *scoped* CSS cannot
 reach it: Svelte's scoping attribute is added to elements your own template
 renders, and the trigger belongs to `Popover`, so `.toolbar .my-trigger` compiles
-to `.toolbar.svelte-x .my-trigger.svelte-x` and matches nothing. Use `style` and
-the properties above instead.
+to `.toolbar.svelte-x .my-trigger.svelte-x` and matches nothing. Use the
+trigger's props (`variant`, `size`, `box`, `pill`, `tone`) instead.
 
 ## Anchoring to a component
 

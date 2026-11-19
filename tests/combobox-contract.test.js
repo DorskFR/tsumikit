@@ -103,7 +103,7 @@ test('Combobox is exported, documented and demoed', async () => {
 	assert.match(index, /export \{ default as Combobox \} from '\.\/components\/molecules\/Combobox\.svelte';/);
 	assert.match(index, /findTrigger,\n\tnextComboboxIndex,\n\} from '\.\/components\/molecules\/combobox-keyboard\.js';/);
 	assert.match(readme, /Combobox \(suggestion listbox/);
-	assert.match(readme, /\| `Combobox` \| `--cb-bg`/);
+	assert.doesNotMatch(readme, /--cb-/);
 	assert.ok(await demoed('Combobox'));
 	assert.match(page, /<Combobox[\s\S]*anchor="caret"/);
 });

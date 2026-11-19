@@ -56,7 +56,7 @@ test('every :hover rule sits under @media (hover: hover) and (pointer: fine)', (
 	}
 });
 
-test('fields read the per-tier control tokens and keep the 16px coarse-pointer floor', () => {
+test('fields read the per-tier control tokens and keep the 16px coarse-pointer floor', async () => {
 	for (const k of ['Input', 'Textarea', 'Select']) {
 		const c = css(k);
 		assert.match(c, /font-size: var\(--control-fs-md\)/, k);
@@ -66,11 +66,11 @@ test('fields read the per-tier control tokens and keep the 16px coarse-pointer f
 		assert.match(c, /@media \(pointer: coarse\) \{[^@]*max\(16px, var\(--control-fs-md\)\)/, k);
 		assert.match(c, /transition: border-color var\(--dur-fast\) ease/, k);
 	}
-	assert.match(css('Textarea'), /min-height: var\(--textarea-size, var\(--control-height-default\)\)/);
-	assert.match(css('Textarea'), /\.textarea-sm \{[^}]*min-height: var\(--textarea-size, var\(--control-height-compact\)\)/);
+	assert.match(css('Textarea'), /min-height: var\(--control-height-default\)/);
+	assert.match(css('Textarea'), /\.textarea-sm \{[^}]*min-height: var\(--control-height-compact\)/);
 	assert.doesNotMatch(css('Textarea'), /2\.5rem\)|2rem\)/);
 	assert.match(css('FilterInput'), /\.fi__input \{[^}]*font-size: var\(--control-fs-md\)/);
-	assert.match(css('InputGroup'), /--ig-pad-x: var\(--control-px-md\)/);
+	assert.match(await read('input-group-context.ts'), /md: 'var\(--control-px-md\)'/);
 });
 
 test('disabled fields dim through --disabled-opacity on the wrap, not twice', () => {
@@ -85,17 +85,17 @@ test('disabled fields dim through --disabled-opacity on the wrap, not twice', ()
 
 test('clear buttons and picker cells press with --press-scale-sm over --dur-press and fade in', () => {
 	for (const [k, sel] of [['Input', '.input-clear'], ['FilterInput', '.fi__clear']]) {
-		assert.match(css(k), new RegExp(`${sel.replace('.', '\\.')}:active \\{ --clear-scale-dur: var\\(--dur-press\\); scale: var\\(--press-scale-sm\\); \\}`), k);
+		assert.match(css(k), new RegExp(`${sel.replace('.', '\\.')}:active \\{ transition: [^;}]*scale var\\(--dur-press\\) var\\(--ease-out\\); scale: var\\(--press-scale-sm\\); \\}`), k);
 		assert.match(css(k), new RegExp(`@starting-style \\{ ${sel.replace('.', '\\.')} \\{ opacity: 0; \\} \\}`), k);
 	}
-	assert.match(css('EmojiPicker'), /\.tab:active, \.cell:active \{ --cell-scale-dur: var\(--dur-press\); scale: var\(--press-scale-sm\); \}/);
-	assert.match(css('ThemePicker'), /\.cell:active \{ --cell-scale-dur: var\(--dur-press\); scale: var\(--press-scale-sm\); \}/);
-	assert.match(css('FontScalePicker'), /\.end:active \{ --end-scale-dur: var\(--dur-press\); scale: var\(--press-scale-sm\); \}/);
+	assert.match(css('EmojiPicker'), /\.tab:active, \.cell:active \{ transition-duration: var\(--dur-fast\), var\(--dur-fast\), var\(--dur-press\); scale: var\(--press-scale-sm\); \}/);
+	assert.match(css('ThemePicker'), /\.cell:active \{ transition-duration: var\(--dur-fast\), var\(--dur-fast\), var\(--dur-press\); scale: var\(--press-scale-sm\); \}/);
+	assert.match(css('FontScalePicker'), /\.end:active \{ transition-duration: var\(--dur-fast\), var\(--dur-fast\), var\(--dur-press\); scale: var\(--press-scale-sm\); \}/);
 });
 
 test('listboxes enter with opacity + scale from the trigger side over --dur-fast; highlight is instant in, fast out', () => {
 	const cb = css('Combobox');
-	assert.match(cb, /transform-origin: var\(--tsu-origin, top left\)/);
+	assert.match(cb, /\.cb-panel \{[^}]*transform-origin: top left;/);
 	assert.match(cb, /@starting-style \{ \.cb-panel:popover-open \{ opacity: 0; scale: var\(--enter-scale\); translate: var\(--tsu-shift, 0 calc\(-1 \* var\(--shift-sm\)\)\); \} \}/);
 	assert.match(cb, /\.cb-option\.active \{[^}]*transition-duration: var\(--dur-instant\)/);
 	assert.match(css('FilterInput'), /@starting-style \{ \.fi__menu \{ opacity: 0; scale: var\(--enter-scale\)/);
@@ -106,11 +106,11 @@ test('listboxes enter with opacity + scale from the trigger side over --dur-fast
 
 test('icons follow the tier: Select chevron/face and Input adornments read --control-icon-*', () => {
 	const sel = css('Select');
-	assert.match(sel, /\.select-wrap \{ --select-icon: var\(--control-icon-md\)/);
-	assert.match(sel, /\.select-wrap:has\(\.select\.compact\) \{ --select-icon: var\(--control-icon-sm\); \}/);
-	assert.match(sel, /\.select-chevron \{[^}]*font-size: var\(--select-icon\)/);
-	assert.match(css('Input'), /\.input-wrap:has\(\.input-sm\) \{ --input-icon: var\(--control-icon-sm\); \}/);
-	assert.match(css('FilterInput'), /\.fi--sm \.fi__bar \{[^}]*--fi-icon: var\(--control-icon-sm\)/);
+	assert.match(sel, /\.select-chevron \{[^}]*font-size: var\(--control-icon-md\)/);
+	assert.match(sel, /\.select-wrap:has\(\.select\.compact\) \.select-chevron \{[^}]*font-size: var\(--control-icon-sm\); \}/);
+	assert.match(sel, /\.select-face\.compact > :global\(svg\) \{ font-size: var\(--control-icon-sm\); \}/);
+	assert.match(css('Input'), /\.input-wrap:has\(\.input-sm\) :is\(\.input-icon, \.input-clear\) \{ font-size: var\(--control-icon-sm\); \}/);
+	assert.match(css('FilterInput'), /\.fi--sm :is\(\.fi__icon, \.fi__clear\) \{ font-size: var\(--control-icon-sm\); \}/);
 	assert.match(css('Dropzone'), /font-size: var\(--icon-xl\)/);
 });
 

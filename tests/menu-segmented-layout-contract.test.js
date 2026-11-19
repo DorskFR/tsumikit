@@ -55,7 +55,8 @@ test('SegmentedControl collapseLabels accepts container with a fixed 35rem conta
 		segmented,
 		/@container \(max-width: 35rem\)\s*{\s*\.collapse-container \.seg-item\.has-label \.seg-label\s*{\s*display: none;/
 	);
-	assert.match(segmented, /\.collapse-container \.seg-item\.has-label\s*{\s*gap: 0;\s*padding: 0;\s*width: var\(--seg-item-h\);/);
+	assert.match(segmented, /\.collapse-container \.seg-item\.has-label\s*{\s*gap: 0;\s*padding: 0;\s*width: calc\(var\(--control-md\) - 2 \* \(var\(--sp-0-5\) \+ var\(--edge-width\)\)\);/);
+	assert.match(segmented, /\.collapse-container\.seg-sm \.seg-item\.has-label\s*{\s*width: calc\(var\(--control-sm\) - 2 \* \(var\(--sp-0-5\) \+ var\(--edge-width\)\)\);/);
 	assert.doesNotMatch(segmented, /collapseAt/);
 });
 

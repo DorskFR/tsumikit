@@ -48,7 +48,7 @@ for (const [id, own] of Object.entries(all)) {
 }
 
 test('the ThemePicker dark swatch repaints the :root accent', () => {
-	const swatch = picker.match(/\.swatch\[data-theme='dark'\] {([^}]*)}/)?.[1] ?? '';
-	assert.match(swatch, new RegExp(`--c-accent: ${all.dark.accent};`));
-	assert.match(swatch, new RegExp(`--c-bg: ${all.dark.bg};`));
+	const quadrant = (/** @type {string} */ q) => picker.match(new RegExp(`\\.swatch\\[data-theme='dark'\\] \\.q\\.${q} {([^}]*)}`))?.[1] ?? '';
+	assert.match(quadrant('accent'), new RegExp(`background: ${all.dark.accent};`));
+	assert.match(quadrant('bg'), new RegExp(`background: ${all.dark.bg};`));
 });

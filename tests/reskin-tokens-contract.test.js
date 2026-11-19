@@ -63,7 +63,8 @@ test('SegmentedControl and the pill FilterInput bar read --r-control; count badg
 	assert.ok(hasDecl(segmented, '.seg', 'border-radius', 'var(--r-control)'));
 	assert.ok(hasDecl(segmented, '.seg-thumb', 'border-radius', 'var(--r-control)'));
 	assert.ok(hasDecl(segmented, '.seg-item', 'border-radius', 'var(--r-control)'));
-	assert.match(normalize(segmented), /\.seg-wrap:not\(\.seg-icon\) { border-radius: min\(var\(--r-control\), calc\(var\(--seg-h\) \/ 2\)\); }/);
+	assert.match(normalize(segmented), /\.seg-wrap:not\(\.seg-icon\) { border-radius: min\(var\(--r-control\), calc\(var\(--control-md\) \/ 2\)\); }/);
+	assert.match(normalize(segmented), /\.seg-wrap\.seg-sm:not\(\.seg-icon\) { border-radius: min\(var\(--r-control\), calc\(var\(--control-sm\) \/ 2\)\); }/);
 	assert.ok(hasDecl(segmented, '.seg-count', 'border-radius', 'var(--r-pill)'));
 	assert.ok(hasDecl(filter, '.fi--pill .fi__bar', 'border-radius', 'var(--r-control)'));
 });

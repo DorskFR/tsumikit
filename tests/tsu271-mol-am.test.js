@@ -69,8 +69,8 @@ test('surfaces read the surface tokens', () => {
 });
 
 test('raised panels and the drawer read the raised/overlay tokens', () => {
-	assert.match(src.Combobox, /background: var\(--cb-bg, var\(--raised-fill\)\);/);
-	assert.match(src.Combobox, /border: var\(--edge-width\) solid var\(--cb-border, var\(--raised-edge\)\);/);
+	assert.match(src.Combobox, /\.cb-panel \{[^}]*background: var\(--raised-fill\);/);
+	assert.match(src.Combobox, /border: var\(--edge-width\) solid var\(--raised-edge\);/);
 	assert.match(src.Combobox, /box-shadow: var\(--raised-shadow\);/);
 	assert.match(src.GlyphStack, /\.expand-panel {[^}]*background: var\(--raised-fill\);[^}]*box-shadow: var\(--raised-shadow\);/);
 	assert.match(src.FilterInput, /background: var\(--raised-fill\);\s*border: var\(--edge-width\) solid var\(--raised-edge\);/);
@@ -80,17 +80,19 @@ test('raised panels and the drawer read the raised/overlay tokens', () => {
 });
 
 test('controls and tracks read the control/track tokens', () => {
-	assert.match(src.InputGroup, /background: var\(--textarea-bg, var\(--control-fill\)\);\s*border: var\(--edge-width\) solid var\(--textarea-border, var\(--control-edge\)\);/);
+	assert.match(src.InputGroup, /background: var\(--control-fill\);\s*border: var\(--edge-width\) solid var\(--control-edge\);/);
 	assert.match(src.FilterInput, /\.fi__bar {[^}]*border: var\(--edge-width\) solid var\(--control-edge\);/);
 	assert.match(src.CapBar, /box-shadow: inset 0 0 0 var\(--edge-width\) var\(--track-edge\);/);
 });
 
-test('FileButton reads the button tokens and the hover/focus hooks', () => {
+test('FileButton reads the button tokens on rest, hover and focus', () => {
 	const fb = src.FileButton;
 	assert.match(fb, /border: var\(--edge-width\) solid var\(--btn-edge\);[^}]*background: var\(--btn-fill\);/);
 	assert.match(fb, /\.file-btn\.primary {\s*background: var\(--btn-primary-fill\);\s*border-color: var\(--btn-primary-edge\);/);
-	assert.match(fb, /box-shadow: var\(--file-shadow-rest\), var\(--focus-glow\);/);
-	assert.match(fb, /\.file-btn:hover:not\(\.disabled\) {[^}]*translate: 0 calc\(-1 \* var\(--hover-lift\)\);\s*--file-shadow-rest: var\(--file-shadow-lift\);/);
+	assert.match(fb, /\.file-btn:focus-within {[^}]*box-shadow: var\(--btn-shadow\), var\(--focus-glow\);/);
+	assert.match(fb, /\.file-btn\.primary:focus-within {\s*box-shadow: var\(--btn-primary-shadow\), var\(--focus-glow\);/);
+	assert.match(fb, /\.file-btn:hover:not\(\.disabled\) {[^}]*translate: 0 calc\(-1 \* var\(--hover-lift\)\);\s*box-shadow: var\(--btn-shadow-hover\);/);
+	assert.match(fb, /\.file-btn:hover:focus-within:not\(\.disabled\) {\s*box-shadow: var\(--btn-shadow-hover\), var\(--focus-glow\);/);
 	assert.match(fb, /translate var\(--dur-fast\) var\(--ease-out\),/);
 	assert.doesNotMatch(fb, /transition: all/);
 });

@@ -15,7 +15,9 @@ test('Slider ticks: one dot per step, positioned inside the thumb travel, reache
 	assert.match(slider, /ticks\?: boolean \| number\[\]/);
 	assert.match(slider, /Array\.from\(\{ length: n \+ 1 \}, \(_, i\) => \+min \+ i \* \+step\)/);
 	assert.match(slider, /class="tick" class:reached=\{t <= Number\(value\)\}/);
-	assert.match(slider, /left: calc\(var\(--thumb\) \/ 2 \+ \(100% - var\(--thumb\)\) \* var\(--f\)\);/);
+	assert.match(slider, /style:left="calc\(0\.6rem \+ \(100% - 1\.2rem\) \* \{frac\(t\)\}\)"/, 'half a thumb in from each end');
+	assert.match(slider, /::-webkit-slider-thumb\s*{[^}]*width: 1\.2rem;/s);
+	assert.match(slider, /::-moz-range-thumb\s*{[^}]*width: 1\.2rem;/s);
 	assert.match(slider, /\.tick\.reached\s*{\s*background: var\(--bg\);/s);
 	assert.match(slider, /\.ticks\s*{[^}]*pointer-events: none;/s);
 });

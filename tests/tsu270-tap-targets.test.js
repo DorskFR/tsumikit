@@ -39,7 +39,7 @@ const touchSlab = (size) => Math.min(-8, (size - token('touch-target-compact')) 
 test('Theming programmatic swatches: no neighbour slab reaches a swatch and each owns >= 24px', () => {
 	const sizeProp = /<Swatch\b[^>]*\bsize="(\w+)"/.exec(demo)?.[1] ?? 'md';
 	/** @type {Record<string, RegExp>} */
-	const sizeVars = { md: /\.swatch\s*\{[^}]*--swatch-size:\s*([^;]+);/, sm: /\.sm\s*\{\s*--swatch-size:\s*([^;]+);/, lg: /\.lg\s*\{\s*--swatch-size:\s*([^;]+);/ };
+	const sizeVars = { md: /\.swatch\s*\{[^}]*\bwidth:\s*([^;]+);/, sm: /\.sm\s*\{\s*width:\s*([^;]+);/, lg: /\.lg\s*\{\s*width:\s*([^;]+);/ };
 	const size = len(must(sizeVars[sizeProp], swatch));
 	assert.match(swatch, /inset-block: var\(--touch-slab\);\s*inset-inline-start: var\(--touch-slab\);\s*inset-inline-end: 0;/);
 	const gap = len(must(/<Cluster gap="([^"]+)">\s*\{#each theme\.all/, demo));

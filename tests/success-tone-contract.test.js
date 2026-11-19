@@ -13,30 +13,27 @@ test('Button and Popover expose the same success tone and semantic color', () =>
 	assert.match(popover, /type TriggerTone =[^;]*'success'/);
 	assert.match(button, /class:btn-tone-success={t === 'ok'}/);
 	assert.match(popover, /class:trigger-tone-success={tone === 'success'}/);
-	assert.match(button, /\.btn-tone-success\s*{\s*--btn-tone: var\(--ok\);/);
-	assert.match(
-		popover,
-		/\.pop-trigger\.trigger-tone-success\s*{\s*--pop-trigger-tone: var\(--ok\);/
-	);
+	assert.match(button, /\.btn-tone-success\s*{\s*color: var\(--ok\);/);
+	assert.match(popover, /\.pop-trigger\.trigger-tone-success\s*{\s*color: var\(--ok\);/);
 	assert.match(variables, /--text-on-success: var\(--bg\);/);
 });
 
 test('neutral success controls share tinted border and hover treatments', () => {
 	assert.match(
 		button,
-		/\.btn-tone-success,[\s\S]*color: var\(--btn-tone\);[\s\S]*border-color: color-mix\(in srgb, var\(--btn-tone\) 50%, var\(--border\)\);/
+		/\n\t\.btn-tone-success\s*{\s*color: var\(--ok\);\s*border-color: color-mix\(in srgb, var\(--ok\) 50%, var\(--border\)\);/
 	);
 	assert.match(
 		button,
-		/\.btn-tone-success:hover:not\(:disabled\),[\s\S]*background: color-mix\(in srgb, var\(--btn-tone\) 14%, transparent\);/
+		/\n\t\t\.btn-tone-success:hover:not\(:disabled\)\s*{\s*background: color-mix\(in srgb, var\(--ok\) 14%, transparent\);\s*border-color: var\(--ok\);/
 	);
 	assert.match(
 		popover,
-		/\.pop-trigger\.trigger-tone-success,[\s\S]*color: var\(--pop-trigger-fg, var\(--pop-trigger-tone\)\);[\s\S]*border-color: var\(--pop-trigger-border, color-mix\(in srgb, var\(--pop-trigger-tone\) 50%, var\(--border\)\)\);/
+		/\.pop-trigger\.trigger-tone-success\s*{\s*color: var\(--ok\);\s*border-color: color-mix\(in srgb, var\(--ok\) 50%, var\(--border\)\);/
 	);
 	assert.match(
 		popover,
-		/\.pop-trigger\.trigger-tone-success:hover:not\(:disabled\),[\s\S]*background: color-mix\(in srgb, var\(--pop-trigger-tone\) 14%, transparent\);/
+		/\.pop-trigger\.trigger-tone-success:hover:not\(:disabled\)\s*{\s*background: color-mix\(in srgb, var\(--ok\) 14%, transparent\);\s*border-color: var\(--ok\);/
 	);
 	assert.match(
 		button,
@@ -50,9 +47,9 @@ test('primary success controls share filled success chrome and disabled-safe hov
 		[
 			popover,
 			String.raw`\.pop-trigger\.trigger-primary\.trigger-tone-success`,
-			'var\\(--pop-trigger-bg, var\\(--ok\\)\\)',
-			'var\\(--pop-trigger-border, var\\(--ok\\)\\)',
-			'var\\(--pop-trigger-fg, var\\(--text-on-success\\)\\)'
+			'var\\(--ok\\)',
+			'var\\(--ok\\)',
+			'var\\(--text-on-success\\)'
 		]
 	]) {
 		assert.match(
