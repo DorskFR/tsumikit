@@ -251,7 +251,7 @@ test('slider thumbs scale on press, halo on hover and never animate layout', () 
 
 test('value indicators and the carousel move on compositor properties only', () => {
 	for (const [name, sel, inline] of [
-		['Progress', '.bar', 'style:translate={indeterminate ? undefined : `${pct - 100}% 0`}'],
+		['Progress', '.bar', 'style:translate={isIndeterminate ? undefined : `${pct - 100}% 0`}'],
 		['SegmentedProgress', '.bar', 'style:translate="{pct(seg) - 100}% 0"'],
 		['CapBar', '.fill', 'style:translate="calc({pct}% - 100%) 0"']
 	]) {

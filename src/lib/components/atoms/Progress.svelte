@@ -71,9 +71,9 @@
 	} = $props();
 
 	const pct = $derived(value == null ? 0 : Math.max(0, Math.min(100, (value / max) * 100)));
-	const indeterminate = $derived(indeterminateProp || value == null);
+	const isIndeterminate = $derived(indeterminateProp || value == null);
 	const autoTone = $derived.by((): Tone => {
-		if (!toneAt || tone !== 'accent' || indeterminate) return tone;
+		if (!toneAt || tone !== 'accent' || isIndeterminate) return tone;
 		if (toneAt.danger !== undefined && pct >= toneAt.danger) return 'danger';
 		if (toneAt.warn !== undefined && pct >= toneAt.warn) return 'warn';
 		return tone;
@@ -87,7 +87,7 @@
 		const sweep = `linear-gradient(90deg, ${color}, var(--c-teal))`;
 		return striped ? `${STRIPES}, ${sweep}` : sweep;
 	});
-	const liquid = $derived(variant === 'liquid' && indeterminate);
+	const liquid = $derived(variant === 'liquid' && isIndeterminate);
 </script>
 
 {#snippet track()}
@@ -97,7 +97,7 @@
 	class:grow={grow}
 	class:no-shrink={!shrink}
 	class:block={block}
-	class:indeterminate
+	class:indeterminate={isIndeterminate}
 	class:colored={!!color}
 	style:--fill={liquid ? color : undefined}
 	{...rest}
@@ -105,13 +105,13 @@
 	class:striped
 	role="progressbar"
 	aria-label={label}
-	aria-valuemin={indeterminate ? undefined : 0}
-	aria-valuemax={indeterminate ? undefined : max}
-	aria-valuenow={indeterminate ? undefined : value}
+	aria-valuemin={isIndeterminate ? undefined : 0}
+	aria-valuemax={isIndeterminate ? undefined : max}
+	aria-valuenow={isIndeterminate ? undefined : value}
 >
 	<div
 		class="bar"
-		style:translate={indeterminate ? undefined : `${pct - 100}% 0`}
+		style:translate={isIndeterminate ? undefined : `${pct - 100}% 0`}
 		style:color={color}
 		style:background-image={barImage}
 	></div>
@@ -129,7 +129,7 @@
 {#if showValue}
 	<span class="progress-row" class:grow={grow} class:no-shrink={!shrink} class:block={block}>
 		{@render track()}
-		<span class="progress-value">{indeterminate || value == null ? '' : format(value, max)}</span>
+		<span class="progress-value">{isIndeterminate || value == null ? '' : format(value, max)}</span>
 	</span>
 {:else}
 	{@render track()}
