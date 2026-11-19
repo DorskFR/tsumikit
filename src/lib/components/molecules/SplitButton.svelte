@@ -2,9 +2,9 @@
 	// One control, two segments: a primary action and a narrow caret that opens
 	// a Menu. Both segments keep their own hover/active/focus, and the caret
 	// carries the popup semantics. The segments are the stock Button and Menu
-	// triggers, joined through their published `--btn-*` / `--pop-trigger-*`
-	// properties so the fused look needs no reach into their scoped CSS.
+	// triggers, fused by descendant selectors from this root.
 	import type { ControlSize } from '$lib/size';
+	import { controlTier, getControlSizeContext } from '$lib/size-context';
 	import type { ComponentProps, Snippet } from 'svelte';
 	import type { HTMLAttributes, HTMLButtonAttributes } from 'svelte/elements';
 	import Button from '$lib/components/atoms/Button.svelte';
@@ -16,7 +16,7 @@
 	type Own = {
 		variant?: 'default' | 'primary' | 'danger';
 		size?: ControlSize;
-		/** Use the shared `--control-height` toolbar/composer contract. */
+		/** Uniform toolbar/composer control height; follows a sized `Cluster`. */
 		control?: boolean;
 		/** `half` narrows the caret to half the control height so it reads as
 		 *  secondary to the primary action. */
@@ -58,7 +58,7 @@
 
 	let {
 		variant = 'default',
-		size = 'md',
+		size: sizeProp,
 		control = false,
 		caret = 'square',
 		disabled = false,
@@ -89,7 +89,10 @@
 		md: 'var(--control-height-default)',
 		lg: 'var(--control-height-large)',
 	};
-	const height = $derived(control ? 'var(--control-height)' : HEIGHT[size]);
+	const size = $derived(sizeProp ?? 'md');
+	const sizeContext = getControlSizeContext();
+	const tier = $derived(controlTier(control, sizeProp, sizeContext));
+	const height = $derived(control ? (tier ? HEIGHT[tier] : 'var(--control-height)') : HEIGHT[size]);
 	const caretDisabled = $derived(disabled || menuDisabled);
 
 	function onPrimaryKeydown(e: KeyboardEvent) {
@@ -113,7 +116,7 @@
 		<Button
 			{...primaryProps}
 			{variant}
-			{size}
+			size={sizeProp}
 			{control}
 			{type}
 			{loading}
@@ -136,7 +139,7 @@
 			{panelStyle}
 			{gap}
 			{variant}
-			{size}
+			size={sizeProp}
 			{control}
 			block
 			disabled={caretDisabled}

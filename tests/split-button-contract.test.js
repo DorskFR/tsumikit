@@ -147,7 +147,7 @@ test('height follows the Button size tiers and the control contract', () => {
 	assert.match(source, /sm: 'var\(--control-height-compact\)'/);
 	assert.match(source, /md: 'var\(--control-height-default\)'/);
 	assert.match(source, /lg: 'var\(--control-height-large\)'/);
-	assert.match(source, /control \? 'var\(--control-height\)' : HEIGHT\[size\]/);
+	assert.match(source, /control \? \(tier \? HEIGHT\[tier\] : 'var\(--control-height\)'\) : HEIGHT\[size\]/);
 	const ui = render({ size: 'sm' });
 	assert.equal(ui.root.querySelector('.split-caret').style.width, 'var(--control-height-compact)');
 	assert.equal(render({ control: true }).root.querySelector('.split-caret').style.width, 'var(--control-height)');

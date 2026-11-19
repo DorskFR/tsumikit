@@ -13,6 +13,7 @@
 	import type { HTMLAttributes } from 'svelte/elements';
 	import { formatCount, hasCount } from '$lib/count';
 	import { place } from '$lib/floating';
+	import { controlTier, getControlSizeContext } from '$lib/size-context';
 	import { playSound } from '$lib/sound';
 	import Toggle from './Toggle.svelte';
 	import { HOVER_CLOSE_GRACE, HOVER_OPEN_DELAY, createHoverIntent, opensOnHover } from './popover-hover.js';
@@ -59,7 +60,7 @@
 		box?: 'xs' | 'sm' | 'md' | 'lg';
 		/** Fully rounded trigger (`--r-pill`), as on `Button`. */
 		pill?: boolean;
-		/** Use the shared `--control-height` toolbar/composer contract. */
+		/** Uniform toolbar/composer control height; follows a sized `Cluster`. */
 		control?: boolean;
 		block?: boolean;
 		/** Icon-only triggers grow a touch hit slab on coarse pointers; `compact` opts out. */
@@ -135,6 +136,8 @@
 	// The Toggle chip is not restyled here, it is rendered: the trigger *is* a
 	// `Toggle`, so the two cannot drift apart. A link trigger keeps the canonical
 	// chrome — `Toggle` is always a button.
+	const sizeContext = getControlSizeContext();
+	const tier = $derived(controlTier(control, size, sizeContext));
 	const toggleChrome = $derived(variant === 'toggle' && as === 'button');
 	const canonicalChrome = $derived(
 		!toggleChrome && (variant !== undefined || tone !== 'none' || size !== undefined || control || block)
@@ -323,6 +326,9 @@
 	class:trigger-sm={size === 'sm'}
 	class:trigger-lg={size === 'lg'}
 	class:trigger-control={control}
+	class:trigger-control-sm={tier === 'sm'}
+	class:trigger-control-md={tier === 'md'}
+	class:trigger-control-lg={tier === 'lg'}
 	class:trigger-block={block}
 	class:trigger-box={box !== undefined}
 	class:trigger-box-xs={box === 'xs'}
@@ -509,6 +515,18 @@
 		height: var(--control-height);
 		min-height: var(--control-height);
 		padding: 0 var(--sp-3);
+	}
+	.pop-trigger.trigger-control-sm {
+		height: var(--control-height-compact);
+		min-height: var(--control-height-compact);
+	}
+	.pop-trigger.trigger-control-md {
+		height: var(--control-height-default);
+		min-height: var(--control-height-default);
+	}
+	.pop-trigger.trigger-control-lg {
+		height: var(--control-height-large);
+		min-height: var(--control-height-large);
 	}
 	.pop-trigger.trigger-block {
 		width: 100%;

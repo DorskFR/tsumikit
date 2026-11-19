@@ -30,9 +30,9 @@ test('Popover exposes Button-compatible trigger chrome on one semantic button', 
 test('small Button, Popover and SegmentedControl share the compact outer height', () => {
 	assert.match(variables, /--control-height-compact: 2rem;/);
 	assert.match(variables, /--control-sm: var\(--control-height-compact\);/);
-	assert.match(button, /\.btn-sm\s*{\s*min-height: var\(--btn-size, var\(--control-height-compact\)\);/);
+	assert.match(button, /\.btn-sm\s*{\s*min-height: var\(--control-height-compact\);/);
 	assert.match(popover, /height: var\(--control-height-compact\);\s*min-height: var\(--control-height-compact\);/);
-	assert.match(segmented, /\.seg-sm\s*{\s*--seg-h: var\(--control-sm\);/);
+	assert.match(segmented, /\.seg-sm\s*{\s*height: var\(--control-sm\);\s*min-height: var\(--control-sm\);/);
 });
 
 test('SegmentedControl retains radiogroup semantics and delegated keyboard navigation', () => {
@@ -51,5 +51,5 @@ test('control keeps the danger variant/tone tint (TSU-85)', () => {
 test('SegmentedControl box tier adopts --control-height-default', () => {
 	assert.match(segmented, /box\?: boolean/);
 	assert.match(segmented, /class:seg-box={box}/);
-	assert.match(segmented, /\.seg-box\s*{\s*--seg-h: var\(--control-height-default\);/);
+	assert.match(segmented, /\.seg-box\s*{\s*height: var\(--control-height-default\);\s*min-height: var\(--control-height-default\);/);
 });

@@ -1,5 +1,6 @@
 <script lang="ts">
 	import type { ControlSize } from '$lib/size';
+	import { controlTier, getControlSizeContext } from '$lib/size-context';
 	// File-picker button. A real <input type="file"> visually hidden inside a
 	// <label> styled as a button — so it's keyboard-focusable and works with zero
 	// JS to open the dialog. Emits the chosen files via `onfiles`. Dependency-free.
@@ -17,7 +18,7 @@
 		multiple = false,
 		disabled = false,
 		variant = 'default',
-		size = 'md',
+		size,
 		control = false,
 		box,
 		hitArea = 'auto',
@@ -42,8 +43,8 @@
 		/** Match the Button atom's sizes so a FileButton lines up with buttons in
 		 *  the same row. */
 		size?: ControlSize;
-		/** Uniform `--control-height`, like Button's `control`, so it lines up in a
-		 *  composer/toolbar row. */
+		/** Uniform control height, like Button's `control`, so it lines up in a
+		 *  composer/toolbar row; follows a sized `Cluster`. */
 		control?: boolean;
 		/** Shared square box scale (`--box-xs/sm/md/lg`); implies `iconOnly`. */
 		box?: 'xs' | 'sm' | 'md' | 'lg';
@@ -53,6 +54,9 @@
 		sound?: boolean;
 		class?: string;
 	} = $props();
+
+	const sizeContext = getControlSizeContext();
+	const tier = $derived(controlTier(control, size, sizeContext));
 
 	const onlyIcon = $derived(iconOnly || box !== undefined);
 
@@ -72,6 +76,9 @@
 	class:sm={size === 'sm'}
 	class:lg={size === 'lg'}
 	class:control
+	class:control-sm={tier === 'sm'}
+	class:control-md={tier === 'md'}
+	class:control-lg={tier === 'lg'}
 	class:icon-only={onlyIcon}
 	class:box={box !== undefined}
 	class:box-xs={box === 'xs'}
@@ -170,6 +177,18 @@
 		height: var(--control-height);
 		min-height: var(--control-height);
 		padding: 0 var(--control-px-md);
+	}
+	.file-btn.control-sm {
+		height: var(--control-height-compact);
+		min-height: var(--control-height-compact);
+	}
+	.file-btn.control-md {
+		height: var(--control-height-default);
+		min-height: var(--control-height-default);
+	}
+	.file-btn.control-lg {
+		height: var(--control-height-large);
+		min-height: var(--control-height-large);
 	}
 	/* icon-only: square it up and drop the label gap. */
 	.file-btn.icon-only {

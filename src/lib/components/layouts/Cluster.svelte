@@ -3,22 +3,17 @@
 	// new lines by default (so it never overflows). Ideal for toolbars, tag
 	// rows, button groups. `gap`/`align`/`justify` are any CSS value; set
 	// `wrap={false}` to keep one line. Polymorphic via `as`.
+	import { getControlSizeContext, setControlSizeContext } from '$lib/size-context';
 	import type { Snippet } from 'svelte';
 
-	// `size` cascades a uniform control tier to descendant controls that honour the
-	// shared `--control-height` contract (Button/IconButton/Popover `control`,
-	// SegmentedControl/Select `control`), so a whole toolbar lines up from one prop
-	// instead of per-child sizing. `grow` makes direct children share the row width
+	// `size` provides a uniform control tier through context to descendant
+	// `control` controls (Button, Popover, FileButton, SegmentedControl,
+	// SplitButton), so a whole toolbar lines up from one prop instead of
+	// per-child sizing. `grow` makes direct children share the row width
 	// equally (flex: 1) — the toolbar equivalent of `style="flex:1"` on each child.
 	// `stackAt` turns the cluster into its own inline-size query container and
 	// stacks children full-width once it is narrower than the tier (18/30/40/48rem),
 	// for phone action rows; the cluster then no longer shrink-wraps its content.
-	const CONTROL_TIER = {
-		sm: 'var(--control-height-compact)',
-		md: 'var(--control-height-default)',
-		lg: 'var(--control-height-large)'
-	} as const;
-
 	let {
 		as = 'div',
 		gap = 'var(--sp-2)',
@@ -57,6 +52,13 @@
 		children?: Snippet;
 		[key: string]: unknown;
 	} = $props();
+
+	const outer = getControlSizeContext();
+	setControlSizeContext({
+		get size() {
+			return size ?? outer?.size;
+		}
+	});
 
 	let el = $state<HTMLElement | null>(null);
 	let narrow = $state(false);
@@ -102,7 +104,6 @@
 	style:align-items={align}
 	style:justify-content={justify}
 	style:flex-wrap={wrapping ? 'wrap' : 'nowrap'}
-	style:--control-height={size ? CONTROL_TIER[size] : undefined}
 	{...rest}
 >
 	{@render children?.()}

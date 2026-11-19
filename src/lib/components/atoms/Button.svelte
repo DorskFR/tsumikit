@@ -4,6 +4,7 @@
 	import { pending } from '$lib/pending.svelte';
 	import { playSound } from '$lib/sound';
 	import type { ControlSize } from '$lib/size';
+	import { controlTier, getControlSizeContext } from '$lib/size-context';
 	import { canonicalTone, type Tone } from '$lib/tone';
 	import type { Snippet } from 'svelte';
 	import type { HTMLButtonAttributes } from 'svelte/elements';
@@ -43,7 +44,7 @@
 		// never flexes. Implies an icon-only control.
 		box?: 'xs' | 'sm' | 'md' | 'lg';
 		// Square text/icon control whose side equals the current height contract:
-		// `size` tier, or `--control-height` with `control`.
+		// `size` tier, or the control height with `control`.
 		square?: boolean;
 		// Outlined `--box-lg`-tall chip (header/toolbar action): a square for a lone
 		// glyph, otherwise sized to its text. Pairs with `tone` for tinted severity chips.
@@ -101,7 +102,7 @@
 	let {
 		variant = 'default',
 		tone = 'none',
-		size = 'md',
+		size: sizeProp,
 		control = false,
 		pill = false,
 		block = false,
@@ -139,6 +140,9 @@
 		...rest
 	}: ButtonProps = $props();
 	const t = $derived(canonicalTone(tone));
+	const size = $derived(sizeProp ?? 'md');
+	const sizeContext = getControlSizeContext();
+	const tier = $derived(controlTier(control, sizeProp, sizeContext));
 
 	// A link-flavoured Button is a real <a>; native `disabled`/`type` don't apply,
 	// so an inactive link drops `href` (no focus, no keyboard activation).
@@ -219,6 +223,9 @@
 	class:btn-lg={size === 'lg'}
 	class:btn-xl={size === 'xl'}
 	class:btn-control={control}
+	class:btn-control-sm={tier === 'sm'}
+	class:btn-control-md={tier === 'md'}
+	class:btn-control-lg={tier === 'lg'}
 	class:btn-block={block}
 	class:btn-icon={icon}
 	class:btn-box={box !== undefined}
@@ -478,6 +485,18 @@
 		white-space: normal;
 		user-select: none;
 	}
+	.btn-control-sm {
+		height: var(--control-height-compact);
+		min-height: var(--control-height-compact);
+	}
+	.btn-control-md {
+		height: var(--control-height-default);
+		min-height: var(--control-height-default);
+	}
+	.btn-control-lg {
+		height: var(--control-height-large);
+		min-height: var(--control-height-large);
+	}
 	.btn-control:disabled {
 		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
@@ -601,6 +620,18 @@
 	.btn-square.btn-control {
 		width: var(--control-height);
 		min-width: var(--control-height);
+	}
+	.btn-square.btn-control-sm {
+		width: var(--control-height-compact);
+		min-width: var(--control-height-compact);
+	}
+	.btn-square.btn-control-md {
+		width: var(--control-height-default);
+		min-width: var(--control-height-default);
+	}
+	.btn-square.btn-control-lg {
+		width: var(--control-height-large);
+		min-width: var(--control-height-large);
 	}
 	/* `box`: explicit square scale, wins over icon/chip/square/size sizing. */
 	.btn-box {
