@@ -50,6 +50,7 @@
 		closable = false,
 		onclose,
 		closeLabel = 'Close tab',
+		tabMaxWidth,
 		leading,
 		actions,
 		class: klass = '',
@@ -74,6 +75,8 @@
 		onclose?: (id: string) => void;
 		/** Accessible name of each close control. */
 		closeLabel?: string;
+		/** Widest a tab may grow before its label truncates (any CSS length). */
+		tabMaxWidth?: string;
 		/** Rendered before the icon and label of every tab (a status dot, a number). */
 		leading?: Snippet<[TabItem]>;
 		/** Trailing controls after the strip (close all, new tab). */
@@ -133,7 +136,7 @@
 		indLeft = left;
 		indWidth = width;
 		ind.style.width = `${width}px`;
-		const fx = getComputedStyle(ind).getPropertyValue('--tabs-fx').trim();
+		const fx = ind.closest('[data-fx-tabs]')?.getAttribute('data-fx-tabs') ?? 'pill';
 		const still = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 		if (!animate || !placed || width === 0 || still) {
 			ind.style.transition = 'none';
@@ -274,6 +277,7 @@
 						aria-disabled={t.disabled || undefined}
 						tabindex={stop?.id === t.id ? 0 : -1}
 						class="tab closable"
+						style:max-width={tabMaxWidth}
 						class:selected={value === t.id}
 						class:disabled={t.disabled}
 						onclick={(e) => {
@@ -310,6 +314,7 @@
 						aria-controls={panelId}
 						tabindex={stop?.id === t.id ? 0 : -1}
 						class="tab"
+						style:max-width={tabMaxWidth}
 						class:selected={value === t.id}
 						onclick={(e) => {
 							if (isModifiedClick(e)) return;
@@ -331,6 +336,7 @@
 						disabled={t.disabled}
 						tabindex={stop?.id === t.id ? 0 : -1}
 						class="tab"
+						style:max-width={tabMaxWidth}
 						class:selected={value === t.id}
 						onclick={(e) => {
 							inkFrom(e);
@@ -396,13 +402,14 @@
 		text-decoration: none;
 		font-size: var(--control-fs-md);
 		font-weight: var(--fw-medium);
-		--icon-size: var(--control-icon-md);
 		border-bottom: 2px solid transparent;
 		margin-bottom: calc(-1 * var(--edge-width));
-		max-width: var(--tab-max-width, none);
 		transition:
 			color var(--dur-fast) var(--ease),
 			border-color var(--dur-fast) var(--ease);
+	}
+	.tab > :global(.icon) {
+		font-size: var(--control-icon-md);
 	}
 	.tab.closable {
 		cursor: pointer;
@@ -461,7 +468,6 @@
 	/* Sliding pill: a raised pill glides behind the selected tab with a slight overshoot. */
 	.tabs:not(:global([data-fx-tabs]:not([data-fx-tabs='pill'])) *),
 	:global([data-fx-tabs='pill']) .tabs:not(:global([data-fx-tabs='pill'] [data-fx-tabs]:not([data-fx-tabs='pill'])) *) {
-		--tabs-fx: pill;
 		& .tablist {
 			isolation: isolate;
 			flex: 0 1 auto;
@@ -512,13 +518,8 @@
 				0 1px 3px color-mix(in srgb, var(--text) 14%, transparent);
 		}
 	}
-	/* Stretch line: the script stretches the line across both tabs, then lets the tail catch up. */
-	:global([data-fx-tabs='stretch']) .tabs:not(:global([data-fx-tabs='stretch'] [data-fx-tabs]:not([data-fx-tabs='stretch'])) *) {
-		--tabs-fx: stretch;
-	}
 	/* Ink blot: a tint spreads from the click point and a short mark springs in under the label. */
 	:global([data-fx-tabs='ink']) .tabs:not(:global([data-fx-tabs='ink'] [data-fx-tabs]:not([data-fx-tabs='ink'])) *) {
-		--tabs-fx: ink;
 		& .indicator {
 			display: none;
 		}

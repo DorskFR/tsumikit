@@ -26,7 +26,7 @@
 	}
 </script>
 
-<Tabs tabs={docs} bind:value label="Open documents" closable onclose={(id) => (docs = docs.filter((d) => d.id !== id))} style="--tab-max-width: 14rem">
+<Tabs tabs={docs} bind:value label="Open documents" closable onclose={(id) => (docs = docs.filter((d) => d.id !== id))} tabMaxWidth="14rem">
 	{#snippet leading(t)}
 		<Dot status={status[t.id] ?? 'active'} />
 	{/snippet}

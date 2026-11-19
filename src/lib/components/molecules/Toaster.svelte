@@ -15,6 +15,7 @@
 
 	let {
 		placement = 'bottom',
+		position,
 		class: klass = '',
 		style: styleProp = '',
 		sound = true,
@@ -22,6 +23,9 @@
 	}: {
 		/** Where the stack sits; bottom placements clear the bottom bars. */
 		placement?: 'bottom' | 'bottom-start' | 'bottom-end' | 'top';
+		/** Which side of that edge the stack hugs. Defaults to the side `placement`
+		 *  names (`bottom-start` left, `bottom-end` right), otherwise the centre. */
+		position?: 'left' | 'center' | 'right';
 		class?: string;
 		style?: string;
 		/** Play UI sounds when enabled globally; false silences this instance. */
@@ -29,6 +33,10 @@
 		/** Accessible name of the region holding both live regions. */
 		label?: string;
 	} = $props();
+
+	const side = $derived(
+		position ?? (placement === 'bottom-start' ? 'left' : placement === 'bottom-end' ? 'right' : 'center')
+	);
 
 	let host: HTMLDivElement | undefined = $state();
 	let el: HTMLElement | undefined = $state();
@@ -293,6 +301,7 @@
 		aria-label={label}
 		data-tsu="Toaster"
 		data-placement={placement}
+		data-position={side}
 	>
 		<div class="region" role="status" aria-live="polite">
 			{#each polite as t (t.id)}{@render toast(t)}{/each}
@@ -321,7 +330,7 @@
 		flex-direction: column;
 		gap: var(--sp-2);
 		width: calc(100% - var(--sp-8));
-		max-width: var(--toast-max-width, 28rem);
+		max-width: 28rem;
 		margin: 0;
 		padding: 0;
 		border: 0;
@@ -329,11 +338,11 @@
 		overflow: visible;
 		pointer-events: none;
 	}
-	.toaster[data-placement='bottom-start'] {
+	.toaster[data-position='left'] {
 		left: calc(var(--safe-left) + var(--sp-4));
 		transform: none;
 	}
-	.toaster[data-placement='bottom-end'] {
+	.toaster[data-position='right'] {
 		left: auto;
 		right: calc(var(--safe-right) + var(--sp-4));
 		transform: none;

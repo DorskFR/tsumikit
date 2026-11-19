@@ -31,7 +31,7 @@
 		bind:value={view}
 		label="Podcast sections"
 		variant="floating"
-		style="--navbar-center-raise: 1.25rem"
+		centerRaise="1.25rem"
 	>
 		{#snippet center()}
 			<IconButton icon="plus" label="New recording" variant="primary" pill box="lg" />

@@ -1,8 +1,7 @@
 <script lang="ts">
 	// Max-width content column with token gutters that respect safe-area insets.
-	// Self-contained: does not depend on the global `.container` utility. Exposes
-	// `--container-gutter` so children can bleed to the column edge with
-	// `margin-inline: calc(-1 * var(--container-gutter))`.
+	// Self-contained: does not depend on the global `.container` utility. A child
+	// bleeds to the column edge with a negative `margin-inline` of the gutter.
 	import type { Snippet } from 'svelte';
 	import { browser } from '$lib/env';
 
@@ -55,15 +54,20 @@
 	});
 
 	const style = $derived.by(() => {
-		const vars: string[] = [];
-		if (fullWidth && scrollbarW) vars.push(`--ct-scrollbar: ${scrollbarW}px`);
-		if (!fullWidth && size && size !== 'none') vars.push(`--ct-max: ${size}`);
-		if (gutter) vars.push(`--container-gutter: ${gutter}`);
-		if (fullWidth && inset) {
-			const [left, right = left] = inset.trim().split(/\s+/);
-			vars.push(`--ct-inset-l: ${left}`, `--ct-inset-r: ${right}`);
+		const decls: string[] = [];
+		if (!fullWidth && size && size !== 'none') decls.push(`max-width: ${size}`);
+		if (gutter) {
+			decls.push(`padding-inline: max(${gutter}, var(--safe-left)) max(${gutter}, var(--safe-right))`);
 		}
-		return vars.length ? vars.join('; ') : undefined;
+		if (fullWidth && (scrollbarW || inset)) {
+			const vw = scrollbarW ? `(100vw - ${scrollbarW}px)` : '100vw';
+			const [left, right = left] = (inset ?? '0px').trim().split(/\s+/);
+			decls.push(
+				`width: calc(${vw} - ${left} - ${right})`,
+				`margin-inline: calc(50% - ${vw} / 2 + ${left}) calc(50% - ${vw} / 2 + ${right})`
+			);
+		}
+		return decls.length ? decls.join('; ') : undefined;
 	});
 </script>
 
@@ -83,12 +87,10 @@
 
 <style>
 	.ct {
-		--container-gutter: var(--sp-4);
 		width: 100%;
-		max-width: var(--ct-max, var(--content-max));
+		max-width: var(--content-max);
 		margin-inline: auto;
-		padding-inline: max(var(--container-gutter), var(--safe-left))
-			max(var(--container-gutter), var(--safe-right));
+		padding-inline: max(var(--sp-4), var(--safe-left)) max(var(--sp-4), var(--safe-right));
 	}
 
 	.ct.none {
@@ -107,14 +109,10 @@
 	/* Break out of any centered ancestor to span the viewport (minus `inset`).
 	   `margin-inline: calc(50% - 50vw)` pulls each edge out to the viewport,
 	   keeping the element in normal flow (no transform/overflow side-effects).
-	   --ct-scrollbar (measured) takes the scrollbar gutter out of `100vw`. */
+	   The measured scrollbar gutter and `inset` are taken out inline. */
 	.ct.full {
-		--ct-inset-l: 0px;
-		--ct-inset-r: 0px;
-		--ct-vw: calc(100vw - var(--ct-scrollbar, 0px));
 		max-width: none;
-		width: calc(var(--ct-vw) - var(--ct-inset-l) - var(--ct-inset-r));
-		margin-inline: calc(50% - var(--ct-vw) / 2 + var(--ct-inset-l))
-			calc(50% - var(--ct-vw) / 2 + var(--ct-inset-r));
+		width: 100vw;
+		margin-inline: calc(50% - 50vw);
 	}
 </style>

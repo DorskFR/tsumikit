@@ -174,7 +174,8 @@
 	class:sticky
 	class:collapsed
 	data-collapsed={collapsed || undefined}
-	style="--toolbar-top: {stickyOffset}; {styleProp}"
+	style:top={sticky ? stickyOffset : undefined}
+	style={styleProp || undefined}
 >
 	{@render children()}
 	{#if collapsed && hasOverflow}
@@ -205,7 +206,7 @@
 	}
 	.sticky {
 		position: sticky;
-		top: var(--toolbar-top, 0);
+		top: 0;
 		z-index: calc(var(--z-header) - 1);
 		background: var(--bg);
 	}

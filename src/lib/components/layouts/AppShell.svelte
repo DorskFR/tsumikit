@@ -2,9 +2,8 @@
 	// Application frame: sticky header, optional sidebar, main content, optional
 	// footer — all supplied as snippets. Responsive by default:
 	//   • desktop (≥ 64rem): the sidebar is a persistent grid column.
-	//   • tablet (48–64rem): the column narrows to an icon rail
-	//     (--shell-rail-w, default 4.5rem); the `sidebar` container query lets
-	//     nav content collapse to icons.
+	//   • tablet (48–64rem): the column narrows to a 4.5rem icon rail; the
+	//     `sidebar` container query lets nav content collapse to icons.
 	//   • mobile: the sidebar becomes an off-canvas drawer that slides in over a
 	//     scrim; AppShell renders the hamburger toggle for you (shown only on
 	//     mobile), keeps scroll from leaking to the page, closes on Escape / scrim click /
@@ -12,7 +11,7 @@
 	//     (all but the hamburger) `inert`. Opening focuses the first control in
 	//     the drawer; closing returns focus to the toggle. `bind:open` to drive it.
 	// Switching to desktop auto-closes the drawer. Safe-area insets are honored;
-	// `--shell-header-h` is the rendered header height (incl. the top inset).
+	// the header is `--header-h` plus the top inset tall.
 	import { untrack, type Snippet } from 'svelte';
 	import { browser } from '$lib/env';
 	import { readStorage, writeStorage } from '$lib/stores/storage';
@@ -184,7 +183,8 @@
 	class:dragging
 	class:sidebar-full={layout === 'sidebar-full'}
 	class:sticky-sidebar={stickySidebar}
-	style="--shell-sidebar-w: {widthCss}; {styleProp}"
+	style:grid-template-columns="{widthCss} minmax(0, 1fr)"
+	style={styleProp || undefined}
 	data-tsu="AppShell"
 >
 	<header class="shell-header">
@@ -220,6 +220,7 @@
 			aria-label={navLabel}
 			inert={isMobile && !open ? true : undefined}
 			bind:this={aside}
+			style:width="min({widthCss}, 82vw)"
 		>
 			{@render sidebar()}
 			{#if resizableSidebar}
@@ -258,10 +259,8 @@
 
 <style>
 	.shell {
-		--shell-header-h: calc(var(--header-h) + var(--safe-top));
 		min-height: 100dvh;
 		display: grid;
-		grid-template-columns: minmax(0, 1fr);
 		grid-template-rows: auto 1fr auto;
 		grid-template-areas:
 			'header'
@@ -277,7 +276,7 @@
 		align-items: center;
 		gap: var(--sp-3);
 		min-width: 0;
-		height: var(--shell-header-h);
+		height: calc(var(--header-h) + var(--safe-top));
 		padding-inline: max(var(--sp-4), var(--safe-left)) max(var(--sp-4), var(--safe-right));
 		padding-top: var(--safe-top);
 		background: color-mix(in srgb, var(--bg) 88%, transparent);
@@ -319,7 +318,6 @@
 		top: 0;
 		bottom: 0;
 		left: 0;
-		width: min(var(--shell-sidebar-w), 82vw);
 		z-index: var(--z-drawer);
 		overflow-y: auto;
 		overflow-x: hidden; /* overflow-y:auto would otherwise make x auto too */
@@ -327,10 +325,9 @@
 		-webkit-overflow-scrolling: touch;
 		background: var(--surface-fill);
 		border-right: var(--edge-width) solid var(--surface-edge);
-		--shell-sidebar-pad: var(--sp-3);
-		padding: var(--shell-sidebar-pad);
-		padding-top: max(var(--shell-sidebar-pad), var(--safe-top));
-		padding-bottom: max(var(--shell-sidebar-pad), var(--safe-bottom));
+		padding: var(--sp-3);
+		padding-top: max(var(--sp-3), var(--safe-top));
+		padding-bottom: max(var(--sp-3), var(--safe-bottom));
 		/* A query container named `sidebar` so nav items collapse to an icon rail
 		   based on the sidebar's own width (see NavItem). */
 		container: sidebar / inline-size;
@@ -338,10 +335,14 @@
 		transition: translate var(--dur-exit-slow) var(--ease-drawer);
 	}
 	.shell-sidebar[data-padding='sm'] {
-		--shell-sidebar-pad: var(--sp-2);
+		padding: var(--sp-2);
+		padding-top: max(var(--sp-2), var(--safe-top));
+		padding-bottom: max(var(--sp-2), var(--safe-bottom));
 	}
 	.shell-sidebar[data-padding='none'] {
-		--shell-sidebar-pad: 0px;
+		padding: 0;
+		padding-top: var(--safe-top);
+		padding-bottom: var(--safe-bottom);
 	}
 	.shell-sidebar.open {
 		translate: 0 0;
@@ -384,10 +385,15 @@
 		cursor: ew-resize;
 	}
 
+	@media (max-width: 47.999rem) {
+		.shell {
+			grid-template-columns: minmax(0, 1fr) !important;
+		}
+	}
+
 	/* Desktop: persistent sidebar column; hide drawer chrome. */
 	@media (min-width: 48rem) {
 		.shell {
-			grid-template-columns: var(--shell-sidebar-w) minmax(0, 1fr);
 			grid-template-areas:
 				'header header'
 				'sidebar main'
@@ -411,8 +417,8 @@
 		}
 		.shell.sticky-sidebar .shell-sidebar {
 			position: sticky;
-			top: var(--shell-header-h);
-			height: calc(100dvh - var(--shell-header-h));
+			top: calc(var(--header-h) + var(--safe-top));
+			height: calc(100dvh - var(--header-h) - var(--safe-top));
 			align-self: start;
 		}
 		.shell.sticky-sidebar.sidebar-full .shell-sidebar {
@@ -467,10 +473,10 @@
 	   header keep room; the `sidebar` container query collapses nav content. */
 	@media (min-width: 48rem) and (max-width: 63.999rem) {
 		.shell {
-			grid-template-columns: var(--shell-rail-w, 4.5rem) minmax(0, 1fr);
+			grid-template-columns: 4.5rem minmax(0, 1fr) !important;
 		}
 		.shell-sidebar {
-			width: auto;
+			width: auto !important;
 		}
 		.shell-sidebar-resize {
 			display: none;

@@ -71,8 +71,8 @@ test('bare cells drop the label, metas join with a dot, details share lines', ()
 	assert.ok(noLabel > source.indexOf("td[data-role='detail']::before"));
 });
 
-test('stacked labels use the body font; meta values default to mono but can be overridden', () => {
-	assert.match(source, /\[data-stacked\] td\[data-role='meta'\]\s*{[^}]*font-family: var\(--dt-meta-font, var\(--font-mono\)\);/s);
+test('stacked labels use the body font; meta values are mono', () => {
+	assert.match(source, /\[data-stacked\] td\[data-role='meta'\]\s*{[^}]*font-family: var\(--font-mono\);/s);
 	assert.match(source, /\[data-stacked\] td\[data-role='meta'\]::before\s*{[^}]*font-family: var\(--font-sans\);/s);
 	assert.doesNotMatch(source, /::before\s*{[^}]*font-mono/s);
 });

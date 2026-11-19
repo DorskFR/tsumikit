@@ -61,6 +61,7 @@ function render(init = {}) {
 		root.dispatchEvent(e);
 		return e.defaultPrevented;
 	};
+	const offset = () => /** @type {HTMLElement} */ (root.querySelector('.ptr-content')).style.translate.split(' ')[1];
 	const status = () => root.querySelector('[role="status"]')?.textContent?.trim();
 	const settle = async () => {
 		live.settle?.();
@@ -71,6 +72,7 @@ function render(init = {}) {
 		dom,
 		doc,
 		root,
+		offset,
 		pointer,
 		pull,
 		touchmove,
@@ -100,13 +102,13 @@ test('a touch pull past the threshold calls onrefresh exactly once and holds the
 	assert.equal(r.root.getAttribute('aria-busy'), 'true');
 	assert.equal(r.status(), 'Refreshing…');
 	assert.ok(r.root.querySelector('[data-tsu="Spinner"]'));
-	assert.equal(r.root.style.getPropertyValue('--ptr-offset'), '72px');
+	assert.equal(r.offset(), '72px');
 
 	await r.settle();
 	assert.equal(r.root.dataset.state, 'idle');
 	assert.equal(r.root.getAttribute('aria-busy'), null);
 	assert.equal(r.root.querySelector('[data-tsu="Spinner"]'), null);
-	assert.equal(r.root.style.getPropertyValue('--ptr-offset'), '0px');
+	assert.equal(r.offset(), '0px');
 	assert.equal(r.props.calls, 1);
 });
 
@@ -116,14 +118,14 @@ test('the pull is damped: the indicator follows the finger with resistance and a
 	r.pointer('pointermove', { clientY: 140 });
 	assert.equal(r.root.dataset.state, 'pulling');
 	assert.equal(r.status(), 'Pull to refresh');
-	const offset = Number.parseFloat(r.root.style.getPropertyValue('--ptr-offset'));
+	const offset = Number.parseFloat(r.offset());
 	assert.ok(offset > 20 && offset < 40, `damped 40px pull was ${offset}`);
 	assert.ok(r.touchmove(), 'touchmove is blocked while pulling');
 
 	r.pointer('pointermove', { clientY: 400 });
 	assert.equal(r.root.dataset.state, 'ready');
 	assert.equal(r.status(), 'Release to refresh');
-	const far = Number.parseFloat(r.root.style.getPropertyValue('--ptr-offset'));
+	const far = Number.parseFloat(r.offset());
 	assert.ok(far >= 72 && far < 144, `damped 300px pull was ${far}`);
 	assert.equal(r.props.calls, 0);
 
@@ -136,7 +138,7 @@ test('a pull under the threshold snaps back without refreshing', () => {
 	r.pull(40);
 	assert.equal(r.props.calls, 0);
 	assert.equal(r.root.dataset.state, 'idle');
-	assert.equal(r.root.style.getPropertyValue('--ptr-offset'), '0px');
+	assert.equal(r.offset(), '0px');
 	assert.equal(r.status(), '');
 	assert.ok(!r.touchmove(), 'touchmove is free again');
 });
@@ -235,9 +237,11 @@ test('scroll container contains overscroll, tokens only, reduced motion kills tr
 	assert.ok(hasDecl(css, '.ptr', 'overflow-y', 'auto'));
 	assert.ok(hasDecl(css, '.ptr', 'overscroll-behavior-y', 'contain'));
 	assert.ok(hasDecl(css, '.ptr', 'touch-action', 'pan-y'));
-	assert.ok(hasDecl(css, '.ptr-content', 'translate', /var\(--ptr-offset/));
+	assert.match(source, /<div class="ptr-content" style:translate="0 {offset}px">/);
+	assert.match(source, /style:translate="0 calc\({offset}px - 100%\)"/);
+	assert.doesNotMatch(source, /--ptr-/);
 	assert.ok(hasDecl(css, '.pending .ptr-indicator', 'color', 'var(--accent)'));
-	assert.match(css, /@media \(prefers-reduced-motion: reduce\)/);
+	assert.match(css, /@media \(prefers-reduced-motion: reduce\)\s*{\s*\.ptr-indicator :global\(\.ptr-arrow\)\s*{\s*rotate: none !important;/);
 	assert.doesNotMatch(css, /#[0-9a-f]{3,6}\b/i);
 	assert.match(source, /onrefresh\?: \(\) => Promise<void> \| void;/);
 	assert.match(source, /import Spinner from/);

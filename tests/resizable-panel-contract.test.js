@@ -8,7 +8,13 @@ const source = await readFile(
 );
 
 test('collapse control is a subtle inner-edge chevron handle, not a filled button', () => {
-	assert.match(source, /\.panel-layout\.collapsed\s*{\s*--panel-current-width: 0px;/);
+	assert.match(source, /const panelCss = \$derived\(!overlay && collapsed \? '0px' : `\${currentWidth}px`\);/);
+	assert.match(source, /style:width={overlay && fullBleed \? undefined : panelCss}/);
+	assert.match(
+		source,
+		/style:grid-template-columns={side === 'right' \? `minmax\(0, 1fr\) \${panelCss}` : `\${panelCss} minmax\(0, 1fr\)`}/
+	);
+	assert.doesNotMatch(source, /--panel-|--handle-/);
 	assert.match(source, /\.collapse-control\s*{[^}]*position: absolute;/s);
 	assert.match(source, /\.collapse-control\s*{[^}]*left: var\(--sp-1\);/s);
 	assert.match(source, /\.right \.collapse-control\s*{[^}]*right: var\(--sp-1\);/s);
@@ -33,13 +39,12 @@ test('collapse handle placement is selectable and sticks to the viewport via rAF
 });
 
 test('resize handle overhang clamps to the container so it stays grabbable at full width', () => {
-	assert.match(
-		source,
-		/--handle-shift: max\(-6px, calc\(var\(--panel-current-width\) - 100cqw\)\);/
-	);
-	assert.match(source, /\.resize-handle\s*{[^}]*right: var\(--handle-shift\);/s);
-	assert.match(source, /\.resize-handle\s*{[^}]*width: calc\(18px \+ var\(--handle-shift\)\);/s);
-	assert.match(source, /\.right \.resize-handle\s*{[^}]*left: var\(--handle-shift\);/s);
+	const shift = 'max\\(-6px, calc\\(100% \\+ var\\(--edge-width\\) - 100cqw\\)\\)';
+	assert.match(source, new RegExp(`\\.resize-handle\\s*{[^}]*right: ${shift};`, 's'));
+	assert.match(source, new RegExp(`\\.resize-handle\\s*{[^}]*width: calc\\(18px \\+ ${shift}\\);`, 's'));
+	assert.match(source, new RegExp(`\\.right \\.resize-handle\\s*{[^}]*left: ${shift};`, 's'));
+	assert.match(source, /\.overlay \.resize-handle\s*{\s*right: -6px;\s*width: 12px;/);
+	assert.match(source, /\.overlay\.right \.resize-handle\s*{\s*right: auto;\s*left: -6px;/);
 });
 
 test('resize handle spans the full panel edge and delegates drag + keys to the shared action', () => {
@@ -98,7 +103,7 @@ test('collapseControl defaults on inline and off in overlay mode', () => {
 
 test('overlay panels never measure against 100vw, so a reserved scrollbar gutter cannot clip them', () => {
 	assert.doesNotMatch(source, /width: [^;]*100vw/);
-	assert.match(source, /\.overlay \.panel\s*{[^}]*width: min\(var\(--panel-current-width\), 100%\);/s);
+	assert.match(source, /\.overlay \.panel\s*{[^}]*max-width: 100%;/s);
 	assert.match(source, /\.overlay\.full-bleed \.panel\s*{[^}]*left: 0;[^}]*right: 0;[^}]*width: auto;/s);
 });
 

@@ -25,7 +25,9 @@ test('Toolbar: role=toolbar, ResizeObserver collapse, data-overflow children hid
 		toolbar,
 		/<Menu label={overflowLabel} title={overflowLabel} {items} placement="bottom-end" box="sm">/
 	);
-	assert.match(toolbar, /\.sticky\s*{[^}]*position: sticky;[^}]*top: var\(--toolbar-top, 0\);/s);
+	assert.match(toolbar, /\.sticky\s*{[^}]*position: sticky;[^}]*top: 0;/s);
+	assert.match(toolbar, /style:top={sticky \? stickyOffset : undefined}/);
+	assert.doesNotMatch(toolbar, /--toolbar-top/);
 });
 
 test('IconButton showLabel renders the label text; row form is block + left-aligned', () => {

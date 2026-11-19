@@ -309,5 +309,9 @@ test('coarse pointers: inline row actions and the more trigger are full 44px box
 	const { readFile } = await import('node:fs/promises');
 	const src = await readFile(new URL('../src/lib/components/organisms/DataTable.svelte', import.meta.url), 'utf8');
 	const coarse = src.slice(src.indexOf('@media (pointer: coarse)'));
-	assert.match(coarse, /\.dt-actions-inner {\s*--box-sm: var\(--touch-target\);/);
+	assert.match(
+		coarse,
+		/\.dt-actions-inner :global\(\.btn-box-sm\),\s*\.dt-actions-inner :global\(\.pop-trigger\),\s*\.dt-actions-inner > :global\(\.skeleton\) {\s*min-width: var\(--touch-target\);\s*min-height: var\(--touch-target\);/
+	);
+	assert.doesNotMatch(coarse, /--box-sm:/);
 });

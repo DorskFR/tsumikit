@@ -12,6 +12,7 @@
 		onItemChange,
 		onItem,
 		size = 'default',
+		flush = false,
 		variant = 'default',
 		lazy = false,
 		region = false
@@ -24,6 +25,7 @@
 		onItemChange?: (id: string, open: boolean) => void;
 		onItem?: (id: string, open: boolean) => void;
 		size?: 'default' | 'compact';
+		flush?: boolean;
 		variant?: 'default' | 'plain';
 		lazy?: boolean;
 		region?: boolean;
@@ -46,7 +48,7 @@
 	>
 {/snippet}
 
-<Disclosure id="probe" bind:open {chevron} {size} {lazy} {region} {onchange}>
+<Disclosure id="probe" bind:open {chevron} {size} {flush} {lazy} {region} {onchange}>
 	{#snippet header({ open })}
 		<span class="probe-header">Details</span><span class="probe-header-state">{open ? 'on' : 'off'}</span>
 	{/snippet}

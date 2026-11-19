@@ -21,6 +21,7 @@
 		children,
 		chevron = 'end',
 		size = 'default',
+		flush = false,
 		id,
 		onchange,
 		disabled = false,
@@ -42,9 +43,11 @@
 		/** Chevron placement; `false` hides it. */
 		chevron?: DisclosureChevron;
 		/** Header/panel density. `compact` shrinks both to `--fs-xs` and tighter
-		 *  padding for strip rows; tune either with `--disclosure-pad`,
-		 *  `--disclosure-fs`, `--disclosure-panel-pad`. */
+		 *  padding for strip rows. */
 		size?: DisclosureSize;
+		/** Drop the padding around the header and the panel, so both line up with
+		 *  the surrounding content. */
+		flush?: boolean;
 		/** Base for the button/panel ids the ARIA wiring uses. */
 		id?: string;
 		onchange?: (open: boolean) => void;
@@ -88,6 +91,7 @@
 	class="disclosure {klass}"
 	class:disclosure--open={open}
 	class:disclosure--compact={size === 'compact'}
+	class:disclosure--flush={flush}
 	style={styleProp}
 	data-tsu="Disclosure"
 >
@@ -132,13 +136,13 @@
 		justify-content: space-between;
 		gap: var(--sp-2);
 		width: 100%;
-		padding: var(--disclosure-pad, var(--sp-3) var(--sp-4));
+		padding: var(--sp-3) var(--sp-4);
 		border: 0;
 		background: none;
 		color: inherit;
 		font: inherit;
 		font-weight: var(--fw-medium);
-		font-size: var(--disclosure-fs, var(--fs-sm));
+		font-size: var(--fs-sm);
 		text-align: start;
 		cursor: pointer;
 		user-select: none;
@@ -173,14 +177,14 @@
 		rotate: 180deg;
 	}
 	.disclosure__panel {
-		font-size: var(--disclosure-fs, var(--fs-sm));
+		font-size: var(--fs-sm);
 		color: var(--text-muted);
 		transition:
 			opacity var(--dur-base) var(--ease-out),
 			translate var(--dur-base) var(--ease-out);
 	}
 	.disclosure__body {
-		padding: var(--disclosure-panel-pad, 0 var(--sp-4) var(--sp-4));
+		padding: 0 var(--sp-4) var(--sp-4);
 	}
 	@starting-style {
 		.disclosure__panel:not([hidden]) {
@@ -188,10 +192,19 @@
 			translate: 0 calc(-1 * var(--shift-xs));
 		}
 	}
-	.disclosure--compact {
-		--disclosure-pad: var(--sp-1) var(--sp-2);
-		--disclosure-fs: var(--fs-xs);
-		--disclosure-panel-pad: 0 var(--sp-2) var(--sp-2);
+	.disclosure--compact .disclosure__button {
+		padding: var(--sp-1) var(--sp-2);
+		font-size: var(--fs-xs);
+	}
+	.disclosure--compact .disclosure__panel {
+		font-size: var(--fs-xs);
+	}
+	.disclosure--compact .disclosure__body {
+		padding: 0 var(--sp-2) var(--sp-2);
+	}
+	.disclosure--flush .disclosure__button,
+	.disclosure--flush .disclosure__body {
+		padding: 0;
 	}
 	.disclosure__panel[hidden]:not([hidden='until-found']) {
 		display: none;

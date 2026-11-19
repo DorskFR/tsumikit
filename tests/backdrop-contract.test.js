@@ -35,10 +35,11 @@ function render(props = {}) {
 	};
 }
 
-const pct = (/** @type {string} */ selector, /** @type {string} */ prop) => {
-	const v = rule(css, selector)[prop];
-	assert.match(v ?? '', /^\d+%$/, `${selector} ${prop}`);
-	return Number(v.slice(0, -1)) / 100;
+const scrimAlpha = () => {
+	const v = rule(css, '.content').background ?? '';
+	const m = v.match(/^color-mix\(in srgb, var\(--bg\) (\d+)%, transparent\)$/);
+	assert.ok(m, `.content background: ${v}`);
+	return Number(m[1]) / 100;
 };
 
 const over = (/** @type {string} */ fg, /** @type {string} */ bg, /** @type {number} */ alpha) =>
@@ -66,7 +67,8 @@ test('Backdrop prop surface: src, required alt, seed, height, fade, blur, dim, A
 	assert.match(source, /onerror\?: \(\) => void;/);
 	assert.match(source, /as\?: 'div' \| 'header' \| 'section';/);
 	assert.match(source, /data-tsu="Backdrop"/);
-	assert.match(source, /style:--backdrop-h={height}/);
+	assert.match(source, /style:min-height={height}/);
+	assert.doesNotMatch(source, /--backdrop-/);
 	assert.match(source, /\{\.\.\.rest\}/);
 	assert.match(normalize(source), /<Artwork {src} {srcset} {sizes} {alt} {seed} {fit} {fallback} {icon} {onerror} aspect="auto" radius="sm" \/>/);
 });
@@ -80,10 +82,9 @@ test('the fade is a bottom gradient that ends at var(--bg), on a var(--bg) box, 
 });
 
 test('children sit on a scrim mixed from --bg that reads at >= 4.5:1 over a white picture in every theme', () => {
-	assert.ok(hasDecl(css, '.content', 'background', 'color-mix(in srgb, var(--bg) var(--backdrop-scrim), transparent)'));
 	assert.ok(hasDecl(css, '.content', 'position', 'relative'));
 	assert.ok(hasDecl(css, '.backdrop', 'color', 'var(--text)'));
-	const alpha = pct('.backdrop', '--backdrop-scrim');
+	const alpha = scrimAlpha();
 	for (const [id, p] of Object.entries(all)) {
 		const ratio = contrast(p.text, over(p.bg, '#ffffff', alpha));
 		assert.ok(ratio >= 4.5, `${id}: ${ratio.toFixed(2)} < 4.5`);
@@ -93,10 +94,10 @@ test('children sit on a scrim mixed from --bg that reads at >= 4.5:1 over a whit
 test('reduced transparency and more contrast get an opaque scrim; reduced transparency also drops the blur', () => {
 	const reduced = css.match(/@media \(prefers-reduced-transparency: reduce\) {(.*?)} }/)?.[1] ?? '';
 	const more = css.match(/@media \(prefers-contrast: more\) {(.*?)} }/)?.[1] ?? '';
-	assert.match(reduced, /\.backdrop { --backdrop-scrim: 100%; }/);
+	assert.match(reduced, /\.content { background: var\(--bg\); }/);
 	assert.match(reduced, /filter: none;/);
-	assert.match(more, /--backdrop-scrim: 100%;/);
-	const base = pct('.backdrop', '--backdrop-scrim');
+	assert.match(more, /\.content { background: var\(--bg\); }/);
+	const base = scrimAlpha();
 	assert.ok(base < 1, 'the default scrim lets the picture through');
 });
 
@@ -121,10 +122,11 @@ test('a missing src shows the Artwork placeholder (seeded gradient with initials
 	assert.equal(artwork.getAttribute('aria-label'), 'Night drive');
 });
 
-test('fade="none" and height flow to classes and the --backdrop-h variable', () => {
+test('fade="none" and height flow to a class and the inline min-height', () => {
 	const { el } = render({ fade: 'none' });
 	assert.ok(el.classList.contains('fade-none'));
-	assert.ok(hasDecl(css, '.backdrop', 'min-height', /^var\(--backdrop-h, /));
+	assert.equal(el.style.minHeight, '');
+	assert.ok(hasDecl(css, '.backdrop', 'min-height', 'min(45svh, 22rem)'));
 });
 
 test('Backdrop is part of the public API', () => {

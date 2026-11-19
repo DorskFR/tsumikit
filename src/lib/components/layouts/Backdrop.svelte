@@ -15,7 +15,7 @@
 		alt: string;
 		/** Drives the placeholder gradient hue and initials. Defaults to `alt`. */
 		seed?: string;
-		/** Any CSS length. Defaults to a viewport-relative height capped by --backdrop-h. */
+		/** Any CSS length. Defaults to `min(45svh, 22rem)`. */
 		height?: string;
 		/** Gradient from the image into --bg along the bottom edge. */
 		fade?: 'bottom' | 'none';
@@ -57,7 +57,7 @@
 	class="backdrop fade-{fade} {klass}"
 	class:blur
 	class:dim
-	style:--backdrop-h={height}
+	style:min-height={height}
 	{...rest}
 >
 	<div class="media">
@@ -70,15 +70,11 @@
 
 <style>
 	.backdrop {
-		--backdrop-scrim: 86%;
-		--backdrop-fade: 60%;
-		--backdrop-blur: 12px;
-		--backdrop-dim: 35%;
 		position: relative;
 		display: flex;
 		flex-direction: column;
 		justify-content: flex-end;
-		min-height: var(--backdrop-h, min(45svh, 22rem));
+		min-height: min(45svh, 22rem);
 		overflow: hidden;
 		background: var(--bg);
 		color: var(--text);
@@ -96,7 +92,7 @@
 		border-radius: 0;
 	}
 	.blur .media > :global([data-tsu='Artwork']) {
-		filter: blur(var(--backdrop-blur));
+		filter: blur(12px);
 		scale: 1.08;
 	}
 	.media::after {
@@ -106,7 +102,7 @@
 		pointer-events: none;
 		background-image: linear-gradient(
 			to bottom,
-			transparent calc(100% - var(--backdrop-fade)),
+			transparent 40%,
 			var(--bg) 100%
 		);
 	}
@@ -114,12 +110,12 @@
 		background-image: none;
 	}
 	.dim .media::after {
-		background-color: color-mix(in srgb, var(--bg) var(--backdrop-dim), transparent);
+		background-color: color-mix(in srgb, var(--bg) 35%, transparent);
 	}
 	.content {
 		position: relative;
 		padding: var(--sp-6) max(var(--sp-4), var(--safe-left)) var(--sp-4) max(var(--sp-4), var(--safe-right));
-		background: color-mix(in srgb, var(--bg) var(--backdrop-scrim), transparent);
+		background: color-mix(in srgb, var(--bg) 86%, transparent);
 	}
 	/* Feather the scrim upward so it never shows a hard edge over the picture. */
 	.content::before {
@@ -130,13 +126,16 @@
 		pointer-events: none;
 		background: linear-gradient(
 			to top,
-			color-mix(in srgb, var(--bg) var(--backdrop-scrim), transparent),
+			color-mix(in srgb, var(--bg) 86%, transparent),
 			transparent
 		);
 	}
 	@media (prefers-reduced-transparency: reduce) {
-		.backdrop {
-			--backdrop-scrim: 100%;
+		.content {
+			background: var(--bg);
+		}
+		.content::before {
+			background: linear-gradient(to top, var(--bg), transparent);
 		}
 		.blur .media > :global([data-tsu='Artwork']) {
 			filter: none;
@@ -144,9 +143,14 @@
 		}
 	}
 	@media (prefers-contrast: more) {
-		.backdrop {
-			--backdrop-scrim: 100%;
-			--backdrop-dim: 60%;
+		.content {
+			background: var(--bg);
+		}
+		.content::before {
+			background: linear-gradient(to top, var(--bg), transparent);
+		}
+		.dim .media::after {
+			background-color: color-mix(in srgb, var(--bg) 60%, transparent);
 		}
 	}
 </style>

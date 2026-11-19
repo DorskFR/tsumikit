@@ -195,6 +195,10 @@
 	let wrapEl = $state<HTMLDivElement | null>(null);
 	let stacked = $state(false);
 	let actionsW = $state(0);
+	const actionsWidth = $derived(
+		layout === 'fixed' && actionsW ? `calc(${actionsW}px + 2 * var(--sp-3))` : undefined
+	);
+	const headTop = $derived(stickyHeader ? stickyOffset : undefined);
 
 	function measureActions(node: HTMLElement) {
 		const update = () => {
@@ -395,14 +399,12 @@
 		class:fixed={layout === 'fixed'}
 		class:head-hidden={hideHeader}
 		class:sm={size === 'sm'}
-		style:--dt-sticky-offset={stickyOffset}
-		style:--dt-actions-w={actionsW ? `calc(${actionsW}px + 2 * var(--sp-3))` : undefined}
 		role={onrowclick ? 'grid' : undefined}
 	>
 		<thead data-part="head">
 			<tr>
 				{#if showSelect}
-					<th scope="col" class="dt-select">
+					<th scope="col" class="dt-select" style:top={headTop}>
 						<Checkbox
 							label={selectAllLabel}
 							labelHidden
@@ -421,6 +423,7 @@
 						class:dt-sortable={col.sortable && !headerSnippets[col.key]}
 						style:width={col.width}
 						style:text-align={col.align ?? 'left'}
+						style:top={headTop}
 						aria-sort={col.sortable
 							? sortKey === col.key
 								? sortDir === 'asc'
@@ -449,7 +452,7 @@
 					</th>
 				{/each}
 				{#if hasActions}
-					<th scope="col" class="dt-actions-head"><span class="sr-only">{rowActionsLabel}</span></th>
+					<th scope="col" class="dt-actions-head" style:top={headTop} style:width={actionsWidth}><span class="sr-only">{rowActionsLabel}</span></th>
 				{/if}
 			</tr>
 		</thead>
@@ -529,7 +532,7 @@
 						{/each}
 						{#if hasActions}
 							{@const built = actions ? splitActions(row) : undefined}
-							<td data-part="actions" class="dt-actions">
+							<td data-part="actions" class="dt-actions" style:width={actionsWidth}>
 								<span class="dt-actions-inner" use:measureActions>
 									{#if rowActions}{@render rowActions(row)}{/if}
 									{#if built}
@@ -625,7 +628,7 @@
 			</td>
 		{/each}
 		{#if hasActions}
-			<td data-part="actions" class="dt-actions">
+			<td data-part="actions" class="dt-actions" style:width={actionsWidth}>
 				{#if actions}
 					<span class="dt-actions-inner"><Skeleton width="var(--box-sm)" height="var(--box-sm)" /></span>
 				{/if}
@@ -675,7 +678,7 @@
 	}
 	.dt.sticky th {
 		position: sticky;
-		top: var(--dt-sticky-offset, 0);
+		top: 0;
 		z-index: 1;
 	}
 	/* Header stays in flow (so widths still apply) but paints nothing. */
@@ -766,20 +769,17 @@
 	td.nowrap {
 		white-space: nowrap;
 	}
-	tr[data-tone='ok'] {
-		--dt-tone: var(--ok);
+	tr[data-tone='ok'] td:first-child {
+		box-shadow: inset 3px 0 0 var(--ok);
 	}
-	tr[data-tone='warn'] {
-		--dt-tone: var(--warn);
+	tr[data-tone='warn'] td:first-child {
+		box-shadow: inset 3px 0 0 var(--warn);
 	}
-	tr[data-tone='danger'] {
-		--dt-tone: var(--danger);
+	tr[data-tone='danger'] td:first-child {
+		box-shadow: inset 3px 0 0 var(--danger);
 	}
-	tr[data-tone='info'] {
-		--dt-tone: var(--info);
-	}
-	tr.toned td:first-child {
-		box-shadow: inset 3px 0 0 var(--dt-tone);
+	tr[data-tone='info'] td:first-child {
+		box-shadow: inset 3px 0 0 var(--info);
 	}
 	tr[data-selected] {
 		background: color-mix(in srgb, var(--accent) 12%, transparent);
@@ -806,7 +806,7 @@
 	}
 	.dt.fixed .dt-actions-head,
 	.dt.fixed .dt-actions {
-		width: var(--dt-actions-w, 3.5rem);
+		width: 3.5rem;
 	}
 	.dt-actions {
 		opacity: 0;
@@ -825,8 +825,11 @@
 		.dt-actions {
 			opacity: 1;
 		}
-		.dt-actions-inner {
-			--box-sm: var(--touch-target);
+		.dt-actions-inner :global(.btn-box-sm),
+		.dt-actions-inner :global(.pop-trigger),
+		.dt-actions-inner > :global(.skeleton) {
+			min-width: var(--touch-target);
+			min-height: var(--touch-target);
 		}
 		/* The last row's checkbox slab would otherwise add a scroll range. */
 		tbody tr:last-child td :global(.checkbox::before) {
@@ -901,8 +904,17 @@
 	[data-stacked] tr.toned td:first-child {
 		box-shadow: none;
 	}
-	[data-stacked] tr.toned {
-		box-shadow: inset 3px 0 0 var(--dt-tone);
+	[data-stacked] tr[data-tone='ok'] {
+		box-shadow: inset 3px 0 0 var(--ok);
+	}
+	[data-stacked] tr[data-tone='warn'] {
+		box-shadow: inset 3px 0 0 var(--warn);
+	}
+	[data-stacked] tr[data-tone='danger'] {
+		box-shadow: inset 3px 0 0 var(--danger);
+	}
+	[data-stacked] tr[data-tone='info'] {
+		box-shadow: inset 3px 0 0 var(--info);
 	}
 	[data-stacked] td[data-role='title'] {
 		flex: 1 1 auto;
@@ -919,7 +931,7 @@
 	[data-stacked] td[data-role='meta'] {
 		flex: none;
 		order: 1;
-		font-family: var(--dt-meta-font, var(--font-mono));
+		font-family: var(--font-mono);
 		font-size: var(--fs-xs);
 		color: var(--text-muted);
 	}

@@ -38,21 +38,23 @@ function render(init, { inner = 1280, client = 1265 } = {}) {
 }
 
 test('fullWidth subtracts the measured scrollbar gutter from 100vw', () => {
-	assert.match(css, /\.ct\.full\.svelte-[\w-]+ \{[^}]*--ct-vw: calc\(100vw - var\(--ct-scrollbar, 0px\)\);/);
-	assert.match(css, /width: calc\(var\(--ct-vw\) - var\(--ct-inset-l\) - var\(--ct-inset-r\)\);/);
+	assert.match(css, /\.ct\.full\.svelte-[\w-]+ \{[^}]*width: 100vw;[^}]*margin-inline: calc\(50% - 50vw\);/);
+	const r = render({ fullWidth: true });
+	assert.match(r.el().getAttribute('style') ?? '', /width: calc\([^;]*\(100vw - 15px\)/);
 	assert.match(
-		css,
-		/margin-inline: calc\(50% - var\(--ct-vw\) \/ 2 \+ var\(--ct-inset-l\)\) calc\(50% - var\(--ct-vw\) \/ 2 \+ var\(--ct-inset-r\)\);/
+		r.el().getAttribute('style') ?? '',
+		/margin-inline: calc\(50% - \(100vw - 15px\) \/ 2 \+ 0px\) calc\(50% - \(100vw - 15px\) \/ 2 \+ 0px\)/
 	);
-	assert.doesNotMatch(css, /width: calc\(100vw - var\(--ct-inset-l\)/);
 });
 
-test('fullWidth publishes --ct-scrollbar and tracks it on resize', () => {
+test('fullWidth takes the scrollbar and the insets out inline and tracks the scrollbar on resize', () => {
 	const r = render({ fullWidth: true, inset: '1rem 2rem' });
-	assert.match(r.el().getAttribute('style') ?? '', /--ct-scrollbar: 15px/);
-	assert.match(r.el().getAttribute('style') ?? '', /--ct-inset-l: 1rem; --ct-inset-r: 2rem/);
+	assert.match(r.el().getAttribute('style') ?? '', /width: calc\(-3rem \+ \(100vw - 15px\)\)/);
+	assert.match(r.el().getAttribute('style') ?? '', /\(100vw - 15px\) \/ 2 \+ 1rem\) calc\(50% - \(100vw - 15px\) \/ 2 \+ 2rem\)/);
 	r.resize(1280);
-	assert.doesNotMatch(r.el().getAttribute('style') ?? '', /--ct-scrollbar/);
+	assert.match(r.el().getAttribute('style') ?? '', /width: calc\([^;]*100vw/);
+	assert.doesNotMatch(r.el().getAttribute('style') ?? '', /15px/);
+	assert.doesNotMatch(r.el().getAttribute('style') ?? '', /--/);
 });
 
 test('without fullWidth no gutter variable or listener is added', () => {
@@ -60,5 +62,5 @@ test('without fullWidth no gutter variable or listener is added', () => {
 	assert.equal(r.el().getAttribute('style'), null);
 	r.props.fullWidth = true;
 	r.flush();
-	assert.match(r.el().getAttribute('style') ?? '', /--ct-scrollbar: 15px/);
+	assert.match(r.el().getAttribute('style') ?? '', /100vw - 15px/);
 });

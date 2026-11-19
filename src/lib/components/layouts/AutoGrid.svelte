@@ -66,18 +66,17 @@
 	// Left-pack capped grids by default so columns don't drift to fill the row.
 	let justifyValue = $derived(justify ?? (max != null ? 'start' : null));
 
+	// Cap at N columns: the per-column floor becomes the larger of `min` and the
+	// width each column gets when N share the row (minus the N-1 gaps), so the
+	// grid stops adding tracks once N fit. `min(100%, …)` keeps it from
+	// overflowing when the container is narrower than a single `min` track.
+	let floor = $derived(
+		maxCols != null ? `max(${min}, (100% - (${maxCols} - 1) * ${gap}) / ${maxCols})` : min
+	);
+
 	let style = $derived(
 		[
-			`--ag-min: ${min}`,
-			`--ag-track: ${track}`,
-			`--ag-mode: ${mode}`,
-			maxCols != null ? `--ag-gap: ${gap}` : null,
-			maxCols != null ? `--ag-cols: ${maxCols}` : null,
-			template
-				? `grid-template-columns: ${template}`
-				: max != null && maxCols == null
-					? `grid-template-columns: repeat(auto-fill, minmax(min(100%, ${min}), ${max}))`
-					: null,
+			`grid-template-columns: ${template ?? `repeat(${mode}, minmax(min(100%, ${floor}), ${track}))`}`,
 			`gap: ${gap}`,
 			`align-items: ${align}`,
 			justifyValue ? `justify-content: ${justifyValue}` : null
@@ -91,7 +90,6 @@
 	this={as}
 	data-tsu="AutoGrid"
 	class="autogrid-c {klass}"
-	class:capped={maxCols != null}
 	{style}
 	{...rest}
 >
@@ -101,7 +99,6 @@
 <style>
 	.autogrid-c {
 		display: grid;
-		grid-template-columns: repeat(var(--ag-mode), minmax(min(100%, var(--ag-min)), var(--ag-track)));
 	}
 
 	/* A child may claim several tracks (`data-span="2"`, `data-span="full"`) —
@@ -120,19 +117,5 @@
 	}
 	.autogrid-c > :global([data-span='full']) {
 		grid-column: 1 / -1;
-	}
-
-	/* Cap at N columns: the per-column floor becomes the larger of `min` and the
-	   width each column gets when N share the row (minus the N-1 gaps), so
-	   auto-fit stops adding tracks once N fit. `min(100%, …)` keeps it from
-	   overflowing when the container is narrower than a single `min` track. */
-	.autogrid-c.capped {
-		grid-template-columns: repeat(
-			var(--ag-mode),
-			minmax(
-				min(100%, max(var(--ag-min), (100% - (var(--ag-cols) - 1) * var(--ag-gap)) / var(--ag-cols))),
-				var(--ag-track)
-			)
-		);
 	}
 </style>

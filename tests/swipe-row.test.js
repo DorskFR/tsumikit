@@ -65,7 +65,10 @@ function render(init = {}) {
 		const [x, y] = points[points.length - 1];
 		pointer('pointerup', x, y);
 	};
-	const x = () => Number.parseFloat(root.style.getPropertyValue('--swiperow-x'));
+	const x = () =>
+		Number.parseFloat(
+			/** @type {HTMLElement} */ (root.querySelector('[data-part="content"]')).style.transform.slice('translate3d('.length)
+		);
 	const click = (/** @type {Element} */ el) => {
 		el.dispatchEvent(new w.MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }));
 		flushSync();

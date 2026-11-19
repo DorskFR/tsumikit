@@ -121,7 +121,7 @@
 			{/if}
 			{#if tiles !== false}
 				<li class="tile">
-					<Popover label={numbered ? `${i + 1}. ${f.name}` : f.name} box="lg" placement="top-start" style="--pop-trigger-pad: 0; --pop-trigger-border: var(--border-strong); --pop-trigger-bg: var(--bg)">
+					<Popover label={numbered ? `${i + 1}. ${f.name}` : f.name} box="lg" placement="top-start">
 						{#snippet trigger()}
 							{@const src = thumb(f)}
 							<span class="face">
@@ -288,6 +288,16 @@
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset-inset);
 		border-radius: var(--r-xs);
+	}
+	.tile :global(.pop-trigger) {
+		padding: 0;
+		border-color: var(--border-strong);
+		background: var(--bg);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.tile :global(.pop-trigger:hover:not(:disabled)) {
+			background: var(--bg-elevated-2);
+		}
 	}
 	.mini {
 		flex: none;

@@ -40,6 +40,8 @@
 		variant = 'flush',
 		labels = 'fit',
 		maxWidth,
+		centerWidth = '4.5rem',
+		centerRaise,
 		class: klass = '',
 		style: styleProp = '',
 		...rest
@@ -50,7 +52,7 @@
 		/** `value` of the current item, for in-page views without routes. */
 		value?: string;
 		onchange?: (value: string) => void;
-		/** Fills a notch in the middle of the row (`--navbar-center-w`), may rise above it (`--navbar-center-raise`). */
+		/** Fills a notch in the middle of the row (`centerWidth`), may rise above it (`centerRaise`). */
 		center?: Snippet;
 		/** 'bar' = fixed to the bottom edge with safe-area padding. */
 		placement?: 'bar' | 'inline';
@@ -60,13 +62,17 @@
 		variant?: 'flush' | 'floating';
 		/**
 		 * Stacked labels that run out of room. 'fit' shrinks the font down to
-		 * `--navbar-label-min` (10px) so the longest word fits, then wraps to two
+		 * 10px so the longest word fits, then wraps to two
 		 * lines, then ellipsis. 'truncate' = one line with ellipsis at full size.
 		 * 'full' never clips: labels spill past their item.
 		 */
 		labels?: 'fit' | 'truncate' | 'full';
 		/** Caps and centres the row of items. */
 		maxWidth?: string;
+		/** Width of the `center` notch (any CSS length). */
+		centerWidth?: string;
+		/** How far `center` rises above the row (any CSS length). */
+		centerRaise?: string;
 		class?: string;
 		style?: string;
 		[key: string]: unknown;
@@ -87,6 +93,11 @@
 			1,
 			...items.flatMap((item) => item.label.split(/\s+/).map((w) => [...w].reduce((sum, c) => sum + charEm(c), 0)))
 		).toFixed(2)
+	);
+	const fitFontSize = $derived(
+		orientation === 'stacked' && labels === 'fit'
+			? `clamp(calc(0.625rem * var(--fs-scale)), 100cqi / ${labelEm}, 1em)`
+			: undefined
 	);
 
 	const hasBadge = (badge: NavBarItem['badge']) =>
@@ -133,7 +144,7 @@
 			<span class="navbar-badge">{item.badge}</span>
 		{/if}
 	</span>
-	<span class="navbar-label">{item.label}</span>
+	<span class="navbar-label" style:font-size={fitFontSize}>{item.label}</span>
 {/snippet}
 
 {#snippet entry(item: NavBarItem, i: number)}
@@ -180,13 +191,14 @@
 	class:bar={placement === 'bar'}
 	class:floating={variant === 'floating'}
 	class:stacked={orientation === 'stacked'}
-	style="--navbar-label-em: {labelEm};{maxWidth ? ` --navbar-max: ${maxWidth};` : ''}{styleProp}"
+	style={styleProp || undefined}
 	{...rest}
 >
-	<div class="navbar-row">
+	<div class="navbar-row" style:max-width={maxWidth}>
 		<div
 			class="navbar-inner"
 			class:split={!!center}
+			style:grid-template-columns={center ? `minmax(0, 1fr) ${centerWidth} minmax(0, 1fr)` : undefined}
 			role={tabs ? 'tablist' : undefined}
 			aria-label={tabs ? label : undefined}
 			onkeydown={tabs ? onkeydown : undefined}
@@ -210,20 +222,25 @@
 			{/if}
 		</div>
 		{#if center}
-			<div class="navbar-center">{@render center()}</div>
+			<div
+				class="navbar-center"
+				style:width={centerWidth}
+				style:top={centerRaise ? `calc(-1 * ${centerRaise})` : undefined}
+				style:bottom={centerRaise}
+			>
+				{@render center()}
+			</div>
 		{/if}
 	</div>
 </nav>
 
 <style>
 	.navbar {
-		--navbar-max: none;
 		min-width: 0;
 	}
 	.navbar-row {
 		position: relative;
 		min-width: 0;
-		max-width: var(--navbar-max);
 		margin-inline: auto;
 	}
 	.navbar-inner {
@@ -236,7 +253,7 @@
 	}
 	.navbar-inner.split {
 		display: grid;
-		grid-template-columns: minmax(0, 1fr) var(--navbar-center-w, 4.5rem) minmax(0, 1fr);
+		grid-template-columns: minmax(0, 1fr) 4.5rem minmax(0, 1fr);
 	}
 	.navbar-side {
 		display: flex;
@@ -246,13 +263,13 @@
 	}
 	.navbar-center {
 		position: absolute;
-		top: calc(-1 * var(--navbar-center-raise, 0px));
-		bottom: var(--navbar-center-raise, 0px);
+		top: 0;
+		bottom: 0;
 		left: 50%;
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: var(--navbar-center-w, 4.5rem);
+		width: 4.5rem;
 		transform: translateX(-50%);
 	}
 	.bar {
@@ -352,7 +369,6 @@
 		-webkit-box-orient: vertical;
 		-webkit-line-clamp: 2;
 		line-clamp: 2;
-		font-size: clamp(var(--navbar-label-min, calc(0.625rem * var(--fs-scale))), 100cqi / var(--navbar-label-em), 1em);
 		line-height: var(--lh-tight);
 		text-align: center;
 		white-space: normal;

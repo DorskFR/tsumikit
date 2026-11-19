@@ -196,11 +196,16 @@ test('without value or current the first tab still takes focus', () => {
 	assert.equal(ui.nav.querySelector('[aria-selected="true"]'), null);
 });
 
-test('center notch and raise read published custom properties with defaults', () => {
-	assert.match(css, /grid-template-columns: minmax\(0, 1fr\) var\(--navbar-center-w, 4\.5rem\) minmax\(0, 1fr\);/);
-	assert.ok(hasDecl(css, '.navbar-center', 'width', 'var(--navbar-center-w, 4.5rem)'));
-	assert.ok(hasDecl(css, '.navbar-center', 'top', 'calc(-1 * var(--navbar-center-raise, 0px))'));
-	assert.match(readme, /\| `NavBar` \| `--navbar-max`, `--navbar-center-w`, `--navbar-center-raise` \|/);
+test('center notch width and raise are props set inline over 4.5rem / 0 defaults', () => {
+	assert.match(css, /grid-template-columns: minmax\(0, 1fr\) 4\.5rem minmax\(0, 1fr\);/);
+	assert.ok(hasDecl(css, '.navbar-center', 'width', '4.5rem'));
+	assert.ok(hasDecl(css, '.navbar-center', 'top', '0'));
+	assert.ok(hasDecl(css, '.navbar-center', 'bottom', '0'));
+	assert.match(source, /centerWidth = '4\.5rem',/);
+	assert.match(source, /centerRaise\?: string;/);
+	assert.match(source, /style:grid-template-columns={center \? `minmax\(0, 1fr\) \${centerWidth} minmax\(0, 1fr\)` : undefined}/);
+	assert.match(source, /style:width={centerWidth}\s*style:top={centerRaise \? `calc\(-1 \* \${centerRaise}\)` : undefined}\s*style:bottom={centerRaise}/);
+	assert.doesNotMatch(source, /--navbar-/);
 });
 
 test('floating is an inset elevated card; flush keeps the edge-to-edge bar', () => {
@@ -240,9 +245,8 @@ test('bar placement reuses the existing z-index, nav-height and safe-area tokens
 	assert.match(tokens, /--nav-h: /);
 });
 
-test('maxWidth centres the row through a custom property', () => {
-	assert.match(source, /--navbar-max: \$\{maxWidth\}/);
-	assert.ok(hasDecl(css, '.navbar-row', 'max-width', 'var(--navbar-max)'));
+test('maxWidth caps and centres the row inline', () => {
+	assert.match(source, /<div class="navbar-row" style:max-width={maxWidth}>/);
 	assert.match(source, /margin-inline: auto;/);
 });
 

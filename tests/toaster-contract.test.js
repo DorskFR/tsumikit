@@ -76,7 +76,7 @@ test('toast rows are raised Cards; action is a real ghost sm Button with loading
 	assert.match(component, /<button\s+type="button"\s+class="toast-text"\s+aria-label="Dismiss: {t\.message}"\s+onclick={\(\) => toasts\.dismiss\(t\.id\)}\s*>/);
 });
 
-test('sizing token --toast-max-width defaults to 28rem, no z-index needed in the top layer', () => {
-	assert.match(component, /max-width: var\(--toast-max-width, 28rem\);/);
+test('the stack caps at 28rem, no z-index needed in the top layer', () => {
+	assert.match(component, /max-width: 28rem;/);
 	assert.match(component, /\.toaster\s*{[^}]*position: fixed;/);
 });

@@ -37,13 +37,28 @@ test('Modal tone paints a title glyph and a 3px top border; footer is right-alig
 	assert.match(source, /tone\?: Tone;/);
 	assert.match(source, /import { canonicalTone, type Tone } from '\$lib\/tone';/);
 	assert.match(source, /class:sheet-toned={t !== 'neutral'}/);
-	assert.match(source, /style:--modal-tone={t === 'neutral' \? undefined : `var\(--\${t}\)`}/);
-	assert.match(source, /<span class="sheet-tone-icon"><Icon name=\{TONE_ICON\[t\]\} \/><\/span>/);
+	assert.match(source, /const toneColor = \$derived\(t === 'neutral' \? undefined : `var\(--\${t}\)`\);/);
+	assert.match(source, /style:border-top-color={toneColor}/);
+	assert.match(source, /<span class="sheet-tone-icon" style:color={toneColor}><Icon name=\{TONE_ICON\[t\]\} \/><\/span>/);
+	assert.doesNotMatch(source, /--modal-tone/);
 	assert.match(source, /\.sheet-tone-icon\s*{[^}]*font-size: var\(--icon-lg\);/);
-	assert.match(source, /\.sheet-toned\s*{\s*border-top: 3px solid var\(--modal-tone\);/s);
+	assert.match(source, /\.sheet-toned\s*{\s*border-top-width: 3px;/s);
 	assert.match(source, /\.sheet-foot\s*{[^}]*justify-content: flex-end;[^}]*gap: var\(--sp-2\);/s);
 });
 
 test('Modal stays hidden while closed under a controlled `open`', () => {
 	assert.match(source, /\.modal:not\(\[open\]\)\s*{\s*display: none;/s);
+});
+
+test('Modal width presets and the resized width are real properties, full-width below 40rem', () => {
+	assert.match(source, /style:width={width != null \? `\${width}px` : undefined}/);
+	assert.match(source, /style:max-width={width != null \? `min\(\${width}px, calc\(100vw - 2rem\)\)` : undefined}/);
+	assert.match(
+		source,
+		/@media \(max-width: 39\.999rem\)\s*{\s*\.sheet\s*{\s*width: 100% !important;\s*max-width: 34rem !important;/
+	);
+	for (const [cls, w] of [['sheet-sm', '24rem'], ['sheet-lg', '48rem'], ['sheet-xl', '72rem']]) {
+		assert.match(source, new RegExp(`\\.${cls}\\s*{\\s*width: ${w};\\s*max-width: min\\(${w}, calc\\(100vw - 2rem\\)\\);`));
+	}
+	assert.doesNotMatch(source, /--sw\b|--sheet-w/);
 });
