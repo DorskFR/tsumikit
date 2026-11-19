@@ -156,25 +156,10 @@
 
 <style>
 	:global(.metric) {
-		/* The tone hue the chip / value pull from; neutral falls back to accent. */
-		--metric-tone: var(--accent);
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp-2);
 	}
-	:global(.metric-ok) {
-		--metric-tone: var(--ok);
-	}
-	:global(.metric-warn) {
-		--metric-tone: var(--warn);
-	}
-	:global(.metric-danger) {
-		--metric-tone: var(--danger);
-	}
-	:global(.metric-info) {
-		--metric-tone: var(--info);
-	}
-
 	.metric-head {
 		display: flex;
 		align-items: flex-start;
@@ -199,9 +184,29 @@
 		height: 1.75rem;
 		border-radius: var(--r-md);
 		font-size: var(--fs-md);
-		color: var(--metric-tone);
-		background: color-mix(in srgb, var(--metric-tone) 14%, transparent);
-		border: 1px solid color-mix(in srgb, var(--metric-tone) 30%, transparent);
+		color: var(--accent);
+		background: color-mix(in srgb, var(--accent) 14%, transparent);
+		border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+	}
+	:global(.metric-ok) .metric-chip {
+		color: var(--ok);
+		background: color-mix(in srgb, var(--ok) 14%, transparent);
+		border-color: color-mix(in srgb, var(--ok) 30%, transparent);
+	}
+	:global(.metric-warn) .metric-chip {
+		color: var(--warn);
+		background: color-mix(in srgb, var(--warn) 14%, transparent);
+		border-color: color-mix(in srgb, var(--warn) 30%, transparent);
+	}
+	:global(.metric-danger) .metric-chip {
+		color: var(--danger);
+		background: color-mix(in srgb, var(--danger) 14%, transparent);
+		border-color: color-mix(in srgb, var(--danger) 30%, transparent);
+	}
+	:global(.metric-info) .metric-chip {
+		color: var(--info);
+		background: color-mix(in srgb, var(--info) 14%, transparent);
+		border-color: color-mix(in srgb, var(--info) 30%, transparent);
 	}
 	.metric-value {
 		display: flex;
@@ -220,7 +225,19 @@
 		font-variant-numeric: tabular-nums;
 	}
 	:global(.metric-tint) .metric-num {
-		color: var(--metric-tone);
+		color: var(--accent);
+	}
+	:global(.metric-ok.metric-tint) .metric-num {
+		color: var(--ok);
+	}
+	:global(.metric-warn.metric-tint) .metric-num {
+		color: var(--warn);
+	}
+	:global(.metric-danger.metric-tint) .metric-num {
+		color: var(--danger);
+	}
+	:global(.metric-info.metric-tint) .metric-num {
+		color: var(--info);
 	}
 	.metric-unit {
 		font-size: var(--fs-sm);
@@ -284,23 +301,22 @@
 		display: inline-flex;
 		align-items: center;
 		gap: var(--sp-1);
-		--seg-tone: var(--text-muted);
-		color: var(--seg-tone);
+		color: var(--text-muted);
 		font-variant-numeric: tabular-nums;
 	}
 	.metric-seg-ok {
-		--seg-tone: var(--ok);
+		color: var(--ok);
 	}
 	.metric-seg-warn {
-		--seg-tone: var(--warn);
+		color: var(--warn);
 	}
 	.metric-seg-danger {
-		--seg-tone: var(--danger);
+		color: var(--danger);
 	}
 	.metric-seg-info {
-		--seg-tone: var(--info);
+		color: var(--info);
 	}
 	.metric-seg-accent {
-		--seg-tone: var(--accent);
+		color: var(--accent);
 	}
 </style>

@@ -90,13 +90,13 @@ test('an emoji, a 12px Icon and plain text leave the chip the same height', () =
 	assert.ok(el('glyph').querySelector('svg'), 'the Icon really rendered');
 });
 
-test('the chip height is pinned to --toggle-size, not to its line box', () => {
+test('the chip height is pinned to the control box, not to its line box', () => {
 	const base = rule(toggle, '.toggle');
-	assert.equal(base.height, 'var(--toggle-size, var(--control-sm))');
+	assert.equal(base.height, 'var(--control-sm)');
 	assert.equal(base['box-sizing'], 'border-box');
 	assert.equal(base['line-height'], 'var(--lh-none)');
 	assert.equal(base.padding, '0 var(--control-px-sm)');
-	assert.equal(rule(toggle, '.toggle.md').height, 'var(--toggle-size, var(--control-md))');
+	assert.equal(rule(toggle, '.toggle.md').height, 'var(--control-md)');
 });
 
 test('Popover renders the Toggle component rather than restating its chrome', () => {

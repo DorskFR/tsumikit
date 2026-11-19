@@ -65,7 +65,10 @@ function render(init = {}) {
 		const [x, y] = points[points.length - 1];
 		pointer('pointerup', x, y);
 	};
-	const x = () => Number.parseFloat(root.style.getPropertyValue('--swiperow-x'));
+	const x = () =>
+		Number.parseFloat(
+			/** @type {HTMLElement} */ (root.querySelector('[data-part="content"]')).style.transform.slice('translate3d('.length)
+		);
 	const click = (/** @type {Element} */ el) => {
 		el.dispatchEvent(new w.MouseEvent('click', { bubbles: true, cancelable: true, button: 0 }));
 		flushSync();
@@ -282,4 +285,17 @@ test('the component touches no browser globals at module or init time', () => {
 		.filter((l) => /^\t(let|const) /.test(l))
 		.join('\n');
 	assert.doesNotMatch(top, /\b(window|document|matchMedia|navigator)\b/);
+});
+
+test('the focused screen-reader button takes the tone colours as real properties', async () => {
+	const { readFile } = await import('node:fs/promises');
+	const src = await readFile(new URL('../src/lib/components/molecules/SwipeRow.svelte', import.meta.url), 'utf8');
+	assert.doesNotMatch(src, /--swiperow-/);
+	assert.match(src, /\.swiperow-sr:focus-visible\s*{[^}]*color: var\(--text\);\s*background: var\(--bg-elevated-2\);/s);
+	for (const [cls, bg, ink] of [['accent', 'accent', 'text-on-accent'], ['success', 'ok', 'bg'], ['info', 'info', 'bg'], ['warn', 'warn', 'bg'], ['danger', 'danger', 'bg']]) {
+		assert.match(
+			src,
+			new RegExp(`\\.swiperow-tone-${cls} \\.swiperow-sr:focus-visible\\s*{\\s*color: var\\(--${ink}\\);\\s*background: var\\(--${bg}\\);`)
+		);
+	}
 });

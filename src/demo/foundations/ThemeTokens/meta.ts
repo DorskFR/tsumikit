@@ -13,6 +13,6 @@ export const meta: ComponentMeta = {
 		'shadow',
 		'design tokens',
 	],
-	seeAlso: ['Theming', 'StyleHooks', 'Swatch', 'ThemePicker'],
+	seeAlso: ['Theming', 'Swatch', 'ThemePicker'],
 	order: 2,
 };

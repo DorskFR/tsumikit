@@ -84,7 +84,7 @@
 					{onchange}
 				/>
 				{#if o.description}<span class="sr-only" id={descId(o)}>{o.description}</span>{/if}
-				<span class="swatch-chip" aria-hidden="true" style="--swatch: {o.color ?? 'var(--accent)'}"></span>
+				<span class="swatch-chip" aria-hidden="true" style:background={o.color ?? 'var(--accent)'}></span>
 			</label>
 		{:else if variant === 'rows'}
 			<div class="row-wrap">
@@ -293,7 +293,7 @@
 		align-items: flex-start;
 		min-width: 0;
 		gap: var(--sp-2);
-		padding: var(--pad, var(--sp-2) var(--sp-3));
+		padding: var(--sp-2) var(--sp-3);
 		border: var(--edge-width) solid var(--surface-edge);
 		border-radius: var(--r-md);
 		transition:
@@ -373,7 +373,6 @@
 		width: var(--chip-md);
 		height: var(--chip-md);
 		border-radius: var(--r-pill);
-		background: var(--swatch);
 		border: 2px solid transparent;
 		box-shadow: 0 0 0 1px var(--border-strong);
 		transition: box-shadow var(--dur-fast) var(--ease);

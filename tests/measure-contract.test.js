@@ -31,7 +31,8 @@ test('Text `measure` accepts true (token) or a CSS length', () => {
 	assert.match(text, /max-width: \$\{measure === true \? 'var\(--measure\)' : measure\}/);
 });
 
-test('the Prose demo shows the default cap next to the --measure: none override', () => {
+test('the Prose demo shows the default cap next to the max-inline-size: none override', () => {
 	assert.match(proseDemo, /<Prose html=/);
-	assert.match(proseDemo, /--measure: none/);
+	assert.match(proseDemo, /<Prose html=\{renderMarkdown\(source\)\} style="max-inline-size: none" \/>/);
+	assert.doesNotMatch(proseDemo, /--measure:/);
 });

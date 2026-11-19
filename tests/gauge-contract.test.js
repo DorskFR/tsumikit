@@ -49,8 +49,8 @@ test('interactive gauges keep their native role and fold the value into the name
 });
 
 test('continuous variant fills upward by scaling from the bottom', () => {
-	assert.match(component, /<span class="fill" style:--p={pct \/ 100}><\/span>/);
-	assert.match(component, /\.fill\s*{[^}]*transform-origin: bottom;[^}]*scale: 1 var\(--p, 0\);/);
+	assert.match(component, /<span class="fill" style:scale="1 {pct \/ 100}"><\/span>/);
+	assert.match(component, /\.fill\s*{[^}]*transform-origin: bottom;[^}]*scale: 1 0;/);
 });
 
 test('segments variant stacks bars lit bottom-up', () => {
@@ -64,9 +64,10 @@ test('threshold tones resolve to semantic tokens, explicit tone wins', () => {
 	assert.match(component, /if \(v >= dangerAt\) return 'danger';/);
 	assert.match(component, /if \(v >= warnAt\) return 'warn';/);
 	assert.match(component, /tone \?\? gaugeTone\(pct, warnAt, dangerAt\)/);
-	assert.match(component, /\.tone-ok\s*{\s*--gauge-fill: var\(--ok\);/);
-	assert.match(component, /\.tone-warn\s*{\s*--gauge-fill: var\(--warn\);/);
-	assert.match(component, /\.tone-danger\s*{\s*--gauge-fill: var\(--danger\);/);
+	for (const tone of ['ok', 'warn', 'danger']) {
+		assert.ok(component.includes(`.tone-${tone} .fill,\n\t.tone-${tone} .segment.lit {\n\t\tbackground: var(--${tone});`), tone);
+		assert.ok(component.includes(`.interactive.tone-${tone}:hover {\n\t\t\tborder-color: var(--${tone});`), tone);
+	}
 });
 
 test('corner slot sits at the lower right', () => {
@@ -74,11 +75,11 @@ test('corner slot sits at the lower right', () => {
 	assert.match(component, /\.corner\s*{[^}]*right: -0\.35em;[^}]*bottom: -0\.35em;/);
 });
 
-test('sized via CSS vars with 14x20 defaults, tokens only, no :global', () => {
-	assert.match(component, /width: var\(--gauge-w, 0\.875rem\)/);
-	assert.match(component, /height: var\(--gauge-h, 1\.25rem\)/);
-	assert.match(component, /style:--gauge-w={width}/);
-	assert.match(component, /style:--gauge-h={height}/);
+test('sized inline over 14x20 defaults, tokens only, no :global', () => {
+	assert.match(component, /\.gauge\s*{[^}]*width: 0\.875rem;\s*height: 1\.25rem;/);
+	assert.match(component, /\(width \? `width: \${width};` : ''\) \+ \(height \? `height: \${height};` : ''\)/);
+	assert.match(component, /style={inline \+ style \|\| undefined}/);
+	assert.doesNotMatch(component, /--(gauge|p)\b/);
 	assert.doesNotMatch(component, /:global/);
 	assert.doesNotMatch(component, /#[0-9a-f]{3,8}\b/i);
 });

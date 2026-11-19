@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
-		title: 'Accent, row and block',
-		caption: '--opt-accent per card; description is announced via aria-describedby; onfocuschange drives the preview on hover or arrow keys; row and block make left-aligned list items.',
+		title: 'Tone, row and block',
+		caption: 'tone per card; description is announced via aria-describedby; onfocuschange drives the preview on hover or arrow keys; row and block make left-aligned list items.',
 		layout: 'stack'
 	};
 </script>
@@ -22,7 +22,7 @@
 			value={p.value}
 			description={p.description}
 			selected={mode === p.value}
-			style="--opt-accent: {p.accent}"
+			tone={p.tone}
 			onfocuschange={(v) => (preview = v)}
 			onclick={() => (mode = p.value)}
 		>

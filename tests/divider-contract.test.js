@@ -29,11 +29,12 @@ test('decorative dividers are hidden, everything else is a semantic separator', 
 	assert.match(source, /aria-hidden={semantic \? undefined : 'true'}/);
 });
 
-test('spacing rides a custom property applied along the axis', () => {
-	assert.match(source, /style:--divider-spacing={spacing}/);
-	assert.match(source, /--divider-spacing: var\(--sp-3\);/);
-	assert.match(source, /\.horizontal \{[^}]*margin-block: var\(--divider-spacing\);/s);
-	assert.match(source, /\.vertical \{[^}]*margin-inline: var\(--divider-spacing\);/s);
+test('spacing is an inline margin along the axis over the --sp-3 default', () => {
+	assert.match(source, /spacing \? `margin-\${vertical \? 'inline' : 'block'}: \${spacing};` : ''/);
+	assert.match(source, /style={inline \+ \(styleProp \?\? ''\) \|\| undefined}/);
+	assert.match(source, /\.horizontal \{[^}]*margin-block: var\(--sp-3\);/s);
+	assert.match(source, /\.vertical \{[^}]*margin-inline: var\(--sp-3\);/s);
+	assert.doesNotMatch(source, /--divider-/);
 });
 
 test('vertical dividers stretch to the flex parent cross size', () => {
@@ -43,9 +44,16 @@ test('vertical dividers stretch to the flex parent cross size', () => {
 });
 
 test('tones map to the border tokens', () => {
-	assert.match(source, /--divider-color: var\(--border\);/);
-	assert.match(source, /\.tone-strong \{\s*--divider-color: var\(--border-strong\);/);
-	assert.match(source, /\.tone-faint \{\s*--divider-color: color-mix\(/);
+	assert.match(source, /\.horizontal \{[^}]*background: var\(--border\);/s);
+	assert.match(source, /\.vertical \{[^}]*background: var\(--border\);/s);
+	assert.match(
+		source,
+		/\.tone-strong:not\(\.labelled\),\s*\.tone-strong\.labelled::before,\s*\.tone-strong\.labelled::after \{\s*background: var\(--border-strong\);/
+	);
+	assert.match(
+		source,
+		/\.tone-faint:not\(\.labelled\),\s*\.tone-faint\.labelled::before,\s*\.tone-faint\.labelled::after \{\s*background: color-mix\(in srgb, var\(--border\) 45%, transparent\);/
+	);
 	assert.doesNotMatch(source, /#[0-9a-fA-F]{3,6}/);
 });
 

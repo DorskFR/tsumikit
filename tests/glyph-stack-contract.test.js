@@ -85,7 +85,8 @@ test('GlyphStack prop surface: items or children, stack mode, stackBelow, contai
 
 test('GlyphStack grid: 2×2 of 1rem cells, 1px gap, centred; inline run keeps a token gap', () => {
 	assert.equal(hasDecl(css, '.glyph-stack', 'display', 'inline-flex'), true);
-	assert.equal(hasDecl(css, '.glyph-stack', 'gap', 'var(--glyph-stack-gap, var(--sp-1))'), true);
+	assert.equal(hasDecl(css, '.glyph-stack', 'gap', 'var(--sp-1)'), true);
+	assert.doesNotMatch(source, /--glyph-stack-|--focus-ring-offset:/);
 	assert.equal(hasDecl(css, '.stacked', 'display', 'inline-grid'), true);
 	assert.equal(hasDecl(css, '.stacked', 'grid-template-columns', 'repeat(2, 1rem)'), true);
 	assert.equal(hasDecl(css, '.stacked', 'grid-auto-rows', '1rem'), true);
@@ -367,7 +368,7 @@ test('expand prop surface and slide styling', () => {
 	assert.match(source, /expanded\?: Snippet \| string;/);
 	assert.match(source, /action\?: \(\) => void;/);
 	assert.equal(hasDecl(css, ".glyph-stack[data-expand='slide']", 'touch-action', 'none'), true);
-	assert.equal(hasDecl(css, '.tile-body', 'zoom', 'var(--glyph-stack-zoom, 1.75)'), true);
+	assert.equal(hasDecl(css, '.tile-body', 'zoom', '1.75'), true);
 	assert.match(readme, /`expand` none \| tap \| slide/);
 	assert.match(page, /expand="tap"/);
 	assert.match(page, /expand="slide"/);

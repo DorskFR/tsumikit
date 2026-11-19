@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'States',
-		caption: 'a disabled tab is skipped by ←/→; long labels truncate at --tab-max-width and the strip scrolls when it overflows.',
+		caption: 'a disabled tab is skipped by ←/→; long labels truncate at tabMaxWidth and the strip scrolls when it overflows.',
 		layout: 'stack'
 	};
 </script>
@@ -26,4 +26,4 @@
 <Tabs tabs={withDisabled} bind:value={a} label="Workspace settings">
 	{#snippet panel(id)}<Text size="sm" tone="muted">{id}</Text>{/snippet}
 </Tabs>
-<Tabs tabs={many} bind:value={b} label="Saved queries" style="--tab-max-width: 10rem" />
+<Tabs tabs={many} bind:value={b} label="Saved queries" tabMaxWidth="10rem" />

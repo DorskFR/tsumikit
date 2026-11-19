@@ -43,9 +43,9 @@ test('real fieldset/legend semantics; legend rides the top border', () => {
 test('dashed and tone variants map to border tokens', () => {
 	assert.match(component, /class:dashed/);
 	assert.match(component, /\.fieldset\.dashed\s*{\s*border-style: dashed;/);
-	assert.match(component, /\.fieldset\s*{[^}]*--fieldset-border: var\(--accent-dim\);/);
-	assert.match(component, /\.fieldset-neutral\s*{\s*--fieldset-border: var\(--border\);/);
-	assert.match(component, /\.fieldset-strong\s*{\s*--fieldset-border: var\(--border-strong\);/);
+	assert.match(component, /\.fieldset\s*{[^}]*border: 2px solid var\(--accent-dim\);/);
+	assert.match(component, /\.fieldset-neutral\s*{\s*border-color: var\(--border\);/);
+	assert.match(component, /\.fieldset-strong\s*{\s*border-color: var\(--border-strong\);/);
 	assert.match(component, /border-radius: var\(--r-lg\);/);
 });
 
@@ -60,7 +60,7 @@ test('drop target: dragenter sets highlight, drop calls ondrop with payload, acc
 
 test('highlight style: accent dashed border with 6% fill and a drop hint row', () => {
 	assert.match(component, /class:over/);
-	assert.match(component, /\.fieldset\.over\s*{[^}]*--fieldset-border: var\(--accent\);[^}]*color-mix\(in srgb, var\(--accent\) 6%, var\(--bg\)\);/);
+	assert.match(component, /\.fieldset\.over\s*{[^}]*border-color: var\(--accent\);[^}]*color-mix\(in srgb, var\(--accent\) 6%, var\(--bg\)\);/);
 	assert.match(component, /{#if droppable && over && dropHint}\s*<div class="fieldset-hint" aria-live="polite">/);
 });
 

@@ -90,8 +90,6 @@
 	class:ig-sm={size === 'sm'}
 	class:ig-lg={size === 'lg'}
 	class:disabled
-	style:--ig-leading-w="{leadingW}px"
-	style:--ig-trailing-w="{trailingW}px"
 	style={styleProp}
 >
 	{#if leading}
@@ -106,29 +104,15 @@
 <style>
 	/* The field's own border box spans the whole group: Gecko zooms to the
 	   focused element's rect on mobile, so the adornments must overlay it, never
-	   sit beside a narrower field. The field reads --ig-leading-w /
-	   --ig-trailing-w to keep its text clear of them. Once a textarea is taller
+	   sit beside a narrower field. The field reads the measured adornment widths
+	   from the group context to keep its text clear of them. Once a textarea is taller
 	   than one row it reports `bar`: the adornments then sit in a band under
 	   the text (::before continues the field's border), so every line runs
 	   full width and the scrollbar ends above the controls. */
 	.ig {
-		--ig-h: var(--control-height-default);
-		--ig-pad-x: var(--control-px-md);
-		--ig-gap: var(--sp-2);
-		--ig-inset: var(--sp-0-5);
-		--ig-radius: var(--r-md);
 		position: relative;
 		display: flex;
 		width: 100%;
-	}
-	.ig-sm {
-		--ig-h: var(--control-height-compact);
-		--ig-pad-x: var(--control-px-sm);
-		--ig-gap: var(--sp-1);
-	}
-	.ig-lg {
-		--ig-h: var(--control-height-large);
-		--ig-pad-x: var(--control-px-lg);
 	}
 	.ig-field {
 		width: 100%;
@@ -138,14 +122,13 @@
 	   following the field's; inner corners go square. In the bar they hug the
 	   bottom and side borders, so only the bottom-outer corner is rounded. */
 	.ig-adorn {
-		--ig-fuse-r: calc(var(--ig-radius) - var(--sp-px));
 		position: absolute;
 		top: var(--sp-px);
 		bottom: var(--sp-px);
 		z-index: 1;
 		display: flex;
 		align-items: center;
-		gap: var(--ig-inset);
+		gap: var(--sp-0-5);
 		pointer-events: none;
 	}
 	.ig-leading {
@@ -157,10 +140,20 @@
 	.ig-adorn > :global(*) {
 		pointer-events: auto;
 		align-self: stretch;
-		--btn-size: 100%;
-		--btn-radius: 0;
-		--pop-trigger-radius: 0;
 		border-radius: 0;
+	}
+	.ig .ig-adorn :global(:is(.btn, .btn-control, .pop-trigger)) {
+		border-radius: 0;
+	}
+	.ig .ig-adorn :global(:is(.btn, .btn-control)) {
+		min-height: 100%;
+	}
+	.ig .ig-adorn :global(.btn-control) {
+		height: 100%;
+	}
+	.ig .ig-adorn :global(.btn-square) {
+		width: 100%;
+		min-width: 100%;
 	}
 	/* The doubled class outranks an adornment's own fixed box (e.g. FileButton `box`). */
 	.ig.ig .ig-adorn > :global(*) {
@@ -172,61 +165,70 @@
 		min-width: 0;
 		aspect-ratio: 1;
 	}
-	.ig-leading > :global(:first-child) {
-		--btn-radius: var(--ig-fuse-r) 0 0 var(--ig-fuse-r);
-		border-radius: var(--ig-fuse-r) 0 0 var(--ig-fuse-r);
+	.ig .ig-leading > :global(:first-child),
+	.ig .ig-leading > :global(:first-child :is(.btn, .btn-control)) {
+		border-radius: calc(var(--r-md) - var(--sp-px)) 0 0 calc(var(--r-md) - var(--sp-px));
 	}
-	.ig-trailing > :global(:last-child) {
-		--btn-radius: 0 var(--ig-fuse-r) var(--ig-fuse-r) 0;
-		border-radius: 0 var(--ig-fuse-r) var(--ig-fuse-r) 0;
-	}
-	.ig-adorn :global(.split-main) {
-		--btn-radius: 0;
-	}
-	.ig-adorn :global(.split-caret) {
-		--pop-trigger-radius: 0;
+	.ig .ig-trailing > :global(:last-child),
+	.ig .ig-trailing > :global(:last-child :is(.btn, .btn-control)) {
+		border-radius: 0 calc(var(--r-md) - var(--sp-px)) calc(var(--r-md) - var(--sp-px)) 0;
 	}
 	.ig-adorn :global(.split-caret .pop-trigger) {
 		height: 100%;
 	}
-	.ig-leading > :global(:first-child .split-main) {
-		--btn-radius: var(--ig-fuse-r) 0 0 var(--ig-fuse-r);
-	}
-	.ig-trailing > :global(:last-child .split-caret) {
-		--pop-trigger-radius: 0 var(--ig-fuse-r) var(--ig-fuse-r) 0;
+	.ig .ig-trailing > :global(:last-child .split-caret .pop-trigger) {
+		border-radius: 0 calc(var(--r-md) - var(--sp-px)) calc(var(--r-md) - var(--sp-px)) 0;
 	}
 	.ig-bar .ig-adorn {
 		top: auto;
-		height: calc(var(--ig-h) - var(--sp-px));
+		height: calc(var(--control-height-default) - var(--sp-px));
 	}
-	.ig-bar .ig-leading > :global(:first-child) {
-		--btn-radius: 0 0 0 var(--ig-fuse-r);
-		border-radius: 0 0 0 var(--ig-fuse-r);
+	.ig-sm.ig-bar .ig-adorn {
+		height: calc(var(--control-height-compact) - var(--sp-px));
 	}
-	.ig-bar .ig-trailing > :global(:last-child) {
-		--btn-radius: 0 0 var(--ig-fuse-r) 0;
-		border-radius: 0 0 var(--ig-fuse-r) 0;
+	.ig-lg.ig-bar .ig-adorn {
+		height: calc(var(--control-height-large) - var(--sp-px));
 	}
-	.ig-bar .ig-leading > :global(:first-child .split-main) {
-		--btn-radius: 0 0 0 var(--ig-fuse-r);
+	.ig-bar .ig-leading > :global(:first-child),
+	.ig-bar .ig-leading > :global(:first-child :is(.btn, .btn-control)) {
+		border-radius: 0 0 0 calc(var(--r-md) - var(--sp-px));
 	}
-	.ig-bar .ig-trailing > :global(:last-child .split-caret) {
-		--pop-trigger-radius: 0 0 var(--ig-fuse-r) 0;
+	.ig-bar .ig-trailing > :global(:last-child),
+	.ig-bar .ig-trailing > :global(:last-child :is(.btn, .btn-control)) {
+		border-radius: 0 0 calc(var(--r-md) - var(--sp-px)) 0;
+	}
+	.ig-bar .ig-trailing > :global(:last-child .split-caret .pop-trigger) {
+		border-radius: 0 0 calc(var(--r-md) - var(--sp-px)) 0;
+	}
+	.ig .ig-trailing > :global(:last-child .split-main :is(.btn, .btn-control)) {
+		border-radius: 0;
 	}
 	.ig-bar .ig-field {
-		padding-bottom: var(--ig-h);
+		padding-bottom: var(--control-height-default);
+	}
+	.ig-sm.ig-bar .ig-field {
+		padding-bottom: var(--control-height-compact);
+	}
+	.ig-lg.ig-bar .ig-field {
+		padding-bottom: var(--control-height-large);
 	}
 	.ig-bar::before {
 		content: '';
 		position: absolute;
 		inset: auto 0 0 0;
-		height: var(--ig-h);
-		background: var(--textarea-bg, var(--control-fill));
-		border: var(--edge-width) solid var(--textarea-border, var(--control-edge));
+		height: var(--control-height-default);
+		background: var(--control-fill);
+		border: var(--edge-width) solid var(--control-edge);
 		border-top: 0;
-		border-radius: 0 0 var(--ig-radius) var(--ig-radius);
+		border-radius: 0 0 var(--r-md) var(--r-md);
 		transition: border-color var(--dur-fast) ease;
 		pointer-events: none;
+	}
+	.ig-sm.ig-bar::before {
+		height: var(--control-height-compact);
+	}
+	.ig-lg.ig-bar::before {
+		height: var(--control-height-large);
 	}
 	.ig-bar:has(.ig-field :global(:focus))::before {
 		border-color: var(--accent);
@@ -238,7 +240,7 @@
 		content: '';
 		position: absolute;
 		inset: 0;
-		border-radius: var(--ig-radius);
+		border-radius: var(--r-md);
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset);
 		pointer-events: none;

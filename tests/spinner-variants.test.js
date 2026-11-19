@@ -103,14 +103,15 @@ for (const [variant, { count, wrap }] of Object.entries(VARIANTS)) {
 	});
 }
 
-test('variant box is 1em, currentColor, with a --spinner-speed multiplier and a stroke token', () => {
+test('variant box is 1em, currentColor, with a fixed stroke and tempo', () => {
 	assert.ok(hasDecl(spinnerCss, '.spinner', 'width', '1em'));
 	assert.ok(hasDecl(spinnerCss, '.spinner', 'height', '1em'));
 	assert.ok(hasDecl(spinnerCss, '.spinner', 'display', 'inline-block'));
 	assert.ok(hasDecl(spinnerCss, '.spinner', 'vertical-align', '-0.125em'));
 	assert.ok(hasDecl(spinnerCss, '.spinner', 'color', 'inherit'));
-	assert.ok(hasDecl(spinnerCss, '.spinner', '--sw', 'max(1.5px, 0.11em)'));
-	assert.ok(hasDecl(spinnerCss, '.spinner', '--t', 'calc(1s * var(--spinner-speed, 1))'));
+	assert.ok(hasDecl(spinnerCss, '.v-pulse::before,\n\t.v-pulse::after', 'border', 'max(1.5px, 0.11em) solid currentColor'));
+	assert.deepEqual([...new Set(spinnerCss.match(/--[a-z][a-z0-9-]*/g))].sort(), ['--tsu-spin-arc', '--tsu-spin-sweep']);
+	assert.match(spinnerCss, /@property --tsu-spin-sweep\s*{\s*syntax: '<angle>';\s*inherits: false;/);
 	assert.ok(hasDecl(spinnerCss, '.in', 'position', 'absolute'));
 	assert.doesNotMatch(spinnerCss, /var\(--(accent|text|c-)/, 'draws in currentColor only');
 	assert.equal((spinnerCss.match(/background: currentColor;/g) ?? []).length, 14);
@@ -129,7 +130,10 @@ test('every variant has keyframes and a static pose under reduced motion', () =>
 	assert.ok(hasDecl(spinnerCss, '.v-pulse::before,\n\t.v-pulse::after', 'transform', 'scale(0.72)'));
 	assert.ok(hasDecl(spinnerCss, '.v-bars .in span:nth-child(1)', 'transform', 'scaleY(0.4)'));
 	assert.ok(hasDecl(spinnerCss, '.v-bars .in span:nth-child(4)', 'transform', 'scaleY(1)'));
-	assert.ok(hasDecl(spinnerCss, '.v-grid .in span', 'opacity', 'calc(1 - var(--d) * 0.18)'));
+	assert.ok(hasDecl(spinnerCss, '.v-grid .in span', 'opacity', '1'));
+	assert.ok(hasDecl(spinnerCss, '.v-grid .in span', 'animation-delay', '-1.2s'));
+	assert.ok(hasDecl(spinnerCss, '.v-grid .in span:nth-child(9)', 'opacity', '0.28'));
+	assert.ok(hasDecl(spinnerCss, '.v-grid .in span:nth-child(9)', 'animation-delay', '-0.8s'));
 	assert.match(normalize(spinnerCss), /\.v-clock::before { height: 0\.32em; transform: rotate\(0deg\);/);
 	assert.match(normalize(spinnerCss), /\.v-clock::after { height: 0\.22em; transform: rotate\(90deg\);/);
 	assert.ok(hasDecl(spinnerCss, '.v-bounce > span:nth-child(2)', 'opacity', '0.3'));
@@ -139,14 +143,16 @@ test('every variant has keyframes and a static pose under reduced motion', () =>
 	);
 });
 
-test('Skeleton tints from --text (token-overridable) and sweeps once, viewport-anchored, in sync', () => {
-	assert.ok(hasDecl(skeletonCss, '.skeleton-bar', '--sk-base', 'var(--skeleton, color-mix(in srgb, var(--text) 7%, transparent))'));
-	assert.ok(hasDecl(skeletonCss, '.skeleton-bar', '--sk-hi', 'var(--skeleton-highlight, color-mix(in srgb, var(--text) 13%, transparent))'));
+test('Skeleton tints from --text and sweeps once, viewport-anchored, in sync', () => {
+	const base = 'color-mix(in srgb, var(--text) 7%, transparent)';
+	const hi = 'color-mix(in srgb, var(--text) 13%, transparent)';
+	assert.ok(normalize(skeletonCss).includes(`.skeleton-bar { display: block; width: 100%; background: linear-gradient(100deg, ${base} 42%, ${hi} 50%, ${base} 58%) ${base};`));
+	assert.doesNotMatch(skeletonCss, /--sk-|--skeleton/);
 	assert.ok(hasDecl(skeletonCss, '.skeleton-bar', 'background-size', '200vw 100%'));
 	assert.ok(hasDecl(skeletonCss, '.skeleton-bar', 'background-attachment', 'fixed'));
 	assert.ok(hasDecl(skeletonCss, '.skeleton-bar', 'animation', 'tsu-shimmer 1.8s linear infinite'));
 	assert.match(normalize(skeletonCss), /@keyframes tsu-shimmer { 0% { background-position: 100% 0; } 75%, 100% { background-position: 0% 0; } }/);
-	assert.match(normalize(skeletonCss), /@media \(prefers-reduced-motion: reduce\) { \.skeleton-bar { animation: none; background: var\(--sk-base\); } }/);
+	assert.match(normalize(skeletonCss), /@media \(prefers-reduced-motion: reduce\) { \.skeleton-bar { animation: none; background: color-mix\(in srgb, var\(--text\) 7%, transparent\); } }/);
 	assert.doesNotMatch(skeletonCss, /--bg-elevated/);
 	const el = render().skeleton;
 	assert.equal(el.querySelectorAll('.skeleton-bar').length, 2);

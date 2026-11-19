@@ -13,24 +13,23 @@ const ALLOWED_LITERALS = {};
 
 test('no atom hardcodes a 1px border from --border / --border-strong', () => {
 	for (const [name, s] of Object.entries(src)) {
-		const hits = s.match(/1px (?:solid|var\(--card-border-style\)) var\(--border(?:-strong)?\b/g) ?? [];
+		const hits = s.match(/1px (?:solid|dashed) var\(--border(?:-strong)?\b/g) ?? [];
 		assert.equal(hits.length, ALLOWED_LITERALS[name] ?? 0, `${name}: ${hits.join(', ')}`);
 	}
 });
 
-test('Button reads the button role tokens behind its per-component hooks', () => {
+test('Button paints from the button role tokens', () => {
 	const s = src.Button;
-	assert.equal(s.match(/border: var\(--edge-width\) solid var\(--btn-border, var\(--btn-edge\)\);/g)?.length, 2);
-	assert.equal(s.match(/background: var\(--btn-bg, var\(--btn-fill\)\);/g)?.length, 2);
-	assert.equal(s.match(/background: var\(--btn-bg, var\(--btn-primary-fill\)\);/g)?.length, 2);
-	assert.equal(s.match(/border-color: var\(--btn-border, var\(--btn-primary-edge\)\);/g)?.length, 2);
-	assert.match(s, /--btn-shadow-rest: var\(--btn-primary-shadow\);\s*--btn-shadow-lift: var\(--btn-primary-shadow-hover\);/);
-	assert.match(s, /box-shadow: var\(--btn-shadow-rest\);/);
-	assert.match(s, /\.btn:focus-visible:not\([^)]*\) \{\s*box-shadow: var\(--btn-shadow-rest\), var\(--focus-glow\);/);
-	assert.match(
-		s,
-		/\.btn:hover:not\(:disabled\) \{[^}]*translate: 0 calc\(-1 \* var\(--hover-lift\)\);\s*--btn-shadow-rest: var\(--btn-shadow-lift\);/
-	);
+	assert.equal(s.match(/border: var\(--edge-width\) solid var\(--btn-edge\);/g)?.length, 2);
+	assert.equal(s.match(/background: var\(--btn-fill\);/g)?.length, 2);
+	assert.equal(s.match(/background: var\(--btn-primary-fill\);/g)?.length, 2);
+	assert.equal(s.match(/border-color: var\(--btn-primary-edge\);/g)?.length, 2);
+	assert.match(s, /\.btn-primary \{[^}]*box-shadow: var\(--btn-primary-shadow\);/);
+	assert.match(s, /\.btn-primary:where\(:hover:not\(:disabled\)\) \{\s*box-shadow: var\(--btn-primary-shadow-hover\);/);
+	assert.match(s, /box-shadow: var\(--btn-shadow\);/);
+	assert.match(s, /\.btn:focus-visible:not\([^)]*\) \{\s*box-shadow: var\(--btn-shadow\), var\(--focus-glow\);/);
+	assert.match(s, /\.btn:where\(:hover:not\(:disabled\)\) \{\s*box-shadow: var\(--btn-shadow-hover\);/);
+	assert.match(s, /\.btn:hover:not\(:disabled\) \{[^}]*translate: 0 calc\(-1 \* var\(--hover-lift\)\);/);
 	assert.match(s, /translate var\(--dur-fast\) var\(--ease-out\)/);
 	assert.doesNotMatch(s, /transition: all/);
 });
@@ -38,30 +37,23 @@ test('Button reads the button role tokens behind its per-component hooks', () =>
 test('Card paints from the surface tokens and lifts on hover', () => {
 	const s = src.Card;
 	assert.match(s, /background: var\(--surface-fill\);/);
-	assert.match(s, /border: var\(--edge-width\) var\(--card-border-style\) var\(--surface-edge\);/);
-	assert.match(s, /border: var\(--edge-width\) var\(--card-border-style\) var\(--stack-border\);/);
+	assert.match(s, /border: var\(--edge-width\) solid var\(--surface-edge\);/);
+	assert.match(s, /\.border-dashed \{\s*border-style: dashed;/);
+	assert.match(s, /\.card-stacked\.border-dashed::before,\s*\.card-stacked\.border-dashed::after \{\s*border-style: dashed;/);
 	assert.match(s, /border-bottom: var\(--edge-width\) solid var\(--surface-edge\);/);
 	assert.match(s, /border-top: var\(--edge-width\) solid var\(--surface-edge\);/);
-	assert.match(s, /--card-shadow-rest: var\(--surface-shadow\);\s*box-shadow: var\(--card-shadow-rest\);/);
+	assert.match(s, /box-shadow: var\(--surface-shadow\);/);
 	assert.match(
 		s,
-		/\.card-tap:hover \{\s*border-color: var\(--surface-edge-strong\);\s*translate: 0 calc\(-1 \* var\(--hover-lift\)\);\s*--card-shadow-rest: var\(--surface-shadow-hover\);/
+		/\.card-tap:hover \{\s*border-color: var\(--surface-edge-strong\);\s*translate: 0 calc\(-1 \* var\(--hover-lift\)\);\s*box-shadow: var\(--surface-shadow-hover\);/
 	);
 });
 
 test('form controls read the control tokens and append the focus glow', () => {
-	for (const [name, hook] of [
-		['Input', 'input'],
-		['Select', 'select'],
-		['Textarea', 'textarea']
-	]) {
+	for (const name of ['Input', 'Select', 'Textarea']) {
 		const s = src[name];
-		assert.match(s, new RegExp(`background: var\\(--${hook}-bg, var\\(--control-fill\\)\\);`), name);
-		assert.match(
-			s,
-			new RegExp(`border: var\\(--edge-width\\) solid var\\(--${hook}-border, var\\(--control-edge\\)\\);`),
-			name
-		);
+		assert.match(s, /background: var\(--control-fill\);/, name);
+		assert.match(s, /border: var\(--edge-width\) solid var\(--control-edge\);/, name);
 		assert.match(s, /box-shadow: var\(--control-shadow\);/, name);
 		assert.match(s, /box-shadow: var\(--control-shadow\), var\(--focus-glow\);/, name);
 		assert.match(s, /border-color: var\(--control-edge-hover\);/, name);
@@ -81,7 +73,7 @@ test('tracks and thumbs read the track tokens', () => {
 	assert.match(src.Gauge, /background: var\(--track-fill\);/);
 	assert.match(src.Slider, /var\(--track-fill\) var\(--pct\)/);
 	assert.equal(src.Slider.match(/box-shadow: var\(--thumb-shadow\);/g)?.length, 2);
-	assert.equal(src.Slider.match(/box-shadow: var\(--thumb-shadow\), var\(--halo\);/g)?.length, 2);
+	assert.equal(src.Slider.match(/box-shadow: var\(--thumb-shadow\), 0 0 0 4px color-mix\(in srgb, var\(--accent\) 20%, transparent\);/g)?.length, 2);
 	assert.equal(src.Slider.match(/box-shadow: var\(--thumb-shadow\), var\(--focus-glow\);/g)?.length, 2);
 	assert.doesNotMatch(src.Slider, /var\(--shadow-sm\)/);
 });
@@ -92,7 +84,7 @@ test('Artwork is a surface that lifts on hover', () => {
 });
 
 test('chip borders take the shared edge width', () => {
-	assert.match(src.Badge, /border: var\(--edge-width\) solid var\(--badge-border, var\(--border\)\);/);
+	assert.match(src.Badge, /border: var\(--edge-width\) solid var\(--border\);/);
 	assert.match(src.Kbd, /border: var\(--edge-width\) solid var\(--border-strong\);/);
 	assert.match(src.Swatch, /border: var\(--edge-width\) solid var\(--border\);/);
 	assert.match(src.Switch, /border: var\(--edge-width\) solid var\(--border-strong\);/);

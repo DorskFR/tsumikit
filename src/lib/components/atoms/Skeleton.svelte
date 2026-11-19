@@ -7,7 +7,7 @@
 	// --text so they read on any surface. `shimmer` is a viewport-anchored sweep
 	// so every bar on screen shimmers in sync; `sheen` runs one light across each
 	// bar; `pulse` breathes in opacity, each bar a beat behind the previous one
-	// (`--skeleton-phase` offsets the whole set).
+	// (`phase` offsets the whole set).
 	type Own = {
 		width?: string;
 		/** Fixed bar height, stacked with a gap. Omit to fill the text line box. */
@@ -22,6 +22,8 @@
 		control?: boolean;
 		radius?: string;
 		variant?: 'shimmer' | 'sheen' | 'pulse';
+		/** Beats to delay a `pulse` set by, so a later set follows an earlier one. */
+		phase?: number;
 		class?: string;
 	};
 	let {
@@ -33,6 +35,7 @@
 		control = false,
 		radius,
 		variant = 'shimmer',
+		phase = 0,
 		class: klass = '',
 		...rest
 	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
@@ -40,7 +43,7 @@
 	const lineBox = $derived(height === undefined && !circle && !aspect && !control);
 	const h = $derived(aspect ? undefined : control ? 'var(--control-height-default)' : (height ?? '1em'));
 	const w = $derived(circle ? h : width);
-	const shapeRadius = $derived(aspect ? 'var(--r-md)' : control ? 'var(--input-radius, var(--r-md))' : 'var(--r-sm)');
+	const shapeRadius = $derived(aspect ? 'var(--r-md)' : control ? 'var(--r-md)' : 'var(--r-sm)');
 	const r = $derived(circle ? '50%' : radius ?? shapeRadius);
 	const count = $derived(Math.max(1, Math.floor(lines)));
 </script>
@@ -52,7 +55,7 @@
 		style:aspect-ratio={aspect}
 		style:border-radius={r}
 		style:width={count > 1 && i === count - 1 ? '60%' : undefined}
-		style:--i={i}
+		style:animation-delay={variant === 'pulse' ? `calc(0.13s * ${i + phase})` : undefined}
 	></span>
 {/snippet}
 
@@ -89,11 +92,10 @@
 		height: 1lh;
 	}
 	.skeleton-bar {
-		--sk-base: var(--skeleton, color-mix(in srgb, var(--text) 7%, transparent));
-		--sk-hi: var(--skeleton-highlight, color-mix(in srgb, var(--text) 13%, transparent));
 		display: block;
 		width: 100%;
-		background: linear-gradient(100deg, var(--sk-base) 42%, var(--sk-hi) 50%, var(--sk-base) 58%) var(--sk-base);
+		background: linear-gradient(100deg, color-mix(in srgb, var(--text) 7%, transparent) 42%, color-mix(in srgb, var(--text) 13%, transparent) 50%, color-mix(in srgb, var(--text) 7%, transparent) 58%)
+			color-mix(in srgb, var(--text) 7%, transparent);
 		background-size: 200vw 100%;
 		background-attachment: fixed;
 		animation: tsu-shimmer 1.8s linear infinite;
@@ -110,12 +112,12 @@
 	@media (prefers-reduced-motion: reduce) {
 		.skeleton-bar {
 			animation: none;
-			background: var(--sk-base);
+			background: color-mix(in srgb, var(--text) 7%, transparent);
 		}
 	}
 	.v-sheen .skeleton-bar,
 	.v-pulse .skeleton-bar {
-		background: var(--sk-base);
+		background: color-mix(in srgb, var(--text) 7%, transparent);
 	}
 	.v-sheen .skeleton-bar {
 		position: relative;
@@ -127,7 +129,7 @@
 		position: absolute;
 		inset: 0;
 		width: 45%;
-		background: linear-gradient(100deg, transparent 20%, var(--sk-hi) 50%, transparent 80%);
+		background: linear-gradient(100deg, transparent 20%, color-mix(in srgb, var(--text) 13%, transparent) 50%, transparent 80%);
 		transform: translateX(-100%);
 		animation: tsu-skeleton-sheen 2s var(--ease-in-out) infinite;
 	}
@@ -139,7 +141,6 @@
 	}
 	.v-pulse .skeleton-bar {
 		animation: tsu-skeleton-pulse 1.6s var(--ease-in-out) infinite;
-		animation-delay: calc(0.13s * (var(--i, 0) + var(--skeleton-phase, 0)));
 	}
 	@keyframes tsu-skeleton-pulse {
 		0%,

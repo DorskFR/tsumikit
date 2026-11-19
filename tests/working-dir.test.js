@@ -70,7 +70,9 @@ test('WorkingDir leads with a folder Icon, is a plain span unless copy is opted 
 	assert.match(component, /<Icon name=\{icon\} \/>/);
 	assert.match(component, /copy = false/);
 	assert.match(component, /as=\{copy \? 'button' : 'span'\}/);
-	assert.doesNotMatch(component, /:global/);
+	assert.deepEqual(component.match(/:global\([^)]*\)/g), [':global(.badge:focus-visible)']);
+	assert.match(component, /\.rail :global\(\.badge:focus-visible\) \{\s*outline-offset: var\(--focus-ring-offset-inset\);/);
+	assert.doesNotMatch(component, /--focus-ring-offset:/);
 });
 
 test('WorkingDir and its helper are exported from the package index', () => {

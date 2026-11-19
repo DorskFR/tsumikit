@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'Control height tier',
-		caption: 'size="sm" | "md" | "lg" sets --control-height for children that opt in with control; grow shares the row equally.',
+		caption: 'size="sm" | "md" | "lg" sets the control height of children that opt in with control; grow shares the row equally.',
 		layout: 'stack'
 	};
 </script>

@@ -39,12 +39,12 @@ test('Swatch prop surface: colour, Dot/Badge size scale, shape, label, selected,
 	assert.match(flat, /\.\.\.rest \}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = \$props\(\);/);
 });
 
-test('Swatch root carries the anchor attribute, class passthrough and the colour custom property', () => {
+test('Swatch root carries the anchor attribute, class passthrough and the inline colour', () => {
 	assert.match(swatch, /data-tsu="Swatch"/);
 	assert.match(swatch, /class="swatch \{klass\}"/);
-	assert.match(swatch, /style:--swatch-color=\{color\}/);
+	assert.match(swatch, /style:background=\{color\}/);
 	assert.match(swatch, /\{\.\.\.rest\}/);
-	assert.equal(hasDecl(css, '.swatch', 'background', 'var(--swatch-color)'), true);
+	assert.doesNotMatch(swatch, /--swatch-/);
 });
 
 test('Swatch polymorphism: span by default, button when interactive', () => {
@@ -64,8 +64,11 @@ test('Swatch uses only tokens: hairline border, radii, selection ring, focus rin
 	assert.equal(hasDecl(css, '.swatch', 'border', 'var(--edge-width) solid var(--border)'), true);
 	assert.equal(hasDecl(css, '.swatch', 'border-radius', 'var(--r-pill)'), true);
 	assert.equal(hasDecl(css, '.square', 'border-radius', 'var(--r-sm)'), true);
-	assert.equal(hasDecl(css, '.sm', '--swatch-size'), true);
-	assert.equal(hasDecl(css, '.lg', '--swatch-size'), true);
+	assert.equal(hasDecl(css, '.swatch', 'width', '1rem'), true);
+	assert.equal(hasDecl(css, '.sm', 'width', '0.75rem'), true);
+	assert.equal(hasDecl(css, '.sm', 'font-size', '0.45rem'), true);
+	assert.equal(hasDecl(css, '.lg', 'width', '1.5rem'), true);
+	assert.equal(hasDecl(css, '.lg', 'font-size', '0.9rem'), true);
 	assert.match(css, /\.selected \{[^}]*border-color: var\(--text\);/);
 	assert.match(css, /\.selected \{[^}]*0 0 0 2px var\(--bg\),\s*0 0 0 3px var\(--text\)/);
 	assert.match(css, /\.interactive \{[^}]*cursor: pointer;/);

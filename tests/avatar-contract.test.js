@@ -76,19 +76,29 @@ test('Avatar prop surface, anchor attribute and passthrough', () => {
 test('Avatar uses theme tokens only, no colour literals', () => {
 	assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i);
 	assert.doesNotMatch(css, /rgba?\(/);
-	assert.doesNotMatch(css, /hsl\((?!var\(--avatar-hue\))/);
+	assert.doesNotMatch(css, /hsl\(/);
+	assert.doesNotMatch(source, /--avatar-/);
 	assert.ok(hasDecl(css, '.avatar', 'border-radius', 'var(--r-pill)'));
 	assert.ok(hasDecl(css, '.avatar', 'font-weight', 'var(--fw-semibold)'));
 	assert.ok(hasDecl(css, '.avatar', 'flex', 'none'));
-	assert.ok(hasDecl(css, '.square', 'border-radius', 'calc(var(--avatar-size) / 4)'));
-	assert.ok(hasDecl(css, '.size-xs', '--avatar-size', '1.25rem'));
-	assert.ok(hasDecl(css, '.size-sm', '--avatar-size', '1.5rem'));
-	assert.ok(hasDecl(css, '.size-lg', '--avatar-size', '2.5rem'));
-	assert.ok(hasDecl(css, '.status', 'box-shadow', /var\(--avatar-status-ring, var\(--bg-elevated\)\)/));
+	assert.ok(hasDecl(css, '.avatar', 'width', '2rem'));
+	assert.ok(hasDecl(css, '.avatar', 'font-size', 'calc(2rem * 0.46)'));
+	assert.ok(hasDecl(css, '.square', 'border-radius', 'calc(2rem / 4)'));
+	for (const [size, box] of [['xs', '1.25rem'], ['sm', '1.5rem'], ['lg', '2.5rem']]) {
+		assert.ok(hasDecl(css, `.size-${size}`, 'width', box));
+		assert.ok(hasDecl(css, `.size-${size}`, 'height', box));
+		assert.ok(hasDecl(css, `.size-${size}`, 'font-size', `calc(${box} * 0.46)`));
+		assert.ok(hasDecl(css, `.square.size-${size}`, 'border-radius', `calc(${box} / 4)`));
+		assert.ok(hasDecl(css, `.glyph.size-${size}`, 'font-size', `calc(${box} * 0.72)`));
+	}
+	assert.ok(hasDecl(css, '.status', 'box-shadow', '0 0 0 2px var(--bg-elevated)'));
 });
 
-const HUED_BG = /\.hued \{[^}]*color-mix\(in srgb, hsl\(var\(--avatar-hue\) var\(--mach-bg-sl\)\) (\d+)%, var\(--bg\)\)/;
-const HUED_FG = /\.hued \{[^}]*color-mix\(in srgb, hsl\(var\(--avatar-hue\) var\(--mach-fg-sl\)\) (\d+)%, var\(--text\)\)/;
+const HUED_BG = /background: color-mix\(in srgb, hsl\(\$\{resolvedHue\} var\(--mach-bg-sl\)\) (\d+)%, var\(--bg\)\)/;
+const HUED_FG = /color: color-mix\(in srgb, hsl\(\$\{resolvedHue\} var\(--mach-fg-sl\)\) (\d+)%, var\(--text\)\)/;
+
+/** Hue of the inline hashed fill. @param {Element} el */
+const hueOf = (el) => el.getAttribute('style')?.match(/background: color-mix\(in srgb, hsl\((\d+) /)?.[1] ?? '';
 
 /** @param {number} h @param {number} s @param {number} l */
 function hslToRgb(h, s, l) {
@@ -119,8 +129,8 @@ function contrast(a, b) {
 const mix = (a, b, p) => a.map((v, i) => v * p + b[i] * (1 - p));
 
 test('hashed avatars clear AA (4.5:1) at every hue on every bundled theme', () => {
-	const bgPct = Number(css.match(HUED_BG)?.[1]);
-	const fgPct = Number(css.match(HUED_FG)?.[1]);
+	const bgPct = Number(source.match(HUED_BG)?.[1]);
+	const fgPct = Number(source.match(HUED_FG)?.[1]);
 	assert.ok(bgPct > 0 && fgPct > 0, 'hued fill and ink derive from the --mach-*-sl pairs');
 	const blocks = [...`${tokens}${themes}`.matchAll(/(\[data-theme=[^\]]*\]|:root)[^{]*\{([^}]*)\}/g)];
 	let checked = 0;
@@ -144,11 +154,12 @@ test('hashed avatars clear AA (4.5:1) at every hue on every bundled theme', () =
 test('same seed yields the same hue; seed and hue override name', () => {
 	const a = render({ name: 'nanachi' });
 	const b = render({ name: 'nanachi' });
-	assert.equal(a.el.style.getPropertyValue('--avatar-hue'), b.el.style.getPropertyValue('--avatar-hue'));
-	assert.equal(Number(a.el.style.getPropertyValue('--avatar-hue')), avatarHue('nanachi'));
+	assert.equal(hueOf(a.el), hueOf(b.el));
+	assert.equal(hueOf(a.el), String(avatarHue('nanachi')));
 	const seeded = render({ name: 'Display Name', seed: 'user-42' });
-	assert.equal(Number(seeded.el.style.getPropertyValue('--avatar-hue')), avatarHue('user-42'));
-	assert.equal(render({ name: 'x', hue: 210 }).el.style.getPropertyValue('--avatar-hue'), '210');
+	assert.equal(hueOf(seeded.el), String(avatarHue('user-42')));
+	assert.equal(hueOf(render({ name: 'x', hue: 210 }).el), '210');
+	assert.match(a.el.getAttribute('style') ?? '', /; color: color-mix\(in srgb, hsl\(\d+ var\(--mach-fg-sl\)\) 25%, var\(--text\)\);$/);
 	assert.ok(a.el.classList.contains('hued'));
 });
 
@@ -178,13 +189,17 @@ test('tone drops the hashed hue; size number is px; shape/class/rest pass throug
 	const accent = render({ name: 'n', tone: 'accent' });
 	assert.ok(accent.el.classList.contains('accent'));
 	assert.ok(!accent.el.classList.contains('hued'));
-	assert.equal(accent.el.style.getPropertyValue('--avatar-hue'), '');
+	assert.equal(accent.el.hasAttribute('style'), false);
 	assert.ok(render({ name: 'n', tone: 'neutral' }).el.classList.contains('neutral'));
 	assert.ok(render({ name: 'n', tone: 'none' }).el.classList.contains('bare'));
 	const px = render({ name: 'n', size: 26 });
-	assert.equal(px.el.style.getPropertyValue('--avatar-size'), '26px');
+	assert.equal(px.el.style.width, '26px');
+	assert.equal(px.el.style.height, '26px');
+	assert.equal(px.el.style.fontSize, 'calc(11.96px)');
+	assert.equal(render({ name: 'n', size: 26, glyph: '🐙' }).el.style.fontSize, 'calc(18.72px)');
+	assert.equal(render({ name: 'n', size: 26, shape: 'square' }).el.style.borderRadius, 'calc(6.5px)');
 	assert.ok(render({ name: 'n', size: 'xs' }).el.classList.contains('size-xs'));
-	assert.equal(render({ name: 'n', size: 'md' }).el.style.getPropertyValue('--avatar-size'), '');
+	assert.equal(render({ name: 'n', size: 'md', tone: 'neutral' }).el.hasAttribute('style'), false);
 	const sq = render({ name: 'n', shape: 'square' });
 	assert.ok(sq.el.classList.contains('square'));
 	assert.ok(sq.el.classList.contains('probe'));

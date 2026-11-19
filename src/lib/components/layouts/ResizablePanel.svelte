@@ -133,6 +133,7 @@
 	const currentWidth = $derived(
 		Math.round(Math.max(boundedMin, Math.min(panelWidth ?? width, boundedMax)))
 	);
+	const panelCss = $derived(!overlay && collapsed ? '0px' : `${currentWidth}px`);
 	const toggleLabel = $derived(
 		overlay ? `Close ${label}` : collapsed ? `Expand ${label}` : `Collapse ${label}`
 	);
@@ -326,7 +327,8 @@
 	class:overlay
 	class:full-bleed={fullBleed}
 	class:resizing
-	style="--panel-width: {currentWidth}px; {styleProp}"
+	style:grid-template-columns={side === 'right' ? `minmax(0, 1fr) ${panelCss}` : `${panelCss} minmax(0, 1fr)`}
+	style={styleProp || undefined}
 	data-tsu="ResizablePanel"
 >
 	{#if showScrim}
@@ -342,6 +344,7 @@
 			role={overlay ? 'dialog' : undefined}
 			aria-modal={overlay ? 'false' : undefined}
 			tabindex={overlay ? -1 : undefined}
+			style:width={overlay && fullBleed ? undefined : panelCss}
 		>
 			{#if shown}
 				<div class="panel-content">{@render panel()}</div>
@@ -398,20 +401,10 @@
 	.panel-layout {
 		position: relative;
 		display: grid;
-		grid-template-columns: var(--panel-current-width) minmax(0, 1fr);
 		min-width: 0;
 		min-height: 0;
 		container: resizable-panel / inline-size;
 		isolation: isolate;
-	}
-	.panel-layout.right {
-		grid-template-columns: minmax(0, 1fr) var(--panel-current-width);
-	}
-	.panel-layout {
-		--panel-current-width: var(--panel-width);
-	}
-	.panel-layout.collapsed {
-		--panel-current-width: 0px;
 	}
 	.panel {
 		position: relative;
@@ -419,7 +412,6 @@
 		flex-direction: column;
 		min-width: 0;
 		min-height: 0;
-		width: var(--panel-current-width);
 		background: var(--surface-fill);
 		border-right: var(--edge-width) solid var(--surface-edge);
 		transition:
@@ -507,13 +499,12 @@
 	   overhang would land off-screen and be ungrabbable, so the shift clamps to
 	   the leftover space and the lost overhang is added back inside instead. */
 	.resize-handle {
-		--handle-shift: max(-6px, calc(var(--panel-current-width) - 100cqw));
 		position: absolute;
 		top: 0;
-		right: var(--handle-shift);
+		right: max(-6px, calc(100% + var(--edge-width) - 100cqw));
 		bottom: 0;
 		z-index: 2;
-		width: calc(18px + var(--handle-shift));
+		width: calc(18px + max(-6px, calc(100% + var(--edge-width) - 100cqw)));
 		padding: 0;
 		background: transparent;
 		border: 0;
@@ -522,7 +513,7 @@
 	}
 	.right .resize-handle {
 		right: auto;
-		left: var(--handle-shift);
+		left: max(-6px, calc(100% + var(--edge-width) - 100cqw));
 	}
 	.resize-handle::after {
 		content: '';
@@ -565,7 +556,7 @@
 			inset-block: 0;
 			left: 0;
 			z-index: 1;
-			width: min(var(--panel-current-width), 85cqw);
+			max-width: 85cqw;
 			box-shadow: var(--raised-shadow);
 		}
 		.right .panel {
@@ -575,10 +566,15 @@
 		.collapsed .panel {
 			box-shadow: none;
 		}
-		/* The 85cqw cap guarantees free space beside the panel, but the clamp
-		   above reads --panel-current-width, which the cap may exceed. */
+		/* The 85cqw cap guarantees free space beside the panel, so the handle
+		   always overhangs by the full 6px. */
 		.resize-handle {
-			--handle-shift: -6px;
+			right: -6px;
+			width: 12px;
+		}
+		.right .resize-handle {
+			right: auto;
+			left: -6px;
 		}
 		.main {
 			height: 100%;
@@ -599,7 +595,7 @@
 		inset-block: 0;
 		left: 0;
 		z-index: var(--z-drawer);
-		width: min(var(--panel-current-width), 100%);
+		max-width: 100%;
 		box-shadow: var(--raised-shadow);
 		outline: none;
 		animation: panel-slide-left var(--dur-base) var(--ease);
@@ -610,7 +606,12 @@
 		animation-name: panel-slide-right;
 	}
 	.overlay .resize-handle {
-		--handle-shift: -6px;
+		right: -6px;
+		width: 12px;
+	}
+	.overlay.right .resize-handle {
+		right: auto;
+		left: -6px;
 	}
 	.overlay.full-bleed .panel {
 		left: 0;

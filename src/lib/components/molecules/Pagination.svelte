@@ -220,17 +220,21 @@
 		font-variant-numeric: tabular-nums;
 		text-decoration: none;
 		cursor: pointer;
-		--page-scale-dur: var(--dur-fast);
 		transition:
 			background var(--dur-fast) ease,
 			border-color var(--dur-fast) ease,
 			color var(--dur-fast) ease,
 			translate var(--dur-fast) ease,
-			scale var(--page-scale-dur) var(--ease-out);
+			scale var(--dur-fast) var(--ease-out);
 	}
 	.page:active {
-		--page-scale-dur: var(--dur-press);
 		scale: var(--press-scale);
+		transition:
+			background var(--dur-fast) ease,
+			border-color var(--dur-fast) ease,
+			color var(--dur-fast) ease,
+			translate var(--dur-fast) ease,
+			scale var(--dur-press) var(--ease-out);
 	}
 	@media (hover: hover) and (pointer: fine) {
 		.page:hover {

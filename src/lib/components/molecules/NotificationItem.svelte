@@ -257,7 +257,6 @@
 
 <style>
 	.notif {
-		--notif-tone: var(--text-muted);
 		position: relative;
 		display: grid;
 		grid-template-columns: auto minmax(0, 1fr) auto;
@@ -268,21 +267,6 @@
 		list-style: none;
 		color: var(--text);
 		cursor: default;
-	}
-	.notif[data-tone='info'] {
-		--notif-tone: var(--info);
-	}
-	.notif[data-tone='accent'] {
-		--notif-tone: var(--accent);
-	}
-	.notif[data-tone='ok'] {
-		--notif-tone: var(--ok);
-	}
-	.notif[data-tone='warn'] {
-		--notif-tone: var(--warn);
-	}
-	.notif[data-tone='danger'] {
-		--notif-tone: var(--danger);
 	}
 	.notif:focus-visible {
 		outline-offset: var(--focus-ring-offset-inset);
@@ -300,9 +284,31 @@
 		width: var(--box-md);
 		height: var(--box-md);
 		border-radius: var(--r-md);
-		background: color-mix(in srgb, var(--notif-tone) 14%, transparent);
-		color: var(--notif-tone);
-		--icon-size: var(--icon-md);
+		background: color-mix(in srgb, var(--text-muted) 14%, transparent);
+		color: var(--text-muted);
+	}
+	.notif-icon :global(.icon) {
+		font-size: var(--icon-md);
+	}
+	.notif[data-tone='info'] .notif-icon {
+		background: color-mix(in srgb, var(--info) 14%, transparent);
+		color: var(--info);
+	}
+	.notif[data-tone='accent'] .notif-icon {
+		background: color-mix(in srgb, var(--accent) 14%, transparent);
+		color: var(--accent);
+	}
+	.notif[data-tone='ok'] .notif-icon {
+		background: color-mix(in srgb, var(--ok) 14%, transparent);
+		color: var(--ok);
+	}
+	.notif[data-tone='warn'] .notif-icon {
+		background: color-mix(in srgb, var(--warn) 14%, transparent);
+		color: var(--warn);
+	}
+	.notif[data-tone='danger'] .notif-icon {
+		background: color-mix(in srgb, var(--danger) 14%, transparent);
+		color: var(--danger);
 	}
 	.notif-main {
 		display: flex;
@@ -385,7 +391,8 @@
 		opacity: 0.7;
 	}
 	.notif[data-resolved] .notif-icon {
-		--notif-tone: var(--text-muted);
+		background: color-mix(in srgb, var(--text-muted) 14%, transparent);
+		color: var(--text-muted);
 	}
 	.notif-dismiss {
 		display: inline-flex;

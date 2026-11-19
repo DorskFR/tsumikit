@@ -150,7 +150,7 @@ New since 0.61: `ConversationPanel`, `ConversationFeed`, `StatusBar`, `renderMar
 | --- | --- | --- | --- |
 | md box (0.74) | `--box-md: 2.25rem` (36px) | `2.5rem` (40px). md IconButton, SelectButton, Pagination and the Popover trigger are 40px | Check dense toolbars. To get 36px back for one area, set `--box-md: 2.25rem` on it. |
 | Focus ring (0.74) | `--focus-ring-offset: 1px` | `2px`; new `--focus-ring-width` and `--focus-ring-offset-inset` (rings are inset where a parent clips) | Check tight containers with `overflow: hidden`. |
-| `Toggle` height (0.75) | 24px default, 32px for `size="md"` | 32px default (`--control-sm`), 40px for md | Set `--toggle-size` to restore dense chips. |
+| `Toggle` height (0.75) | 24px default, 32px for `size="md"` | 32px default (`--control-sm`), 40px for md | Set `--toggle-size` to restore dense chips (until 0.94, which removed the hook: see [MIGRATION-0.94.md](MIGRATION-0.94.md)). |
 | Field text (0.75) | md Input 16px everywhere | 13px (`--control-fs-md`) on fine pointers; touch keeps the 16px floor | Visual check. |
 | `Input` / `Textarea` `onsubmit` (0.77) | `(value: string) => void` collided with the native attribute type | Native `onsubmit` is omitted from the props type | Remove `@ts-expect-error` / casts; they now fail as unused. |
 | `SelectButton` `disabled` (0.77) | Not a prop (fell through `...rest`) | Typed `disabled?: boolean` that dims the control | None. |
@@ -213,7 +213,8 @@ No token was renamed or removed. Tokens you overrode keep working.
 
   With the defaults, everything looks as it did in 0.78; the release notes report that computed
   styles were compared in Chromium. Per-component hooks such as `--btn-bg`, `--input-bg` and
-  `--cb-border` still take precedence.
+  `--cb-border` still take precedence (until 0.94, which removed every hook: see
+  [MIGRATION-0.94.md](MIGRATION-0.94.md)).
 - **0.81, reskin tokens.** Non-code UI text and control corners read one token each, so a sans,
   squarish app overrides three lines instead of every component:
   - `--font-numeric` (default `var(--font-mono)`): Metric values and segments, `Badge mono`,

@@ -48,7 +48,6 @@
 		border-radius: var(--r-md);
 		background: var(--c-bg);
 		border: var(--edge-width) solid var(--c-border);
-		--txt-fg: var(--c-text-muted);
 	}
 	.theme :global([data-tsu='Text']) {
 		grid-column: 1 / -1;

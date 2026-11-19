@@ -20,16 +20,6 @@
 		draft: 'neutral',
 	};
 
-	const TONE_COLOR: Record<Tone, string> = {
-		neutral: 'var(--text-muted)',
-		ok: 'var(--ok)',
-		success: 'var(--ok)',
-		warn: 'var(--warn)',
-		danger: 'var(--danger)',
-		info: 'var(--info)',
-		accent: 'var(--accent)',
-	};
-
 	export function prLabel(pr: PullRequest): string {
 		return pr.owner && pr.repo ? `${pr.owner}/${pr.repo}#${pr.number}` : `#${pr.number}`;
 	}
@@ -59,7 +49,7 @@
 		[key: string]: unknown;
 	} = $props();
 
-	const prTone = $derived(pr ? TONE_COLOR[PR_TONE[pr.state ?? 'open']] : undefined);
+	const prTone = $derived(pr ? PR_TONE[pr.state ?? 'open'] : undefined);
 	const label = $derived(pr ? prLabel(pr) : '');
 	const prTitle = $derived(pr ? (pr.state ? `${label} · ${pr.state}` : label) : '');
 </script>
@@ -76,23 +66,21 @@
 	<span
 		data-tsu="GitRef"
 		class="git-ref collapse-{collapse} {klass}"
-		style:--git-ref-max-width={maxWidth}
 		{...rest}
 	>
 		{#if branch}
-			<span class="chip branch" title={branch}>
+			<span class="chip branch" style:max-width={maxWidth} title={branch}>
 				<Icon name="fork" label="Branch" />
 				<span class="text">{branch}</span>
 			</span>
 		{/if}
 		{#if pr}
 			<a
-				class="chip pr"
+				class="chip pr tone-{prTone}"
 				href={pr.url}
 				target="_blank"
 				rel="noopener noreferrer"
 				title={prTitle}
-				style:--git-ref-tone={prTone}
 			>
 				<Icon label="Pull request">{@render pullRequestGlyph()}</Icon>
 				<span class="text">{label}</span>
@@ -131,21 +119,47 @@
 		text-decoration: none;
 	}
 	.branch {
-		max-width: var(--git-ref-max-width, 14rem);
+		max-width: 14rem;
 	}
 	.pr {
-		color: var(--git-ref-tone);
-		border-color: color-mix(in srgb, var(--git-ref-tone) 40%, transparent);
-		background: color-mix(in srgb, var(--git-ref-tone) 12%, transparent);
 		transition: border-color var(--dur-fast) var(--ease);
 	}
+	.pr.tone-ok {
+		color: var(--ok);
+		border-color: color-mix(in srgb, var(--ok) 40%, transparent);
+		background: color-mix(in srgb, var(--ok) 12%, transparent);
+	}
+	.pr.tone-accent {
+		color: var(--accent);
+		border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+		background: color-mix(in srgb, var(--accent) 12%, transparent);
+	}
+	.pr.tone-danger {
+		color: var(--danger);
+		border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+		background: color-mix(in srgb, var(--danger) 12%, transparent);
+	}
+	.pr.tone-neutral {
+		color: var(--text-muted);
+		border-color: color-mix(in srgb, var(--text-muted) 40%, transparent);
+		background: color-mix(in srgb, var(--text-muted) 12%, transparent);
+	}
 	@media (hover: hover) and (pointer: fine) {
-		.pr:hover {
-			border-color: var(--git-ref-tone);
+		.pr.tone-ok:hover {
+			border-color: var(--ok);
+		}
+		.pr.tone-accent:hover {
+			border-color: var(--accent);
+		}
+		.pr.tone-danger:hover {
+			border-color: var(--danger);
+		}
+		.pr.tone-neutral:hover {
+			border-color: var(--text-muted);
 		}
 	}
 	.pr:focus-visible {
-		outline: var(--focus-ring-width) solid var(--git-ref-tone);
+		outline: var(--focus-ring-width) solid currentColor;
 		outline-offset: var(--focus-ring-offset);
 	}
 	.text {

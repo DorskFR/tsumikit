@@ -45,6 +45,18 @@
   --hover-lift: 2px;
   --focus-glow: 0 0 0 4px color-mix(in oklab, var(--accent) 28%, transparent);
   --press-scale: 0.97;
+  --ed-ink-ok: color(from var(--ok) srgb-linear clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1));
+  --ed-ink-warn: color(from var(--warn) srgb-linear clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1));
+  --ed-ink-danger: color(from var(--danger) srgb-linear clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1));
+  --ed-ink-info: color(from var(--info) srgb-linear clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1));
+  --ed-ink-accent: color(from var(--accent) srgb-linear clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1));
+  --ed-ink-muted: color(from var(--text-muted) srgb-linear clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1));
+  --ed-ink-violet: color(from var(--c-violet) srgb-linear clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1));
+  --ed-ink-role-user: color(from var(--role-user) srgb-linear clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1));
+  --ed-ink-role-assistant: color(from var(--role-assistant) srgb-linear clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1));
+  --ed-ink-role-system: color(from var(--role-system) srgb-linear clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1));
+  --ed-ink-role-tool: color(from var(--role-tool) srgb-linear clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1));
+  --ed-ink-role-mcp: color(from var(--role-mcp) srgb-linear clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1));
 }
 
 @property --ed-wipe {
@@ -55,10 +67,6 @@
 
 :root[data-look="editorial"] body {
   font-feature-settings: "kern", "liga", "tnum";
-}
-
-:root[data-look="editorial"] :is(.btn, .badge, .card, .metric-chip, .role-pill) {
-  --ed-ink: color(from var(--ed-tone, var(--text)) srgb-linear clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1));
 }
 
 /* ---------- Display type ---------- */
@@ -73,8 +81,6 @@
 
 /* ---------- Buttons: ink wipes up on hover ---------- */
 :root[data-look="editorial"] .btn {
-  --ed-btn-ink: var(--text);
-  --ed-tone: var(--ed-btn-fill, var(--btn-tone, var(--text)));
   border-width: 2px;
   background-color: transparent;
   background-image: linear-gradient(var(--ed-wipe), var(--ed-wipe));
@@ -91,31 +97,66 @@
     scale var(--ed-dur-settle) var(--ease-spring),
     opacity var(--dur-fast) var(--ease);
 }
+:root[data-look="editorial"] .btn:active:not(:disabled, [aria-disabled="true"], .loading, .btn-link) {
+  transition:
+    background-size var(--dur-fast) var(--ease-out),
+    --ed-wipe var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease),
+    box-shadow var(--dur-fast) var(--ease-out),
+    translate var(--ed-dur-settle) var(--ease-spring),
+    scale var(--ed-dur-settle) var(--ease-spring),
+    opacity var(--dur-fast) var(--ease);
+}
 :root[data-look="editorial"] .btn-ghost {
-  --ed-btn-ink: var(--bg-elevated-2);
   border-color: transparent;
   background-position: 0 0;
   background-size: 0% 100%;
 }
 :root[data-look="editorial"] :is(.btn-primary, .btn-danger, .btn-tone-accent, .btn-tone-success, .btn-tone-info, .btn-tone-warn, .btn-tone-danger):not(.btn-ghost, .btn-link) {
-  --ed-btn-fill: var(--btn-tone, var(--accent));
-  --ed-btn-on: var(--ed-ink);
-  border-color: var(--ed-btn-fill);
-  background-color: var(--ed-btn-fill);
   background-image: none;
-  color: var(--ed-btn-on);
   font-weight: var(--fw-bold);
 }
-:root[data-look="editorial"] :is(.btn-primary, .btn-tone-accent):not(.btn-ghost, .btn-link) {
-  --ed-btn-fill: var(--accent);
-  --ed-btn-on: var(--text-on-accent);
+:root[data-look="editorial"] .btn-tone-success:not(.btn-ghost, .btn-link),
+:root[data-look="editorial"] .btn-tone-success:not(.btn-ghost, .btn-link):hover:not(:disabled, [aria-disabled="true"]) {
+  border-color: var(--ok);
+  background-color: var(--ok);
+  color: var(--ed-ink-ok);
 }
-:root[data-look="editorial"] .btn-danger:not(.btn-ghost, .btn-link) {
-  --ed-btn-fill: var(--danger);
+:root[data-look="editorial"] .btn-tone-info:not(.btn-ghost, .btn-link),
+:root[data-look="editorial"] .btn-tone-info:not(.btn-ghost, .btn-link):hover:not(:disabled, [aria-disabled="true"]) {
+  border-color: var(--info);
+  background-color: var(--info);
+  color: var(--ed-ink-info);
 }
-:root[data-look="editorial"] .btn-ghost:is(.btn-tone-accent, .btn-tone-success, .btn-tone-info, .btn-tone-warn, .btn-tone-danger) {
-  --ed-btn-ink: var(--btn-tone);
-  --ed-btn-on: var(--ed-ink);
+:root[data-look="editorial"] .btn-tone-warn:not(.btn-ghost, .btn-link),
+:root[data-look="editorial"] .btn-tone-warn:not(.btn-ghost, .btn-link):hover:not(:disabled, [aria-disabled="true"]) {
+  border-color: var(--warn);
+  background-color: var(--warn);
+  color: var(--ed-ink-warn);
+}
+:root[data-look="editorial"] .btn-tone-danger:not(.btn-ghost, .btn-link),
+:root[data-look="editorial"] .btn-tone-danger:not(.btn-ghost, .btn-link):hover:not(:disabled, [aria-disabled="true"]) {
+  border-color: var(--danger);
+  background-color: var(--danger);
+  color: var(--ed-ink-danger);
+}
+:root[data-look="editorial"] :is(.btn-primary, .btn-tone-accent):not(.btn-ghost, .btn-link),
+:root[data-look="editorial"] :is(.btn-primary, .btn-tone-accent):not(.btn-ghost, .btn-link):hover:not(:disabled, [aria-disabled="true"]) {
+  border-color: var(--accent);
+  background-color: var(--accent);
+  color: var(--text-on-accent);
+}
+:root[data-look="editorial"] .btn-danger:not(.btn-ghost, .btn-link),
+:root[data-look="editorial"] .btn-danger:not(.btn-ghost, .btn-link):hover:not(:disabled, [aria-disabled="true"]) {
+  border-color: var(--danger);
+  background-color: var(--danger);
+  color: var(--ed-ink-danger);
+}
+:root[data-look="editorial"] .btn-danger:where(.btn-tone-accent):not(.btn-ghost, .btn-link),
+:root[data-look="editorial"] .btn-danger:where(.btn-tone-accent):not(.btn-ghost, .btn-link):hover:not(:disabled, [aria-disabled="true"]) {
+  border-color: var(--danger);
+  background-color: var(--danger);
+  color: var(--text-on-accent);
 }
 :root[data-look="editorial"] .btn-link {
   border: 0;
@@ -159,14 +200,23 @@
 
 /* ---------- Cards: a rule, not a box ---------- */
 :root[data-look="editorial"] .card {
-  --ed-rule-c: var(--text);
-  --ed-rule-w: var(--ed-rule);
   border-color: transparent;
   border-radius: 0;
   background: transparent;
-  box-shadow: inset 0 var(--ed-rule-w) 0 0 var(--ed-rule-c);
-  padding-top: calc(var(--card-pad) + var(--ed-rule-w));
+  box-shadow: inset 0 var(--ed-rule) 0 0 var(--text);
   padding-inline: 0;
+}
+:root[data-look="editorial"] .card:where([data-tsu]) {
+  padding-top: calc(var(--sp-4) + var(--ed-rule));
+}
+:root[data-look="editorial"] .card:where([data-tsu].pad-none) {
+  padding-top: 0;
+}
+:root[data-look="editorial"] .card:where([data-tsu].pad-sm) {
+  padding-top: calc(var(--sp-2) + var(--ed-rule));
+}
+:root[data-look="editorial"] .card:where([data-tsu].pad-lg) {
+  padding-top: calc(var(--sp-6) + var(--ed-rule));
 }
 :root[data-look="editorial"] .card.card-framed {
   padding: 0;
@@ -175,17 +225,44 @@
   padding-inline: 0;
 }
 :root[data-look="editorial"] .card.card-framed > .card-head {
-  padding-top: calc(var(--card-pad) + var(--ed-rule-w));
+  padding-top: calc(var(--sp-4) + var(--ed-rule));
   padding-bottom: 0;
   border-bottom: 0;
+}
+:root[data-look="editorial"] .card.card-framed:where(.pad-none) > .card-head {
+  padding-top: 0;
+}
+:root[data-look="editorial"] .card.card-framed:where(.pad-sm) > .card-head {
+  padding-top: calc(var(--sp-2) + var(--ed-rule));
+}
+:root[data-look="editorial"] .card.card-framed:where(.pad-lg) > .card-head {
+  padding-top: calc(var(--sp-6) + var(--ed-rule));
 }
 :root[data-look="editorial"] :is(.card.surface-raised, .card.surface-sunken, .card.border-dashed, .card.card-stacked) {
   border-radius: var(--r-md);
   box-shadow: none;
-  padding-inline: var(--card-pad);
+  padding-inline: var(--sp-4);
+}
+:root[data-look="editorial"] :is(.card.surface-raised, .card.surface-sunken, .card.border-dashed, .card.card-stacked):where(.pad-none) {
+  padding-inline: 0px;
+}
+:root[data-look="editorial"] :is(.card.surface-raised, .card.surface-sunken, .card.border-dashed, .card.card-stacked):where(.pad-sm) {
+  padding-inline: var(--sp-2);
+}
+:root[data-look="editorial"] :is(.card.surface-raised, .card.surface-sunken, .card.border-dashed, .card.card-stacked):where(.pad-lg) {
+  padding-inline: var(--sp-6);
 }
 :root[data-look="editorial"] .card.card-framed:is(.surface-raised, .surface-sunken, .border-dashed, .card-stacked) > :is(.card-head, .card-body, .card-foot) {
-  padding-inline: var(--card-pad);
+  padding-inline: var(--sp-4);
+}
+:root[data-look="editorial"] .card.card-framed:is(.surface-raised, .surface-sunken, .border-dashed, .card-stacked):where(.pad-none) > :is(.card-head, .card-body, .card-foot) {
+  padding-inline: 0px;
+}
+:root[data-look="editorial"] .card.card-framed:is(.surface-raised, .surface-sunken, .border-dashed, .card-stacked):where(.pad-sm) > :is(.card-head, .card-body, .card-foot) {
+  padding-inline: var(--sp-2);
+}
+:root[data-look="editorial"] .card.card-framed:is(.surface-raised, .surface-sunken, .border-dashed, .card-stacked):where(.pad-lg) > :is(.card-head, .card-body, .card-foot) {
+  padding-inline: var(--sp-6);
 }
 :root[data-look="editorial"] .card.surface-raised {
   background: var(--bg-elevated);
@@ -208,7 +285,9 @@
 :root[data-look="editorial"] .card.card-stacked::after {
   display: none;
 }
-:root[data-look="editorial"] .card-tap {
+/* The tripled class outranks the hover and focus transition Card declares on itself. */
+:root[data-look="editorial"] .card-tap,
+:root[data-look="editorial"] .card.card-tap.card-tap.card-tap:is(:hover, :focus-visible):not(:is([data-fx-card="spotlight"], [data-fx-card="orbit"]) *) {
   transition:
     box-shadow var(--dur-fast) var(--ease-out),
     scale var(--ed-dur-settle) var(--ease-spring);
@@ -219,54 +298,67 @@
   transition-duration: var(--dur-press);
 }
 
-/* toned cards & callouts: solid blocks; tokens re-pointed so children inherit */
+/* toned cards & callouts: solid blocks with their own on-fill text colour */
 :root[data-look="editorial"] :is(.card-accent, .card-ok, .card-warn, .card-danger, .card-info):not(.toast) {
-  --ed-fill: var(--c-accent);
-  --ed-tone: var(--ed-fill);
-  --ed-on: var(--text-on-accent);
-  --text: var(--ed-on);
-  --text-muted: var(--ed-on);
-  --text-faint: var(--ed-on);
-  --border-strong: var(--ed-on);
-  --accent: var(--ed-on);
   border-color: transparent;
   border-radius: var(--r-md);
-  background: var(--ed-fill);
-  color: var(--ed-on);
   box-shadow: none;
-  padding-inline: var(--card-pad);
+  padding-inline: var(--sp-4);
+}
+:root[data-look="editorial"] :is(.card-accent, .card-ok, .card-warn, .card-danger, .card-info):not(.toast):where(.pad-none) {
+  padding-inline: 0px;
+}
+:root[data-look="editorial"] :is(.card-accent, .card-ok, .card-warn, .card-danger, .card-info):not(.toast):where(.pad-sm) {
+  padding-inline: var(--sp-2);
+}
+:root[data-look="editorial"] :is(.card-accent, .card-ok, .card-warn, .card-danger, .card-info):not(.toast):where(.pad-lg) {
+  padding-inline: var(--sp-6);
+}
+:root[data-look="editorial"] .card-accent:not(.toast) {
+  background: var(--c-accent);
+  color: var(--text-on-accent);
 }
 :root[data-look="editorial"] .card-ok:not(.toast) {
-  --ed-fill: var(--ok);
-  --ed-on: var(--ed-ink);
+  background: var(--ok);
+  color: var(--ed-ink-ok);
 }
 :root[data-look="editorial"] .card-warn:not(.toast) {
-  --ed-fill: var(--warn);
-  --ed-on: var(--ed-ink);
+  background: var(--warn);
+  color: var(--ed-ink-warn);
 }
 :root[data-look="editorial"] .card-danger:not(.toast) {
-  --ed-fill: var(--danger);
-  --ed-on: var(--ed-ink);
+  background: var(--danger);
+  color: var(--ed-ink-danger);
 }
 :root[data-look="editorial"] .card-info:not(.toast) {
-  --ed-fill: var(--info);
-  --ed-on: var(--ed-ink);
+  background: var(--info);
+  color: var(--ed-ink-info);
 }
 :root[data-look="editorial"] .card.card-framed:is(.card-accent, .card-ok, .card-warn, .card-danger, .card-info) > :is(.card-head, .card-body, .card-foot) {
-  padding-inline: var(--card-pad);
+  padding-inline: var(--sp-4);
+}
+:root[data-look="editorial"] .card.card-framed:is(.card-accent, .card-ok, .card-warn, .card-danger, .card-info):where(.pad-none) > :is(.card-head, .card-body, .card-foot) {
+  padding-inline: 0px;
+}
+:root[data-look="editorial"] .card.card-framed:is(.card-accent, .card-ok, .card-warn, .card-danger, .card-info):where(.pad-sm) > :is(.card-head, .card-body, .card-foot) {
+  padding-inline: var(--sp-2);
+}
+:root[data-look="editorial"] .card.card-framed:is(.card-accent, .card-ok, .card-warn, .card-danger, .card-info):where(.pad-lg) > :is(.card-head, .card-body, .card-foot) {
+  padding-inline: var(--sp-6);
 }
 :root[data-look="editorial"] .card.callout {
   padding: var(--sp-4);
 }
 :root[data-look="editorial"] .card.callout.callout-neutral {
-  --ed-on: var(--bg);
-  --text: var(--ed-on);
-  --text-muted: var(--ed-on);
   border-color: transparent;
   border-radius: var(--r-md);
   background: var(--c-text, currentColor);
-  color: var(--ed-on);
+  color: var(--bg);
   box-shadow: none;
+}
+:root[data-look="editorial"] :is(.card-accent, .card-ok, .card-warn, .card-danger, .card-info):not(.toast) :is(.heading, .text:not(.tone-success, .tone-warn, .tone-danger, .tone-info), .section-header:not(.sh-ok, .sh-warn, .sh-danger, .sh-info) :is(.sh-title, .sh-icon), .sh-subtitle),
+:root[data-look="editorial"] .card.callout.callout-neutral :is(.heading, .text:not(.tone-success, .tone-warn, .tone-danger, .tone-info), .section-header:not(.sh-ok, .sh-warn, .sh-danger, .sh-info) :is(.sh-title, .sh-icon), .sh-subtitle) {
+  color: inherit;
 }
 :root[data-look="editorial"] .card.callout :is(.callout-icon, .callout-body) {
   color: inherit;
@@ -274,17 +366,37 @@
 :root[data-look="editorial"] .card.callout .callout-title {
   font-weight: var(--fw-bold);
 }
-:root[data-look="editorial"] .card.callout .btn:not(.btn-primary) {
-  --ed-btn-ink: var(--text);
-  border-color: var(--text);
-  color: inherit;
-}
 
 /* ---------- Metrics: big numerals on a tone rule ---------- */
 :root[data-look="editorial"] .card.metric {
-  --ed-rule-c: var(--metric-tone, var(--text));
-  --ed-rule-w: var(--ed-rule-heavy);
   padding-bottom: 0;
+}
+:root[data-look="editorial"] .card:where(.metric) {
+  box-shadow: inset 0 var(--ed-rule-heavy) 0 0 var(--accent);
+}
+:root[data-look="editorial"] .card:where(.metric-ok) {
+  box-shadow: inset 0 var(--ed-rule-heavy) 0 0 var(--ok);
+}
+:root[data-look="editorial"] .card:where(.metric-warn) {
+  box-shadow: inset 0 var(--ed-rule-heavy) 0 0 var(--warn);
+}
+:root[data-look="editorial"] .card:where(.metric-danger) {
+  box-shadow: inset 0 var(--ed-rule-heavy) 0 0 var(--danger);
+}
+:root[data-look="editorial"] .card:where(.metric-info) {
+  box-shadow: inset 0 var(--ed-rule-heavy) 0 0 var(--info);
+}
+:root[data-look="editorial"] .card:where(.metric) {
+  padding-top: calc(var(--sp-4) + var(--ed-rule-heavy));
+}
+:root[data-look="editorial"] .card:where(.metric.pad-none) {
+  padding-top: 0;
+}
+:root[data-look="editorial"] .card:where(.metric.pad-sm) {
+  padding-top: calc(var(--sp-2) + var(--ed-rule-heavy));
+}
+:root[data-look="editorial"] .card:where(.metric.pad-lg) {
+  padding-top: calc(var(--sp-6) + var(--ed-rule-heavy));
 }
 :root[data-look="editorial"] .metric-label {
   font-weight: var(--fw-bold);
@@ -292,11 +404,26 @@
   color: var(--text);
 }
 :root[data-look="editorial"] .metric-chip {
-  --ed-tone: var(--metric-tone, var(--text));
   border-color: transparent;
   border-radius: var(--r-xs);
-  background: var(--metric-tone, var(--text));
-  color: var(--ed-ink);
+  background: var(--accent);
+  color: var(--ed-ink-accent);
+}
+:root[data-look="editorial"] .metric-ok .metric-chip {
+  background: var(--ok);
+  color: var(--ed-ink-ok);
+}
+:root[data-look="editorial"] .metric-warn .metric-chip {
+  background: var(--warn);
+  color: var(--ed-ink-warn);
+}
+:root[data-look="editorial"] .metric-danger .metric-chip {
+  background: var(--danger);
+  color: var(--ed-ink-danger);
+}
+:root[data-look="editorial"] .metric-info .metric-chip {
+  background: var(--info);
+  color: var(--ed-ink-info);
 }
 :root[data-look="editorial"] .metric:not(.metric-sm, .metric-inline) .metric-num {
   font-size: calc(var(--fs-2xl) * 1.5);
@@ -309,18 +436,52 @@
 
 /* ---------- Badges ---------- */
 :root[data-look="editorial"] .badge {
-  --badge-radius: var(--r-xs);
   font-weight: var(--fw-bold);
 }
+:root[data-look="editorial"] .badge:not(.text) {
+  border-radius: var(--r-xs);
+}
 :root[data-look="editorial"] .badge.toned:not(.text) {
-  --ed-tone: var(--badge-tone);
   border-color: transparent;
-  background: var(--badge-tone);
-  color: var(--ed-ink);
+}
+:root[data-look="editorial"] .badge.badge-ok:not(.text) {
+  background: var(--ok);
+  color: var(--ed-ink-ok);
+}
+:root[data-look="editorial"] .badge.badge-warn:not(.text) {
+  background: var(--warn);
+  color: var(--ed-ink-warn);
+}
+:root[data-look="editorial"] .badge.badge-danger:not(.text) {
+  background: var(--danger);
+  color: var(--ed-ink-danger);
+}
+:root[data-look="editorial"] .badge.badge-info:not(.text) {
+  background: var(--info);
+  color: var(--ed-ink-info);
+}
+:root[data-look="editorial"] .badge.badge-accent:not(.text) {
+  background: var(--accent);
+  color: var(--ed-ink-accent);
+}
+:root[data-look="editorial"] .badge.badge-muted:not(.text) {
+  background: var(--text-muted);
+  color: var(--ed-ink-muted);
+}
+:root[data-look="editorial"] .badge.badge-violet:not(.text) {
+  background: var(--c-violet);
+  color: var(--ed-ink-violet);
+}
+:root[data-look="editorial"] .badge.badge-custom:not(.text) {
+  background: currentColor;
+}
+:root[data-look="editorial"] .badge.badge-custom:not(.text) > .badge-ink {
+  color: color(from currentColor srgb-linear clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1));
 }
 :root[data-look="editorial"] .badge.toned:not(.text) .dot {
-  background: currentColor;
-  box-shadow: none;
+  color: inherit !important;
+  background: currentColor !important;
+  box-shadow: none !important;
 }
 
 /* ---------- Form controls: underlined fields ---------- */
@@ -440,15 +601,44 @@
 /* ---------- Chat, progress, kbd ---------- */
 :root[data-look="editorial"] .bubble {
   border-color: transparent;
-  border-inline-start: 4px solid var(--role);
   border-radius: 0 var(--r-md) var(--r-md) 0;
   background: var(--bg-elevated-2);
 }
+:root[data-look="editorial"] .bubble[class*="role-"] {
+  border-inline-start: 4px solid var(--role-assistant);
+}
+:root[data-look="editorial"] .bubble.role-user {
+  border-inline-start: 4px solid var(--role-user);
+}
+:root[data-look="editorial"] .bubble.role-system {
+  border-inline-start: 4px solid var(--role-system);
+}
+:root[data-look="editorial"] .bubble.role-tool {
+  border-inline-start: 4px solid var(--role-tool);
+}
+:root[data-look="editorial"] .bubble.role-mcp {
+  border-inline-start: 4px solid var(--role-mcp);
+}
 :root[data-look="editorial"] .bubble .role-pill {
-  --ed-tone: var(--role);
   border-color: transparent;
-  background: var(--role);
-  color: var(--ed-ink);
+  background: var(--role-assistant);
+  color: var(--ed-ink-role-assistant);
+}
+:root[data-look="editorial"] .bubble.role-user .role-pill {
+  background: var(--role-user);
+  color: var(--ed-ink-role-user);
+}
+:root[data-look="editorial"] .bubble.role-system .role-pill {
+  background: var(--role-system);
+  color: var(--ed-ink-role-system);
+}
+:root[data-look="editorial"] .bubble.role-tool .role-pill {
+  background: var(--role-tool);
+  color: var(--ed-ink-role-tool);
+}
+:root[data-look="editorial"] .bubble.role-mcp .role-pill {
+  background: var(--role-mcp);
+  color: var(--ed-ink-role-mcp);
 }
 :root[data-look="editorial"] :is(.progress, .progress .bar) {
   border-radius: 0;
@@ -473,35 +663,56 @@
 /* ---------- Hover (fine pointers only) ---------- */
 @media (hover: hover) and (pointer: fine) {
   :root[data-look="editorial"] .btn:hover:not(:disabled, [aria-disabled="true"]) {
-    border-color: var(--ed-btn-ink);
+    border-color: var(--text);
     background-color: transparent;
     background-size: 100% 100%;
     color: var(--bg);
-    --ed-wipe: var(--ed-btn-ink);
+    --ed-wipe: var(--text);
   }
   :root[data-look="editorial"] .btn-ghost:hover:not(:disabled, [aria-disabled="true"]) {
     border-color: transparent;
     color: var(--text);
-  }
-  :root[data-look="editorial"] .btn-ghost:is(.btn-tone-accent, .btn-tone-success, .btn-tone-info, .btn-tone-warn, .btn-tone-danger):hover:not(:disabled, [aria-disabled="true"]) {
-    color: var(--ed-btn-on);
+    --ed-wipe: var(--bg-elevated-2);
   }
   :root[data-look="editorial"] .btn-ghost.btn-tone-accent:hover:not(:disabled, [aria-disabled="true"]) {
     color: var(--text-on-accent);
+    --ed-wipe: var(--accent);
+  }
+  :root[data-look="editorial"] .btn-ghost.btn-tone-success:hover:not(:disabled, [aria-disabled="true"]) {
+    color: var(--ed-ink-ok);
+    --ed-wipe: var(--ok);
+  }
+  :root[data-look="editorial"] .btn-ghost.btn-tone-info:hover:not(:disabled, [aria-disabled="true"]) {
+    color: var(--ed-ink-info);
+    --ed-wipe: var(--info);
+  }
+  :root[data-look="editorial"] .btn-ghost.btn-tone-warn:hover:not(:disabled, [aria-disabled="true"]) {
+    color: var(--ed-ink-warn);
+    --ed-wipe: var(--warn);
+  }
+  :root[data-look="editorial"] .btn-ghost.btn-tone-danger:hover:not(:disabled, [aria-disabled="true"]) {
+    color: var(--ed-ink-danger);
+    --ed-wipe: var(--danger);
   }
   :root[data-look="editorial"] :is(.btn-primary, .btn-danger, .btn-tone-accent, .btn-tone-success, .btn-tone-info, .btn-tone-warn, .btn-tone-danger):not(.btn-ghost, .btn-link):hover:not(:disabled, [aria-disabled="true"]) {
-    border-color: var(--ed-btn-fill);
-    background-color: var(--ed-btn-fill);
-    color: var(--ed-btn-on);
     filter: none;
     box-shadow: 4px 4px 0 var(--ed-hard);
   }
   :root[data-look="editorial"] .btn-link:hover:not(:disabled, [aria-disabled="true"]) {
     text-decoration-thickness: 3px;
-    color: var(--btn-tone, var(--accent));
+    color: var(--accent);
   }
-  :root[data-look="editorial"] .card.callout .btn:not(.btn-primary):hover:not(:disabled) {
-    color: var(--ed-fill, var(--bg));
+  :root[data-look="editorial"] .btn-link.btn-tone-success:hover:not(:disabled, [aria-disabled="true"]) {
+    color: var(--ok);
+  }
+  :root[data-look="editorial"] .btn-link.btn-tone-info:hover:not(:disabled, [aria-disabled="true"]) {
+    color: var(--info);
+  }
+  :root[data-look="editorial"] .btn-link.btn-tone-warn:hover:not(:disabled, [aria-disabled="true"]) {
+    color: var(--warn);
+  }
+  :root[data-look="editorial"] .btn-link.btn-tone-danger:hover:not(:disabled, [aria-disabled="true"]) {
+    color: var(--danger);
   }
   :root[data-look="editorial"] .menu-item:hover:not(:disabled) {
     background-color: transparent;
@@ -509,13 +720,38 @@
     color: var(--text-on-accent);
   }
   :root[data-look="editorial"] .card-tap:hover {
-    --ed-rule-c: var(--accent);
-    --ed-rule-w: var(--ed-rule-heavy);
     background: radial-gradient(
       18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%),
       color-mix(in oklab, var(--accent) 16%, transparent),
       transparent 70%
     );
+  }
+  :root[data-look="editorial"] .card.card-tap:hover:where(:not(.surface-raised, .surface-sunken, .border-dashed, .card-stacked, .card-accent, .card-ok, .card-warn, .card-danger, .card-info)) {
+    box-shadow: inset 0 var(--ed-rule-heavy) 0 0 var(--accent);
+  }
+  :root[data-look="editorial"] .card:where(.card-tap:hover) {
+    padding-top: calc(var(--sp-4) + var(--ed-rule-heavy));
+  }
+  :root[data-look="editorial"] .card:where(.card-tap.pad-none:hover) {
+    padding-top: 0;
+  }
+  :root[data-look="editorial"] .card:where(.card-tap.pad-sm:hover) {
+    padding-top: calc(var(--sp-2) + var(--ed-rule-heavy));
+  }
+  :root[data-look="editorial"] .card:where(.card-tap.pad-lg:hover) {
+    padding-top: calc(var(--sp-6) + var(--ed-rule-heavy));
+  }
+  :root[data-look="editorial"] .card.card-framed.card-tap:hover > .card-head {
+    padding-top: calc(var(--sp-4) + var(--ed-rule-heavy));
+  }
+  :root[data-look="editorial"] .card.card-framed.card-tap:where(.pad-none):hover > .card-head {
+    padding-top: 0;
+  }
+  :root[data-look="editorial"] .card.card-framed.card-tap:where(.pad-sm):hover > .card-head {
+    padding-top: calc(var(--sp-2) + var(--ed-rule-heavy));
+  }
+  :root[data-look="editorial"] .card.card-framed.card-tap:where(.pad-lg):hover > .card-head {
+    padding-top: calc(var(--sp-6) + var(--ed-rule-heavy));
   }
   :root[data-look="editorial"] :is(.input, .select, .textarea, .rich-select .rs-trigger):hover:not(:disabled, :focus, [aria-invalid="true"]) {
     background-color: var(--bg-elevated);

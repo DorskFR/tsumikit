@@ -103,7 +103,7 @@
 		>
 			{#each segments as seg, i (i)}
 				<div class="segment tone-{seg.tone ?? 'accent'}" style="flex-grow: {grow(seg)}" title={seg.label}>
-					<div class="bar" style="--p: {pct(seg) / 100}"></div>
+					<div class="bar" style:translate="{pct(seg) - 100}% 0"></div>
 				</div>
 			{/each}
 			{#if remainder > 0}
@@ -124,7 +124,7 @@
 		>
 			{#each segments as seg, i (i)}
 				<div class="segment tone-{seg.tone ?? 'accent'}" style="flex-grow: {grow(seg)}" title={seg.label}>
-					<div class="bar" style="--p: {pct(seg) / 100}"></div>
+					<div class="bar" style:translate="{pct(seg) - 100}% 0"></div>
 				</div>
 			{/each}
 		</div>
@@ -182,26 +182,23 @@
 	.bar {
 		width: 100%;
 		height: 100%;
-		background: var(--fill, var(--accent));
-		translate: calc((var(--p, 1) - 1) * 100%) 0;
+		background: var(--accent);
+		translate: 0% 0;
 		transition: translate var(--dur-base) var(--ease-out);
 	}
-	.tone-success,
-	.tone-ok {
-		--fill: var(--ok);
+	.tone-success .bar,
+	.tone-ok .bar {
+		background: var(--ok);
 	}
-	.tone-warn {
-		--fill: var(--warn);
+	.tone-warn .bar {
+		background: var(--warn);
 	}
-	.tone-danger {
-		--fill: var(--danger);
+	.tone-danger .bar {
+		background: var(--danger);
 	}
-	.tone-info {
-		--seg-fill: var(--info);
-	}
-	.tone-neutral,
-	.tone-muted {
-		--fill: var(--text-faint);
+	.tone-neutral .bar,
+	.tone-muted .bar {
+		background: var(--text-faint);
 	}
 
 	.stacked {

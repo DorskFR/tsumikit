@@ -16,7 +16,7 @@ test('Button pill rounds to --r-pill', () => {
 	assert.match(button, /pill\?: boolean/);
 	assert.match(button, /pill = false,/);
 	assert.match(button, /class:btn-pill={pill}/);
-	assert.ok(hasDecl(button, '.btn-pill', 'border-radius', 'var(--btn-radius, var(--r-pill))'));
+	assert.ok(hasDecl(button, '.btn-pill', 'border-radius', 'var(--r-pill)'));
 });
 
 test('Button link variant is boxless, inherits text size and underlines on hover/focus', () => {
@@ -32,10 +32,11 @@ test('Button link variant is boxless, inherits text size and underlines on hover
 		'box-shadow: none;',
 		'font-size: inherit;',
 		'line-height: var(--lh-none);',
-		'color: var(--btn-tone, var(--link));'
+		'color: var(--link);'
 	]) {
 		assert.ok(rule[1].includes(decl), decl);
 	}
+	assert.ok(hasDecl(button, '.btn-link.btn-tone-warn', 'color', 'var(--warn)'));
 	assert.match(button, /\.btn-link:focus-visible\s*{[^}]*text-decoration: underline;/s);
 	assert.match(button, /\.btn-link:hover:not\(:disabled\)\s*{[^}]*text-decoration: underline;/s);
 	// Cascade: link chrome must win over size/control padding at equal specificity.
@@ -70,7 +71,7 @@ test('Toggle size defaults to sm; md, grow and shrink map to classes', () => {
 	assert.match(toggle, /class:no-shrink={!shrink}/);
 	assert.match(
 		toggle,
-		/\.toggle\.md\s*{\s*height: var\(--toggle-size, var\(--control-md\)\);\s*padding: 0 var\(--control-px-md\);\s*font-size: var\(--control-fs-md\);/
+		/\.toggle\.md\s*{\s*height: var\(--control-md\);\s*padding: 0 var\(--control-px-md\);\s*font-size: var\(--control-fs-md\);/
 	);
 	assert.match(toggle, /\.toggle\.grow\s*{\s*flex: 1 1 0;\s*min-width: 0;\s*}/);
 	assert.match(toggle, /\.toggle\.no-shrink\s*{\s*flex: none;\s*}/);
@@ -86,5 +87,5 @@ test('FileButton control follows --control-height like Button', () => {
 		fileButton,
 		/\.file-btn\.control\s*{\s*height: var\(--control-height\);\s*min-height: var\(--control-height\);/
 	);
-	assert.match(button, /\.btn-control\s*{[^}]*height: var\(--btn-size, var\(--control-height\)\);/s);
+	assert.match(button, /\.btn-control\s*{[^}]*height: var\(--control-height\);/s);
 });

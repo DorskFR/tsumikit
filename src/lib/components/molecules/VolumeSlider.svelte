@@ -198,7 +198,7 @@
 	class:vol--hide-touch={hideOnTouch}
 	class:vol--dragging={dragging}
 	class:vol--muted={muted}
-	style="--pct: {pct};{styleProp ?? ''}"
+	style={styleProp}
 	{...rest}
 >
 	<IconButton
@@ -233,9 +233,9 @@
 		{@attach wheel}
 	>
 		<span class="vol-track" data-part="track">
-			<i class="vol-fill" data-part="fill"></i>
+			<i class="vol-fill" data-part="fill" style:width={vertical ? undefined : `${pct}%`} style:height={vertical ? `${pct}%` : undefined}></i>
 		</span>
-		<span class="vol-anchor">
+		<span class="vol-anchor" style:inset-inline-start={vertical ? undefined : `${pct}%`} style:bottom={vertical ? `${pct}%` : undefined}>
 			<i class="vol-thumb" data-part="thumb"></i>
 		</span>
 	</div>
@@ -243,20 +243,10 @@
 
 <style>
 	.vol {
-		--vol-track: 3px;
-		--vol-thumb: 10px;
-		--vol-length: 5rem;
-		--vol-accent: var(--slider-accent, var(--accent));
-		--vol-halo: 0 0 0 4px color-mix(in srgb, var(--vol-accent) 20%, transparent);
 		display: inline-flex;
 		align-items: center;
 		gap: var(--sp-1);
 		vertical-align: middle;
-	}
-	.vol--md {
-		--vol-track: 4px;
-		--vol-thumb: 12px;
-		--vol-length: 7rem;
 	}
 	.vol--vertical {
 		flex-direction: column-reverse;
@@ -264,7 +254,7 @@
 	.vol-slab {
 		position: relative;
 		flex: none;
-		width: var(--vol-length);
+		width: 5rem;
 		min-height: 1.25rem;
 		cursor: pointer;
 		touch-action: none;
@@ -273,10 +263,16 @@
 		outline: none;
 		border-radius: var(--r-sm);
 	}
+	.vol--md .vol-slab {
+		width: 7rem;
+	}
 	.vol--vertical .vol-slab {
 		width: 1.25rem;
-		height: var(--vol-length);
+		height: 5rem;
 		min-height: 0;
+	}
+	.vol--vertical.vol--md .vol-slab {
+		height: 7rem;
 	}
 	@media (pointer: coarse) {
 		.vol-slab {
@@ -303,8 +299,8 @@
 		position: absolute;
 		inset-inline: 0;
 		top: 50%;
-		height: var(--vol-track);
-		margin-top: calc(var(--vol-track) / -2);
+		height: 3px;
+		margin-top: -1.5px;
 		border-radius: var(--r-pill);
 		background: var(--track-fill);
 		overflow: hidden;
@@ -314,45 +310,51 @@
 		inset-block: 0;
 		left: 50%;
 		top: auto;
-		width: var(--vol-track);
+		width: 3px;
 		height: auto;
 		margin-top: 0;
-		margin-left: calc(var(--vol-track) / -2);
+		margin-left: -1.5px;
+	}
+	.vol--md .vol-track {
+		height: 4px;
+		margin-top: -2px;
+	}
+	.vol--vertical.vol--md .vol-track {
+		width: 4px;
+		height: auto;
+		margin-top: 0;
+		margin-left: -2px;
 	}
 	.vol-fill {
 		position: absolute;
 		inset-block: 0;
 		inset-inline-start: 0;
-		width: calc(var(--pct) * 1%);
-		background: var(--vol-accent);
+		background: var(--accent);
 	}
 	.vol--vertical .vol-fill {
 		inset-inline: 0;
 		inset-block: auto 0;
 		width: auto;
-		height: calc(var(--pct) * 1%);
 	}
 	.vol-anchor {
 		position: absolute;
 		top: 50%;
-		inset-inline-start: calc(var(--pct) * 1%);
 		width: 0;
 		height: 0;
 		pointer-events: none;
 	}
 	.vol--vertical .vol-anchor {
 		top: auto;
-		bottom: calc(var(--pct) * 1%);
 		inset-inline-start: 50%;
 	}
 	.vol-thumb {
 		position: absolute;
 		left: 0;
 		top: 0;
-		width: var(--vol-thumb);
-		height: var(--vol-thumb);
+		width: 10px;
+		height: 10px;
 		border-radius: var(--r-pill);
-		background: var(--vol-accent);
+		background: var(--accent);
 		border: 2px solid var(--bg);
 		box-shadow: var(--thumb-shadow);
 		transform: translate(-50%, -50%);
@@ -362,6 +364,10 @@
 			opacity var(--dur-fast) var(--ease),
 			scale var(--dur-press) var(--ease-out),
 			box-shadow var(--dur-fast) var(--ease);
+	}
+	.vol--md .vol-thumb {
+		width: 12px;
+		height: 12px;
 	}
 	.vol-slab:focus-visible .vol-thumb,
 	.vol--dragging .vol-thumb {
@@ -375,7 +381,7 @@
 		.vol-slab:not([aria-disabled='true']):hover .vol-thumb {
 			opacity: 1;
 			scale: 1;
-			box-shadow: var(--thumb-shadow), var(--vol-halo);
+			box-shadow: var(--thumb-shadow), 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent);
 		}
 		.vol--dragging .vol-thumb {
 			scale: 1.15;

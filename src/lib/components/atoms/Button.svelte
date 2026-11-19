@@ -4,6 +4,7 @@
 	import { pending } from '$lib/pending.svelte';
 	import { playSound } from '$lib/sound';
 	import type { ControlSize } from '$lib/size';
+	import { controlTier, getControlSizeContext } from '$lib/size-context';
 	import { canonicalTone, type Tone } from '$lib/tone';
 	import type { Snippet } from 'svelte';
 	import type { HTMLButtonAttributes } from 'svelte/elements';
@@ -16,7 +17,7 @@
 		// adds a subtle fill on hover. For stateful controls — an "on"/active toggle
 		// (`accent`), positive actions (`success`), or cost/severity states.
 		tone?: Tone | 'none';
-		size?: ControlSize;
+		size?: ControlSize | 'xl';
 		control?: boolean;
 		// Fully rounded ends (`--r-pill`) on any size/variant.
 		pill?: boolean;
@@ -43,7 +44,7 @@
 		// never flexes. Implies an icon-only control.
 		box?: 'xs' | 'sm' | 'md' | 'lg';
 		// Square text/icon control whose side equals the current height contract:
-		// `size` tier, or `--control-height` with `control`.
+		// `size` tier, or the control height with `control`.
 		square?: boolean;
 		// Outlined `--box-lg`-tall chip (header/toolbar action): a square for a lone
 		// glyph, otherwise sized to its text. Pairs with `tone` for tinted severity chips.
@@ -79,7 +80,7 @@
 		doneLabel?: string;
 		// Corner count indicator (unread, selected, pending). Hidden at 0/undefined;
 		// shows `${countMax}+` past the cap while the accessible name carries the
-		// exact number. Tint via `--btn-count-bg` / `--btn-count-fg`.
+		// exact number.
 		count?: number;
 		countMax?: number;
 		// `stacked`: a hotbar slot, `glyph` over the label, height following `size`.
@@ -101,7 +102,7 @@
 	let {
 		variant = 'default',
 		tone = 'none',
-		size = 'md',
+		size: sizeProp,
 		control = false,
 		pill = false,
 		block = false,
@@ -139,6 +140,9 @@
 		...rest
 	}: ButtonProps = $props();
 	const t = $derived(canonicalTone(tone));
+	const size = $derived(sizeProp ?? 'md');
+	const sizeContext = getControlSizeContext();
+	const tier = $derived(controlTier(control, sizeProp, sizeContext));
 
 	// A link-flavoured Button is a real <a>; native `disabled`/`type` don't apply,
 	// so an inactive link drops `href` (no focus, no keyboard activation).
@@ -148,6 +152,7 @@
 	const spinning = $derived(spin.visible);
 	const done = $derived(loading === 'done');
 	const layered = $derived(loadingStyle !== 'spinner');
+	const fillProgress = $derived(loadingStyle === 'fill' && progress !== undefined ? Math.min(1, Math.max(0, progress)) : 0);
 	const inactive = $derived(disabled || busy);
 	const elementAttrs = $derived(
 		tag === 'a'
@@ -216,17 +221,23 @@
 	class:no-shrink={!shrink}
 	class:btn-sm={size === 'sm'}
 	class:btn-lg={size === 'lg'}
+	class:btn-xl={size === 'xl'}
 	class:btn-control={control}
+	class:btn-control-sm={tier === 'sm'}
+	class:btn-control-md={tier === 'md'}
+	class:btn-control-lg={tier === 'lg'}
 	class:btn-block={block}
 	class:btn-icon={icon}
 	class:btn-box={box !== undefined}
+	class:btn-box-xs={box === 'xs'}
+	class:btn-box-sm={box === 'sm'}
+	class:btn-box-md={box === 'md'}
+	class:btn-box-lg={box === 'lg'}
 	class:btn-square={square}
 	class:btn-chip={chip}
 	class:btn-collapse-mobile={collapseLabel === 'mobile'}
 	class:btn-collapse-container={collapseLabel === 'container'}
 	class:hit-compact={hitArea === 'compact'}
-	style:--btn-box={box ? `var(--box-${box})` : undefined}
-	style:--btn-progress={loadingStyle === 'fill' && progress !== undefined ? Math.min(1, Math.max(0, progress)) : undefined}
 	class:btn-tone-accent={t === 'accent'}
 	class:btn-tone-success={t === 'ok'}
 	class:btn-tone-info={t === 'info'}
@@ -244,7 +255,7 @@
 	class:btn-hinted={keyHint !== undefined}
 	onclick={handleClick}
 >
-	{#if loadingStyle === 'fill'}<span class="btn-fill-bar" aria-hidden="true"></span>{/if}
+	{#if loadingStyle === 'fill'}<span class="btn-fill-bar" style:scale="{fillProgress} 1" aria-hidden="true"></span>{/if}
 	{#if spinning && !layered}<span class="btn-spinner" aria-hidden="true"></span>{:else if done && !layered}<span class="btn-check" aria-hidden="true"><Icon name="check" /></span>{/if}
 	{#if glyph !== undefined}
 		<span class="btn-glyph" aria-hidden="true">
@@ -260,7 +271,7 @@
 				<span class="btn-layer btn-layer-spin" aria-hidden="true"></span>
 				<span class="btn-layer btn-layer-done" aria-hidden="true"><Icon name="check" />{#if doneLabel !== undefined}{doneLabel}{:else}{@render children?.()}{/if}</span>
 			{:else}
-				<span class="btn-layer btn-layer-ink" aria-hidden="true">{@render children?.()}</span>
+				<span class="btn-layer btn-layer-ink" style:clip-path="inset(0 {(1 - fillProgress) * 100}% 0 0)" aria-hidden="true">{@render children?.()}</span>
 			{/if}
 		</span>
 	{:else}
@@ -276,29 +287,24 @@
 <style>
 	/* The canonical control: owns its variants/sizes/modifiers from theme tokens.
 	   Svelte 5 scopes via :where() (zero added specificity), so feature-component
-	   overrides keep winning by specificity. Icons size themselves (Icon.svelte),
-	   so no svg sizing rule lives here. */
+	   overrides keep winning by specificity. Nested icons take the size tier's
+	   icon size. */
 	.btn {
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		gap: var(--sp-2);
 		padding: var(--sp-2) var(--btn-px-md);
-		min-height: var(--btn-size, var(--control-height-default));
+		min-height: var(--control-height-default);
 		max-width: 100%;
-		border: var(--edge-width) solid var(--btn-border, var(--btn-edge));
-		border-radius: var(--btn-radius, var(--r-md));
-		background: var(--btn-bg, var(--btn-fill));
-		--btn-shadow-rest: var(--btn-shadow);
-		--btn-shadow-lift: var(--btn-shadow-hover);
-		box-shadow: var(--btn-shadow-rest);
-		color: var(--btn-fg, var(--text));
+		border: var(--edge-width) solid var(--btn-edge);
+		border-radius: var(--r-md);
+		background: var(--btn-fill);
+		box-shadow: var(--btn-shadow);
+		color: var(--text);
 		font-weight: var(--fw-medium);
 		font-size: var(--control-fs-md);
 		line-height: var(--lh-none);
-		--icon-size: var(--control-icon-md);
-		--btn-scale-dur: var(--dur-release);
-		--btn-scale-ease: var(--ease-spring-bounce);
 		transition:
 			background var(--dur-fast) ease,
 			border-color var(--dur-fast) ease,
@@ -307,7 +313,7 @@
 			opacity var(--dur-fast) ease,
 			filter var(--dur-fast) ease,
 			translate var(--dur-fast) var(--ease-out),
-			scale var(--btn-scale-dur) var(--btn-scale-ease);
+			scale var(--dur-release) var(--ease-spring-bounce);
 		user-select: none;
 		white-space: normal;
 		overflow-wrap: break-word;
@@ -316,13 +322,39 @@
 		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
 	}
-	.btn:focus-visible:not(.btn-link, .btn-icon-inline, [aria-pressed='true']) {
-		box-shadow: var(--btn-shadow-rest), var(--focus-glow);
+	.btn :global(.icon) {
+		font-size: var(--control-icon-md);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.btn:where(:hover:not(:disabled)) {
+			box-shadow: var(--btn-shadow-hover);
+		}
+	}
+	.btn:focus-visible:not(.btn-link, .btn-icon-inline, .btn-ghost, [aria-pressed='true']) {
+		box-shadow: var(--btn-shadow), var(--focus-glow);
+	}
+	.btn-primary:focus-visible:not(.btn-link, .btn-icon-inline, .btn-ghost, [aria-pressed='true']) {
+		box-shadow: var(--btn-primary-shadow), var(--focus-glow);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.btn:hover:focus-visible:not(:disabled):not(.btn-link, .btn-icon-inline, .btn-ghost, [aria-pressed='true']) {
+			box-shadow: var(--btn-shadow-hover), var(--focus-glow);
+		}
+		.btn-primary:hover:focus-visible:not(:disabled):not(.btn-link, .btn-icon-inline, .btn-ghost, [aria-pressed='true']) {
+			box-shadow: var(--btn-primary-shadow-hover), var(--focus-glow);
+		}
 	}
 	/* Press: scale in over --dur-press, spring back over --dur-release. */
 	.btn:active:not(:disabled, [aria-disabled='true'], .loading, .btn-link) {
-		--btn-scale-dur: var(--dur-press);
-		--btn-scale-ease: var(--ease-out);
+		transition:
+			background var(--dur-fast) ease,
+			border-color var(--dur-fast) ease,
+			box-shadow var(--dur-fast) ease,
+			color var(--dur-fast) ease,
+			opacity var(--dur-fast) ease,
+			filter var(--dur-fast) ease,
+			translate var(--dur-fast) var(--ease-out),
+			scale var(--dur-press) var(--ease-out);
 		scale: var(--press-scale);
 	}
 	.btn-icon:active:not(:disabled, [aria-disabled='true'], .loading),
@@ -332,34 +364,49 @@
 		scale: var(--press-scale-sm);
 	}
 	.btn-primary {
-		background: var(--btn-bg, var(--btn-primary-fill));
-		border-color: var(--btn-border, var(--btn-primary-edge));
-		--btn-shadow-rest: var(--btn-primary-shadow);
-		--btn-shadow-lift: var(--btn-primary-shadow-hover);
-		color: var(--btn-fg, var(--text-on-accent));
+		background: var(--btn-primary-fill);
+		border-color: var(--btn-primary-edge);
+		box-shadow: var(--btn-primary-shadow);
+		color: var(--text-on-accent);
 		font-weight: var(--fw-semibold);
+	}
+	@media (hover: hover) and (pointer: fine) {
+		.btn-primary:where(:hover:not(:disabled)) {
+			box-shadow: var(--btn-primary-shadow-hover);
+		}
 	}
 	.btn-danger {
 		color: var(--danger);
 		border-color: color-mix(in srgb, var(--danger) 50%, var(--border));
 	}
 	.btn-ghost {
-		background: var(--btn-bg, transparent);
-		border-color: var(--btn-border, transparent);
-		--btn-shadow-rest: none;
-		--btn-shadow-lift: none;
+		background: transparent;
+		border-color: transparent;
+		box-shadow: none;
 	}
 	.btn-sm {
-		min-height: var(--btn-size, var(--control-height-compact));
+		min-height: var(--control-height-compact);
 		padding: var(--sp-1) var(--btn-px-sm);
 		font-size: var(--control-fs-sm);
-		--icon-size: var(--control-icon-sm);
+	}
+	.btn-sm :global(.icon) {
+		font-size: var(--control-icon-sm);
 	}
 	.btn-lg {
-		min-height: var(--btn-size, var(--control-height-large));
+		min-height: var(--control-height-large);
 		padding: var(--sp-3) var(--btn-px-lg);
 		font-size: var(--control-fs-lg);
-		--icon-size: var(--control-icon-lg);
+	}
+	.btn-lg :global(.icon) {
+		font-size: var(--control-icon-lg);
+	}
+	.btn-xl {
+		min-height: calc(var(--control-height-large) + var(--sp-2));
+		padding: var(--sp-4) var(--sp-6);
+		font-size: var(--fs-md);
+	}
+	.btn-xl :global(.icon) {
+		font-size: var(--icon-xl);
 	}
 	.btn-block {
 		width: 100%;
@@ -378,30 +425,27 @@
 		cursor: not-allowed;
 	}
 
-	/* Semantic state tones — tint text + border, subtle fill on hover. Layered on
-	   the neutral/ghost variant; each defines --btn-tone so one ruleset paints. */
+	/* Semantic state tones: tint text + border, subtle fill on hover. Layered on
+	   the neutral/ghost variant. */
 	.btn-tone-accent {
-		--btn-tone: var(--accent);
+		color: var(--accent);
+		border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
 	}
 	.btn-tone-success {
-		--btn-tone: var(--ok);
+		color: var(--ok);
+		border-color: color-mix(in srgb, var(--ok) 50%, var(--border));
 	}
 	.btn-tone-info {
-		--btn-tone: var(--info);
+		color: var(--info);
+		border-color: color-mix(in srgb, var(--info) 50%, var(--border));
 	}
 	.btn-tone-warn {
-		--btn-tone: var(--warn);
+		color: var(--warn);
+		border-color: color-mix(in srgb, var(--warn) 50%, var(--border));
 	}
 	.btn-tone-danger {
-		--btn-tone: var(--danger);
-	}
-	.btn-tone-accent,
-	.btn-tone-success,
-	.btn-tone-info,
-	.btn-tone-warn,
-	.btn-tone-danger {
-		color: var(--btn-tone);
-		border-color: color-mix(in srgb, var(--btn-tone) 50%, var(--border));
+		color: var(--danger);
+		border-color: color-mix(in srgb, var(--danger) 50%, var(--border));
 	}
 
 	/* Icon-chip: larger square outlined tap target for header/toolbar actions.
@@ -428,18 +472,30 @@
 		align-items: center;
 		justify-content: center;
 		gap: var(--sp-2);
-		height: var(--btn-size, var(--control-height));
-		min-height: var(--btn-size, var(--control-height));
+		height: var(--control-height);
+		min-height: var(--control-height);
 		padding: 0 var(--control-px-md);
-		border: var(--edge-width) solid var(--btn-border, var(--btn-edge));
-		border-radius: var(--btn-radius, var(--r-md));
-		background: var(--btn-bg, var(--btn-fill));
-		color: var(--btn-fg, var(--text));
+		border: var(--edge-width) solid var(--btn-edge);
+		border-radius: var(--r-md);
+		background: var(--btn-fill);
+		color: var(--text);
 		font-weight: var(--fw-medium);
 		font-size: var(--control-fs-md);
 		line-height: var(--lh-none);
 		white-space: normal;
 		user-select: none;
+	}
+	.btn-control-sm {
+		height: var(--control-height-compact);
+		min-height: var(--control-height-compact);
+	}
+	.btn-control-md {
+		height: var(--control-height-default);
+		min-height: var(--control-height-default);
+	}
+	.btn-control-lg {
+		height: var(--control-height-large);
+		min-height: var(--control-height-large);
 	}
 	.btn-control:disabled {
 		opacity: var(--disabled-opacity);
@@ -449,9 +505,9 @@
 	   the primary action with the neutral --surface; restore the accent fill when
 	   both are present. */
 	.btn-control.btn-primary {
-		background: var(--btn-bg, var(--btn-primary-fill));
-		border-color: var(--btn-border, var(--btn-primary-edge));
-		color: var(--btn-fg, var(--text-on-accent));
+		background: var(--btn-primary-fill);
+		border-color: var(--btn-primary-edge);
+		color: var(--text-on-accent);
 	}
 	.btn-control.btn-tone-success {
 		color: var(--ok);
@@ -472,12 +528,24 @@
 	/* Other tones on a primary action tint the accent fill rather than repaint the
 	   text, so the on-accent foreground stays readable (bare tone-as-text would be
 	   accent-on-accent). success keeps its own filled guard above. */
-	.btn-primary.btn-tone-accent,
-	.btn-primary.btn-tone-info,
-	.btn-primary.btn-tone-warn,
+	.btn-primary.btn-tone-accent {
+		background: color-mix(in srgb, var(--accent) 35%, var(--accent));
+		border-color: color-mix(in srgb, var(--accent) 35%, var(--accent));
+		color: var(--text-on-accent);
+	}
+	.btn-primary.btn-tone-info {
+		background: color-mix(in srgb, var(--info) 35%, var(--accent));
+		border-color: color-mix(in srgb, var(--info) 35%, var(--accent));
+		color: var(--text-on-accent);
+	}
+	.btn-primary.btn-tone-warn {
+		background: color-mix(in srgb, var(--warn) 35%, var(--accent));
+		border-color: color-mix(in srgb, var(--warn) 35%, var(--accent));
+		color: var(--text-on-accent);
+	}
 	.btn-primary.btn-tone-danger {
-		background: color-mix(in srgb, var(--btn-tone) 35%, var(--accent));
-		border-color: color-mix(in srgb, var(--btn-tone) 35%, var(--accent));
+		background: color-mix(in srgb, var(--danger) 35%, var(--accent));
+		border-color: color-mix(in srgb, var(--danger) 35%, var(--accent));
 		color: var(--text-on-accent);
 	}
 
@@ -486,7 +554,7 @@
 		align-self: flex-start;
 	}
 	.btn-pill {
-		border-radius: var(--btn-radius, var(--r-pill));
+		border-radius: var(--r-pill);
 	}
 	/* Link variant: no box, inherits the surrounding text size. Placed after the
 	   size rules so their min-height doesn't reapply; a tone wins over --link. */
@@ -500,7 +568,22 @@
 		border-radius: 0;
 		font-size: inherit;
 		line-height: var(--lh-none);
-		color: var(--btn-tone, var(--link));
+		color: var(--link);
+	}
+	.btn-link.btn-tone-accent {
+		color: var(--accent);
+	}
+	.btn-link.btn-tone-success {
+		color: var(--ok);
+	}
+	.btn-link.btn-tone-info {
+		color: var(--info);
+	}
+	.btn-link.btn-tone-warn {
+		color: var(--warn);
+	}
+	.btn-link.btn-tone-danger {
+		color: var(--danger);
 	}
 	.btn-link:focus-visible {
 		background: none;
@@ -515,32 +598,69 @@
 	}
 	/* `square`: side = the height contract in force (size tier or control). */
 	.btn-square {
-		width: var(--btn-size, var(--control-height-default));
-		min-width: var(--btn-size, var(--control-height-default));
+		width: var(--control-height-default);
+		min-width: var(--control-height-default);
 		padding: 0;
 		flex: none;
 	}
 	.btn-square.btn-sm {
-		width: var(--btn-size, var(--control-height-compact));
-		min-width: var(--btn-size, var(--control-height-compact));
+		width: var(--control-height-compact);
+		min-width: var(--control-height-compact);
 	}
 	.btn-square.btn-lg {
-		width: var(--btn-size, var(--control-height-large));
-		min-width: var(--btn-size, var(--control-height-large));
-		height: var(--btn-size, var(--control-height-large));
+		width: var(--control-height-large);
+		min-width: var(--control-height-large);
+		height: var(--control-height-large);
+	}
+	.btn-square.btn-xl {
+		width: calc(var(--control-height-large) + var(--sp-2));
+		min-width: calc(var(--control-height-large) + var(--sp-2));
+		height: calc(var(--control-height-large) + var(--sp-2));
 	}
 	.btn-square.btn-control {
-		width: var(--btn-size, var(--control-height));
-		min-width: var(--btn-size, var(--control-height));
+		width: var(--control-height);
+		min-width: var(--control-height);
+	}
+	.btn-square.btn-control-sm {
+		width: var(--control-height-compact);
+		min-width: var(--control-height-compact);
+	}
+	.btn-square.btn-control-md {
+		width: var(--control-height-default);
+		min-width: var(--control-height-default);
+	}
+	.btn-square.btn-control-lg {
+		width: var(--control-height-large);
+		min-width: var(--control-height-large);
 	}
 	/* `box`: explicit square scale, wins over icon/chip/square/size sizing. */
 	.btn-box {
-		width: var(--btn-box);
-		min-width: var(--btn-box);
-		height: var(--btn-box);
-		min-height: var(--btn-box);
 		padding: 0;
 		flex: none;
+	}
+	.btn-box-xs {
+		width: var(--box-xs);
+		min-width: var(--box-xs);
+		height: var(--box-xs);
+		min-height: var(--box-xs);
+	}
+	.btn-box-sm {
+		width: var(--box-sm);
+		min-width: var(--box-sm);
+		height: var(--box-sm);
+		min-height: var(--box-sm);
+	}
+	.btn-box-md {
+		width: var(--box-md);
+		min-width: var(--box-md);
+		height: var(--box-md);
+		min-height: var(--box-md);
+	}
+	.btn-box-lg {
+		width: var(--box-lg);
+		min-width: var(--box-lg);
+		height: var(--box-lg);
+		min-height: var(--box-lg);
 	}
 	.btn-icon-inline {
 		min-height: 0;
@@ -625,10 +745,9 @@
 	}
 
 	/* Two-state (toggle) buttons — e.g. an IconButton with `pressed`. Reacts to
-	   the native aria-pressed that flows through, so no extra class. Tint defaults
-	   to the accent; override per-instance with `style="--btn-on: var(--warn)"`. */
+	   the native aria-pressed that flows through, so no extra class. */
 	.btn[aria-pressed='true'] {
-		color: var(--btn-on, var(--accent));
+		color: var(--accent);
 	}
 
 	/* Stacked hotbar slot: glyph over a short label. Follows the size and
@@ -636,25 +755,27 @@
 	.btn-stacked,
 	.btn-stacked.btn-sm,
 	.btn-stacked.btn-lg,
+	.btn-stacked.btn-xl,
 	.btn-stacked.btn-control {
 		flex-direction: column;
 		gap: var(--sp-1);
 		height: auto;
-		min-height: var(--btn-size, var(--control-height-large));
-		min-width: var(--btn-size, var(--control-height-large));
+		min-height: var(--control-height-large);
+		min-width: var(--control-height-large);
 		padding: var(--sp-1) var(--sp-2);
 		font-size: var(--fs-xs);
 	}
 	.btn-stacked.btn-sm {
-		min-height: var(--btn-size, var(--control-height-default));
-		min-width: var(--btn-size, calc(var(--control-height-default) + var(--sp-1) + var(--sp-0-5)));
+		min-height: var(--control-height-default);
+		min-width: calc(var(--control-height-default) + var(--sp-1) + var(--sp-0-5));
 		gap: var(--sp-0-5);
 		padding: var(--sp-1);
 		font-size: calc(var(--fs-xs) * 0.85);
 	}
-	.btn-stacked.btn-lg {
-		min-height: var(--btn-size, calc(var(--control-height-large) + var(--sp-2) + var(--sp-0-5)));
-		min-width: var(--btn-size, calc(var(--control-height-large) + var(--sp-2) + var(--sp-0-5)));
+	.btn-stacked.btn-lg,
+	.btn-stacked.btn-xl {
+		min-height: calc(var(--control-height-large) + var(--sp-2) + var(--sp-0-5));
+		min-width: calc(var(--control-height-large) + var(--sp-2) + var(--sp-0-5));
 		padding: var(--sp-2) var(--sp-3);
 		font-size: var(--fs-sm);
 	}
@@ -664,7 +785,16 @@
 		justify-content: center;
 		flex: none;
 		line-height: var(--lh-none);
-		font-size: var(--icon-size);
+		font-size: var(--control-icon-md);
+	}
+	.btn-sm .btn-glyph {
+		font-size: var(--control-icon-sm);
+	}
+	.btn-lg .btn-glyph {
+		font-size: var(--control-icon-lg);
+	}
+	.btn-xl .btn-glyph {
+		font-size: var(--icon-xl);
 	}
 	.btn-stacked .btn-glyph {
 		font-size: var(--fs-lg);
@@ -672,7 +802,8 @@
 	.btn-stacked.btn-sm .btn-glyph {
 		font-size: var(--fs-md);
 	}
-	.btn-stacked.btn-lg .btn-glyph {
+	.btn-stacked.btn-lg .btn-glyph,
+	.btn-stacked.btn-xl .btn-glyph {
 		font-size: var(--fs-xl);
 	}
 	.btn-stack-label {
@@ -686,8 +817,8 @@
 		border-color: var(--danger);
 	}
 	.btn-stacked[aria-pressed='true'] {
-		border-color: var(--btn-on, var(--accent));
-		box-shadow: inset 0 0 0 1px var(--btn-on, var(--accent));
+		border-color: var(--accent);
+		box-shadow: inset 0 0 0 1px var(--accent);
 	}
 
 	/* Corner key hint: mirrors the count pill in the opposite corner, inside the box. */
@@ -749,12 +880,12 @@
 		align-items: center;
 		justify-content: center;
 		box-sizing: border-box;
-		min-width: var(--btn-count-size, 1.125rem);
-		height: var(--btn-count-size, 1.125rem);
+		min-width: 1.125rem;
+		height: 1.125rem;
 		padding: 0 var(--sp-1);
 		border-radius: var(--r-pill);
-		background: var(--btn-count-bg, var(--accent));
-		color: var(--btn-count-fg, var(--text-on-accent));
+		background: var(--accent);
+		color: var(--text-on-accent);
 		font-size: var(--fs-xs);
 		font-weight: var(--fw-semibold);
 		font-variant-numeric: tabular-nums;
@@ -765,14 +896,15 @@
 	.btn-sm .btn-count,
 	.btn-link .btn-count,
 	.btn-icon-inline .btn-count {
-		--btn-count-size: 1rem;
+		min-width: 1rem;
+		height: 1rem;
 		padding: 0 var(--sp-0-5);
 		font-size: var(--fs-xs);
 	}
 	/* The accent fill would swallow an accent pill: invert on primary. */
 	.btn-primary .btn-count {
-		background: var(--btn-count-bg, var(--text-on-accent));
-		color: var(--btn-count-fg, var(--accent));
+		background: var(--text-on-accent);
+		color: var(--accent);
 	}
 	.btn-count-sr {
 		position: absolute;
@@ -790,7 +922,6 @@
 		.btn:hover:not(:disabled) {
 			border-color: var(--accent);
 			translate: 0 calc(-1 * var(--hover-lift));
-			--btn-shadow-rest: var(--btn-shadow-lift);
 		}
 		.btn-primary:hover:not(:disabled) {
 			filter: brightness(1.08);
@@ -803,13 +934,25 @@
 			background: var(--bg-elevated-2);
 			border-color: transparent;
 		}
-		.btn-tone-accent:hover:not(:disabled),
-		.btn-tone-success:hover:not(:disabled),
-		.btn-tone-info:hover:not(:disabled),
-		.btn-tone-warn:hover:not(:disabled),
+		.btn-tone-accent:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--accent) 14%, transparent);
+			border-color: var(--accent);
+		}
+		.btn-tone-success:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--ok) 14%, transparent);
+			border-color: var(--ok);
+		}
+		.btn-tone-info:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--info) 14%, transparent);
+			border-color: var(--info);
+		}
+		.btn-tone-warn:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--warn) 14%, transparent);
+			border-color: var(--warn);
+		}
 		.btn-tone-danger:hover:not(:disabled) {
-			background: color-mix(in srgb, var(--btn-tone) 14%, transparent);
-			border-color: var(--btn-tone);
+			background: color-mix(in srgb, var(--danger) 14%, transparent);
+			border-color: var(--danger);
 		}
 		.btn-control:hover:not(:disabled) {
 			border-color: var(--accent);
@@ -832,12 +975,24 @@
 			border-color: var(--ok);
 			filter: brightness(1.08);
 		}
-		.btn-primary.btn-tone-accent:hover:not(:disabled),
-		.btn-primary.btn-tone-info:hover:not(:disabled),
-		.btn-primary.btn-tone-warn:hover:not(:disabled),
+		.btn-primary.btn-tone-accent:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--accent) 35%, var(--accent));
+			border-color: color-mix(in srgb, var(--accent) 35%, var(--accent));
+			filter: brightness(1.08);
+		}
+		.btn-primary.btn-tone-info:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--info) 35%, var(--accent));
+			border-color: color-mix(in srgb, var(--info) 35%, var(--accent));
+			filter: brightness(1.08);
+		}
+		.btn-primary.btn-tone-warn:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--warn) 35%, var(--accent));
+			border-color: color-mix(in srgb, var(--warn) 35%, var(--accent));
+			filter: brightness(1.08);
+		}
 		.btn-primary.btn-tone-danger:hover:not(:disabled) {
-			background: color-mix(in srgb, var(--btn-tone) 35%, var(--accent));
-			border-color: color-mix(in srgb, var(--btn-tone) 35%, var(--accent));
+			background: color-mix(in srgb, var(--danger) 35%, var(--accent));
+			border-color: color-mix(in srgb, var(--danger) 35%, var(--accent));
 			filter: brightness(1.08);
 		}
 		.btn-link:hover:not(:disabled) {
@@ -862,7 +1017,10 @@
 	.btn-check {
 		display: inline-flex;
 		flex: none;
-		--icon-size: 0.9em;
+	}
+	.btn .btn-check :global(.icon),
+	.btn .btn-layer-done :global(.icon) {
+		font-size: 0.9em;
 	}
 	.btn-layers {
 		position: relative;
@@ -894,7 +1052,6 @@
 	.btn-layer-done {
 		opacity: 0;
 		translate: 0 0.5em;
-		--icon-size: 0.9em;
 	}
 	.btn-morph.loading .btn-layer-label,
 	.btn-morph.btn-done .btn-layer-label {
@@ -916,22 +1073,18 @@
 		position: relative;
 		isolation: isolate;
 		overflow: hidden;
-		--btn-progress-fill: var(--accent);
-		--btn-progress-fg: var(--text-on-accent);
-	}
-	.btn-fill.btn-primary {
-		--btn-progress-fill: color-mix(in srgb, var(--text-on-accent) 22%, transparent);
-		--btn-progress-fg: currentColor;
 	}
 	.btn-fill-bar {
 		position: absolute;
 		inset: 0;
 		z-index: 0;
-		background: var(--btn-progress-fill);
-		scale: var(--btn-progress, 0) 1;
+		background: var(--accent);
 		transform-origin: left;
 		transition: scale var(--dur-slow) var(--ease-out);
 		pointer-events: none;
+	}
+	.btn-fill.btn-primary .btn-fill-bar {
+		background: color-mix(in srgb, var(--text-on-accent) 22%, transparent);
 	}
 	.btn-fill .btn-layers {
 		z-index: 1;
@@ -940,9 +1093,11 @@
 		position: absolute;
 		inset: 0;
 		justify-content: center;
-		color: var(--btn-progress-fg);
-		clip-path: inset(0 calc((1 - var(--btn-progress, 0)) * 100%) 0 0);
+		color: var(--text-on-accent);
 		transition: clip-path var(--dur-slow) var(--ease-out);
+	}
+	.btn-fill.btn-primary .btn-layer-ink {
+		color: currentColor;
 	}
 	.btn-fill:not(.loading, .btn-done) .btn-fill-bar,
 	.btn-fill:not(.loading, .btn-done) .btn-layer-ink {
@@ -953,23 +1108,6 @@
 	   that sets it (`smoke` when none does, `none` turns it off). Two layers under
 	   the content run their loop only while hovered; keyboard focus holds a still
 	   frame. Boxless buttons and a corner count (clipped by overflow) opt out. */
-	.btn {
-		--fx-ink: color-mix(in srgb, var(--btn-tone, var(--accent)) 26%, transparent);
-		--fx-ember: color-mix(in srgb, var(--warn) 55%, var(--accent));
-		--fx-a1: color-mix(in srgb, var(--accent) 34%, transparent);
-		--fx-a2: color-mix(in srgb, var(--info) 30%, transparent);
-		--fx-a3: color-mix(in srgb, var(--ok) 30%, transparent);
-	}
-	.btn-danger {
-		--fx-ink: color-mix(in srgb, var(--danger) 26%, transparent);
-	}
-	.btn-primary {
-		--fx-ink: color-mix(in srgb, var(--text-on-accent) 16%, transparent);
-		--fx-ember: color-mix(in srgb, var(--warn) 70%, var(--text-on-accent));
-		--fx-a1: color-mix(in srgb, var(--text-on-accent) 18%, transparent);
-		--fx-a2: color-mix(in srgb, var(--info) 45%, transparent);
-		--fx-a3: color-mix(in srgb, var(--ok) 40%, transparent);
-	}
 	@media (hover: hover) and (pointer: fine) {
 		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover]:not([data-fx-hover='none'])) *) {
 			position: relative;
@@ -997,43 +1135,115 @@
 		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))::before,
 		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))::after {
 			inset: -60% -30%;
-			background:
-				radial-gradient(40% 55% at 30% 60%, var(--fx-ink), transparent 70%),
-				radial-gradient(35% 45% at 70% 40%, var(--fx-ink), transparent 70%);
 			translate: 0 15%;
 			animation: fx-smoke 7s var(--ease-in-out) infinite alternate;
 		}
 		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))::after {
-			background:
-				radial-gradient(30% 40% at 55% 70%, var(--fx-ink), transparent 70%),
-				radial-gradient(25% 35% at 20% 30%, var(--fx-ink), transparent 70%);
 			translate: 0 -10%;
 			animation: fx-smoke-b 9s var(--ease-in-out) infinite alternate;
 		}
+		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))::before {
+			background:
+				radial-gradient(40% 55% at 30% 60%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 70%),
+				radial-gradient(35% 45% at 70% 40%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 70%);
+		}
+		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))::after {
+			background:
+				radial-gradient(30% 40% at 55% 70%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 70%),
+				radial-gradient(25% 35% at 20% 30%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 70%);
+		}
+		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-tone-success::before {
+			background:
+				radial-gradient(40% 55% at 30% 60%, color-mix(in srgb, var(--ok) 26%, transparent), transparent 70%),
+				radial-gradient(35% 45% at 70% 40%, color-mix(in srgb, var(--ok) 26%, transparent), transparent 70%);
+		}
+		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-tone-success::after {
+			background:
+				radial-gradient(30% 40% at 55% 70%, color-mix(in srgb, var(--ok) 26%, transparent), transparent 70%),
+				radial-gradient(25% 35% at 20% 30%, color-mix(in srgb, var(--ok) 26%, transparent), transparent 70%);
+		}
+		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-tone-info::before {
+			background:
+				radial-gradient(40% 55% at 30% 60%, color-mix(in srgb, var(--info) 26%, transparent), transparent 70%),
+				radial-gradient(35% 45% at 70% 40%, color-mix(in srgb, var(--info) 26%, transparent), transparent 70%);
+		}
+		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-tone-info::after {
+			background:
+				radial-gradient(30% 40% at 55% 70%, color-mix(in srgb, var(--info) 26%, transparent), transparent 70%),
+				radial-gradient(25% 35% at 20% 30%, color-mix(in srgb, var(--info) 26%, transparent), transparent 70%);
+		}
+		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-tone-warn::before {
+			background:
+				radial-gradient(40% 55% at 30% 60%, color-mix(in srgb, var(--warn) 26%, transparent), transparent 70%),
+				radial-gradient(35% 45% at 70% 40%, color-mix(in srgb, var(--warn) 26%, transparent), transparent 70%);
+		}
+		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-tone-warn::after {
+			background:
+				radial-gradient(30% 40% at 55% 70%, color-mix(in srgb, var(--warn) 26%, transparent), transparent 70%),
+				radial-gradient(25% 35% at 20% 30%, color-mix(in srgb, var(--warn) 26%, transparent), transparent 70%);
+		}
+		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)):is(.btn-danger, .btn-tone-danger)::before {
+			background:
+				radial-gradient(40% 55% at 30% 60%, color-mix(in srgb, var(--danger) 26%, transparent), transparent 70%),
+				radial-gradient(35% 45% at 70% 40%, color-mix(in srgb, var(--danger) 26%, transparent), transparent 70%);
+		}
+		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)):is(.btn-danger, .btn-tone-danger)::after {
+			background:
+				radial-gradient(30% 40% at 55% 70%, color-mix(in srgb, var(--danger) 26%, transparent), transparent 70%),
+				radial-gradient(25% 35% at 20% 30%, color-mix(in srgb, var(--danger) 26%, transparent), transparent 70%);
+		}
+		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-primary::before {
+			background:
+				radial-gradient(40% 55% at 30% 60%, color-mix(in srgb, var(--text-on-accent) 16%, transparent), transparent 70%),
+				radial-gradient(35% 45% at 70% 40%, color-mix(in srgb, var(--text-on-accent) 16%, transparent), transparent 70%);
+		}
+		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-primary::after {
+			background:
+				radial-gradient(30% 40% at 55% 70%, color-mix(in srgb, var(--text-on-accent) 16%, transparent), transparent 70%),
+				radial-gradient(25% 35% at 20% 30%, color-mix(in srgb, var(--text-on-accent) 16%, transparent), transparent 70%);
+		}
 
 		/* ember: a warm glow breathes at the bottom edge, sparks rise; press sinks 1px */
-		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *)) {
-			--press-scale: var(--press-scale-lg);
-		}
 		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *)):active:not(:disabled, [aria-disabled='true'], .loading, .btn-link) {
 			translate: 0 calc(var(--shift-xs) / 2 - var(--hover-lift));
-			--btn-shadow-rest: none;
+		}
+		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *)):where(:not(.btn-icon, .btn-box, .btn-square, .btn-icon-inline)):active:not(:disabled, [aria-disabled='true'], .loading, .btn-link) {
+			scale: var(--press-scale-lg);
+		}
+		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *)):active:not(:disabled, [aria-disabled='true'], .loading, .btn-link):not(.btn-stacked[aria-pressed='true']) {
+			box-shadow: none;
 		}
 		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *))::before {
-			background: radial-gradient(70% 90% at 50% 115%, color-mix(in srgb, var(--fx-ember) 55%, transparent), transparent 70%);
 			transform-origin: 50% 100%;
 			animation: fx-ember 2.4s var(--ease-in-out) infinite;
 		}
 		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *))::after {
 			inset: 0 0 -100% 0;
-			background:
-				radial-gradient(circle at 18% 62%, var(--fx-ember) 0 1px, transparent 1.6px),
-				radial-gradient(circle at 36% 88%, var(--fx-ember) 0 1.3px, transparent 1.9px),
-				radial-gradient(circle at 52% 70%, var(--fx-ember) 0 0.9px, transparent 1.5px),
-				radial-gradient(circle at 70% 94%, var(--fx-ember) 0 1.2px, transparent 1.8px),
-				radial-gradient(circle at 84% 58%, var(--fx-ember) 0 1px, transparent 1.6px),
-				radial-gradient(circle at 92% 80%, var(--fx-ember) 0 0.8px, transparent 1.4px);
 			animation: fx-sparks 3.2s linear infinite;
+		}
+		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *))::before {
+			background: radial-gradient(70% 90% at 50% 115%, color-mix(in srgb, color-mix(in srgb, var(--warn) 55%, var(--accent)) 55%, transparent), transparent 70%);
+		}
+		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *))::after {
+			background:
+				radial-gradient(circle at 18% 62%, color-mix(in srgb, var(--warn) 55%, var(--accent)) 0 1px, transparent 1.6px),
+				radial-gradient(circle at 36% 88%, color-mix(in srgb, var(--warn) 55%, var(--accent)) 0 1.3px, transparent 1.9px),
+				radial-gradient(circle at 52% 70%, color-mix(in srgb, var(--warn) 55%, var(--accent)) 0 0.9px, transparent 1.5px),
+				radial-gradient(circle at 70% 94%, color-mix(in srgb, var(--warn) 55%, var(--accent)) 0 1.2px, transparent 1.8px),
+				radial-gradient(circle at 84% 58%, color-mix(in srgb, var(--warn) 55%, var(--accent)) 0 1px, transparent 1.6px),
+				radial-gradient(circle at 92% 80%, color-mix(in srgb, var(--warn) 55%, var(--accent)) 0 0.8px, transparent 1.4px);
+		}
+		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *)).btn-primary::before {
+			background: radial-gradient(70% 90% at 50% 115%, color-mix(in srgb, color-mix(in srgb, var(--warn) 70%, var(--text-on-accent)) 55%, transparent), transparent 70%);
+		}
+		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *)).btn-primary::after {
+			background:
+				radial-gradient(circle at 18% 62%, color-mix(in srgb, var(--warn) 70%, var(--text-on-accent)) 0 1px, transparent 1.6px),
+				radial-gradient(circle at 36% 88%, color-mix(in srgb, var(--warn) 70%, var(--text-on-accent)) 0 1.3px, transparent 1.9px),
+				radial-gradient(circle at 52% 70%, color-mix(in srgb, var(--warn) 70%, var(--text-on-accent)) 0 0.9px, transparent 1.5px),
+				radial-gradient(circle at 70% 94%, color-mix(in srgb, var(--warn) 70%, var(--text-on-accent)) 0 1.2px, transparent 1.8px),
+				radial-gradient(circle at 84% 58%, color-mix(in srgb, var(--warn) 70%, var(--text-on-accent)) 0 1px, transparent 1.6px),
+				radial-gradient(circle at 92% 80%, color-mix(in srgb, var(--warn) 70%, var(--text-on-accent)) 0 0.8px, transparent 1.4px);
 		}
 
 		/* aurora: accent, info and success flow through the fill in two crossing layers */
@@ -1041,18 +1251,27 @@
 		.btn:where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *))::after {
 			inset: 0 auto 0 0;
 			width: 300%;
-			background: linear-gradient(90deg, var(--fx-a1), var(--fx-a2), var(--fx-a3), var(--fx-a1));
 			background-size: 33.3334% 100%;
 			mask-image: radial-gradient(120% 110% at 50% -10%, #000 40%, transparent 100%);
 			translate: -33.3334% 0;
 			animation: fx-aurora 7s linear infinite;
 		}
 		.btn:where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *))::after {
-			background: linear-gradient(90deg, var(--fx-a3), var(--fx-a1), var(--fx-a2), var(--fx-a3));
-			background-size: 33.3334% 100%;
 			mask-image: radial-gradient(120% 110% at 50% 110%, #000 30%, transparent 100%);
 			translate: -66.6667% 0;
 			animation: fx-aurora-back 11s linear infinite;
+		}
+		.btn:where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *))::before {
+			background-image: linear-gradient(90deg, color-mix(in srgb, var(--accent) 34%, transparent), color-mix(in srgb, var(--info) 30%, transparent), color-mix(in srgb, var(--ok) 30%, transparent), color-mix(in srgb, var(--accent) 34%, transparent));
+		}
+		.btn:where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *))::after {
+			background-image: linear-gradient(90deg, color-mix(in srgb, var(--ok) 30%, transparent), color-mix(in srgb, var(--accent) 34%, transparent), color-mix(in srgb, var(--info) 30%, transparent), color-mix(in srgb, var(--ok) 30%, transparent));
+		}
+		.btn:where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *)).btn-primary::before {
+			background-image: linear-gradient(90deg, color-mix(in srgb, var(--text-on-accent) 18%, transparent), color-mix(in srgb, var(--info) 45%, transparent), color-mix(in srgb, var(--ok) 40%, transparent), color-mix(in srgb, var(--text-on-accent) 18%, transparent));
+		}
+		.btn:where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *)).btn-primary::after {
+			background-image: linear-gradient(90deg, color-mix(in srgb, var(--ok) 40%, transparent), color-mix(in srgb, var(--text-on-accent) 18%, transparent), color-mix(in srgb, var(--info) 45%, transparent), color-mix(in srgb, var(--ok) 40%, transparent));
 		}
 		.btn:not(:hover)::before,
 		.btn:not(:hover)::after,

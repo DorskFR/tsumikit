@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'Many items on a phone',
-		caption: 'labels="fit" (default) shrinks stacked labels to one size, down to --navbar-label-min (10px), then wraps and only then truncates; "truncate" keeps one full-size line; "full" never clips and lets labels spill.',
+		caption: 'labels="fit" (default) shrinks stacked labels to one size, down to 10px, then wraps and only then truncates; "truncate" keeps one full-size line; "full" never clips and lets labels spill.',
 		layout: 'stack'
 	};
 </script>

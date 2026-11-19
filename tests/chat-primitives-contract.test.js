@@ -23,7 +23,7 @@ test('Prose: html or children, compact rhythm, --md-* token driven', () => {
 	assert.match(prose, /sanitize\?: boolean \| SanitizeOptions;/);
 	assert.match(prose, /compact\?: boolean;/);
 	assert.match(prose, /{#if html !== undefined}{@html html}{:else}{@render children\?\.\(\)}{\/if}/);
-	assert.match(prose, /color: var\(--md-code, var\(--text\)\);/);
+	assert.match(prose, /color: var\(--md-code\);/);
 	assert.match(prose, /\.prose :global\(table\)/);
 });
 
@@ -33,10 +33,14 @@ test('ChatBubble: role tokens, align, meta/actions, delivery state + retry, clam
 	assert.match(bubble, /state\?: 'sending' \| 'failed';/);
 	assert.match(bubble, /onretry\?: \(\) => void;/);
 	assert.match(bubble, /clamp\?: number;/);
-	assert.match(bubble, /-webkit-line-clamp: var\(--clamp\);/);
+	assert.match(bubble, /style:-webkit-line-clamp={clamp && !expanded \? clamp : undefined}/);
+	assert.match(bubble, /style:line-clamp={clamp && !expanded \? clamp : undefined}/);
 	assert.match(bubble, /copyText\?: string;/);
 	assert.match(bubble, /<CopyButton text={copyText} showLabel={false} box="xs" \/>/);
-	for (const r of ['user', 'system', 'tool', 'mcp']) assert.match(bubble, new RegExp(`\\.role-${r}\\s*{\\s*--role: var\\(--role-${r}\\);`));
+	for (const r of ['user', 'system', 'tool', 'mcp']) {
+		assert.match(bubble, new RegExp(`\\.role-${r}\\s*{[^}]*border-inline-start-color: var\\(--role-${r}\\);[^}]*background: color-mix\\(in srgb, var\\(--role-${r}\\) 6%, var\\(--surface\\)\\);`));
+	}
+	assert.doesNotMatch(bubble, /--role\s*:/);
 });
 
 test('Composer: bindable value/attachments, submit modes, history at edges, paste + drop to attach', () => {

@@ -37,14 +37,24 @@ test('Drawer sides, width clamp and full-screen narrow layout', () => {
 	assert.match(source, /side = 'right'/);
 	assert.match(source, /side\?: 'left' \| 'right' \| 'bottom';/);
 	assert.match(source, /width = '620px'/);
-	assert.match(source, /style:--drawer-w={width}/);
+	assert.match(source, /style:width={side === 'bottom' \? undefined : `min\(\${width}, 100%\)`}/);
+	assert.match(
+		source,
+		/@media \(max-width: 47\.999rem\)\s*{\s*\.panel\s*{\s*width: 100% !important;\s*grid-template-columns: minmax\(0, 1fr\) !important;/
+	);
+	assert.doesNotMatch(source, /--drawer-/);
 	assert.match(source, /\.drawer\[data-side='left'\]\s*{\s*justify-content: flex-start;/s);
 	assert.match(source, /\.drawer\s*{[^}]*position: fixed;[^}]*inset: 0;/s);
 	assert.match(narrow, /\.panel\s*{[^}]*width: 100%;[^}]*height: 100%;[^}]*background: var\(--overlay-fill\);/s);
 	assert.doesNotMatch(narrow, /100dvh|100vw/);
-	assert.match(wide, /\.panel\s*{[^}]*width: min\(var\(--drawer-w\), 100%\);[^}]*border-left: var\(--edge-width\) solid var\(--border-strong\);/s);
+	assert.match(wide, /\.panel\s*{[^}]*border-left: var\(--edge-width\) solid var\(--border-strong\);/s);
 	assert.match(wide, /\.drawer\[data-side='left'\] \.panel\s*{[^}]*border-right: var\(--edge-width\) solid var\(--border-strong\);/s);
-	assert.match(source, /@starting-style\s*{\s*\.drawer\[open\] \.panel\s*{\s*translate: var\(--drawer-from\);/s);
+	assert.match(
+		source,
+		/@starting-style\s*{\s*\.drawer\[open\] \.panel\s*{\s*translate: 100% 0;\s*}\s*\.drawer\[open\]\[data-side='left'\] \.panel\s*{\s*translate: -100% 0;\s*}\s*\.drawer\[open\]\[data-side='bottom'\] \.panel\s*{\s*translate: 0 100%;/s
+	);
+	assert.match(source, /\.drawer\[data-side='left'\] \.panel\s*{\s*translate: -100% 0;/);
+	assert.match(source, /\.drawer\[data-side='bottom'\] \.panel\s*{\s*translate: 0 100%;[^}]*max-height: 85dvh;/s);
 	assert.doesNotMatch(source, /prefers-reduced-motion|@keyframes/);
 });
 
@@ -60,7 +70,8 @@ test('Drawer header, nav column and sticky footer slots', () => {
 	assert.match(source, /<nav class="panel-nav-mobile">{@render navMobile\(\)}<\/nav>/);
 	assert.match(source, /<div class="panel-foot">{@render footer\(\)}<\/div>/);
 	assert.match(source, /navWidth = '150px'/);
-	assert.match(wide, /\.panel\.has-nav\s*{[^}]*grid-template-columns: var\(--drawer-nav-w\) minmax\(0, 1fr\);[^}]*'nav body'/s);
+	assert.match(source, /style:grid-template-columns={nav \? `\${navWidth} minmax\(0, 1fr\)` : undefined}/);
+	assert.match(wide, /\.panel\.has-nav\s*{[^}]*'nav body'/s);
 	assert.match(wide, /\.panel-nav-mobile\s*{\s*display: none;/s);
 	assert.match(narrow, /\.panel-nav\.has-mobile\s*{\s*display: none;/s);
 	assert.match(source, /\.panel-body\s*{[^}]*overflow-y: auto;/s);
@@ -69,4 +80,12 @@ test('Drawer header, nav column and sticky footer slots', () => {
 
 test('Drawer stays hidden while closed despite its own display rule', () => {
 	assert.match(source, /\.drawer:not\(\[open\]\)\s*{\s*display: none;/s);
+});
+
+test('Drawer flush drops the body padding', () => {
+	assert.match(source, /flush = false,/);
+	assert.match(source, /flush\?: boolean;/);
+	assert.match(source, /<div class="panel-body" class:flush>/);
+	assert.match(source, /\.panel-body\s*{[^}]*padding: var\(--sp-4\);/s);
+	assert.match(source, /\.panel-body\.flush\s*{\s*padding: 0;\s*}/);
 });

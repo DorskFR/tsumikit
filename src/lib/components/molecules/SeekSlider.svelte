@@ -199,7 +199,7 @@
 	class:seek--dragging={dragging}
 	class:seek--inert={inert}
 	class:seek--tip={tipValue !== null}
-	style="--pct: {pct}; --tip: {tipPct};{styleProp ?? ''}"
+	style={styleProp}
 	role="slider"
 	tabindex={inert ? -1 : 0}
 	aria-label={label}
@@ -220,15 +220,15 @@
 >
 	<span class="seek-track" data-part="track">
 		{#each ranges as [a, b], i (i)}
-			<i class="seek-buffered" data-part="buffered" style="--a: {a * 100}; --b: {b * 100}"></i>
+			<i class="seek-buffered" data-part="buffered" style:inset-inline-start="{a * 100}%" style:width="{(b - a) * 100}%"></i>
 		{/each}
-		<i class="seek-played" data-part="played"></i>
+		<i class="seek-played" data-part="played" style:width="{pct}%"></i>
 	</span>
-	<span class="seek-anchor seek-anchor--thumb" data-part="thumb-anchor">
+	<span class="seek-anchor seek-anchor--thumb" data-part="thumb-anchor" style:inset-inline-start="{pct}%">
 		<i class="seek-thumb" data-part="thumb"></i>
 	</span>
 	{#if tipValue !== null}
-		<span class="seek-anchor seek-anchor--tip" aria-hidden="true">
+		<span class="seek-anchor seek-anchor--tip" aria-hidden="true" style:inset-inline-start="{tipPct}%">
 			<span class="seek-tip" data-part="tip">
 				{#if previewSnippet}{@render previewSnippet(tipValue)}{/if}
 				<span class="seek-tip-time">{formatTime(tipValue, duration)}</span>
@@ -239,16 +239,10 @@
 
 <style>
 	.seek {
-		--seek-track: 3px;
-		--seek-track-grow: 1.6;
-		--seek-thumb: 12px;
-		--seek-halo: 0 0 0 4px color-mix(in srgb, var(--seek-accent) 20%, transparent);
-		--seek-slab: 1.25rem;
-		--seek-accent: var(--slider-accent, var(--accent));
 		position: relative;
 		display: block;
 		width: 100%;
-		min-height: var(--seek-slab);
+		min-height: 1.25rem;
 		cursor: pointer;
 		touch-action: none;
 		user-select: none;
@@ -256,9 +250,7 @@
 		outline: none;
 	}
 	.seek--md {
-		--seek-track: 4px;
-		--seek-thumb: 14px;
-		--seek-slab: 1.5rem;
+		min-height: 1.5rem;
 	}
 	@media (pointer: coarse) {
 		.seek {
@@ -273,17 +265,21 @@
 		position: absolute;
 		inset-inline: 0;
 		top: 50%;
-		height: var(--seek-track);
-		margin-top: calc(var(--seek-track) / -2);
+		height: 3px;
+		margin-top: -1.5px;
 		border-radius: var(--r-pill);
 		background: var(--track-fill);
 		overflow: hidden;
 		transform-origin: center;
 		transition: scale var(--dur-fast) var(--ease);
 	}
+	.seek--md .seek-track {
+		height: 4px;
+		margin-top: -2px;
+	}
 	.seek:focus-visible .seek-track,
 	.seek--dragging .seek-track {
-		scale: 1 var(--seek-track-grow);
+		scale: 1 1.6;
 	}
 	.seek-buffered,
 	.seek-played {
@@ -292,13 +288,10 @@
 		inset-inline-start: 0;
 	}
 	.seek-buffered {
-		inset-inline-start: calc(var(--a) * 1%);
-		width: calc((var(--b) - var(--a)) * 1%);
 		background: var(--border-strong);
 	}
 	.seek-played {
-		width: calc(var(--pct) * 1%);
-		background: var(--seek-accent);
+		background: var(--accent);
 	}
 	.seek-anchor {
 		position: absolute;
@@ -307,20 +300,14 @@
 		height: 0;
 		pointer-events: none;
 	}
-	.seek-anchor--thumb {
-		inset-inline-start: calc(var(--pct) * 1%);
-	}
-	.seek-anchor--tip {
-		inset-inline-start: calc(var(--tip) * 1%);
-	}
 	.seek-thumb {
 		position: absolute;
 		left: 0;
 		top: 0;
-		width: var(--seek-thumb);
-		height: var(--seek-thumb);
+		width: 12px;
+		height: 12px;
 		border-radius: var(--r-pill);
-		background: var(--seek-accent);
+		background: var(--accent);
 		border: 2px solid var(--bg);
 		box-shadow: var(--thumb-shadow);
 		transform: translate(-50%, -50%);
@@ -330,6 +317,10 @@
 			opacity var(--dur-fast) var(--ease),
 			scale var(--dur-press) var(--ease-out),
 			box-shadow var(--dur-fast) var(--ease);
+	}
+	.seek--md .seek-thumb {
+		width: 14px;
+		height: 14px;
 	}
 	.seek:focus-visible .seek-thumb,
 	.seek--dragging .seek-thumb {
@@ -341,12 +332,12 @@
 	}
 	@media (hover: hover) and (pointer: fine) {
 		.seek:not(.seek--inert):hover .seek-track {
-			scale: 1 var(--seek-track-grow);
+			scale: 1 1.6;
 		}
 		.seek:not(.seek--inert):hover .seek-thumb {
 			opacity: 1;
 			scale: 1;
-			box-shadow: var(--thumb-shadow), var(--seek-halo);
+			box-shadow: var(--thumb-shadow), 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent);
 		}
 		.seek--dragging .seek-thumb {
 			scale: 1.15;
@@ -362,7 +353,7 @@
 	.seek-tip {
 		position: absolute;
 		left: 0;
-		bottom: calc(var(--seek-thumb) / 2 + var(--sp-2));
+		bottom: calc(6px + var(--sp-2));
 		transform: translateX(-50%);
 		display: flex;
 		flex-direction: column;
@@ -377,5 +368,8 @@
 		font-size: var(--fs-xs);
 		font-variant-numeric: tabular-nums;
 		white-space: nowrap;
+	}
+	.seek--md .seek-tip {
+		bottom: calc(7px + var(--sp-2));
 	}
 </style>

@@ -79,8 +79,10 @@ function render(/** @type {Record<string, unknown>} */ props = {}) {
 	return { doc, click, sounds };
 }
 
-test('Icon reads --icon-size from the surrounding control and keeps 1em when unset', () => {
-	assert.ok(hasDecl(css(files.Icon), '.icon', 'font-size', 'var(--icon-size, 1em)'));
+test('Icon tracks the surrounding font size and reads no variable', () => {
+	assert.equal(rule(css(files.Icon), '.icon')['font-size'], undefined);
+	assert.doesNotMatch(files.Icon, /--icon-size/);
+	assert.ok(hasDecl(css(files.Icon), '.icon', 'height', '1em'));
 	assert.ok(hasDecl(css(files.Icon), '.icon', 'width', '1em'));
 	const r = render();
 	assert.equal(r.doc.querySelector('[data-probe="icon-plain"]')?.getAttribute('style') ?? '', '');
@@ -134,7 +136,7 @@ test('DataTable sort arrow is one glyph that rotates for descending', () => {
 test('focus rings inside scrollers are drawn inset (NavItem, MasterDetail, WorkingDir, DataTable rows)', () => {
 	assert.ok(hasDecl(css(files.NavItem), '.nav-item:focus-visible', 'outline-offset', 'var(--focus-ring-offset-inset)'));
 	assert.ok(hasDecl(css(files.MasterDetail), '.md-back:focus-visible', 'outline-offset', 'var(--focus-ring-offset-inset)'));
-	assert.ok(hasDecl(css(files.WorkingDir), '.rail', '--focus-ring-offset', 'var(--focus-ring-offset-inset)'));
+	assert.ok(hasDecl(css(files.WorkingDir), '.rail :global(.badge:focus-visible)', 'outline-offset', 'var(--focus-ring-offset-inset)'));
 	assert.ok(hasDecl(css(files.DataTable), 'tr.clickable:focus-visible', 'outline-offset', 'var(--focus-ring-offset-inset)'));
 	assert.ok(hasDecl(css(files.ConversationFeed), '.feed', 'scroll-padding-block', 'var(--sp-2)'));
 	for (const [name, src] of Object.entries(files)) {

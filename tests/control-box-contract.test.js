@@ -45,24 +45,34 @@ test('every icon-ish control exposes the shared box scale and hitArea', () => {
 });
 
 test('Button box/square/chip render square, padding-less, non-flexing boxes', () => {
-	assert.match(button, /style:--btn-box={box \? `var\(--box-\${box}\)` : undefined}/);
-	assert.match(
-		button,
-		/\.btn-box\s*{[^}]*width: var\(--btn-box\);[^}]*height: var\(--btn-box\);[^}]*padding: 0;[^}]*flex: none;/s
-	);
+	assert.doesNotMatch(button, /--btn-box/);
+	assert.match(button, /\.btn-box\s*{[^}]*padding: 0;[^}]*flex: none;/s);
+	for (const b of ['xs', 'sm', 'md', 'lg']) {
+		assert.ok(button.includes(`class:btn-box-${b}={box === '${b}'}`), b);
+		assert.match(
+			button,
+			new RegExp(`\\.btn-box-${b}\\s*{\\s*width: var\\(--box-${b}\\);\\s*min-width: var\\(--box-${b}\\);\\s*height: var\\(--box-${b}\\);\\s*min-height: var\\(--box-${b}\\);`)
+		);
+	}
 	assert.match(button, /square\?: boolean/);
-	assert.match(button, /\.btn-square\s*{[^}]*width: var\(--btn-size, var\(--control-height-default\)\);[^}]*padding: 0;/s);
-	assert.match(button, /\.btn-square\.btn-control\s*{[^}]*width: var\(--btn-size, var\(--control-height\)\);/s);
+	assert.match(button, /\.btn-square\s*{[^}]*width: var\(--control-height-default\);[^}]*padding: 0;/s);
+	assert.match(button, /\.btn-square\.btn-control-md\s*{[^}]*width: var\(--control-height-default\);/s);
 	assert.match(button, /\.btn-chip\s*{[^}]*height: var\(--box-lg\);/s);
 	assert.match(button, /\.btn-icon\s*{[^}]*min-width: var\(--box-md\);/s);
 });
 
 test('Popover and FileButton own the same box geometry on their native element', () => {
-	assert.match(popover, /style:--pop-box={box \? `var\(--box-\${box}\)` : undefined}/);
-	assert.match(popover, /\.pop-trigger\.trigger-box\s*{[^}]*width: var\(--pop-box\);[^}]*padding: var\(--pop-trigger-pad, 0\);/s);
-	assert.match(popover, /:where\(\.pop-trigger:not\(\.bare\)\)\s*{[^}]*min-width: var\(--pop-box, var\(--box-sm\)\);/s);
-	assert.match(fileButton, /style:--file-box={box \? `var\(--box-\${box}\)` : undefined}/);
-	assert.match(fileButton, /\.file-btn\.box\s*{[^}]*width: var\(--file-box\);[^}]*padding: 0;/s);
+	assert.doesNotMatch(popover + fileButton, /--pop-box|--file-box|--pop-trigger-pad/);
+	assert.match(popover, /\.pop-trigger\.trigger-box\s*{[^}]*padding: 0;[^}]*flex: none;/s);
+	assert.match(popover, /:where\(\.pop-trigger:not\(\.bare\)\)\s*{[^}]*min-width: var\(--box-sm\);/s);
+	assert.match(fileButton, /\.file-btn\.box\s*{[^}]*padding: 0;[^}]*flex: none;/s);
+	for (const b of ['xs', 'sm', 'md', 'lg']) {
+		const square = `\\s*{\\s*width: var\\(--box-${b}\\);\\s*min-width: var\\(--box-${b}\\);\\s*height: var\\(--box-${b}\\);\\s*min-height: var\\(--box-${b}\\);`;
+		assert.ok(popover.includes(`class:trigger-box-${b}={box === '${b}'}`), b);
+		assert.match(popover, new RegExp(`\\.pop-trigger\\.trigger-box-${b}${square}`));
+		assert.ok(fileButton.includes(`class:box-${b}={box === '${b}'}`), b);
+		assert.match(fileButton, new RegExp(`\\.file-btn\\.box-${b}${square}`));
+	}
 	assert.match(fileButton, /const onlyIcon = \$derived\(iconOnly \|\| box !== undefined\)/);
 	assert.match(copyButton, /const labelShown = \$derived\(showLabel \?\? box === undefined\)/);
 });
@@ -116,11 +126,9 @@ test('Button chip sizes to its text and only squares up for a lone glyph', () =>
 
 test('the chrome-less Popover trigger floors at the sm box and yields its size to triggerClass (TSU-102)', () => {
 	const def = rule(popover, ':where(.pop-trigger:not(.bare))');
-	// The square is a variable, not a token floor a consumer's width/height
-	// cannot cancel: `--pop-box` is what a consumer's `style` overrides.
-	assert.equal(def['min-height'], 'var(--pop-box, var(--box-sm))');
-	assert.equal(def['min-width'], 'var(--pop-box, var(--box-sm))');
-	assert.equal(def.padding, 'var(--pop-trigger-pad, var(--sp-1))');
+	assert.equal(def['min-height'], 'var(--box-sm)');
+	assert.equal(def['min-width'], 'var(--box-sm)');
+	assert.equal(def.padding, 'var(--sp-1)');
 	assert.equal(def['min-height'].includes('--box-md'), false);
 	// The 44px coarse-pointer target stays on the absolute slab, off the box.
 	const slab = rule(popover, '.pop-trigger:not(.canonical, .hit-compact)::after');

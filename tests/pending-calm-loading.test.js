@@ -148,5 +148,5 @@ test('pending: exported with 200/500 defaults; Button and EmptyState take loadin
 	assert.match(empty, /loadingDelay\?: number;\s*loadingMin\?: number;/);
 	assert.match(empty, /pending\(\(\) => loading, \(\) => \({ delay: loadingDelay, min: loadingMin }\)\)/);
 	assert.match(empty, /aria-busy=\{loading \? 'true' : undefined\}/);
-	assert.match(empty, /max-inline-size: var\(--measure, 68ch\);/);
+	assert.match(empty, /max-inline-size: var\(--measure\);/);
 });

@@ -20,10 +20,14 @@ test('tone toggles a card-<tone> class; neutral adds none', () => {
 
 test('toned cards tint border and background from the semantic token', () => {
 	for (const t of ['ok', 'warn', 'danger', 'info']) {
-		assert.match(card, new RegExp(`\\.card-${t}\\s*{\\s*--card-tone: var\\(--${t}\\);`));
+		assert.match(
+			card,
+			new RegExp(
+				`\\.card-${t}\\s*{\\s*border-color: color-mix\\(in srgb, var\\(--${t}\\) \\d+%, var\\(--surface-edge\\)\\);\\s*background: color-mix\\(in srgb, var\\(--${t}\\) \\d+%, var\\(--surface-fill\\)\\);`
+			)
+		);
 	}
-	assert.match(card, /border-color: color-mix\(in srgb, var\(--card-tone\) \d+%, var\(--surface-edge\)\)/);
-	assert.match(card, /background: color-mix\(in srgb, var\(--card-tone\) \d+%, var\(--surface-fill\)\)/);
+	assert.doesNotMatch(card, /--card-tone/);
 });
 
 test('existing props are untouched', () => {

@@ -126,7 +126,6 @@
 	/* Spring label: over a md text field the label rests inside the control and
 	   springs into its top edge on focus or once filled. */
 	:global([data-fx-focus='label']) .field:not(.field-inline):not(:global([data-fx-focus='label'] [data-fx-focus]:not([data-fx-focus='label'])) *):has(> .label + :global(input.input:not(.input-sm, .input-lg, .grouped)), > .label + :global(.textarea-wrap:not(.grouped) > .textarea:not(.textarea-sm, .textarea-lg))) {
-		--float-h: 3.25rem;
 		position: relative;
 		& > .label {
 			position: absolute;
@@ -136,7 +135,7 @@
 			display: flex;
 			align-items: center;
 			max-width: 100%;
-			height: var(--float-h);
+			height: 3.25rem;
 			padding-inline: calc(var(--control-px-md) + var(--edge-width));
 			font-size: var(--control-fs-md);
 			pointer-events: none;
@@ -152,7 +151,7 @@
 			transition-timing-function: var(--ease-spring-bounce), var(--ease-spring-bounce), ease;
 		}
 		& :global(:is(.input, .textarea)) {
-			min-height: var(--float-h);
+			min-height: 3.25rem;
 			padding-top: 1.35rem;
 			padding-bottom: 0.4rem;
 		}
@@ -163,7 +162,12 @@
 			animation: none;
 			box-shadow:
 				var(--control-shadow),
-				inset 0 -1px 0 var(--focus-tint);
+				inset 0 -1px 0 var(--accent);
+		}
+		& :global(:is(.input, .textarea):is([aria-invalid='true'], :user-invalid):focus) {
+			box-shadow:
+				var(--control-shadow),
+				inset 0 -1px 0 var(--danger);
 		}
 		&:has(:global(:is(.input, .textarea):is(:focus, :not(:placeholder-shown), :autofill))) .label-text {
 			translate: 0 -0.7rem;

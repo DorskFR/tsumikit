@@ -208,7 +208,6 @@
 		flex: none;
 		align-items: center;
 		font-size: var(--icon-xl);
-		--icon-size: var(--icon-xl);
 		transition: scale var(--dur-fast) var(--ease-out);
 	}
 	.tabbar-item:active .tabbar-glyph {

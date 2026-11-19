@@ -18,6 +18,7 @@
 
 <script lang="ts">
 	import type { ControlSize } from '$lib/size';
+	import { controlTier, getControlSizeContext } from '$lib/size-context';
 	// Single-select segmented control. One token-driven row of options covering
 	// the two repeated redesign controls:
 	//   • filter pills  — label + optional count badge ("All 742 / Missing 120")
@@ -44,7 +45,7 @@
 		// `icon` packs the segments into compact square buttons (label hidden as an
 		// accessible name only); `pill` keeps the labelled filter-pill layout.
 		variant = 'pill',
-		size = 'md',
+		size: sizeProp,
 		control = false,
 		box = false,
 		label = 'Options',
@@ -72,8 +73,9 @@
 		wrap?: boolean;
 		variant?: 'pill' | 'icon';
 		size?: ControlSize;
-		/** Adopt the shared `--control-height` toolbar contract (like Popover/Button
-		 *  `control`) so the whole segmented control height-matches its siblings. */
+		/** Uniform toolbar control height (like Popover/Button `control`) so the
+		 *  whole segmented control height-matches its siblings; follows a sized
+		 *  `Cluster`. */
 		control?: boolean;
 		/** Adopt `--control-height-default` so an icon toggle lines up with
 		 *  `Button square` / `box` siblings. */
@@ -89,6 +91,10 @@
 		class?: string;
 		option?: Snippet<[SegmentOption, boolean]>;
 	} = $props();
+
+	const size = $derived(sizeProp ?? 'md');
+	const sizeContext = getControlSizeContext();
+	const tier = $derived(controlTier(control, sizeProp, sizeContext));
 
 	// Default to the first selectable option when no value is supplied.
 	$effect(() => {
@@ -209,6 +215,9 @@
 	tabindex="-1"
 	class="seg seg-{variant} seg-{size} {klass}"
 	class:seg-control={control}
+	class:seg-control-sm={tier === 'sm'}
+	class:seg-control-md={tier === 'md'}
+	class:seg-control-lg={tier === 'lg'}
 	class:seg-box={box}
 	class:seg-wrap={wrap}
 	class:justify-start={justify === 'start'}
@@ -269,15 +278,12 @@
 	/* Every size pins the track height (sm 32 / md 40 / control 44 / box 40);
 	   items fill the inside, which is the height minus border and padding. */
 	.seg {
-		--seg-h: var(--control-md);
-		--seg-inset: calc(var(--sp-0-5) + var(--edge-width));
-		--seg-item-h: calc(var(--seg-h) - 2 * var(--seg-inset));
 		position: relative;
 		display: inline-flex;
 		align-items: center;
 		gap: var(--sp-1);
-		height: var(--seg-h);
-		min-height: var(--seg-h);
+		height: var(--control-md);
+		min-height: var(--control-md);
 		padding: var(--sp-0-5);
 		background: var(--track-fill);
 		border: var(--edge-width) solid var(--track-edge);
@@ -289,14 +295,28 @@
 		border-radius: var(--r-md);
 	}
 	.seg-sm {
-		--seg-h: var(--control-sm);
+		height: var(--control-sm);
+		min-height: var(--control-sm);
 	}
 	.seg-control {
-		--seg-h: var(--control-height);
 		height: var(--control-height);
+		min-height: var(--control-height);
+	}
+	.seg-control-sm {
+		height: var(--control-height-compact);
+		min-height: var(--control-height-compact);
+	}
+	.seg-control-md {
+		height: var(--control-height-default);
+		min-height: var(--control-height-default);
+	}
+	.seg-control-lg {
+		height: var(--control-height-large);
+		min-height: var(--control-height-large);
 	}
 	.seg-box {
-		--seg-h: var(--control-height-default);
+		height: var(--control-height-default);
+		min-height: var(--control-height-default);
 	}
 	.seg-wrap {
 		flex-wrap: wrap;
@@ -384,7 +404,6 @@
 		font-size: var(--control-fs-md);
 		font-weight: var(--fw-medium);
 		line-height: var(--lh-none);
-		--icon-size: var(--control-icon-md);
 		white-space: nowrap;
 		text-decoration: none;
 		cursor: pointer;
@@ -395,26 +414,85 @@
 	.seg-sm .seg-item {
 		padding: 0 var(--control-px-sm);
 		font-size: var(--control-fs-sm);
-		--icon-size: var(--control-icon-sm);
+	}
+	.seg-item :global(.icon) {
+		font-size: var(--control-icon-md);
+	}
+	.seg-sm .seg-item :global(.icon) {
+		font-size: var(--control-icon-sm);
 	}
 	.seg-wrap .seg-item {
 		height: auto;
-		min-height: var(--seg-item-h);
+		min-height: calc(var(--control-md) - 2 * (var(--sp-0-5) + var(--edge-width)));
+	}
+	.seg-wrap.seg-sm .seg-item {
+		min-height: calc(var(--control-sm) - 2 * (var(--sp-0-5) + var(--edge-width)));
+	}
+	.seg-wrap.seg-control .seg-item {
+		min-height: calc(var(--control-height) - 2 * (var(--sp-0-5) + var(--edge-width)));
+	}
+	.seg-wrap.seg-control-sm .seg-item {
+		min-height: calc(var(--control-height-compact) - 2 * (var(--sp-0-5) + var(--edge-width)));
+	}
+	.seg-wrap.seg-control-md .seg-item {
+		min-height: calc(var(--control-height-default) - 2 * (var(--sp-0-5) + var(--edge-width)));
+	}
+	.seg-wrap.seg-control-lg .seg-item {
+		min-height: calc(var(--control-height-large) - 2 * (var(--sp-0-5) + var(--edge-width)));
+	}
+	.seg-wrap.seg-box .seg-item {
+		min-height: calc(var(--control-height-default) - 2 * (var(--sp-0-5) + var(--edge-width)));
 	}
 	/* Capped at half a row: one row stays a pill, extra rows square the corners. */
 	.seg-wrap:not(.seg-icon) {
-		border-radius: min(var(--r-control), calc(var(--seg-h) / 2));
+		border-radius: min(var(--r-control), calc(var(--control-md) / 2));
+	}
+	.seg-wrap.seg-sm:not(.seg-icon) {
+		border-radius: min(var(--r-control), calc(var(--control-sm) / 2));
+	}
+	.seg-wrap.seg-control:not(.seg-icon) {
+		border-radius: min(var(--r-control), calc(var(--control-height) / 2));
+	}
+	.seg-wrap.seg-control-sm:not(.seg-icon) {
+		border-radius: min(var(--r-control), calc(var(--control-height-compact) / 2));
+	}
+	.seg-wrap.seg-control-md:not(.seg-icon) {
+		border-radius: min(var(--r-control), calc(var(--control-height-default) / 2));
+	}
+	.seg-wrap.seg-control-lg:not(.seg-icon) {
+		border-radius: min(var(--r-control), calc(var(--control-height-large) / 2));
+	}
+	.seg-wrap.seg-box:not(.seg-icon) {
+		border-radius: min(var(--r-control), calc(var(--control-height-default) / 2));
 	}
 	/* Icon-only segments are squares; corners stay concentric with the track. */
 	.seg-icon .seg-item,
 	.seg-icon .seg-thumb {
-		border-radius: calc(var(--r-md) - var(--seg-inset));
+		border-radius: calc(var(--r-md) - (var(--sp-0-5) + var(--edge-width)));
 	}
 	.seg-icon .seg-item {
 		gap: 0;
 		padding: 0;
-		width: var(--seg-item-h);
+		width: calc(var(--control-md) - 2 * (var(--sp-0-5) + var(--edge-width)));
 		font-size: var(--control-icon-md);
+	}
+	.seg-icon.seg-sm .seg-item {
+		width: calc(var(--control-sm) - 2 * (var(--sp-0-5) + var(--edge-width)));
+	}
+	.seg-icon.seg-control .seg-item {
+		width: calc(var(--control-height) - 2 * (var(--sp-0-5) + var(--edge-width)));
+	}
+	.seg-icon.seg-control-sm .seg-item {
+		width: calc(var(--control-height-compact) - 2 * (var(--sp-0-5) + var(--edge-width)));
+	}
+	.seg-icon.seg-control-md .seg-item {
+		width: calc(var(--control-height-default) - 2 * (var(--sp-0-5) + var(--edge-width)));
+	}
+	.seg-icon.seg-control-lg .seg-item {
+		width: calc(var(--control-height-large) - 2 * (var(--sp-0-5) + var(--edge-width)));
+	}
+	.seg-icon.seg-box .seg-item {
+		width: calc(var(--control-height-default) - 2 * (var(--sp-0-5) + var(--edge-width)));
 	}
 	.seg-icon.seg-sm .seg-item {
 		font-size: var(--control-icon-sm);
@@ -441,7 +519,25 @@
 		.seg-collapse-mobile .seg-item.has-label {
 			gap: 0;
 			padding: 0;
-			width: var(--seg-item-h);
+			width: calc(var(--control-md) - 2 * (var(--sp-0-5) + var(--edge-width)));
+		}
+		.seg-collapse-mobile.seg-sm .seg-item.has-label {
+			width: calc(var(--control-sm) - 2 * (var(--sp-0-5) + var(--edge-width)));
+		}
+		.seg-collapse-mobile.seg-control .seg-item.has-label {
+			width: calc(var(--control-height) - 2 * (var(--sp-0-5) + var(--edge-width)));
+		}
+		.seg-collapse-mobile.seg-control-sm .seg-item.has-label {
+			width: calc(var(--control-height-compact) - 2 * (var(--sp-0-5) + var(--edge-width)));
+		}
+		.seg-collapse-mobile.seg-control-md .seg-item.has-label {
+			width: calc(var(--control-height-default) - 2 * (var(--sp-0-5) + var(--edge-width)));
+		}
+		.seg-collapse-mobile.seg-control-lg .seg-item.has-label {
+			width: calc(var(--control-height-large) - 2 * (var(--sp-0-5) + var(--edge-width)));
+		}
+		.seg-collapse-mobile.seg-box .seg-item.has-label {
+			width: calc(var(--control-height-default) - 2 * (var(--sp-0-5) + var(--edge-width)));
 		}
 	}
 	@container (max-width: 35rem) {
@@ -451,7 +547,25 @@
 		.collapse-container .seg-item.has-label {
 			gap: 0;
 			padding: 0;
-			width: var(--seg-item-h);
+			width: calc(var(--control-md) - 2 * (var(--sp-0-5) + var(--edge-width)));
+		}
+		.collapse-container.seg-sm .seg-item.has-label {
+			width: calc(var(--control-sm) - 2 * (var(--sp-0-5) + var(--edge-width)));
+		}
+		.collapse-container.seg-control .seg-item.has-label {
+			width: calc(var(--control-height) - 2 * (var(--sp-0-5) + var(--edge-width)));
+		}
+		.collapse-container.seg-control-sm .seg-item.has-label {
+			width: calc(var(--control-height-compact) - 2 * (var(--sp-0-5) + var(--edge-width)));
+		}
+		.collapse-container.seg-control-md .seg-item.has-label {
+			width: calc(var(--control-height-default) - 2 * (var(--sp-0-5) + var(--edge-width)));
+		}
+		.collapse-container.seg-control-lg .seg-item.has-label {
+			width: calc(var(--control-height-large) - 2 * (var(--sp-0-5) + var(--edge-width)));
+		}
+		.collapse-container.seg-box .seg-item.has-label {
+			width: calc(var(--control-height-default) - 2 * (var(--sp-0-5) + var(--edge-width)));
 		}
 	}
 

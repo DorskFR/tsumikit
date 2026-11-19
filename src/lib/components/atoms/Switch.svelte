@@ -83,13 +83,9 @@
 	.switch {
 		position: relative;
 		isolation: isolate;
-		--sw-h: var(--chip-md);
-		--sw-w: 2.75rem;
-		--sw-inset: calc(var(--sp-0-5) + 1px);
-		--sw-knob: calc(var(--sw-h) - 2 * var(--sw-inset));
 		flex: none;
-		width: var(--sw-w);
-		height: var(--sw-h);
+		width: 2.75rem;
+		height: var(--chip-md);
 		border-radius: var(--r-pill);
 		border: var(--edge-width) solid var(--border-strong);
 		background: var(--track-fill);
@@ -103,8 +99,8 @@
 	}
 	.switch .knob {
 		position: relative;
-		width: var(--sw-knob);
-		height: var(--sw-knob);
+		width: calc(var(--chip-md) - 2 * (var(--sp-0-5) + 1px));
+		height: calc(var(--chip-md) - 2 * (var(--sp-0-5) + 1px));
 		border-radius: var(--r-pill);
 		background: var(--text-muted);
 		transform-origin: left center;
@@ -118,7 +114,7 @@
 		border-color: var(--accent);
 	}
 	.switch.on .knob {
-		translate: calc(var(--sw-w) - var(--sw-knob) - 2 * var(--sw-inset)) 0;
+		translate: calc(2.75rem - var(--chip-md)) 0;
 		background: var(--text-on-accent);
 		transform-origin: right center;
 	}
@@ -270,8 +266,15 @@
 		border-color: var(--danger);
 	}
 	.switch-sm {
-		--sw-h: var(--chip-sm);
-		--sw-w: 2rem;
+		width: 2rem;
+		height: var(--chip-sm);
+	}
+	.switch-sm .knob {
+		width: calc(var(--chip-sm) - 2 * (var(--sp-0-5) + 1px));
+		height: calc(var(--chip-sm) - 2 * (var(--sp-0-5) + 1px));
+	}
+	.switch-sm.on .knob {
+		translate: calc(2rem - var(--chip-sm)) 0;
 	}
 	@media (pointer: coarse) {
 		.switch {

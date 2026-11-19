@@ -72,7 +72,7 @@
 	class="bubble role-{role} align-{side} {klass}"
 	class:selected
 	class:clamped={!!clamp && !expanded}
-	style="--clamp: {clamp ?? 'none'}; {styleProp}"
+	style={styleProp}
 >
 	<header class="meta">
 		<Badge size="xs" class="role-pill">{roleLabel ?? role}</Badge>
@@ -90,7 +90,11 @@
 			</span>
 		{/if}
 	</header>
-	<div class="body">
+	<div
+		class="body"
+		style:-webkit-line-clamp={clamp && !expanded ? clamp : undefined}
+		style:line-clamp={clamp && !expanded ? clamp : undefined}
+	>
 		{#if children}{@render children()}{:else if html !== undefined}<Prose compact {html} />{/if}
 	</div>
 	{#if clamp}
@@ -103,29 +107,36 @@
 
 <style>
 	.bubble {
-		--role: var(--role-assistant);
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp-1);
 		max-width: min(100%, 72ch);
 		padding: var(--sp-2) var(--sp-3);
-		border: 1px solid color-mix(in srgb, var(--role) 30%, var(--border));
-		border-inline-start: 3px solid var(--role);
+		border: 1px solid color-mix(in srgb, var(--role-assistant) 30%, var(--border));
+		border-inline-start: 3px solid var(--role-assistant);
 		border-radius: var(--r-lg);
-		background: color-mix(in srgb, var(--role) 6%, var(--surface));
+		background: color-mix(in srgb, var(--role-assistant) 6%, var(--surface));
 		font-size: var(--fs-sm);
 	}
 	.role-user {
-		--role: var(--role-user);
+		border-color: color-mix(in srgb, var(--role-user) 30%, var(--border));
+		border-inline-start-color: var(--role-user);
+		background: color-mix(in srgb, var(--role-user) 6%, var(--surface));
 	}
 	.role-system {
-		--role: var(--role-system);
+		border-color: color-mix(in srgb, var(--role-system) 30%, var(--border));
+		border-inline-start-color: var(--role-system);
+		background: color-mix(in srgb, var(--role-system) 6%, var(--surface));
 	}
 	.role-tool {
-		--role: var(--role-tool);
+		border-color: color-mix(in srgb, var(--role-tool) 30%, var(--border));
+		border-inline-start-color: var(--role-tool);
+		background: color-mix(in srgb, var(--role-tool) 6%, var(--surface));
 	}
 	.role-mcp {
-		--role: var(--role-mcp);
+		border-color: color-mix(in srgb, var(--role-mcp) 30%, var(--border));
+		border-inline-start-color: var(--role-mcp);
+		background: color-mix(in srgb, var(--role-mcp) 6%, var(--surface));
 	}
 	.align-end {
 		align-self: flex-end;
@@ -149,9 +160,25 @@
 		color: var(--text-muted);
 	}
 	.meta :global(.role-pill) {
-		color: var(--role);
-		border-color: color-mix(in srgb, var(--role) 40%, transparent);
+		color: var(--role-assistant);
+		border-color: color-mix(in srgb, var(--role-assistant) 40%, transparent);
 		text-transform: capitalize;
+	}
+	.role-user .meta :global(.role-pill) {
+		color: var(--role-user);
+		border-color: color-mix(in srgb, var(--role-user) 40%, transparent);
+	}
+	.role-system .meta :global(.role-pill) {
+		color: var(--role-system);
+		border-color: color-mix(in srgb, var(--role-system) 40%, transparent);
+	}
+	.role-tool .meta :global(.role-pill) {
+		color: var(--role-tool);
+		border-color: color-mix(in srgb, var(--role-tool) 40%, transparent);
+	}
+	.role-mcp .meta :global(.role-pill) {
+		color: var(--role-mcp);
+		border-color: color-mix(in srgb, var(--role-mcp) 40%, transparent);
 	}
 	.state.failed {
 		color: var(--danger);
@@ -177,8 +204,6 @@
 	.clamped .body {
 		display: -webkit-box;
 		-webkit-box-orient: vertical;
-		-webkit-line-clamp: var(--clamp);
-		line-clamp: var(--clamp);
 		overflow: hidden;
 		padding: calc(var(--focus-ring-width) + var(--focus-ring-offset));
 		padding-block-end: 0;

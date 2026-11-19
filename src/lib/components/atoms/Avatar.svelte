@@ -33,6 +33,7 @@
 		decorative = false,
 		status,
 		class: klass = '',
+		style: styleProp,
 		...rest
 	}: Omit<HTMLAttributes<HTMLSpanElement>, keyof Own> & Own = $props();
 
@@ -40,6 +41,20 @@
 	const hashed = $derived(tone === undefined);
 	const hidden = $derived(decorative || !name.trim());
 	const resolvedHue = $derived(hashed ? (hue ?? avatarHue(seed ?? name)) : undefined);
+	// The fill carries the identity; the initial is theme ink with a hue tint.
+	// These ratios are the ones that clear 4.5:1 at every hue on every bundled
+	// theme (see tests/avatar-contract.test.js).
+	const hueStyle = $derived(
+		resolvedHue === undefined
+			? ''
+			: `background: color-mix(in srgb, hsl(${resolvedHue} var(--mach-bg-sl)) 70%, var(--bg)); color: color-mix(in srgb, hsl(${resolvedHue} var(--mach-fg-sl)) 25%, var(--text));`
+	);
+	const sizeStyle = $derived.by(() => {
+		if (typeof size !== 'number') return '';
+		const box = `width: ${size}px; height: ${size}px; font-size: calc(${size}px * ${glyph === undefined ? 0.46 : 0.72});`;
+		return shape === 'square' ? `${box} border-radius: calc(${size}px / 4);` : box;
+	});
+	const inline = $derived(sizeStyle + hueStyle);
 </script>
 
 <span
@@ -54,8 +69,7 @@
 	class:size-xs={size === 'xs'}
 	class:size-sm={size === 'sm'}
 	class:size-lg={size === 'lg'}
-	style:--avatar-size={typeof size === 'number' ? `${size}px` : undefined}
-	style:--avatar-hue={resolvedHue}
+	style={inline + (styleProp ?? '') || undefined}
 	role={hidden ? undefined : 'img'}
 	aria-label={hidden ? undefined : name}
 	aria-hidden={hidden ? 'true' : undefined}
@@ -69,59 +83,69 @@
 
 <style>
 	.avatar {
-		--avatar-size: 2rem;
 		position: relative;
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
 		flex: none;
-		width: var(--avatar-size);
-		height: var(--avatar-size);
+		width: 2rem;
+		height: 2rem;
 		border-radius: var(--r-pill);
 		font-weight: var(--fw-semibold);
-		font-size: calc(var(--avatar-size) * 0.46);
+		font-size: calc(2rem * 0.46);
 		line-height: var(--lh-none);
-		background: var(--avatar-bg, var(--bg-elevated-2));
-		color: var(--avatar-fg, var(--text-muted));
+		background: var(--bg-elevated-2);
+		color: var(--text-muted);
 		user-select: none;
 		vertical-align: middle;
 	}
 	.size-xs {
-		--avatar-size: 1.25rem;
+		width: 1.25rem;
+		height: 1.25rem;
+		font-size: calc(1.25rem * 0.46);
 	}
 	.size-sm {
-		--avatar-size: 1.5rem;
+		width: 1.5rem;
+		height: 1.5rem;
+		font-size: calc(1.5rem * 0.46);
 	}
 	.size-lg {
-		--avatar-size: 2.5rem;
+		width: 2.5rem;
+		height: 2.5rem;
+		font-size: calc(2.5rem * 0.46);
 	}
 	.square {
-		border-radius: calc(var(--avatar-size) / 4);
+		border-radius: calc(2rem / 4);
 	}
-	/* The fill carries the identity; the initial is theme ink with a hue tint.
-	   These ratios are the ones that clear 4.5:1 at every hue on every bundled
-	   theme (see tests/avatar-contract.test.js). */
-	.hued {
-		background: var(
-			--avatar-bg,
-			color-mix(in srgb, hsl(var(--avatar-hue) var(--mach-bg-sl)) 70%, var(--bg))
-		);
-		color: var(
-			--avatar-fg,
-			color-mix(in srgb, hsl(var(--avatar-hue) var(--mach-fg-sl)) 25%, var(--text))
-		);
+	.square.size-xs {
+		border-radius: calc(1.25rem / 4);
+	}
+	.square.size-sm {
+		border-radius: calc(1.5rem / 4);
+	}
+	.square.size-lg {
+		border-radius: calc(2.5rem / 4);
 	}
 	.accent {
-		background: var(--avatar-bg, color-mix(in srgb, var(--accent) 18%, transparent));
-		color: var(--avatar-fg, var(--accent));
+		background: color-mix(in srgb, var(--accent) 18%, transparent);
+		color: var(--accent);
 	}
 	.bare {
-		background: var(--avatar-bg, none);
-		color: var(--avatar-fg, inherit);
+		background: none;
+		color: inherit;
 	}
 	.glyph {
-		font-size: calc(var(--avatar-size) * 0.72);
+		font-size: calc(2rem * 0.72);
 		font-weight: var(--fw-normal);
+	}
+	.glyph.size-xs {
+		font-size: calc(1.25rem * 0.72);
+	}
+	.glyph.size-sm {
+		font-size: calc(1.5rem * 0.72);
+	}
+	.glyph.size-lg {
+		font-size: calc(2.5rem * 0.72);
 	}
 	.text {
 		display: block;
@@ -136,6 +160,6 @@
 		line-height: 0;
 		border-radius: var(--r-pill);
 		transform: translate(25%, -25%);
-		box-shadow: 0 0 0 2px var(--avatar-status-ring, var(--bg-elevated));
+		box-shadow: 0 0 0 2px var(--bg-elevated);
 	}
 </style>

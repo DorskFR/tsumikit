@@ -276,17 +276,17 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp-px);
-		min-width: var(--cb-min-width, 10rem);
+		min-width: 10rem;
 		max-width: calc(100vw - 2 * var(--sp-3));
-		max-height: var(--cb-max-height, min(16rem, 40vh));
+		max-height: min(16rem, 40vh);
 		overflow-y: auto;
 		padding: var(--sp-1);
-		background: var(--cb-bg, var(--raised-fill));
+		background: var(--raised-fill);
 		color: var(--text);
-		border: var(--edge-width) solid var(--cb-border, var(--raised-edge));
-		border-radius: var(--cb-radius, var(--r-md));
+		border: var(--edge-width) solid var(--raised-edge);
+		border-radius: var(--r-md);
 		box-shadow: var(--raised-shadow);
-		transform-origin: var(--tsu-origin, top left);
+		transform-origin: top left;
 		opacity: 1;
 		scale: 1;
 		translate: 0;
@@ -317,7 +317,7 @@
 	}
 	/* Highlight lands instantly and fades out: list navigation is high frequency. */
 	.cb-option.active {
-		background: var(--cb-active-bg, var(--bg-elevated-2));
+		background: var(--bg-elevated-2);
 		transition-duration: var(--dur-instant);
 	}
 	.cb-empty {

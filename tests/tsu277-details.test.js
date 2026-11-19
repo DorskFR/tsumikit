@@ -55,7 +55,9 @@ test('every picked variant has a closest-ancestor selector', () => {
 		assert.ok(css[name].includes(":is([data-fx-focus='bloom'], [data-fx-focus='label'])"), `${name} bloom and label scope`);
 	}
 	assert.ok(css.Field.includes(scoped('focus', 'label')));
-	for (const v of ['pill', 'stretch', 'ink']) assert.ok(css.Tabs.includes(scoped('tabs', v)), v);
+	for (const v of ['pill', 'ink']) assert.ok(css.Tabs.includes(scoped('tabs', v)), v);
+	assert.ok(src.Tabs.includes("const fx = ind.closest('[data-fx-tabs]')?.getAttribute('data-fx-tabs') ?? 'pill';"), 'stretch resolves in script');
+	assert.match(src.Tabs, /if \(fx === 'stretch' && typeof ind\.animate === 'function'\)/);
 	for (const v of ['burst', 'tick']) assert.ok(css.CopyButton.includes(scoped('copy', v)), v);
 	for (const v of ['sweep', 'highlight']) assert.ok(css.Link.includes(scoped('link', v)), v);
 	for (const v of ['spotlight', 'orbit']) assert.ok(css.Card.includes(scoped('card', v)), v);
@@ -106,13 +108,12 @@ test('hover effects sit behind the fine-pointer query and never animate layout',
 
 test('the card orbit makes exactly one ease-out revolution per hover-enter, then rests', () => {
 	assert.match(css.Card, /@property --card-orbit \{\s*syntax: '<angle>';\s*inherits: false;\s*initial-value: 0deg;/);
-	assert.match(css.Card, /--card-orbit var\(--card-spin, var\(--dur-instant\)\) var\(--ease-out\)/);
-	assert.match(css.Card, /--card-orbit-spin: calc\(var\(--dur-slow\) \* 4\);/);
+	assert.match(css.Card, /--card-orbit var\(--dur-instant\) var\(--ease-out\)/);
 	assert.match(css.Card, /conic-gradient\(\s*from var\(--card-orbit\)/);
 	assert.doesNotMatch(css.Card, /animation|infinite/);
 	const hover = css.Card.match(/@media \(hover: hover\) and \(pointer: fine\)\s*\{[\s\S]*?\n\t\}\n/g)?.join('') ?? '';
-	assert.match(hover, /--card-spin: var\(--card-orbit-spin\);/);
-	assert.match(hover, /\.card-fx(:where\(\.svelte-\w+\))? \{\s*--card-orbit: 360deg;/);
+	assert.match(hover, /:hover > \.card-fx(:where\(\.svelte-\w+\))? \{\s*transition-duration: var\(--dur-fast\), calc\(var\(--dur-slow\) \* 4\);/);
+	assert.match(hover, /\.card-fx(:where\(\.svelte-\w+\))? \{\s*opacity: 1;\s*--card-orbit: 360deg;/);
 });
 
 const bundle = (
@@ -194,7 +195,7 @@ test('a Field label can float: text wrapped in a span, the control gets a blank 
 	assert.equal((src.Textarea.match(/placeholder=\{rest\.placeholder \?\? \(field \? ' ' : undefined\)\}/g) ?? []).length, 2);
 	assert.match(css.Field, /:not\(:focus\)::placeholder \{\s*color: transparent;/);
 	assert.match(css.Field, /:is\(:focus, :not\(:placeholder-shown\), :autofill\)/);
-	assert.match(src.Field, /--float-h: 3\.25rem;\s*position: relative;\s*& > \.label \{\s*position: absolute;/);
+	assert.match(src.Field, /\{\s*position: relative;\s*& > \.label \{\s*position: absolute;[^}]*height: 3\.25rem;/);
 	assert.doesNotMatch(src.Field, /grid-area/);
 	const loose = dom.window.document.createElement('div');
 	dom.window.document.body.append(loose);

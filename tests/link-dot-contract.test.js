@@ -16,7 +16,7 @@ test('Link defaults to accent text underlined on hover; always stays opt-in for 
 	assert.match(link, /underline = 'hover'/);
 	assert.match(link, /`hover` is for navigation, lists and entity titles;\s*\/\/ use `always` for links inside running prose/);
 	assert.match(link, /align = 'start'/);
-	assert.match(link, /color: var\(--accent, var\(--text\)\);/);
+	assert.match(link, /\.link \{[^}]*color: var\(--accent\);/);
 	assert.match(link, /\.link \{[^}]*text-decoration: underline;/);
 });
 
@@ -45,6 +45,20 @@ test('Dot ring adds a dark halo and composes with glow', () => {
 	assert.match(dot, /ring = false/);
 	assert.match(dot, /ring\?: boolean;/);
 	assert.equal(dot.match(/class:ring/g)?.length, 2);
-	assert.match(dot, /\.ring \{\s*box-shadow: 0 0 0 3px rgb\(0 0 0 \/ 0\.35\);/);
-	assert.match(dot, /\.ring\.glow \{\s*box-shadow:\s*0 0 0 3px rgb\(0 0 0 \/ 0\.35\),\s*0 0 6px var\(--dot-color\);/);
+	assert.match(dot, /\.dot\.ring \{\s*box-shadow: 0 0 0 3px rgb\(0 0 0 \/ 0\.35\);/);
+	assert.match(dot, /const inline = \$derived\(color \? `color: \$\{color\};` : ''\);/);
+	assert.equal(dot.match(/class="dot \{color \? 'dot-colored' : `dot-\$\{status\}`\}/g)?.length, 2);
+	assert.match(dot, /\.dot-colored \{\s*background: currentColor;/);
+	assert.match(dot, /\.dot-colored\.glow \{\s*box-shadow: 0 0 6px currentColor;/);
+	assert.match(dot, /\.dot-colored\.ring\.glow \{\s*box-shadow:\s*0 0 0 3px rgb\(0 0 0 \/ 0\.35\),\s*0 0 6px currentColor;/);
+	for (const status of ['active', 'stale', 'dead', 'hibernated']) {
+		assert.match(dot, new RegExp(`\\.dot-${status} \\{\\s*background: var\\(--dot-${status}\\);`));
+		assert.match(dot, new RegExp(`\\.dot-${status}\\.glow \\{\\s*box-shadow: 0 0 6px var\\(--dot-${status}\\);`));
+		assert.match(
+			dot,
+			new RegExp(`\\.dot-${status}\\.ring\\.glow \\{\\s*box-shadow:\\s*0 0 0 3px rgb\\(0 0 0 / 0\\.35\\),\\s*0 0 6px var\\(--dot-${status}\\);`)
+		);
+	}
+	assert.doesNotMatch(dot, /box-shadow: \$\{|background: \$\{/);
+	assert.doesNotMatch(dot, /--dot-color/);
 });

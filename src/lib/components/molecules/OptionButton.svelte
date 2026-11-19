@@ -1,8 +1,7 @@
 <script lang="ts">
 	// Selection-card option — a bordered card that gains a colored ring + tint
-	// when `selected`. The accent is driven by `--opt-accent` (default accent),
-	// so each picker recolors per use (blue for run-target, brand color for the
-	// adapter, green/blue/red for permission mode). `row` lays the content out
+	// when `selected`. The ring follows `tone` (default accent), so each picker
+	// recolors per use (green/blue/red for permission mode). `row` lays the content out
 	// horizontally (icon + label) instead of the default label-over-hint column.
 	//
 	// A selection card shares almost nothing visually with Button, so it owns its
@@ -10,9 +9,11 @@
 	import type { Snippet } from 'svelte';
 	import type { HTMLButtonAttributes } from 'svelte/elements';
 	import { playSound } from '$lib/sound';
+	import { canonicalTone, type Tone } from '$lib/tone';
 
 	let {
 		selected = false,
+		tone = 'accent',
 		row = false,
 		align = 'center',
 		block = false,
@@ -31,6 +32,8 @@
 		...rest
 	}: Omit<HTMLButtonAttributes, 'value'> & {
 		selected?: boolean;
+		/** Colour of the selected ring and tint. */
+		tone?: Tone;
 		row?: boolean;
 		/** Identifies this option in `onfocuschange`. */
 		value?: string;
@@ -49,6 +52,7 @@
 		children?: Snippet;
 	} = $props();
 
+	const t = $derived(canonicalTone(tone));
 	const uid = $props.id();
 	const descId = $derived(description ? `${uid}-desc` : undefined);
 	const ariaDescribedBy = $derived([describedBy, descId].filter(Boolean).join(' ') || undefined);
@@ -83,6 +87,11 @@
 	class:align-start={align === 'start'}
 	class:block
 	class:selected
+	class:tone-neutral={t === 'neutral'}
+	class:tone-ok={t === 'ok'}
+	class:tone-warn={t === 'warn'}
+	class:tone-danger={t === 'danger'}
+	class:tone-info={t === 'info'}
 	aria-pressed={selected}
 >
 	{@render children?.()}
@@ -103,21 +112,25 @@
 		text-align: left;
 		white-space: normal;
 		user-select: none;
-		--opt-scale-dur: var(--dur-fast);
 		transition:
 			background var(--dur-fast) ease,
 			border-color var(--dur-fast) ease,
 			color var(--dur-fast) ease,
 			translate var(--dur-fast) ease,
-			scale var(--opt-scale-dur) var(--ease-out);
+			scale var(--dur-fast) var(--ease-out);
 	}
 	.opt:disabled {
 		opacity: var(--disabled-opacity);
 		cursor: not-allowed;
 	}
 	.opt:active:not(:disabled) {
-		--opt-scale-dur: var(--dur-press);
 		scale: var(--press-scale);
+		transition:
+			background var(--dur-fast) ease,
+			border-color var(--dur-fast) ease,
+			color var(--dur-fast) ease,
+			translate var(--dur-fast) ease,
+			scale var(--dur-press) var(--ease-out);
 	}
 	.opt.row {
 		flex-direction: row;
@@ -132,7 +145,7 @@
 	}
 	.description {
 		font-size: var(--fs-xs);
-		color: var(--faint-color, var(--text-muted));
+		color: var(--text-muted);
 		font-weight: var(--fw-normal);
 	}
 	.opt.row .description {
@@ -147,13 +160,58 @@
 		justify-content: flex-start;
 	}
 	.opt.selected {
-		--oc: var(--opt-accent, var(--accent));
-		/* Retint slotted `.faint` hint text toward the accent — via an inherited
-		   custom property, so no :global reach into slotted content. */
-		--faint-color: color-mix(in srgb, var(--oc) 70%, var(--text-muted));
-		border-color: var(--oc);
-		background: color-mix(in srgb, var(--oc) 14%, var(--bg));
-		color: var(--oc);
+		border-color: var(--accent);
+		background: color-mix(in srgb, var(--accent) 14%, var(--bg));
+		color: var(--accent);
+	}
+	.opt.selected .description,
+	.opt.selected :global(.faint) {
+		color: color-mix(in srgb, var(--accent) 70%, var(--text-muted));
+	}
+	.opt.selected.tone-neutral {
+		border-color: var(--text);
+		background: color-mix(in srgb, var(--text) 14%, var(--bg));
+		color: var(--text);
+	}
+	.opt.selected.tone-neutral .description,
+	.opt.selected.tone-neutral :global(.faint) {
+		color: color-mix(in srgb, var(--text) 70%, var(--text-muted));
+	}
+	.opt.selected.tone-ok {
+		border-color: var(--ok);
+		background: color-mix(in srgb, var(--ok) 14%, var(--bg));
+		color: var(--ok);
+	}
+	.opt.selected.tone-ok .description,
+	.opt.selected.tone-ok :global(.faint) {
+		color: color-mix(in srgb, var(--ok) 70%, var(--text-muted));
+	}
+	.opt.selected.tone-warn {
+		border-color: var(--warn);
+		background: color-mix(in srgb, var(--warn) 14%, var(--bg));
+		color: var(--warn);
+	}
+	.opt.selected.tone-warn .description,
+	.opt.selected.tone-warn :global(.faint) {
+		color: color-mix(in srgb, var(--warn) 70%, var(--text-muted));
+	}
+	.opt.selected.tone-danger {
+		border-color: var(--danger);
+		background: color-mix(in srgb, var(--danger) 14%, var(--bg));
+		color: var(--danger);
+	}
+	.opt.selected.tone-danger .description,
+	.opt.selected.tone-danger :global(.faint) {
+		color: color-mix(in srgb, var(--danger) 70%, var(--text-muted));
+	}
+	.opt.selected.tone-info {
+		border-color: var(--info);
+		background: color-mix(in srgb, var(--info) 14%, var(--bg));
+		color: var(--info);
+	}
+	.opt.selected.tone-info .description,
+	.opt.selected.tone-info :global(.faint) {
+		color: color-mix(in srgb, var(--info) 70%, var(--text-muted));
 	}
 	@media (hover: hover) and (pointer: fine) {
 		.opt:hover:not(:disabled) {
@@ -163,8 +221,22 @@
 			border-color: var(--control-edge);
 		}
 		.opt.selected:hover:not(:disabled) {
-			border-color: var(--oc);
-			background: color-mix(in srgb, var(--oc) 20%, var(--bg));
+			background: color-mix(in srgb, var(--accent) 20%, var(--bg));
+		}
+		.opt.selected.tone-neutral:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--text) 20%, var(--bg));
+		}
+		.opt.selected.tone-ok:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--ok) 20%, var(--bg));
+		}
+		.opt.selected.tone-warn:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--warn) 20%, var(--bg));
+		}
+		.opt.selected.tone-danger:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--danger) 20%, var(--bg));
+		}
+		.opt.selected.tone-info:hover:not(:disabled) {
+			background: color-mix(in srgb, var(--info) 20%, var(--bg));
 		}
 	}
 </style>

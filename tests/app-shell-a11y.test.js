@@ -106,12 +106,13 @@ test('resize handle is a focusable separator with a value and arrow/Home/End key
 	r.key(handle, 'ArrowRight');
 	assert.equal(handle.getAttribute('aria-valuenow'), '116');
 	assert.equal(r.dom.window.localStorage.getItem('shell-w'), '116');
-	assert.match(r.q('.shell').getAttribute('style') ?? '', /--shell-sidebar-w: 116px/);
+	assert.equal(r.q('.shell-sidebar').style.width, 'min(116px, 82vw)');
+	assert.equal(r.q('.shell').style.gridTemplateColumns, '116px minmax(0, 1fr)');
+	assert.doesNotMatch(r.q('.shell').getAttribute('style') ?? '', /--/);
 });
 
 test('header height adds the top safe-area inset instead of eating into 52px', () => {
-	assert.match(css, /\.shell\.svelte-[\w-]+ \{ --shell-header-h: calc\(var\(--header-h\) \+ var\(--safe-top\)\);/);
-	assert.match(css, /\.shell-header\.svelte-[\w-]+ \{[^}]*height: var\(--shell-header-h\);[^}]*padding-top: var\(--safe-top\);/);
+	assert.match(css, /\.shell-header\.svelte-[\w-]+ \{[^}]*height: calc\(var\(--header-h\) \+ var\(--safe-top\)\);[^}]*padding-top: var\(--safe-top\);/);
 });
 
 test('drawer slide reads motion tokens and the resize handle draws the kit focus ring inset', () => {

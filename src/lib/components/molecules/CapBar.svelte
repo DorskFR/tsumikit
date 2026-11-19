@@ -189,8 +189,7 @@
 	class:keying
 	class:stacked
 	class:uncapped
-	style="--label-w: {labelWidth}; --readout-w: {readoutWidth}; --pct: {pct}%; --cap: {capPct}%; --marker: {markerPct ??
-		0}%; {styleProp}"
+	style={(stacked ? '' : `grid-template-columns: ${labelWidth} 1fr ${readoutWidth}; `) + styleProp || undefined}
 >
 	{#if label}
 		<div class="label">
@@ -201,21 +200,23 @@
 		class="track"
 		role="presentation"
 		bind:this={trackEl}
+		style:--cap="{capPct}%"
 		title={tip}
 		onpointerdown={pointerDown}
 		onpointermove={pointerMove}
 		onpointerup={pointerUp}
 		onpointercancel={pointerUp}
 	>
-		<div class="fill-clip"><div class="fill"></div></div>
+		<div class="fill-clip"><div class="fill" style:translate="calc({pct}% - 100%) 0"></div></div>
 		{#if markerPct !== null}
-			<div class="marker marker-{markerTone}" title={markerLabel} aria-hidden="true"></div>
+			<div class="marker marker-{markerTone}" style:left="{markerPct}%" title={markerLabel} aria-hidden="true"></div>
 			{#if markerLabel}
 				<span class="sr-only" id={markerId}>{markerLabel}</span>
 			{/if}
 		{/if}
 		<div
 			class="handle"
+			style:left="{capPct}%"
 			role="slider"
 			tabindex={readonly ? -1 : 0}
 			aria-label={ariaLabel}
@@ -229,7 +230,12 @@
 			onkeyup={keyUp}
 			onblur={() => (keying = false)}
 		></div>
-		<div class="bubble" aria-hidden="true">{capText}</div>
+		<div
+			class="bubble"
+			style:left="clamp(0%, {capPct}%, 100%)"
+			style:translate="calc(-1 * clamp(0%, {capPct}%, 100%)) 0"
+			aria-hidden="true"
+		>{capText}</div>
 	</div>
 	<div class="readout" title={readoutTitle}>
 		{#if readout === undefined}{readoutText}{:else if typeof readout === 'string'}{readout}{:else}{@render readout()}{/if}
@@ -242,23 +248,11 @@
 <style>
 	.cap-bar {
 		display: grid;
-		grid-template-columns: var(--label-w) 1fr var(--readout-w);
 		align-items: center;
 		column-gap: var(--sp-3);
 		row-gap: var(--sp-1);
 		width: 100%;
 		font-size: var(--fs-sm);
-		--track-h: 6px;
-		--fill: var(--ok);
-	}
-	.cap-bar.size-lg {
-		--track-h: 10px;
-	}
-	.tone-warn {
-		--fill: var(--warn);
-	}
-	.tone-danger {
-		--fill: var(--danger);
 	}
 	.label {
 		color: var(--text-muted);
@@ -271,12 +265,21 @@
 	}
 	.track {
 		position: relative;
-		height: var(--track-h);
+		height: 6px;
 		border-radius: var(--r-pill);
-		background: color-mix(in oklab, var(--fill) 26%, var(--bg));
+		background: color-mix(in oklab, var(--ok) 26%, var(--bg));
 		cursor: ew-resize;
 		touch-action: none;
 		user-select: none;
+	}
+	.size-lg .track {
+		height: 10px;
+	}
+	.tone-warn .track {
+		background: color-mix(in oklab, var(--warn) 26%, var(--bg));
+	}
+	.tone-danger .track {
+		background: color-mix(in oklab, var(--danger) 26%, var(--bg));
 	}
 	.track::after {
 		content: '';
@@ -298,9 +301,14 @@
 		position: absolute;
 		inset: 0;
 		border-radius: var(--r-pill);
-		background: var(--fill);
-		translate: calc(var(--pct) - 100%) 0;
+		background: var(--ok);
 		transition: translate var(--dur-base) var(--ease-out);
+	}
+	.tone-warn .fill {
+		background: var(--warn);
+	}
+	.tone-danger .fill {
+		background: var(--danger);
 	}
 	.uncapped .track::after {
 		display: none;
@@ -308,23 +316,25 @@
 	.marker {
 		position: absolute;
 		top: 50%;
-		left: var(--marker);
 		width: 2px;
-		height: calc(var(--track-h) + 6px);
+		height: 12px;
 		transform: translate(-50%, -50%);
 		border-radius: var(--r-xs);
-		background: var(--marker-color, var(--text-muted));
+		background: var(--text-muted);
 		pointer-events: none;
 		z-index: 2;
 	}
+	.size-lg .marker {
+		height: 16px;
+	}
 	.marker-ok {
-		--marker-color: var(--ok);
+		background: var(--ok);
 	}
 	.marker-warn {
-		--marker-color: var(--warn);
+		background: var(--warn);
 	}
 	.marker-danger {
-		--marker-color: var(--danger);
+		background: var(--danger);
 	}
 	.sr-only {
 		position: absolute;
@@ -340,7 +350,6 @@
 	.handle {
 		position: absolute;
 		top: 50%;
-		left: var(--cap);
 		width: 3px;
 		height: 16px;
 		transform: translate(-50%, -50%);
@@ -360,8 +369,6 @@
 	.bubble {
 		position: absolute;
 		bottom: calc(100% + var(--sp-2));
-		left: clamp(0%, var(--cap), 100%);
-		translate: calc(-1 * clamp(0%, var(--cap), 100%)) 0;
 		padding: var(--sp-px) var(--sp-1);
 		border: var(--edge-width) solid var(--raised-edge);
 		border-radius: var(--r-sm);

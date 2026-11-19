@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'Sheen sweep and soft pulse',
-		caption: 'variant sheen sends one light across each bar in step; variant pulse breathes each bar a beat behind the last, --skeleton-phase offsets a later set.',
+		caption: 'variant sheen sends one light across each bar in step; variant pulse breathes each bar a beat behind the last, phase offsets a later set.',
 		layout: 'row'
 	};
 </script>
@@ -19,10 +19,10 @@
 				<Skeleton {variant} circle height="2.5rem" />
 				<Stack gap="var(--sp-2)" style="flex: 1; min-width: 0">
 					<Skeleton {variant} width="55%" height="0.8rem" />
-					<Skeleton {variant} width="35%" height="0.65rem" style="--skeleton-phase: 1" />
+					<Skeleton {variant} width="35%" height="0.65rem" phase={1} />
 				</Stack>
 			</Cluster>
-			<Skeleton {variant} lines={3} height="0.75rem" style="--skeleton-phase: 2" />
+			<Skeleton {variant} lines={3} height="0.75rem" phase={2} />
 		</Stack>
 	</Card>
 {/each}

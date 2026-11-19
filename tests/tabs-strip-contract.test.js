@@ -77,8 +77,10 @@ test('the strip row keeps the tablist scrolling and continues the rule under the
 	assert.ok(hasDecl(tabs, '.actions', 'border-bottom', 'var(--edge-width) solid var(--surface-edge)'));
 	assert.ok(hasDecl(tabs, '.tab.closable', 'cursor', 'pointer'));
 	assert.ok(hasDecl(tabs, '.label', 'text-overflow', 'ellipsis'));
-	assert.ok(hasDecl(tabs, '.tab', 'max-width', 'var(--tab-max-width, none)'));
-	assert.match(readme, /\| `Tabs` \| `--tab-max-width` \|/);
+	assert.match(tabs, /tabMaxWidth\?: string;/);
+	assert.equal(tabs.match(/style:max-width={tabMaxWidth}/g)?.length, 3);
+	assert.doesNotMatch(tabs, /--tab-max-width|--tabs-fx|--icon-size/);
+	assert.match(tabs, /\.tab > :global\(\.icon\)\s*{\s*font-size: var\(--control-icon-md\);/);
 });
 
 test('demo and docs cover the closable strip', () => {

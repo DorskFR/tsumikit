@@ -13,6 +13,7 @@
 		side = 'right',
 		width = '620px',
 		navWidth = '150px',
+		flush = false,
 		title,
 		page,
 		icon,
@@ -32,13 +33,15 @@
 		 *  Omit to open on mount (mount/unmount the component to show/hide). */
 		open?: boolean;
 		/** `bottom` is a sheet rising from the bottom edge, full width, at most
-		 *  `--drawer-max-h` (85dvh) tall. */
+		 *  85dvh tall. */
 		side?: 'left' | 'right' | 'bottom';
 		/** Panel width on wide viewports (any CSS length); clamps to 100vw. Below
 		 *  48rem a side panel is always full-screen. */
 		width?: string;
 		/** Width of the `nav` column on wide viewports. */
 		navWidth?: string;
+		/** Drop the padding around the content. */
+		flush?: boolean;
 		title: string;
 		/** Name of the current page, shown after the title in the header. */
 		page?: string;
@@ -132,8 +135,8 @@
 	<div
 		class={['panel', className]}
 		class:has-nav={Boolean(nav)}
-		style:--drawer-w={width}
-		style:--drawer-nav-w={navWidth}
+		style:width={side === 'bottom' ? undefined : `min(${width}, 100%)`}
+		style:grid-template-columns={nav ? `${navWidth} minmax(0, 1fr)` : undefined}
 		{style}
 	>
 		{#if header}
@@ -153,7 +156,7 @@
 		{#if navMobile}
 			<nav class="panel-nav-mobile">{@render navMobile()}</nav>
 		{/if}
-		<div class="panel-body">
+		<div class="panel-body" class:flush>
 			{@render children()}
 		</div>
 		{#if footer}
@@ -229,17 +232,16 @@
 		will-change: translate;
 		padding-top: var(--safe-top);
 		padding-bottom: var(--safe-bottom);
-		--drawer-from: 100% 0;
-		translate: var(--drawer-from);
+		translate: 100% 0;
 		transition: translate var(--dur-exit-slow) var(--ease-drawer);
 	}
 	.drawer[data-side='left'] .panel {
-		--drawer-from: -100% 0;
+		translate: -100% 0;
 	}
 	.drawer[data-side='bottom'] .panel {
-		--drawer-from: 0 100%;
+		translate: 0 100%;
 		height: auto;
-		max-height: var(--drawer-max-h, 85dvh);
+		max-height: 85dvh;
 		padding-top: 0;
 		border-top: var(--edge-width) solid var(--border-strong);
 		border-radius: var(--r-lg) var(--r-lg) 0 0;
@@ -251,7 +253,13 @@
 	}
 	@starting-style {
 		.drawer[open] .panel {
-			translate: var(--drawer-from);
+			translate: 100% 0;
+		}
+		.drawer[open][data-side='left'] .panel {
+			translate: -100% 0;
+		}
+		.drawer[open][data-side='bottom'] .panel {
+			translate: 0 100%;
 		}
 	}
 
@@ -298,10 +306,13 @@
 
 	.panel-body {
 		grid-area: body;
-		padding: var(--drawer-body-pad, var(--sp-4));
+		padding: var(--sp-4);
 		overflow-y: auto;
 		overscroll-behavior: contain;
 		-webkit-overflow-scrolling: touch;
+	}
+	.panel-body.flush {
+		padding: 0;
 	}
 	.panel-foot {
 		grid-area: foot;
@@ -313,9 +324,14 @@
 		border-top: var(--edge-width) solid var(--surface-edge);
 	}
 
+	@media (max-width: 47.999rem) {
+		.panel {
+			width: 100% !important;
+			grid-template-columns: minmax(0, 1fr) !important;
+		}
+	}
 	@media (min-width: 48rem) {
 		.panel {
-			width: min(var(--drawer-w), 100%);
 			padding-top: 0;
 			padding-bottom: 0;
 			border-left: var(--edge-width) solid var(--border-strong);
@@ -332,12 +348,10 @@
 			border-right: var(--edge-width) solid var(--border-strong);
 		}
 		.drawer[data-side='bottom'] .panel {
-			width: 100%;
 			border-left: 0;
 			padding-bottom: var(--safe-bottom);
 		}
 		.panel.has-nav {
-			grid-template-columns: var(--drawer-nav-w) minmax(0, 1fr);
 			grid-template-areas:
 				'head head'
 				'nav body'

@@ -317,8 +317,8 @@ test('styles: token-driven, touch-ready grip, reduced motion', () => {
 	assert.ok(hasDecl(style, '.sl-row.selected', 'box-shadow', 'inset 2px 0 0 var(--accent)'));
 	assert.ok(hasDecl(style, '.sl-row.lifted .sl-lift', 'box-shadow', 'var(--raised-shadow)'));
 	assert.ok(hasDecl(style, '.sl-row.lifted .sl-lift', 'background', 'var(--bg-elevated-2)'));
-	assert.ok(hasDecl(style, '.sl-lift', 'min-height', 'var(--sortable-row-h, 2.25rem)'));
-	assert.ok(hasDecl(style, '.sortable-sm .sl-lift', 'min-height', 'var(--sortable-row-h, 1.875rem)'));
+	assert.ok(hasDecl(style, '.sl-lift', 'min-height', '2.25rem'));
+	assert.ok(hasDecl(style, '.sortable-sm .sl-lift', 'min-height', '1.875rem'));
 	assert.match(style, /@media \(pointer: coarse\)[\s\S]*width: var\(--touch-target\)/);
 	assert.match(style, /\.sl-lift\s*{[^}]*transition:\s*transform var\(--dur-base\) var\(--ease\),\s*box-shadow var\(--dur-base\) var\(--ease\);/);
 	assert.doesNotMatch(style, /prefers-reduced-motion/);
@@ -332,7 +332,6 @@ test('it is exported, documented and demoed', async () => {
 	assert.match(index, /default as SortableList,/);
 	assert.match(index, /from '\.\/components\/molecules\/SortableList\.svelte';/);
 	assert.match(readme, /### SortableList/);
-	assert.match(readme, /\| `SortableList` \| `--sortable-row-h` \|/);
 	assert.ok(await demoed('SortableList'));
 	assert.match(page, /<SortableList[\s\S]*?numbered/);
 });

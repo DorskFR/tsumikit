@@ -21,7 +21,7 @@ test('existing props keep their defaults', () => {
 	assert.match(component, /hideHeader = false/);
 	assert.match(component, /size = 'md'/);
 	assert.match(component, /loading = false/);
-	assert.match(component, /top: var\(--dt-sticky-offset, 0\)/);
+	assert.match(component, /\.dt\.sticky th\s*{\s*position: sticky;\s*top: 0;/);
 });
 
 test('layout prop drives table-layout', () => {
@@ -66,16 +66,23 @@ test('rowTone renders data-tone + accent bar; rowClass is the escape hatch', () 
 	assert.match(component, /data-tone={tone}/);
 	assert.match(component, /class={rowClass\?\.\(row\)}/);
 	for (const tone of ['ok', 'warn', 'danger', 'info']) {
-		assert.match(component, new RegExp(`tr\\[data-tone='${tone}'\\]\\s*{\\s*--dt-tone: var\\(--${tone}\\);`));
+		assert.match(
+			component,
+			new RegExp(`\\ttr\\[data-tone='${tone}'\\] td:first-child\\s*{\\s*box-shadow: inset 3px 0 0 var\\(--${tone}\\);`)
+		);
+		assert.match(
+			component,
+			new RegExp(`\\[data-stacked\\] tr\\[data-tone='${tone}'\\]\\s*{\\s*box-shadow: inset 3px 0 0 var\\(--${tone}\\);`)
+		);
 	}
-	assert.match(component, /tr\.toned td:first-child\s*{\s*box-shadow: inset 3px 0 0 var\(--dt-tone\);/);
+	assert.doesNotMatch(component, /--dt-tone/);
 });
 
 test('rowActions is a trailing cell with a labelled header, hover-revealed, visible on touch', () => {
 	assert.match(component, /rowActions\?: Snippet<\[T\]>/);
 	assert.match(component, /rowActionsLabel = 'Actions'/);
-	assert.match(component, /<th scope="col" class="dt-actions-head"><span class="sr-only">{rowActionsLabel}<\/span><\/th>/);
-	assert.match(component, /<td data-part="actions" class="dt-actions">\s*<span class="dt-actions-inner" use:measureActions>\s*{#if rowActions}{@render rowActions\(row\)}{\/if}/);
+	assert.match(component, /<th scope="col" class="dt-actions-head" style:top={headTop} style:width={actionsWidth}><span class="sr-only">{rowActionsLabel}<\/span><\/th>/);
+	assert.match(component, /<td data-part="actions" class="dt-actions" style:width={actionsWidth}>\s*<span class="dt-actions-inner" use:measureActions>\s*{#if rowActions}{@render rowActions\(row\)}{\/if}/);
 	assert.match(component, /const hasActions = \$derived\(!!rowActions \|\| !!actions\);/);
 	assert.match(component, /const colCount = \$derived\(columns\.length \+ \(hasActions \? 1 : 0\) \+ \(showSelect \? 1 : 0\)\)/);
 	assert.match(component, /colspan={colCount}/);
@@ -85,10 +92,11 @@ test('rowActions is a trailing cell with a labelled header, hover-revealed, visi
 	assert.match(component, /@media \(pointer: coarse\)\s*{\s*\.dt-actions\s*{\s*opacity: 1;/);
 });
 
-test('stickyOffset feeds the sticky header top via a CSS variable', () => {
+test('stickyOffset sets the sticky header cells\' inline top', () => {
 	assert.match(component, /stickyOffset\?: string/);
-	assert.match(component, /style:--dt-sticky-offset={stickyOffset}/);
-	assert.match(component, /\.dt\.sticky th\s*{\s*position: sticky;\s*top: var\(--dt-sticky-offset, 0\);/);
+	assert.match(component, /const headTop = \$derived\(stickyHeader \? stickyOffset : undefined\);/);
+	assert.equal(component.match(/style:top={headTop}/g)?.length, 3);
+	assert.match(component, /\.dt\.sticky th\s*{\s*position: sticky;\s*top: 0;/);
 });
 
 test('size="sm" tightens type and padding', () => {
@@ -129,7 +137,11 @@ test('semantics kept: real table, th scope, keyboard-operable sort and rows', ()
 });
 
 test('fixed layout gives the actions column a definite width so it never overflows the scroll wrapper', () => {
-	assert.match(component, /\.dt\.fixed \.dt-actions-head,\s*\.dt\.fixed \.dt-actions\s*{\s*width: var\(--dt-actions-w, 3\.5rem\);/s);
+	assert.match(component, /\.dt\.fixed \.dt-actions-head,\s*\.dt\.fixed \.dt-actions\s*{\s*width: 3\.5rem;/s);
 	assert.match(component, /<span class="dt-actions-inner" use:measureActions>\s*{#if rowActions}{@render rowActions\(row\)}{\/if}/);
-	assert.match(component, /style:--dt-actions-w={actionsW \? `calc\(\${actionsW}px \+ 2 \* var\(--sp-3\)\)` : undefined}/);
+	assert.match(
+		component,
+		/const actionsWidth = \$derived\(\s*layout === 'fixed' && actionsW \? `calc\(\${actionsW}px \+ 2 \* var\(--sp-3\)\)` : undefined\s*\);/
+	);
+	assert.equal(component.match(/style:width={actionsWidth}/g)?.length, 3);
 });

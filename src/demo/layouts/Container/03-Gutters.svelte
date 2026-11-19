@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'Gutters and full-bleed children',
-		caption: 'gutter sets the inline padding (safe-area insets win when larger); a child with margin-inline: calc(-1 * var(--container-gutter)) bleeds to the column edge.',
+		caption: 'gutter sets the inline padding (safe-area insets win when larger); a child with a negative margin-inline of the gutter (--sp-4 by default) bleeds to the column edge.',
 		layout: 'stack'
 	};
 </script>
@@ -40,7 +40,7 @@
 		gap: var(--sp-2);
 	}
 	.bleed {
-		margin-inline: calc(-1 * var(--container-gutter));
+		margin-inline: calc(-1 * var(--sp-4));
 		padding: var(--sp-6) var(--sp-4);
 		background: linear-gradient(135deg, hsl(280 60% 45%), hsl(200 70% 45%));
 		color: white;

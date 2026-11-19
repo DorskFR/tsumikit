@@ -76,6 +76,7 @@
 		sound?: boolean;
 	} = $props();
 	const t = $derived(canonicalTone(tone));
+	const toneColor = $derived(t === 'neutral' ? undefined : `var(--${t})`);
 
 	const titleId = `modal-title-${Math.random().toString(36).slice(2, 8)}`;
 
@@ -193,7 +194,7 @@
 	aria-labelledby={titleId}
 	aria-busy={busy || undefined}
 	data-tone={t === 'neutral' ? undefined : t}
-	style="{width != null ? `--sheet-w: ${width}px;` : ''}{styleProp}"
+	style={styleProp || undefined}
 	oncancel={(e) => {
 		e.preventDefault(); /* keep parent the source of truth for open state */
 		requestClose();
@@ -206,15 +207,17 @@
 	<div
 		class="sheet {bodyClass}"
 		style:max-height={maxHeight}
+		style:width={width != null ? `${width}px` : undefined}
+		style:max-width={width != null ? `min(${width}px, calc(100vw - 2rem))` : undefined}
+		style:border-top-color={toneColor}
 		class:sheet-sm={size === 'sm'}
 		class:sheet-lg={size === 'lg'}
 		class:sheet-xl={size === 'xl'}
 		class:sheet-toned={t !== 'neutral'}
-		style:--modal-tone={t === 'neutral' ? undefined : `var(--${t})`}
 	>
 		<div class="sheet-head">
 			{#if t !== 'neutral'}
-				<span class="sheet-tone-icon"><Icon name={TONE_ICON[t]} /></span>
+				<span class="sheet-tone-icon" style:color={toneColor}><Icon name={TONE_ICON[t]} /></span>
 			{/if}
 			<span id={titleId} class="sheet-title truncate">{title}</span>
 			{#if busy}<Spinner label="Working" />{/if}
@@ -298,10 +301,9 @@
 	}
 
 	.sheet {
-		--sw: 34rem; /* width preset; overridden by --sheet-w when resized */
 		position: relative;
 		width: 100%;
-		max-width: var(--sw);
+		max-width: 34rem;
 		max-height: calc(100dvh - var(--safe-top) - var(--sp-6));
 		display: flex;
 		flex-direction: column;
@@ -328,12 +330,18 @@
 			translate: 0 100%;
 		}
 	}
+	@media (max-width: 39.999rem) {
+		.sheet {
+			width: 100% !important;
+			max-width: 34rem !important;
+		}
+	}
 	@media (min-width: 40rem) {
 		.sheet {
 			border-radius: var(--r-lg);
 			padding-bottom: 0;
-			width: var(--sheet-w, var(--sw));
-			max-width: min(var(--sheet-w, var(--sw)), calc(100vw - 2rem));
+			width: 34rem;
+			max-width: min(34rem, calc(100vw - 2rem));
 			/* Centred dialog: scales from the middle instead of sliding. */
 			translate: 0;
 			scale: var(--enter-scale);
@@ -352,13 +360,16 @@
 			}
 		}
 		.sheet-sm {
-			--sw: 24rem;
+			width: 24rem;
+			max-width: min(24rem, calc(100vw - 2rem));
 		}
 		.sheet-lg {
-			--sw: 48rem;
+			width: 48rem;
+			max-width: min(48rem, calc(100vw - 2rem));
 		}
 		.sheet-xl {
-			--sw: 72rem;
+			width: 72rem;
+			max-width: min(72rem, calc(100vw - 2rem));
 		}
 	}
 	.modal.resizing .sheet {
@@ -379,13 +390,12 @@
 		border-bottom: var(--edge-width) solid var(--surface-edge);
 	}
 	.sheet-toned {
-		border-top: 3px solid var(--modal-tone);
+		border-top-width: 3px;
 	}
 	.sheet-tone-icon {
 		display: inline-flex;
 		flex: none;
 		font-size: var(--icon-lg);
-		color: var(--modal-tone);
 	}
 	.sheet-title {
 		font-size: var(--fs-lg);

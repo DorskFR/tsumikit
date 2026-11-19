@@ -121,6 +121,18 @@
 	--skeleton: color-mix(in oklab, var(--depth-line) 6%, transparent);
 	--skeleton-highlight: color-mix(in oklab, var(--accent) 18%, transparent);
 	--attention-bg: color-mix(in oklab, var(--warn) 10%, var(--bg-elevated));
+	--depth-none: linear-gradient(transparent, transparent);
+	--depth-tint-ok: radial-gradient(120% 100% at 0% 0%, color-mix(in oklab, var(--ok) 8%, transparent), transparent 65%);
+	--depth-tint-warn: radial-gradient(120% 100% at 0% 0%, color-mix(in oklab, var(--warn) 8%, transparent), transparent 65%);
+	--depth-tint-danger: radial-gradient(120% 100% at 0% 0%, color-mix(in oklab, var(--danger) 8%, transparent), transparent 65%);
+	--depth-tint-info: radial-gradient(120% 100% at 0% 0%, color-mix(in oklab, var(--info) 8%, transparent), transparent 65%);
+	--depth-tint-accent: radial-gradient(120% 100% at 0% 0%, color-mix(in oklab, var(--accent) 8%, transparent), transparent 65%);
+	--depth-wash-neutral: linear-gradient(100deg, color-mix(in oklab, var(--text-muted) 8%, transparent), color-mix(in oklab, var(--text-muted) 2%, transparent) 70%);
+	--depth-wash-ok: linear-gradient(100deg, color-mix(in oklab, var(--ok) 8%, transparent), color-mix(in oklab, var(--ok) 2%, transparent) 70%);
+	--depth-wash-warn: linear-gradient(100deg, color-mix(in oklab, var(--warn) 8%, transparent), color-mix(in oklab, var(--warn) 2%, transparent) 70%);
+	--depth-wash-danger: linear-gradient(100deg, color-mix(in oklab, var(--danger) 8%, transparent), color-mix(in oklab, var(--danger) 2%, transparent) 70%);
+	--depth-wash-info: linear-gradient(100deg, color-mix(in oklab, var(--info) 8%, transparent), color-mix(in oklab, var(--info) 2%, transparent) 70%);
+	--depth-wash-accent: linear-gradient(100deg, color-mix(in oklab, var(--accent) 8%, transparent), color-mix(in oklab, var(--accent) 2%, transparent) 70%);
 }
 
 :root[data-look="depth"][data-mode="light"] {
@@ -216,15 +228,11 @@
 
 /* ---------- cards ---------- */
 :root[data-look="depth"] .card {
-	--depth-spot: linear-gradient(transparent, transparent);
-	--depth-card-tint: linear-gradient(transparent, transparent);
-	--depth-card-fill: var(--depth-fill-1);
-	--depth-card-edge: var(--depth-edge);
 	background:
-		var(--depth-spot) padding-box,
-		var(--depth-card-tint) padding-box,
-		var(--depth-card-fill) padding-box;
-	border-color: var(--depth-card-edge);
+		var(--depth-none) padding-box,
+		var(--depth-none) padding-box,
+		var(--depth-fill-1) padding-box;
+	border-color: var(--depth-edge);
 }
 :root[data-look="depth"] .card .card-head {
 	border-bottom: 1px solid;
@@ -236,26 +244,181 @@
 	background: color-mix(in oklab, var(--bg) 30%, transparent);
 	border-radius: 0 0 calc(var(--r-lg) - 1px) calc(var(--r-lg) - 1px);
 }
+:root[data-look="depth"] .card:where(.surface-raised) {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-none) padding-box,
+		var(--depth-fill-2) padding-box;
+	border-color: var(--depth-edge-2);
+}
+:root[data-look="depth"] .card:where(.surface-sunken) {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-none) padding-box,
+		linear-gradient(var(--depth-well), var(--depth-well)) padding-box;
+	border-color: var(--depth-well-edge-soft);
+}
+:root[data-look="depth"] .card:where(.card-ok) {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-ok) padding-box,
+		var(--depth-fill-1) padding-box;
+	border-color: color-mix(in oklab, var(--ok) 60%, transparent) color-mix(in oklab, var(--ok) 30%, transparent)
+		color-mix(in oklab, var(--ok) 14%, transparent);
+}
+:root[data-look="depth"] .card:where(.card-warn) {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-warn) padding-box,
+		var(--depth-fill-1) padding-box;
+	border-color: color-mix(in oklab, var(--warn) 60%, transparent) color-mix(in oklab, var(--warn) 30%, transparent)
+		color-mix(in oklab, var(--warn) 14%, transparent);
+}
+:root[data-look="depth"] .card:where(.card-danger) {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-danger) padding-box,
+		var(--depth-fill-1) padding-box;
+	border-color: color-mix(in oklab, var(--danger) 60%, transparent) color-mix(in oklab, var(--danger) 30%, transparent)
+		color-mix(in oklab, var(--danger) 14%, transparent);
+}
+:root[data-look="depth"] .card:where(.card-info) {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-info) padding-box,
+		var(--depth-fill-1) padding-box;
+	border-color: color-mix(in oklab, var(--info) 60%, transparent) color-mix(in oklab, var(--info) 30%, transparent)
+		color-mix(in oklab, var(--info) 14%, transparent);
+}
+:root[data-look="depth"] .card:where(.card-accent) {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-accent) padding-box,
+		var(--depth-fill-1) padding-box;
+	border-color: color-mix(in oklab, var(--accent) 60%, transparent) color-mix(in oklab, var(--accent) 30%, transparent)
+		color-mix(in oklab, var(--accent) 14%, transparent);
+}
+:root[data-look="depth"] .card:where(.card-ok.surface-raised) {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-ok) padding-box,
+		var(--depth-fill-2) padding-box;
+}
+:root[data-look="depth"] .card:where(.card-warn.surface-raised) {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-warn) padding-box,
+		var(--depth-fill-2) padding-box;
+}
+:root[data-look="depth"] .card:where(.card-danger.surface-raised) {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-danger) padding-box,
+		var(--depth-fill-2) padding-box;
+}
+:root[data-look="depth"] .card:where(.card-info.surface-raised) {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-info) padding-box,
+		var(--depth-fill-2) padding-box;
+}
+:root[data-look="depth"] .card:where(.card-accent.surface-raised) {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-accent) padding-box,
+		var(--depth-fill-2) padding-box;
+}
+:root[data-look="depth"] .card:where(.callout-neutral) {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-wash-neutral) padding-box,
+		var(--depth-fill-1) padding-box;
+	border-color: color-mix(in oklab, var(--text-muted) 55%, transparent) color-mix(in oklab, var(--text-muted) 28%, transparent)
+		color-mix(in oklab, var(--text-muted) 14%, transparent);
+}
+:root[data-look="depth"] .card:where(.callout-ok) {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-wash-ok) padding-box,
+		var(--depth-fill-1) padding-box;
+	border-color: color-mix(in oklab, var(--ok) 55%, transparent) color-mix(in oklab, var(--ok) 28%, transparent)
+		color-mix(in oklab, var(--ok) 14%, transparent);
+}
+:root[data-look="depth"] .card:where(.callout-warn) {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-wash-warn) padding-box,
+		var(--depth-fill-1) padding-box;
+	border-color: color-mix(in oklab, var(--warn) 55%, transparent) color-mix(in oklab, var(--warn) 28%, transparent)
+		color-mix(in oklab, var(--warn) 14%, transparent);
+}
+:root[data-look="depth"] .card:where(.callout-danger) {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-wash-danger) padding-box,
+		var(--depth-fill-1) padding-box;
+	border-color: color-mix(in oklab, var(--danger) 55%, transparent) color-mix(in oklab, var(--danger) 28%, transparent)
+		color-mix(in oklab, var(--danger) 14%, transparent);
+}
+:root[data-look="depth"] .card:where(.callout-info) {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-wash-info) padding-box,
+		var(--depth-fill-1) padding-box;
+	border-color: color-mix(in oklab, var(--info) 55%, transparent) color-mix(in oklab, var(--info) 28%, transparent)
+		color-mix(in oklab, var(--info) 14%, transparent);
+}
+:root[data-look="depth"] .card:where(.callout-accent) {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-wash-accent) padding-box,
+		var(--depth-fill-1) padding-box;
+	border-color: color-mix(in oklab, var(--accent) 55%, transparent) color-mix(in oklab, var(--accent) 28%, transparent)
+		color-mix(in oklab, var(--accent) 14%, transparent);
+}
 :root[data-look="depth"] .card.surface-raised {
-	--depth-card-fill: var(--depth-fill-2);
-	--depth-card-edge: var(--depth-edge-2);
-	--card-shadow-rest: var(--depth-hl-strong), var(--depth-drop-raised);
+	box-shadow: var(--depth-hl-strong), var(--depth-drop-raised);
 }
 :root[data-look="depth"] .card.surface-sunken {
-	--depth-card-fill: linear-gradient(var(--depth-well), var(--depth-well));
-	--depth-card-edge: var(--depth-well-edge-soft);
-	--card-shadow-rest: var(--depth-well-shadow);
+	box-shadow: var(--depth-well-shadow);
 }
 :root[data-look="depth"] .card.border-dashed {
 	background: color-mix(in oklab, var(--accent) 6%, transparent);
 	border-color: color-mix(in oklab, var(--accent) 45%, transparent);
-	--card-shadow-rest: none;
+	box-shadow: none;
 }
-:root[data-look="depth"] .card:is(.card-ok, .card-warn, .card-danger, .card-info, .card-accent) {
-	--depth-card-tint: radial-gradient(120% 100% at 0% 0%, color-mix(in oklab, var(--card-tone) 8%, transparent), transparent 65%);
-	--depth-card-edge: color-mix(in oklab, var(--card-tone) 60%, transparent) color-mix(in oklab, var(--card-tone) 30%, transparent)
-		color-mix(in oklab, var(--card-tone) 14%, transparent);
-	--card-shadow-rest: var(--depth-hl), var(--depth-drop-1), 0 8px 26px -16px color-mix(in oklab, var(--card-tone) 80%, transparent);
+:root[data-look="depth"] .card.card-ok {
+	box-shadow: var(--depth-hl), var(--depth-drop-1), 0 8px 26px -16px color-mix(in oklab, var(--ok) 80%, transparent);
+}
+:root[data-look="depth"] .card.card-warn {
+	box-shadow: var(--depth-hl), var(--depth-drop-1), 0 8px 26px -16px color-mix(in oklab, var(--warn) 80%, transparent);
+}
+:root[data-look="depth"] .card.card-danger {
+	box-shadow: var(--depth-hl), var(--depth-drop-1), 0 8px 26px -16px color-mix(in oklab, var(--danger) 80%, transparent);
+}
+:root[data-look="depth"] .card.card-info {
+	box-shadow: var(--depth-hl), var(--depth-drop-1), 0 8px 26px -16px color-mix(in oklab, var(--info) 80%, transparent);
+}
+:root[data-look="depth"] .card.card-accent {
+	box-shadow: var(--depth-hl), var(--depth-drop-1), 0 8px 26px -16px color-mix(in oklab, var(--accent) 80%, transparent);
+}
+:root[data-look="depth"] .card.callout-neutral {
+	box-shadow: var(--depth-hl), var(--depth-drop-1), 0 8px 24px -16px color-mix(in oklab, var(--text-muted) 80%, transparent);
+}
+:root[data-look="depth"] .card.callout-ok {
+	box-shadow: var(--depth-hl), var(--depth-drop-1), 0 8px 24px -16px color-mix(in oklab, var(--ok) 80%, transparent);
+}
+:root[data-look="depth"] .card.callout-warn {
+	box-shadow: var(--depth-hl), var(--depth-drop-1), 0 8px 24px -16px color-mix(in oklab, var(--warn) 80%, transparent);
+}
+:root[data-look="depth"] .card.callout-danger {
+	box-shadow: var(--depth-hl), var(--depth-drop-1), 0 8px 24px -16px color-mix(in oklab, var(--danger) 80%, transparent);
+}
+:root[data-look="depth"] .card.callout-info {
+	box-shadow: var(--depth-hl), var(--depth-drop-1), 0 8px 24px -16px color-mix(in oklab, var(--info) 80%, transparent);
+}
+:root[data-look="depth"] .card.callout-accent {
+	box-shadow: var(--depth-hl), var(--depth-drop-1), 0 8px 24px -16px color-mix(in oklab, var(--accent) 80%, transparent);
 }
 :root[data-look="depth"] .card.card-stacked::before,
 :root[data-look="depth"] .card.card-stacked::after {
@@ -263,34 +426,176 @@
 	border-color: transparent;
 	box-shadow: var(--depth-ring), var(--depth-drop-1);
 }
+:root[data-look="depth"] .card.card-tap:active:where(:not(.card-attention)) {
+	box-shadow: var(--depth-hl), var(--depth-drop-1);
+}
 :root[data-look="depth"] .card.card-tap:active {
 	background:
-		var(--depth-spot) padding-box,
-		var(--depth-card-tint) padding-box,
-		var(--depth-card-fill) padding-box;
-	--card-shadow-rest: var(--depth-hl), var(--depth-drop-1);
+		var(--depth-none) padding-box,
+		var(--depth-none) padding-box,
+		var(--depth-fill-1) padding-box;
+}
+:root[data-look="depth"] .card.card-tap.surface-raised:active {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-none) padding-box,
+		var(--depth-fill-2) padding-box;
+}
+:root[data-look="depth"] .card.card-tap.surface-sunken:active {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-none) padding-box,
+		linear-gradient(var(--depth-well), var(--depth-well)) padding-box;
+}
+:root[data-look="depth"] .card.card-tap.card-ok:active {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-ok) padding-box,
+		var(--depth-fill-1) padding-box;
+}
+:root[data-look="depth"] .card.card-tap.card-warn:active {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-warn) padding-box,
+		var(--depth-fill-1) padding-box;
+}
+:root[data-look="depth"] .card.card-tap.card-danger:active {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-danger) padding-box,
+		var(--depth-fill-1) padding-box;
+}
+:root[data-look="depth"] .card.card-tap.card-info:active {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-info) padding-box,
+		var(--depth-fill-1) padding-box;
+}
+:root[data-look="depth"] .card.card-tap.card-accent:active {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-accent) padding-box,
+		var(--depth-fill-1) padding-box;
+}
+:root[data-look="depth"] .card.card-tap.card-ok.surface-raised:active {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-ok) padding-box,
+		var(--depth-fill-2) padding-box;
+}
+:root[data-look="depth"] .card.card-tap.card-warn.surface-raised:active {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-warn) padding-box,
+		var(--depth-fill-2) padding-box;
+}
+:root[data-look="depth"] .card.card-tap.card-danger.surface-raised:active {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-danger) padding-box,
+		var(--depth-fill-2) padding-box;
+}
+:root[data-look="depth"] .card.card-tap.card-info.surface-raised:active {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-info) padding-box,
+		var(--depth-fill-2) padding-box;
+}
+:root[data-look="depth"] .card.card-tap.card-accent.surface-raised:active {
+	background:
+		var(--depth-none) padding-box,
+		var(--depth-tint-accent) padding-box,
+		var(--depth-fill-2) padding-box;
 }
 
 /* ---------- metrics ---------- */
-:root[data-look="depth"] .card.metric {
-	--depth-card-edge: color-mix(in oklab, var(--metric-tone) 50%, transparent) color-mix(in oklab, var(--depth-line) 5%, transparent)
+:root[data-look="depth"] .card:where(.metric) {
+	border-color: color-mix(in oklab, var(--accent) 50%, transparent) color-mix(in oklab, var(--depth-line) 5%, transparent)
 		color-mix(in oklab, var(--depth-line) 3%, transparent);
 }
-:root[data-look="depth"][data-mode="light"] .card.metric {
-	--depth-card-edge: color-mix(in oklab, var(--metric-tone) 35%, transparent) color-mix(in oklab, var(--depth-line) 7%, transparent)
+:root[data-look="depth"] .card:where(.metric-ok) {
+	border-color: color-mix(in oklab, var(--ok) 50%, transparent) color-mix(in oklab, var(--depth-line) 5%, transparent)
+		color-mix(in oklab, var(--depth-line) 3%, transparent);
+}
+:root[data-look="depth"] .card:where(.metric-warn) {
+	border-color: color-mix(in oklab, var(--warn) 50%, transparent) color-mix(in oklab, var(--depth-line) 5%, transparent)
+		color-mix(in oklab, var(--depth-line) 3%, transparent);
+}
+:root[data-look="depth"] .card:where(.metric-danger) {
+	border-color: color-mix(in oklab, var(--danger) 50%, transparent) color-mix(in oklab, var(--depth-line) 5%, transparent)
+		color-mix(in oklab, var(--depth-line) 3%, transparent);
+}
+:root[data-look="depth"] .card:where(.metric-info) {
+	border-color: color-mix(in oklab, var(--info) 50%, transparent) color-mix(in oklab, var(--depth-line) 5%, transparent)
+		color-mix(in oklab, var(--depth-line) 3%, transparent);
+}
+:root[data-look="depth"]:where([data-mode="light"]) .card:where(.metric) {
+	border-color: color-mix(in oklab, var(--accent) 35%, transparent) color-mix(in oklab, var(--depth-line) 7%, transparent)
+		color-mix(in oklab, var(--depth-line) 8%, transparent);
+}
+:root[data-look="depth"]:where([data-mode="light"]) .card:where(.metric-ok) {
+	border-color: color-mix(in oklab, var(--ok) 35%, transparent) color-mix(in oklab, var(--depth-line) 7%, transparent)
+		color-mix(in oklab, var(--depth-line) 8%, transparent);
+}
+:root[data-look="depth"]:where([data-mode="light"]) .card:where(.metric-warn) {
+	border-color: color-mix(in oklab, var(--warn) 35%, transparent) color-mix(in oklab, var(--depth-line) 7%, transparent)
+		color-mix(in oklab, var(--depth-line) 8%, transparent);
+}
+:root[data-look="depth"]:where([data-mode="light"]) .card:where(.metric-danger) {
+	border-color: color-mix(in oklab, var(--danger) 35%, transparent) color-mix(in oklab, var(--depth-line) 7%, transparent)
+		color-mix(in oklab, var(--depth-line) 8%, transparent);
+}
+:root[data-look="depth"]:where([data-mode="light"]) .card:where(.metric-info) {
+	border-color: color-mix(in oklab, var(--info) 35%, transparent) color-mix(in oklab, var(--depth-line) 7%, transparent)
 		color-mix(in oklab, var(--depth-line) 8%, transparent);
 }
 :root[data-look="depth"] .metric .metric-chip {
 	width: 2.25rem;
 	height: 2.25rem;
+	border-color: transparent;
 	background: linear-gradient(
 		180deg,
-		color-mix(in oklab, var(--metric-tone) 34%, transparent),
-		color-mix(in oklab, var(--metric-tone) 12%, transparent)
+		color-mix(in oklab, var(--accent) 34%, transparent),
+		color-mix(in oklab, var(--accent) 12%, transparent)
 	);
-	border-color: transparent;
-	box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--metric-tone) 45%, transparent),
-		0 0 22px -2px color-mix(in oklab, var(--metric-tone) 75%, transparent);
+	box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--accent) 45%, transparent),
+		0 0 22px -2px color-mix(in oklab, var(--accent) 75%, transparent);
+}
+:root[data-look="depth"] .metric-ok .metric-chip {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, var(--ok) 34%, transparent),
+		color-mix(in oklab, var(--ok) 12%, transparent)
+	);
+	box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--ok) 45%, transparent),
+		0 0 22px -2px color-mix(in oklab, var(--ok) 75%, transparent);
+}
+:root[data-look="depth"] .metric-warn .metric-chip {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, var(--warn) 34%, transparent),
+		color-mix(in oklab, var(--warn) 12%, transparent)
+	);
+	box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--warn) 45%, transparent),
+		0 0 22px -2px color-mix(in oklab, var(--warn) 75%, transparent);
+}
+:root[data-look="depth"] .metric-danger .metric-chip {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, var(--danger) 34%, transparent),
+		color-mix(in oklab, var(--danger) 12%, transparent)
+	);
+	box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--danger) 45%, transparent),
+		0 0 22px -2px color-mix(in oklab, var(--danger) 75%, transparent);
+}
+:root[data-look="depth"] .metric-info .metric-chip {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, var(--info) 34%, transparent),
+		color-mix(in oklab, var(--info) 12%, transparent)
+	);
+	box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--info) 45%, transparent),
+		0 0 22px -2px color-mix(in oklab, var(--info) 75%, transparent);
 }
 :root[data-look="depth"] .metric .metric-num {
 	font-family: var(--font-sans);
@@ -303,22 +608,16 @@
 }
 
 /* ---------- buttons ---------- */
+:root[data-look="depth"] .pop-trigger.canonical:not(.bare) {
+	border-color: transparent;
+}
 :root[data-look="depth"] .pop-trigger.canonical {
-	--pop-trigger-border: transparent;
 	box-shadow: var(--depth-btn-shadow);
 }
-:root[data-look="depth"] .btn.btn-ghost,
-:root[data-look="depth"] .btn.btn-link,
-:root[data-look="depth"] .btn.btn-icon-inline {
-	--hover-lift: 0px;
-}
 :root[data-look="depth"] .pop-trigger.trigger-ghost {
-	--pop-trigger-bg: transparent;
 	box-shadow: none;
 }
 :root[data-look="depth"] .btn.btn-primary {
-	--btn-count-bg: var(--text-on-accent);
-	--btn-count-fg: var(--accent);
 	text-shadow: 0 1px 1px color-mix(in oklab, var(--depth-ink) 35%, transparent);
 }
 :root[data-look="depth"] .pop-trigger.trigger-primary {
@@ -328,20 +627,96 @@
 	background: color-mix(in oklab, var(--text-on-accent) 30%, transparent);
 }
 :root[data-look="depth"] .btn:is(.btn-danger, .btn-tone-accent, .btn-tone-success, .btn-tone-info, .btn-tone-warn, .btn-tone-danger):not(.btn-primary, .btn-ghost, .btn-link) {
-	--depth-tone: var(--btn-tone, var(--danger));
 	background: linear-gradient(var(--surface), var(--surface)) border-box;
 	border-color: transparent;
-	--btn-shadow-rest: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--depth-tone) 40%, transparent),
-		0 1px 2px color-mix(in oklab, var(--depth-ink) 40%, transparent), 0 4px 14px -8px color-mix(in oklab, var(--depth-tone) 60%, transparent);
+}
+:root[data-look="depth"] .btn.btn-danger:not(.btn-primary, .btn-ghost, .btn-link) {
+	box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--danger) 40%, transparent),
+		0 1px 2px color-mix(in oklab, var(--depth-ink) 40%, transparent), 0 4px 14px -8px color-mix(in oklab, var(--danger) 60%, transparent);
+}
+:root[data-look="depth"] .btn.btn-tone-accent:not(.btn-primary, .btn-ghost, .btn-link) {
+	box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--accent) 40%, transparent),
+		0 1px 2px color-mix(in oklab, var(--depth-ink) 40%, transparent), 0 4px 14px -8px color-mix(in oklab, var(--accent) 60%, transparent);
+}
+:root[data-look="depth"] .btn.btn-tone-success:not(.btn-primary, .btn-ghost, .btn-link) {
+	box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--ok) 40%, transparent),
+		0 1px 2px color-mix(in oklab, var(--depth-ink) 40%, transparent), 0 4px 14px -8px color-mix(in oklab, var(--ok) 60%, transparent);
+}
+:root[data-look="depth"] .btn.btn-tone-info:not(.btn-primary, .btn-ghost, .btn-link) {
+	box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--info) 40%, transparent),
+		0 1px 2px color-mix(in oklab, var(--depth-ink) 40%, transparent), 0 4px 14px -8px color-mix(in oklab, var(--info) 60%, transparent);
+}
+:root[data-look="depth"] .btn.btn-tone-warn:not(.btn-primary, .btn-ghost, .btn-link) {
+	box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--warn) 40%, transparent),
+		0 1px 2px color-mix(in oklab, var(--depth-ink) 40%, transparent), 0 4px 14px -8px color-mix(in oklab, var(--warn) 60%, transparent);
+}
+:root[data-look="depth"] .btn.btn-tone-danger:not(.btn-primary, .btn-ghost, .btn-link) {
+	box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--danger) 40%, transparent),
+		0 1px 2px color-mix(in oklab, var(--depth-ink) 40%, transparent), 0 4px 14px -8px color-mix(in oklab, var(--danger) 60%, transparent);
+}
+:root[data-look="depth"] .btn.btn-danger:not(.btn-primary, .btn-ghost, .btn-link):focus-visible:not(.btn-icon-inline, [aria-pressed="true"], :active) {
+	box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--danger) 40%, transparent),
+		0 1px 2px color-mix(in oklab, var(--depth-ink) 40%, transparent), 0 4px 14px -8px color-mix(in oklab, var(--danger) 60%, transparent), var(--focus-glow);
+}
+:root[data-look="depth"] .btn.btn-tone-accent:not(.btn-primary, .btn-ghost, .btn-link):focus-visible:not(.btn-icon-inline, [aria-pressed="true"], :active) {
+	box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--accent) 40%, transparent),
+		0 1px 2px color-mix(in oklab, var(--depth-ink) 40%, transparent), 0 4px 14px -8px color-mix(in oklab, var(--accent) 60%, transparent), var(--focus-glow);
+}
+:root[data-look="depth"] .btn.btn-tone-success:not(.btn-primary, .btn-ghost, .btn-link):focus-visible:not(.btn-icon-inline, [aria-pressed="true"], :active) {
+	box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--ok) 40%, transparent),
+		0 1px 2px color-mix(in oklab, var(--depth-ink) 40%, transparent), 0 4px 14px -8px color-mix(in oklab, var(--ok) 60%, transparent), var(--focus-glow);
+}
+:root[data-look="depth"] .btn.btn-tone-info:not(.btn-primary, .btn-ghost, .btn-link):focus-visible:not(.btn-icon-inline, [aria-pressed="true"], :active) {
+	box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--info) 40%, transparent),
+		0 1px 2px color-mix(in oklab, var(--depth-ink) 40%, transparent), 0 4px 14px -8px color-mix(in oklab, var(--info) 60%, transparent), var(--focus-glow);
+}
+:root[data-look="depth"] .btn.btn-tone-warn:not(.btn-primary, .btn-ghost, .btn-link):focus-visible:not(.btn-icon-inline, [aria-pressed="true"], :active) {
+	box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--warn) 40%, transparent),
+		0 1px 2px color-mix(in oklab, var(--depth-ink) 40%, transparent), 0 4px 14px -8px color-mix(in oklab, var(--warn) 60%, transparent), var(--focus-glow);
+}
+:root[data-look="depth"] .btn.btn-tone-danger:not(.btn-primary, .btn-ghost, .btn-link):focus-visible:not(.btn-icon-inline, [aria-pressed="true"], :active) {
+	box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--danger) 40%, transparent),
+		0 1px 2px color-mix(in oklab, var(--depth-ink) 40%, transparent), 0 4px 14px -8px color-mix(in oklab, var(--danger) 60%, transparent), var(--focus-glow);
 }
 :root[data-look="depth"] .btn.btn-ghost:is(.btn-tone-accent, .btn-tone-success, .btn-tone-info, .btn-tone-warn, .btn-tone-danger) {
 	border-color: transparent;
 }
-:root[data-look="depth"] .btn.btn-primary:is(.btn-tone-accent, .btn-tone-info, .btn-tone-warn, .btn-tone-danger) {
+:root[data-look="depth"] .btn.btn-primary.btn-tone-accent,
+:root[data-look="depth"] .btn.btn-primary.btn-tone-accent:hover:not(:disabled) {
 	background: linear-gradient(
 			180deg,
-			color-mix(in oklab, var(--btn-tone) 35%, var(--depth-primary-top)),
-			color-mix(in oklab, var(--btn-tone) 35%, var(--depth-primary-bottom))
+			color-mix(in oklab, var(--accent) 35%, var(--depth-primary-top)),
+			color-mix(in oklab, var(--accent) 35%, var(--depth-primary-bottom))
+		)
+		border-box;
+	border-color: transparent;
+}
+:root[data-look="depth"] .btn.btn-primary.btn-tone-info,
+:root[data-look="depth"] .btn.btn-primary.btn-tone-info:hover:not(:disabled) {
+	background: linear-gradient(
+			180deg,
+			color-mix(in oklab, var(--info) 35%, var(--depth-primary-top)),
+			color-mix(in oklab, var(--info) 35%, var(--depth-primary-bottom))
+		)
+		border-box;
+	border-color: transparent;
+}
+:root[data-look="depth"] .btn.btn-primary.btn-tone-warn,
+:root[data-look="depth"] .btn.btn-primary.btn-tone-warn:hover:not(:disabled) {
+	background: linear-gradient(
+			180deg,
+			color-mix(in oklab, var(--warn) 35%, var(--depth-primary-top)),
+			color-mix(in oklab, var(--warn) 35%, var(--depth-primary-bottom))
+		)
+		border-box;
+	border-color: transparent;
+}
+:root[data-look="depth"] .btn.btn-primary.btn-tone-danger,
+:root[data-look="depth"] .btn.btn-primary.btn-tone-danger:hover:not(:disabled) {
+	background: linear-gradient(
+			180deg,
+			color-mix(in oklab, var(--danger) 35%, var(--depth-primary-top)),
+			color-mix(in oklab, var(--danger) 35%, var(--depth-primary-bottom))
 		)
 		border-box;
 	border-color: transparent;
@@ -351,13 +726,12 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-	:root[data-look="depth"] .btn:hover:not(:disabled),
-	:root[data-look="depth"] .pop-trigger.canonical:hover:not(:disabled) {
-		--btn-bg: var(--depth-btn-fill-hover) border-box;
-		--pop-trigger-bg: var(--depth-btn-fill-hover) border-box;
+	:root[data-look="depth"] .btn:hover:not(:disabled) {
+		background: var(--depth-btn-fill-hover) border-box;
 		border-color: transparent;
 	}
 	:root[data-look="depth"] .pop-trigger.canonical:hover:not(:disabled) {
+		border-color: transparent;
 		box-shadow: var(--btn-shadow-hover);
 	}
 	:root[data-look="depth"] .btn.btn-ghost:hover:not(:disabled),
@@ -366,35 +740,126 @@
 		border-color: transparent;
 		box-shadow: none;
 	}
-	:root[data-look="depth"] .btn.btn-primary:hover:not(:disabled),
-	:root[data-look="depth"] .pop-trigger.trigger-primary:hover:not(:disabled) {
-		--btn-bg: var(--depth-primary) border-box;
-		--pop-trigger-bg: var(--depth-primary) border-box;
+	:root[data-look="depth"] .btn.btn-ghost:not(.btn-link, .btn-icon-inline):hover:not(:disabled) {
+		translate: 0 0;
+	}
+	:root[data-look="depth"] [data-fx-hover="ember"] .btn.btn-ghost:not(.btn-link, .btn-icon-inline):hover:active:not(:disabled, [aria-disabled="true"], .loading) {
+		translate: 0 calc(var(--shift-xs) / 2);
+	}
+	:root[data-look="depth"] .btn.btn-primary:hover:not(:disabled) {
+		background: var(--depth-primary) border-box;
 		border-color: transparent;
 		filter: brightness(1.1) saturate(1.05);
 	}
+	:root[data-look="depth"] .btn.btn-primary.btn-tone-success:hover:not(:disabled) {
+		background: var(--ok);
+	}
 	:root[data-look="depth"] .pop-trigger.trigger-primary:hover:not(:disabled) {
+		border-color: transparent;
 		box-shadow: var(--depth-primary-edge), var(--depth-aura-hover);
+		filter: brightness(1.1) saturate(1.05);
 	}
-	:root[data-look="depth"] .btn.btn-primary:is(.btn-tone-accent, .btn-tone-info, .btn-tone-warn, .btn-tone-danger):hover:not(:disabled) {
+	:root[data-look="depth"] .btn.btn-danger:not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled) {
 		background: linear-gradient(
 				180deg,
-				color-mix(in oklab, var(--btn-tone) 35%, var(--depth-primary-top)),
-				color-mix(in oklab, var(--btn-tone) 35%, var(--depth-primary-bottom))
+				color-mix(in oklab, var(--danger) 12%, var(--surface)),
+				color-mix(in oklab, var(--danger) 4%, var(--surface))
 			)
 			border-box;
 		border-color: transparent;
 	}
-	:root[data-look="depth"] .btn:is(.btn-danger, .btn-tone-accent, .btn-tone-success, .btn-tone-info, .btn-tone-warn, .btn-tone-danger):not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled) {
+	:root[data-look="depth"] .btn.btn-tone-accent:not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled) {
 		background: linear-gradient(
 				180deg,
-				color-mix(in oklab, var(--depth-tone) 12%, var(--surface)),
-				color-mix(in oklab, var(--depth-tone) 4%, var(--surface))
+				color-mix(in oklab, var(--accent) 12%, var(--surface)),
+				color-mix(in oklab, var(--accent) 4%, var(--surface))
 			)
 			border-box;
 		border-color: transparent;
-		--btn-shadow-rest: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--depth-tone) 65%, transparent),
-			0 0 18px -4px color-mix(in oklab, var(--depth-tone) 55%, transparent);
+	}
+	:root[data-look="depth"] .btn.btn-tone-success:not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled) {
+		background: linear-gradient(
+				180deg,
+				color-mix(in oklab, var(--ok) 12%, var(--surface)),
+				color-mix(in oklab, var(--ok) 4%, var(--surface))
+			)
+			border-box;
+		border-color: transparent;
+	}
+	:root[data-look="depth"] .btn.btn-tone-info:not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled) {
+		background: linear-gradient(
+				180deg,
+				color-mix(in oklab, var(--info) 12%, var(--surface)),
+				color-mix(in oklab, var(--info) 4%, var(--surface))
+			)
+			border-box;
+		border-color: transparent;
+	}
+	:root[data-look="depth"] .btn.btn-tone-warn:not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled) {
+		background: linear-gradient(
+				180deg,
+				color-mix(in oklab, var(--warn) 12%, var(--surface)),
+				color-mix(in oklab, var(--warn) 4%, var(--surface))
+			)
+			border-box;
+		border-color: transparent;
+	}
+	:root[data-look="depth"] .btn.btn-tone-danger:not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled) {
+		background: linear-gradient(
+				180deg,
+				color-mix(in oklab, var(--danger) 12%, var(--surface)),
+				color-mix(in oklab, var(--danger) 4%, var(--surface))
+			)
+			border-box;
+		border-color: transparent;
+	}
+	:root[data-look="depth"] .btn.btn-danger:not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled, :active) {
+		box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--danger) 65%, transparent),
+			0 0 18px -4px color-mix(in oklab, var(--danger) 55%, transparent);
+	}
+	:root[data-look="depth"] .btn.btn-tone-accent:not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled, :active) {
+		box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--accent) 65%, transparent),
+			0 0 18px -4px color-mix(in oklab, var(--accent) 55%, transparent);
+	}
+	:root[data-look="depth"] .btn.btn-tone-success:not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled, :active) {
+		box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--ok) 65%, transparent),
+			0 0 18px -4px color-mix(in oklab, var(--ok) 55%, transparent);
+	}
+	:root[data-look="depth"] .btn.btn-tone-info:not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled, :active) {
+		box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--info) 65%, transparent),
+			0 0 18px -4px color-mix(in oklab, var(--info) 55%, transparent);
+	}
+	:root[data-look="depth"] .btn.btn-tone-warn:not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled, :active) {
+		box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--warn) 65%, transparent),
+			0 0 18px -4px color-mix(in oklab, var(--warn) 55%, transparent);
+	}
+	:root[data-look="depth"] .btn.btn-tone-danger:not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled, :active) {
+		box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--danger) 65%, transparent),
+			0 0 18px -4px color-mix(in oklab, var(--danger) 55%, transparent);
+	}
+	:root[data-look="depth"] .btn.btn-danger:not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled):focus-visible:not(.btn-icon-inline, [aria-pressed="true"], :active) {
+		box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--danger) 65%, transparent),
+			0 0 18px -4px color-mix(in oklab, var(--danger) 55%, transparent), var(--focus-glow);
+	}
+	:root[data-look="depth"] .btn.btn-tone-accent:not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled):focus-visible:not(.btn-icon-inline, [aria-pressed="true"], :active) {
+		box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--accent) 65%, transparent),
+			0 0 18px -4px color-mix(in oklab, var(--accent) 55%, transparent), var(--focus-glow);
+	}
+	:root[data-look="depth"] .btn.btn-tone-success:not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled):focus-visible:not(.btn-icon-inline, [aria-pressed="true"], :active) {
+		box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--ok) 65%, transparent),
+			0 0 18px -4px color-mix(in oklab, var(--ok) 55%, transparent), var(--focus-glow);
+	}
+	:root[data-look="depth"] .btn.btn-tone-info:not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled):focus-visible:not(.btn-icon-inline, [aria-pressed="true"], :active) {
+		box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--info) 65%, transparent),
+			0 0 18px -4px color-mix(in oklab, var(--info) 55%, transparent), var(--focus-glow);
+	}
+	:root[data-look="depth"] .btn.btn-tone-warn:not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled):focus-visible:not(.btn-icon-inline, [aria-pressed="true"], :active) {
+		box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--warn) 65%, transparent),
+			0 0 18px -4px color-mix(in oklab, var(--warn) 55%, transparent), var(--focus-glow);
+	}
+	:root[data-look="depth"] .btn.btn-tone-danger:not(.btn-primary, .btn-ghost, .btn-link):hover:not(:disabled):focus-visible:not(.btn-icon-inline, [aria-pressed="true"], :active) {
+		box-shadow: var(--depth-hl-strong), 0 0 0 1px color-mix(in oklab, var(--danger) 65%, transparent),
+			0 0 18px -4px color-mix(in oklab, var(--danger) 55%, transparent), var(--focus-glow);
 	}
 	:root[data-look="depth"] .btn.btn-link:hover:not(:disabled),
 	:root[data-look="depth"] .btn.btn-icon-inline:hover:not(:disabled) {
@@ -403,26 +868,33 @@
 	}
 }
 :root[data-look="depth"] .btn:active:not(:disabled, [aria-disabled="true"], .loading, .btn-link, .btn-ghost, .btn-primary),
+:root[data-look="depth"] .btn:active:hover:focus-visible:not(:disabled, [aria-disabled="true"], .loading, .btn-link, .btn-ghost, .btn-primary),
+:root[data-look="depth"] [data-fx-hover="ember"] .btn.btn:active:not(:disabled, [aria-disabled="true"], .loading, .btn-link, .btn-ghost, .btn-primary),
 :root[data-look="depth"] .pop-trigger.canonical:active:not(:disabled) {
 	box-shadow: inset 0 1px 3px color-mix(in oklab, var(--depth-ink) 35%, transparent), var(--depth-ring);
 	filter: none;
 }
 :root[data-look="depth"] .btn.btn-primary:active:not(:disabled, [aria-disabled="true"], .loading),
+:root[data-look="depth"] .btn.btn-primary:active:hover:focus-visible:not(:disabled, [aria-disabled="true"], .loading),
+:root[data-look="depth"] [data-fx-hover="ember"] .btn.btn-primary:active:not(:disabled, [aria-disabled="true"], .loading),
 :root[data-look="depth"] .pop-trigger.trigger-primary:active:not(:disabled) {
 	filter: brightness(0.95);
 	box-shadow: inset 0 2px 4px color-mix(in oklab, color-mix(in oklab, var(--accent), var(--depth-ink) 70%) 35%, transparent),
 		0 0 0 1px color-mix(in oklab, var(--accent) 60%, transparent);
 }
-:root[data-look="depth"] .btn.btn-primary:focus-visible:not([aria-pressed="true"]) {
+:root[data-look="depth"] .btn.btn-primary:focus-visible:not([aria-pressed="true"]),
+:root[data-look="depth"] .btn.btn-primary:focus-visible:hover:not([aria-pressed="true"], :active) {
 	box-shadow: var(--depth-primary-edge), var(--depth-focus);
 }
 :root[data-look="depth"] .pop-trigger:focus-visible {
 	box-shadow: var(--depth-hl), var(--depth-focus);
 }
 :root[data-look="depth"] .btn:disabled {
-	--btn-shadow-rest: var(--depth-ring);
 	filter: saturate(0.5);
 	text-shadow: none;
+}
+:root[data-look="depth"] .btn:disabled:where(:not(.btn-link, .btn-stacked[aria-pressed="true"])) {
+	box-shadow: var(--depth-ring);
 }
 
 :root[data-look="depth"] .ts-mode {
@@ -535,8 +1007,8 @@
 :root[data-look="depth"] .slider input[type="range"]::-webkit-slider-runnable-track {
 	background: linear-gradient(
 		to right,
-		color-mix(in oklab, var(--slider-accent, var(--accent)), var(--depth-ink) 25%) 0%,
-		var(--slider-accent, var(--accent)) var(--pct),
+		color-mix(in oklab, var(--accent), var(--depth-ink) 25%) 0%,
+		var(--accent) var(--pct),
 		var(--depth-well) var(--pct)
 	);
 	box-shadow: var(--depth-well-shadow), 0 1px 0 color-mix(in oklab, var(--depth-lit) 10%, transparent);
@@ -546,7 +1018,7 @@
 	box-shadow: var(--depth-well-shadow), 0 1px 0 color-mix(in oklab, var(--depth-lit) 10%, transparent);
 }
 :root[data-look="depth"] .slider input[type="range"]::-moz-range-progress {
-	background: linear-gradient(90deg, color-mix(in oklab, var(--slider-accent, var(--accent)), var(--depth-ink) 25%), var(--slider-accent, var(--accent)));
+	background: linear-gradient(90deg, color-mix(in oklab, var(--accent), var(--depth-ink) 25%), var(--accent));
 }
 :root[data-look="depth"] .slider input[type="range"]::-webkit-slider-thumb {
 	background: var(--depth-knob-on);
@@ -580,7 +1052,7 @@
 }
 
 :root[data-look="depth"] .tablist {
-	padding-block: var(--sp-2) var(--sp-2-5, 10px);
+	padding-block: var(--sp-2) 10px;
 	border-bottom: 1px solid;
 	border-image: linear-gradient(90deg, color-mix(in oklab, var(--depth-line) 12%, transparent), transparent 90%) 1;
 }
@@ -610,9 +1082,11 @@
 :root[data-look="depth"][data-mode="light"] .tab.selected .icon {
 	color: var(--accent);
 }
-:root[data-look="depth"] .tab.selected .badge {
-	--badge-bg: color-mix(in oklab, var(--bg) 40%, transparent);
-	--badge-fg: var(--text);
+:root[data-look="depth"] .tab.selected .badge:where(:not(.active, .solid)) {
+	color: var(--text);
+}
+:root[data-look="depth"] .tab.selected .badge:where(:not(.active, .solid, .text)) {
+	background: color-mix(in oklab, var(--bg) 40%, transparent);
 }
 @media (hover: hover) and (pointer: fine) {
 	:root[data-look="depth"] .tab:hover:not(.selected, :disabled, .disabled) {
@@ -623,38 +1097,210 @@
 
 /* ---------- badges, dots, kbd, avatars ---------- */
 :root[data-look="depth"] .badge {
-	--badge-bg: var(--bg-elevated-2);
-	--badge-border: transparent;
 	box-shadow: var(--depth-hl-strong);
 }
-:root[data-look="depth"] .badge.toned {
-	--badge-bg: linear-gradient(
-		180deg,
-		color-mix(in oklab, var(--badge-tone) 10%, transparent),
-		color-mix(in oklab, var(--badge-tone) 5%, transparent)
-	);
-	--badge-border: transparent;
-	background: var(--badge-bg);
-	box-shadow: var(--depth-hl), inset 0 0 0 1px color-mix(in oklab, var(--badge-tone) 30%, transparent);
+:root[data-look="depth"] .badge:where(:not(.active, .solid, .interactive:hover, .role-pill)) {
+	border-color: transparent;
 }
-:root[data-look="depth"][data-mode="light"] .badge.toned {
-	--badge-bg: linear-gradient(
+:root[data-look="depth"] .badge.badge-ok {
+	background: linear-gradient(
 		180deg,
-		color-mix(in oklab, var(--badge-tone) 8%, transparent),
-		color-mix(in oklab, var(--badge-tone) 4%, transparent)
+		color-mix(in oklab, var(--ok) 10%, transparent),
+		color-mix(in oklab, var(--ok) 5%, transparent)
+	);
+	box-shadow: var(--depth-hl), inset 0 0 0 1px color-mix(in oklab, var(--ok) 30%, transparent);
+}
+:root[data-look="depth"] .badge.badge-warn {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, var(--warn) 10%, transparent),
+		color-mix(in oklab, var(--warn) 5%, transparent)
+	);
+	box-shadow: var(--depth-hl), inset 0 0 0 1px color-mix(in oklab, var(--warn) 30%, transparent);
+}
+:root[data-look="depth"] .badge.badge-danger {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, var(--danger) 10%, transparent),
+		color-mix(in oklab, var(--danger) 5%, transparent)
+	);
+	box-shadow: var(--depth-hl), inset 0 0 0 1px color-mix(in oklab, var(--danger) 30%, transparent);
+}
+:root[data-look="depth"] .badge.badge-info {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, var(--info) 10%, transparent),
+		color-mix(in oklab, var(--info) 5%, transparent)
+	);
+	box-shadow: var(--depth-hl), inset 0 0 0 1px color-mix(in oklab, var(--info) 30%, transparent);
+}
+:root[data-look="depth"] .badge.badge-accent {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, var(--accent) 10%, transparent),
+		color-mix(in oklab, var(--accent) 5%, transparent)
+	);
+	box-shadow: var(--depth-hl), inset 0 0 0 1px color-mix(in oklab, var(--accent) 30%, transparent);
+}
+:root[data-look="depth"] .badge.badge-muted {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, var(--text-muted) 10%, transparent),
+		color-mix(in oklab, var(--text-muted) 5%, transparent)
+	);
+	box-shadow: var(--depth-hl), inset 0 0 0 1px color-mix(in oklab, var(--text-muted) 30%, transparent);
+}
+:root[data-look="depth"] .badge.badge-violet {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, var(--c-violet) 10%, transparent),
+		color-mix(in oklab, var(--c-violet) 5%, transparent)
+	);
+	box-shadow: var(--depth-hl), inset 0 0 0 1px color-mix(in oklab, var(--c-violet) 30%, transparent);
+}
+:root[data-look="depth"] .badge.badge-custom {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, currentColor 10%, transparent),
+		color-mix(in oklab, currentColor 5%, transparent)
+	);
+	box-shadow: var(--depth-hl), inset 0 0 0 1px color-mix(in oklab, currentColor 30%, transparent);
+}
+:root[data-look="depth"][data-mode="light"] .badge.badge-ok:not(.text, .active, .solid) {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, var(--ok) 8%, transparent),
+		color-mix(in oklab, var(--ok) 4%, transparent)
+	);
+}
+:root[data-look="depth"][data-mode="light"] .badge.badge-warn:not(.text, .active, .solid) {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, var(--warn) 8%, transparent),
+		color-mix(in oklab, var(--warn) 4%, transparent)
+	);
+}
+:root[data-look="depth"][data-mode="light"] .badge.badge-danger:not(.text, .active, .solid) {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, var(--danger) 8%, transparent),
+		color-mix(in oklab, var(--danger) 4%, transparent)
+	);
+}
+:root[data-look="depth"][data-mode="light"] .badge.badge-info:not(.text, .active, .solid) {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, var(--info) 8%, transparent),
+		color-mix(in oklab, var(--info) 4%, transparent)
+	);
+}
+:root[data-look="depth"][data-mode="light"] .badge.badge-accent:not(.text, .active, .solid) {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, var(--accent) 8%, transparent),
+		color-mix(in oklab, var(--accent) 4%, transparent)
+	);
+}
+:root[data-look="depth"][data-mode="light"] .badge.badge-muted:not(.text, .active, .solid) {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, var(--text-muted) 8%, transparent),
+		color-mix(in oklab, var(--text-muted) 4%, transparent)
+	);
+}
+:root[data-look="depth"][data-mode="light"] .badge.badge-violet:not(.text, .active, .solid) {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, var(--c-violet) 8%, transparent),
+		color-mix(in oklab, var(--c-violet) 4%, transparent)
+	);
+}
+:root[data-look="depth"][data-mode="light"] .badge.badge-custom:not(.text, .active, .solid) {
+	background: linear-gradient(
+		180deg,
+		color-mix(in oklab, currentColor 8%, transparent),
+		color-mix(in oklab, currentColor 4%, transparent)
 	);
 }
 :root[data-look="depth"] .badge.text {
 	background: none;
 	box-shadow: none;
 }
-:root[data-look="depth"] .badge.active {
+:root[data-look="depth"] .badge:is(.active, .solid) {
 	background: var(--depth-primary);
 	color: var(--text-on-accent);
 	box-shadow: var(--depth-primary-edge), 0 0 12px -3px var(--depth-glow-c);
 }
-:root[data-look="depth"] .dot.glow {
-	box-shadow: 0 0 0 2px color-mix(in oklab, var(--dot-color) 22%, transparent), 0 0 10px 1px var(--dot-color);
+:root[data-look="depth"] .badge.solid.badge-ok:not(.active) {
+	background: linear-gradient(180deg, color-mix(in oklab, var(--ok), var(--text) 12%) 0%, var(--ok) 100%);
+	box-shadow: var(--depth-primary-edge), 0 0 12px -3px color-mix(in oklab, var(--ok) 55%, transparent);
+}
+:root[data-look="depth"] .badge.solid.badge-warn:not(.active) {
+	background: linear-gradient(180deg, color-mix(in oklab, var(--warn), var(--text) 12%) 0%, var(--warn) 100%);
+	box-shadow: var(--depth-primary-edge), 0 0 12px -3px color-mix(in oklab, var(--warn) 55%, transparent);
+}
+:root[data-look="depth"] .badge.solid.badge-danger:not(.active) {
+	background: linear-gradient(180deg, color-mix(in oklab, var(--danger), var(--text) 12%) 0%, var(--danger) 100%);
+	box-shadow: var(--depth-primary-edge), 0 0 12px -3px color-mix(in oklab, var(--danger) 55%, transparent);
+}
+:root[data-look="depth"] .badge.solid.badge-info:not(.active) {
+	background: linear-gradient(180deg, color-mix(in oklab, var(--info), var(--text) 12%) 0%, var(--info) 100%);
+	box-shadow: var(--depth-primary-edge), 0 0 12px -3px color-mix(in oklab, var(--info) 55%, transparent);
+}
+:root[data-look="depth"] .badge.solid.badge-muted:not(.active) {
+	background: linear-gradient(180deg, color-mix(in oklab, var(--text-muted), var(--text) 12%) 0%, var(--text-muted) 100%);
+	box-shadow: var(--depth-primary-edge), 0 0 12px -3px color-mix(in oklab, var(--text-muted) 55%, transparent);
+}
+:root[data-look="depth"] .badge.solid.badge-violet:not(.active) {
+	background: linear-gradient(180deg, color-mix(in oklab, var(--c-violet), var(--text) 12%) 0%, var(--c-violet) 100%);
+	box-shadow: var(--depth-primary-edge), 0 0 12px -3px color-mix(in oklab, var(--c-violet) 55%, transparent);
+}
+:root[data-look="depth"] .badge.solid.badge-custom:not(.active) {
+	background: linear-gradient(180deg, color-mix(in oklab, currentColor, var(--text) 12%) 0%, currentColor 100%);
+	box-shadow: var(--depth-primary-edge), 0 0 12px -3px color-mix(in oklab, currentColor 55%, transparent);
+}
+:root[data-look="depth"][data-mode="light"] .badge.solid.badge-ok:not(.active) {
+	background: linear-gradient(180deg, var(--ok) 0%, color-mix(in oklab, var(--ok), var(--text) 14%) 100%);
+	box-shadow: var(--depth-primary-edge), 0 0 12px -3px color-mix(in oklab, var(--ok) 40%, transparent);
+}
+:root[data-look="depth"][data-mode="light"] .badge.solid.badge-warn:not(.active) {
+	background: linear-gradient(180deg, var(--warn) 0%, color-mix(in oklab, var(--warn), var(--text) 14%) 100%);
+	box-shadow: var(--depth-primary-edge), 0 0 12px -3px color-mix(in oklab, var(--warn) 40%, transparent);
+}
+:root[data-look="depth"][data-mode="light"] .badge.solid.badge-danger:not(.active) {
+	background: linear-gradient(180deg, var(--danger) 0%, color-mix(in oklab, var(--danger), var(--text) 14%) 100%);
+	box-shadow: var(--depth-primary-edge), 0 0 12px -3px color-mix(in oklab, var(--danger) 40%, transparent);
+}
+:root[data-look="depth"][data-mode="light"] .badge.solid.badge-info:not(.active) {
+	background: linear-gradient(180deg, var(--info) 0%, color-mix(in oklab, var(--info), var(--text) 14%) 100%);
+	box-shadow: var(--depth-primary-edge), 0 0 12px -3px color-mix(in oklab, var(--info) 40%, transparent);
+}
+:root[data-look="depth"][data-mode="light"] .badge.solid.badge-muted:not(.active) {
+	background: linear-gradient(180deg, var(--text-muted) 0%, color-mix(in oklab, var(--text-muted), var(--text) 14%) 100%);
+	box-shadow: var(--depth-primary-edge), 0 0 12px -3px color-mix(in oklab, var(--text-muted) 40%, transparent);
+}
+:root[data-look="depth"][data-mode="light"] .badge.solid.badge-violet:not(.active) {
+	background: linear-gradient(180deg, var(--c-violet) 0%, color-mix(in oklab, var(--c-violet), var(--text) 14%) 100%);
+	box-shadow: var(--depth-primary-edge), 0 0 12px -3px color-mix(in oklab, var(--c-violet) 40%, transparent);
+}
+:root[data-look="depth"][data-mode="light"] .badge.solid.badge-custom:not(.active) {
+	background: linear-gradient(180deg, currentColor 0%, color-mix(in oklab, currentColor, var(--text) 14%) 100%);
+	box-shadow: var(--depth-primary-edge), 0 0 12px -3px color-mix(in oklab, currentColor 40%, transparent);
+}
+:root[data-look="depth"] .dot-colored.glow {
+	box-shadow: 0 0 0 2px color-mix(in oklab, currentColor 22%, transparent), 0 0 10px 1px currentColor;
+}
+:root[data-look="depth"] .dot-active.glow {
+	box-shadow: 0 0 0 2px color-mix(in oklab, var(--dot-active) 22%, transparent), 0 0 10px 1px var(--dot-active);
+}
+:root[data-look="depth"] .dot-stale.glow {
+	box-shadow: 0 0 0 2px color-mix(in oklab, var(--dot-stale) 22%, transparent), 0 0 10px 1px var(--dot-stale);
+}
+:root[data-look="depth"] .dot-dead.glow {
+	box-shadow: 0 0 0 2px color-mix(in oklab, var(--dot-dead) 22%, transparent), 0 0 10px 1px var(--dot-dead);
+}
+:root[data-look="depth"] .dot-hibernated.glow {
+	box-shadow: 0 0 0 2px color-mix(in oklab, var(--dot-hibernated) 22%, transparent), 0 0 10px 1px var(--dot-hibernated);
 }
 :root[data-look="depth"] .kbd {
 	background: var(--depth-btn-fill) border-box;
@@ -676,29 +1322,23 @@
 }
 
 /* ---------- callouts ---------- */
-:root[data-look="depth"] .callout.callout-ok {
-	--callout-tone: var(--ok);
+:root[data-look="depth"] .callout-neutral .callout-icon {
+	filter: drop-shadow(0 0 6px color-mix(in oklab, var(--text-muted) 70%, transparent));
 }
-:root[data-look="depth"] .callout.callout-warn {
-	--callout-tone: var(--warn);
+:root[data-look="depth"] .callout-ok .callout-icon {
+	filter: drop-shadow(0 0 6px color-mix(in oklab, var(--ok) 70%, transparent));
 }
-:root[data-look="depth"] .callout.callout-danger {
-	--callout-tone: var(--danger);
+:root[data-look="depth"] .callout-warn .callout-icon {
+	filter: drop-shadow(0 0 6px color-mix(in oklab, var(--warn) 70%, transparent));
 }
-:root[data-look="depth"] .callout.callout-info {
-	--callout-tone: var(--info);
+:root[data-look="depth"] .callout-danger .callout-icon {
+	filter: drop-shadow(0 0 6px color-mix(in oklab, var(--danger) 70%, transparent));
 }
-:root[data-look="depth"] .callout.callout-accent {
-	--callout-tone: var(--accent);
+:root[data-look="depth"] .callout-info .callout-icon {
+	filter: drop-shadow(0 0 6px color-mix(in oklab, var(--info) 70%, transparent));
 }
-:root[data-look="depth"] .card.callout {
-	--depth-card-tint: linear-gradient(100deg, color-mix(in oklab, var(--callout-tone) 8%, transparent), color-mix(in oklab, var(--callout-tone) 2%, transparent) 70%);
-	--depth-card-edge: color-mix(in oklab, var(--callout-tone) 55%, transparent) color-mix(in oklab, var(--callout-tone) 28%, transparent)
-		color-mix(in oklab, var(--callout-tone) 14%, transparent);
-	--card-shadow-rest: var(--depth-hl), var(--depth-drop-1), 0 8px 24px -16px color-mix(in oklab, var(--callout-tone) 80%, transparent);
-}
-:root[data-look="depth"] .callout .callout-icon {
-	filter: drop-shadow(0 0 6px color-mix(in oklab, var(--callout-tone) 70%, transparent));
+:root[data-look="depth"] .callout-accent .callout-icon {
+	filter: drop-shadow(0 0 6px color-mix(in oklab, var(--accent) 70%, transparent));
 }
 
 /* ---------- lists, tables, accordion ---------- */
@@ -753,16 +1393,70 @@
 :root[data-look="depth"][data-mode="light"] .gauge {
 	box-shadow: var(--depth-well-shadow), inset 0 0 0 1px color-mix(in oklab, var(--depth-line) 6%, transparent);
 }
-:root[data-look="depth"] .progress:not(.striped, .gradient) .bar {
-	background: linear-gradient(90deg, color-mix(in oklab, var(--fill, var(--accent)), var(--depth-ink) 30%), var(--fill, var(--accent)));
+:root[data-look="depth"] .progress:not(.striped, .gradient, .colored) .bar {
+	background: linear-gradient(90deg, color-mix(in oklab, var(--accent), var(--depth-ink) 30%), var(--accent));
 }
-:root[data-look="depth"] .progress .bar {
-	box-shadow: 0 0 12px color-mix(in oklab, var(--fill, var(--accent)) 60%, transparent),
+:root[data-look="depth"] .progress.tone-success:not(.striped, .gradient, .colored) .bar {
+	background: linear-gradient(90deg, color-mix(in oklab, var(--ok), var(--depth-ink) 30%), var(--ok));
+}
+:root[data-look="depth"] .progress.tone-info:not(.striped, .gradient, .colored) .bar {
+	background: linear-gradient(90deg, color-mix(in oklab, var(--info), var(--depth-ink) 30%), var(--info));
+}
+:root[data-look="depth"] .progress.tone-neutral:not(.striped, .gradient, .colored) .bar {
+	background: linear-gradient(90deg, color-mix(in oklab, var(--text-faint), var(--depth-ink) 30%), var(--text-faint));
+}
+:root[data-look="depth"] .progress.tone-warn:not(.striped, .gradient, .colored) .bar {
+	background: linear-gradient(90deg, color-mix(in oklab, var(--warn), var(--depth-ink) 30%), var(--warn));
+}
+:root[data-look="depth"] .progress.tone-danger:not(.striped, .gradient, .colored) .bar {
+	background: linear-gradient(90deg, color-mix(in oklab, var(--danger), var(--depth-ink) 30%), var(--danger));
+}
+:root[data-look="depth"] .progress:not(.colored) .bar {
+	box-shadow: 0 0 12px color-mix(in oklab, var(--accent) 60%, transparent),
 		inset 0 1px 0 color-mix(in oklab, var(--depth-lit) 30%, transparent);
 }
-:root[data-look="depth"] .gauge .fill,
-:root[data-look="depth"] .gauge .segment.lit {
-	box-shadow: 0 0 8px color-mix(in oklab, var(--gauge-fill) 60%, transparent);
+:root[data-look="depth"] .progress.tone-success:not(.colored) .bar {
+	box-shadow: 0 0 12px color-mix(in oklab, var(--ok) 60%, transparent),
+		inset 0 1px 0 color-mix(in oklab, var(--depth-lit) 30%, transparent);
+}
+:root[data-look="depth"] .progress.tone-info:not(.colored) .bar {
+	box-shadow: 0 0 12px color-mix(in oklab, var(--info) 60%, transparent),
+		inset 0 1px 0 color-mix(in oklab, var(--depth-lit) 30%, transparent);
+}
+:root[data-look="depth"] .progress.tone-neutral:not(.colored) .bar {
+	box-shadow: 0 0 12px color-mix(in oklab, var(--text-faint) 60%, transparent),
+		inset 0 1px 0 color-mix(in oklab, var(--depth-lit) 30%, transparent);
+}
+:root[data-look="depth"] .progress.tone-warn:not(.colored) .bar {
+	box-shadow: 0 0 12px color-mix(in oklab, var(--warn) 60%, transparent),
+		inset 0 1px 0 color-mix(in oklab, var(--depth-lit) 30%, transparent);
+}
+:root[data-look="depth"] .progress.tone-danger:not(.colored) .bar {
+	box-shadow: 0 0 12px color-mix(in oklab, var(--danger) 60%, transparent),
+		inset 0 1px 0 color-mix(in oklab, var(--depth-lit) 30%, transparent);
+}
+:root[data-look="depth"] .progress.colored:not(.striped, .gradient) .bar {
+	background: linear-gradient(90deg, color-mix(in oklab, currentColor, var(--depth-ink) 30%), currentColor);
+}
+:root[data-look="depth"] .progress.colored .bar {
+	box-shadow: 0 0 12px color-mix(in oklab, currentColor 60%, transparent),
+		inset 0 1px 0 color-mix(in oklab, var(--depth-lit) 30%, transparent);
+}
+:root[data-look="depth"] .gauge.interactive:hover,
+:root[data-look="depth"] .gauge.interactive:is(.tone-ok, .tone-warn, .tone-danger):hover {
+	border-color: transparent;
+}
+:root[data-look="depth"] .gauge.tone-ok .fill,
+:root[data-look="depth"] .gauge.tone-ok .segment.lit {
+	box-shadow: 0 0 8px color-mix(in oklab, var(--ok) 60%, transparent);
+}
+:root[data-look="depth"] .gauge.tone-warn .fill,
+:root[data-look="depth"] .gauge.tone-warn .segment.lit {
+	box-shadow: 0 0 8px color-mix(in oklab, var(--warn) 60%, transparent);
+}
+:root[data-look="depth"] .gauge.tone-danger .fill,
+:root[data-look="depth"] .gauge.tone-danger .segment.lit {
+	box-shadow: 0 0 8px color-mix(in oklab, var(--danger) 60%, transparent);
 }
 :root[data-look="depth"] .gauge .segment {
 	background: color-mix(in oklab, var(--text) 7%, transparent);
@@ -771,15 +1465,60 @@
 	color: var(--accent);
 	filter: drop-shadow(0 0 4px var(--depth-glow-c));
 }
+:root[data-look="depth"] .skeleton-bar {
+	background-image: linear-gradient(100deg, var(--skeleton) 42%, var(--skeleton-highlight) 50%, var(--skeleton) 58%);
+	background-color: var(--skeleton);
+}
+:root[data-look="depth"] :is(.v-sheen, .v-pulse) .skeleton-bar {
+	background-image: none;
+}
+:root[data-look="depth"] .v-sheen .skeleton-bar::after {
+	background: linear-gradient(100deg, transparent 20%, var(--skeleton-highlight) 50%, transparent 80%);
+}
+@media (prefers-reduced-motion: reduce) {
+	:root[data-look="depth"] .skeleton-bar {
+		background-image: none;
+	}
+}
 
 /* ---------- chat ---------- */
 :root[data-look="depth"] .bubble {
-	background:
-		linear-gradient(180deg, color-mix(in oklab, var(--role) 6%, transparent), color-mix(in oklab, var(--role) 2%, transparent)) padding-box,
-		var(--depth-fill-2) padding-box;
-	border-color: color-mix(in oklab, var(--role) 45%, transparent) color-mix(in oklab, var(--role) 25%, transparent) color-mix(in oklab, var(--role) 10%, transparent);
 	border-inline-start-width: 1px;
-	box-shadow: var(--depth-hl), inset 2px 0 0 var(--role), var(--depth-drop-1);
+}
+:root[data-look="depth"] .bubble[class*="role-"] {
+	background:
+		linear-gradient(180deg, color-mix(in oklab, var(--role-assistant) 6%, transparent), color-mix(in oklab, var(--role-assistant) 2%, transparent)) padding-box,
+		var(--depth-fill-2) padding-box;
+	border-color: color-mix(in oklab, var(--role-assistant) 45%, transparent) color-mix(in oklab, var(--role-assistant) 25%, transparent) color-mix(in oklab, var(--role-assistant) 10%, transparent);
+	box-shadow: var(--depth-hl), inset 2px 0 0 var(--role-assistant), var(--depth-drop-1);
+}
+:root[data-look="depth"] .bubble.role-user {
+	background:
+		linear-gradient(180deg, color-mix(in oklab, var(--role-user) 6%, transparent), color-mix(in oklab, var(--role-user) 2%, transparent)) padding-box,
+		var(--depth-fill-2) padding-box;
+	border-color: color-mix(in oklab, var(--role-user) 45%, transparent) color-mix(in oklab, var(--role-user) 25%, transparent) color-mix(in oklab, var(--role-user) 10%, transparent);
+	box-shadow: var(--depth-hl), inset 2px 0 0 var(--role-user), var(--depth-drop-1);
+}
+:root[data-look="depth"] .bubble.role-system {
+	background:
+		linear-gradient(180deg, color-mix(in oklab, var(--role-system) 6%, transparent), color-mix(in oklab, var(--role-system) 2%, transparent)) padding-box,
+		var(--depth-fill-2) padding-box;
+	border-color: color-mix(in oklab, var(--role-system) 45%, transparent) color-mix(in oklab, var(--role-system) 25%, transparent) color-mix(in oklab, var(--role-system) 10%, transparent);
+	box-shadow: var(--depth-hl), inset 2px 0 0 var(--role-system), var(--depth-drop-1);
+}
+:root[data-look="depth"] .bubble.role-tool {
+	background:
+		linear-gradient(180deg, color-mix(in oklab, var(--role-tool) 6%, transparent), color-mix(in oklab, var(--role-tool) 2%, transparent)) padding-box,
+		var(--depth-fill-2) padding-box;
+	border-color: color-mix(in oklab, var(--role-tool) 45%, transparent) color-mix(in oklab, var(--role-tool) 25%, transparent) color-mix(in oklab, var(--role-tool) 10%, transparent);
+	box-shadow: var(--depth-hl), inset 2px 0 0 var(--role-tool), var(--depth-drop-1);
+}
+:root[data-look="depth"] .bubble.role-mcp {
+	background:
+		linear-gradient(180deg, color-mix(in oklab, var(--role-mcp) 6%, transparent), color-mix(in oklab, var(--role-mcp) 2%, transparent)) padding-box,
+		var(--depth-fill-2) padding-box;
+	border-color: color-mix(in oklab, var(--role-mcp) 45%, transparent) color-mix(in oklab, var(--role-mcp) 25%, transparent) color-mix(in oklab, var(--role-mcp) 10%, transparent);
+	box-shadow: var(--depth-hl), inset 2px 0 0 var(--role-mcp), var(--depth-drop-1);
 }
 
 /* ---------- raised layer: menus, popovers, modal, toast ---------- */
@@ -788,10 +1527,11 @@
 	background: var(--depth-fill-2) padding-box;
 	border-color: var(--depth-edge-2);
 }
+:root[data-look="depth"] .card:where(.toaster .toast) {
+	border-color: var(--depth-edge-2);
+}
 :root[data-look="depth"] .toaster .toast {
-	--depth-card-fill: var(--depth-fill-2);
-	--depth-card-edge: var(--depth-edge-2);
-	--card-shadow-rest: var(--depth-hl-strong), var(--depth-drop-raised);
+	box-shadow: var(--depth-hl-strong), var(--depth-drop-raised);
 }
 :root[data-look="depth"] .menu-item {
 	border-radius: calc(var(--r-md) - 2px);
@@ -839,10 +1579,29 @@
 		--press-scale-sm: 0.94;
 		--press-scale-lg: 0.99;
 	}
-	:root[data-look="depth"] .card.card-tap {
-		--hover-lift: 2px;
+	:root[data-look="depth"] .btn {
+		transition:
+			background var(--dur-fast) var(--ease),
+			border-color var(--dur-fast) var(--ease),
+			color var(--dur-fast) var(--ease),
+			box-shadow var(--dur-fast) var(--ease-out),
+			filter var(--dur-fast) var(--ease),
+			opacity var(--dur-fast) var(--ease),
+			translate var(--dur-fast) var(--ease-out),
+			scale var(--dur-release) var(--ease-spring);
 	}
-	:root[data-look="depth"] .btn,
+	:root[data-look="depth"] .btn:active:not(:disabled, [aria-disabled="true"], .loading, .btn-link),
+	:root[data-look="depth"] .select-button:active .btn.btn-ghost {
+		transition:
+			background var(--dur-fast) var(--ease),
+			border-color var(--dur-fast) var(--ease),
+			color var(--dur-fast) var(--ease),
+			box-shadow var(--dur-fast) var(--ease-out),
+			filter var(--dur-fast) var(--ease),
+			opacity var(--dur-fast) var(--ease),
+			translate var(--dur-fast) var(--ease-out),
+			scale var(--dur-press) var(--ease-spring);
+	}
 	:root[data-look="depth"] .pop-trigger {
 		transition:
 			background var(--dur-fast) var(--ease),
@@ -852,7 +1611,7 @@
 			filter var(--dur-fast) var(--ease),
 			opacity var(--dur-fast) var(--ease),
 			translate var(--dur-fast) var(--ease-out),
-			scale var(--btn-scale-dur, var(--dur-fast)) var(--ease-spring);
+			scale var(--dur-fast) var(--ease-spring);
 	}
 	:root[data-look="depth"] .btn .icon,
 	:root[data-look="depth"] .pop-trigger .icon,
@@ -866,22 +1625,279 @@
 	}
 }
 @media (hover: hover) and (pointer: fine) {
-	:root[data-look="depth"] .card:hover {
-		--depth-spot: radial-gradient(
-			22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem),
-			var(--depth-spot-on-tint),
-			transparent 70%
-		);
+	:root[data-look="depth"] .card:where(:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-none) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.surface-raised:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-none) padding-box,
+			var(--depth-fill-2) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.surface-sunken:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-none) padding-box,
+			linear-gradient(var(--depth-well), var(--depth-well)) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-ok:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-tint-ok) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-warn:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-tint-warn) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-danger:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-tint-danger) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-info:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-tint-info) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-accent:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-tint-accent) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-ok.surface-raised:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-tint-ok) padding-box,
+			var(--depth-fill-2) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-warn.surface-raised:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-tint-warn) padding-box,
+			var(--depth-fill-2) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-danger.surface-raised:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-tint-danger) padding-box,
+			var(--depth-fill-2) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-info.surface-raised:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-tint-info) padding-box,
+			var(--depth-fill-2) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-accent.surface-raised:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-tint-accent) padding-box,
+			var(--depth-fill-2) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.callout-neutral:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-wash-neutral) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.callout-ok:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-wash-ok) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.callout-warn:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-wash-warn) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.callout-danger:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-wash-danger) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.callout-info:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-wash-info) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.callout-accent:hover) {
+		background:
+			radial-gradient(22rem circle at var(--pointer-x, -100rem) var(--pointer-y, -100rem), var(--depth-spot-on-tint), transparent 70%) padding-box,
+			var(--depth-wash-accent) padding-box,
+			var(--depth-fill-1) padding-box;
 	}
 	:root[data-look="depth"] .card.card-tap:hover {
-		--depth-spot: radial-gradient(
-			18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%),
-			var(--depth-spot-tap-tint),
-			transparent 70%
-		);
-		--depth-card-edge: color-mix(in oklab, var(--accent) 75%, transparent) color-mix(in oklab, var(--accent) 45%, transparent)
+		border-color: color-mix(in oklab, var(--accent) 75%, transparent) color-mix(in oklab, var(--accent) 45%, transparent)
 			color-mix(in oklab, var(--accent) 22%, transparent);
-		border-color: var(--depth-card-edge);
+	}
+	:root[data-look="depth"] .card:where(.card-tap:hover) {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-none) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-tap.surface-raised:hover) {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-none) padding-box,
+			var(--depth-fill-2) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-tap.surface-sunken:hover) {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-none) padding-box,
+			linear-gradient(var(--depth-well), var(--depth-well)) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-tap.card-ok:hover) {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-ok) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-tap.card-warn:hover) {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-warn) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-tap.card-danger:hover) {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-danger) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-tap.card-info:hover) {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-info) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-tap.card-accent:hover) {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-accent) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-tap.card-ok.surface-raised:hover) {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-ok) padding-box,
+			var(--depth-fill-2) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-tap.card-warn.surface-raised:hover) {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-warn) padding-box,
+			var(--depth-fill-2) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-tap.card-danger.surface-raised:hover) {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-danger) padding-box,
+			var(--depth-fill-2) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-tap.card-info.surface-raised:hover) {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-info) padding-box,
+			var(--depth-fill-2) padding-box;
+	}
+	:root[data-look="depth"] .card:where(.card-tap.card-accent.surface-raised:hover) {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-accent) padding-box,
+			var(--depth-fill-2) padding-box;
+	}
+	:root[data-look="depth"] .card.card-tap:active:hover {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-none) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card.card-tap.surface-raised:active:hover {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-none) padding-box,
+			var(--depth-fill-2) padding-box;
+	}
+	:root[data-look="depth"] .card.card-tap.surface-sunken:active:hover {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-none) padding-box,
+			linear-gradient(var(--depth-well), var(--depth-well)) padding-box;
+	}
+	:root[data-look="depth"] .card.card-tap.card-ok:active:hover {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-ok) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card.card-tap.card-warn:active:hover {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-warn) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card.card-tap.card-danger:active:hover {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-danger) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card.card-tap.card-info:active:hover {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-info) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card.card-tap.card-accent:active:hover {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-accent) padding-box,
+			var(--depth-fill-1) padding-box;
+	}
+	:root[data-look="depth"] .card.card-tap.card-ok.surface-raised:active:hover {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-ok) padding-box,
+			var(--depth-fill-2) padding-box;
+	}
+	:root[data-look="depth"] .card.card-tap.card-warn.surface-raised:active:hover {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-warn) padding-box,
+			var(--depth-fill-2) padding-box;
+	}
+	:root[data-look="depth"] .card.card-tap.card-danger.surface-raised:active:hover {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-danger) padding-box,
+			var(--depth-fill-2) padding-box;
+	}
+	:root[data-look="depth"] .card.card-tap.card-info.surface-raised:active:hover {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-info) padding-box,
+			var(--depth-fill-2) padding-box;
+	}
+	:root[data-look="depth"] .card.card-tap.card-accent.surface-raised:active:hover {
+		background:
+			radial-gradient(18rem circle at var(--pointer-x, 50%) var(--pointer-y, 0%), var(--depth-spot-tap-tint), transparent 70%) padding-box,
+			var(--depth-tint-accent) padding-box,
+			var(--depth-fill-2) padding-box;
 	}
 	:root[data-look="depth"] .checkbox:hover input:not(:checked, :indeterminate, :disabled) + .box,
 	:root[data-look="depth"] .radio:hover input:not(:checked, :disabled) + .dot-ctl,
@@ -904,6 +1920,9 @@
 	}
 }
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
+	:root[data-look="depth"] .card.card-tap:hover:not(.card-row) {
+		translate: 0 -2px;
+	}
 	:root[data-look="depth"] .pop-trigger.canonical:hover:not(:disabled),
 	:root[data-look="depth"] .pop-trigger.trigger-primary:hover:not(:disabled) {
 		translate: 0 -1px;

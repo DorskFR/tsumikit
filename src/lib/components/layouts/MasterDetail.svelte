@@ -38,7 +38,7 @@
 		breakpoint?: string;
 		/** Space between the two columns (any CSS length). */
 		gap?: string;
-		/** Seam between the panes; `--md-divider` overrides it with any border shorthand. */
+		/** Seam between the panes. */
 		divider?: 'border' | 'none';
 		selected?: boolean;
 		onback?: () => void;
@@ -105,9 +105,10 @@
 	class="md {klass}"
 	class:mobile
 	class:selected
-	style="--md-list-w: {listWidth}; --md-gap: {gap}; --md-divider: {divider === 'none'
-		? 'none'
-		: 'var(--edge-width) solid var(--surface-edge)'};{style ? ` ${style}` : ''}"
+	class:no-divider={divider === 'none'}
+	style:grid-template-columns={mobile ? undefined : `${listWidth} minmax(0, 1fr)`}
+	style:gap={mobile ? undefined : gap}
+	{style}
 	data-tsu="MasterDetail"
 	{...rest}
 >
@@ -143,8 +144,6 @@
 <style>
 	.md {
 		display: grid;
-		grid-template-columns: var(--md-list-w) minmax(0, 1fr);
-		gap: var(--md-gap, 0);
 		min-width: 0;
 		min-height: 0;
 		height: 100%;
@@ -159,7 +158,10 @@
 		-webkit-overflow-scrolling: touch;
 	}
 	.md-list {
-		border-right: var(--md-divider, var(--edge-width) solid var(--surface-edge));
+		border-right: var(--edge-width) solid var(--surface-edge);
+	}
+	.no-divider .md-list {
+		border-right: none;
 	}
 	.md-detail {
 		display: flex;

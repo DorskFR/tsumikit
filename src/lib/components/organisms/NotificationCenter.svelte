@@ -331,7 +331,7 @@
 			side="bottom"
 			{title}
 			class="nc-panel nc-sheet"
-			style="--drawer-body-pad: 0"
+			flush
 			header={sheetHead}
 			footer={footerSnippet ? sheetFoot : undefined}
 			onclose={onSheetClose}

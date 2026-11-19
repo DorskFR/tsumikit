@@ -418,13 +418,6 @@
 	.rich-select {
 		display: block;
 		min-width: 0;
-		--rs-height: var(--control-md);
-	}
-	.rich-select.box-sm {
-		--rs-height: var(--control-sm);
-	}
-	.rich-select.box-lg {
-		--rs-height: var(--control-lg);
 	}
 	.rich-select :global(.pop-trigger.rs-trigger) {
 		display: flex;
@@ -433,7 +426,7 @@
 		box-sizing: border-box;
 		width: 100%;
 		min-width: 0;
-		min-height: var(--rs-height);
+		min-height: var(--control-md);
 		padding: var(--sp-1) var(--sp-2) var(--sp-1) var(--sp-1);
 		border: var(--edge-width) solid var(--control-edge);
 		border-radius: var(--r-md);
@@ -445,6 +438,12 @@
 		transition:
 			border-color var(--dur-fast) var(--ease),
 			scale var(--dur-fast) var(--ease-out);
+	}
+	.rich-select.box-sm :global(.pop-trigger.rs-trigger) {
+		min-height: var(--control-sm);
+	}
+	.rich-select.box-lg :global(.pop-trigger.rs-trigger) {
+		min-height: var(--control-lg);
 	}
 	.rich-select :global(.pop-trigger.rs-trigger:focus-visible) {
 		outline: var(--focus-ring);
@@ -485,8 +484,10 @@
 		display: inline-flex;
 		flex: none;
 		color: var(--text-muted);
-		--icon-size: var(--control-icon-md);
 		transition: rotate var(--dur-fast) var(--ease-out);
+	}
+	.rs-chevron :global(.icon) {
+		font-size: var(--control-icon-md);
 	}
 	.rich-select.is-open .rs-chevron {
 		rotate: 180deg;

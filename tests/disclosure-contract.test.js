@@ -232,21 +232,20 @@ test('Disclosure is exported and documented', () => {
 	assert.match(readme, /Accordion \(a stack of Disclosures/);
 });
 
-test('Disclosure size="compact" shrinks header and panel through custom properties (TSU-166)', () => {
-	// The density knobs are properties, so `compact` is one place to retune and a
-	// consumer can reach the same dials without a `:global(` override.
+test('Disclosure size="compact" shrinks header and panel (TSU-166)', () => {
 	assert.match(disclosure, /type DisclosureSize = 'default' \| 'compact'/);
 	assert.match(disclosure, /size\?: DisclosureSize;/);
 	assert.match(disclosure, /size = 'default'/);
 	assert.match(disclosure, /class:disclosure--compact={size === 'compact'}/);
-	assert.ok(hasDecl(disclosure, '.disclosure__button', 'padding', 'var(--disclosure-pad, var(--sp-3) var(--sp-4))'));
-	assert.ok(hasDecl(disclosure, '.disclosure__button', 'font-size', 'var(--disclosure-fs, var(--fs-sm))'));
-	assert.ok(hasDecl(disclosure, '.disclosure__body', 'padding', 'var(--disclosure-panel-pad, 0 var(--sp-4) var(--sp-4))'));
-	const compact = rule(disclosure, '.disclosure--compact');
-	assert.equal(compact['--disclosure-pad'], 'var(--sp-1) var(--sp-2)');
-	assert.equal(compact['--disclosure-fs'], 'var(--fs-xs)');
-	assert.equal(compact['--disclosure-panel-pad'], '0 var(--sp-2) var(--sp-2)');
-	// Default is untouched: no density class, so every fallback applies.
+	assert.ok(hasDecl(disclosure, '.disclosure__button', 'padding', 'var(--sp-3) var(--sp-4)'));
+	assert.ok(hasDecl(disclosure, '.disclosure__button', 'font-size', 'var(--fs-sm)'));
+	assert.ok(hasDecl(disclosure, '.disclosure__panel', 'font-size', 'var(--fs-sm)'));
+	assert.ok(hasDecl(disclosure, '.disclosure__body', 'padding', '0 var(--sp-4) var(--sp-4)'));
+	assert.ok(hasDecl(disclosure, '.disclosure--compact .disclosure__button', 'padding', 'var(--sp-1) var(--sp-2)'));
+	assert.ok(hasDecl(disclosure, '.disclosure--compact .disclosure__button', 'font-size', 'var(--fs-xs)'));
+	assert.ok(hasDecl(disclosure, '.disclosure--compact .disclosure__panel', 'font-size', 'var(--fs-xs)'));
+	assert.ok(hasDecl(disclosure, '.disclosure--compact .disclosure__body', 'padding', '0 var(--sp-2) var(--sp-2)'));
+	assert.doesNotMatch(disclosure, /--disclosure-/);
 	assert.equal(render().root.classList.contains('disclosure--compact'), false);
 	assert.equal(render({ size: 'compact' }).root.classList.contains('disclosure--compact'), true);
 });
@@ -358,4 +357,21 @@ test('the panel is a landmark only when region is set', () => {
 	assert.equal(landmark.panel.getAttribute('role'), 'region');
 	assert.equal(landmark.panel.getAttribute('aria-labelledby'), landmark.button.id);
 	assert.match(disclosure, /region = false,/);
+});
+
+test('Disclosure flush drops the padding around the header and the panel', () => {
+	assert.match(disclosure, /flush = false,/);
+	assert.match(disclosure, /flush\?: boolean;/);
+	const css = disclosure.slice(disclosure.indexOf('<style>'));
+	assert.match(
+		css,
+		/\.disclosure--flush \.disclosure__button,\s*\.disclosure--flush \.disclosure__body\s*{\s*padding: 0;\s*}/
+	);
+	assert.ok(
+		css.indexOf('.disclosure--flush') > css.indexOf('.disclosure--compact .disclosure__body'),
+		'flush follows compact so it wins on a compact disclosure'
+	);
+	assert.equal(render().root.classList.contains('disclosure--flush'), false);
+	assert.equal(render({ flush: true }).root.classList.contains('disclosure--flush'), true);
+	assert.equal(render({ flush: true, size: 'compact' }).root.classList.contains('disclosure--compact'), true);
 });

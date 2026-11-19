@@ -72,21 +72,30 @@ test('sweep and highlight paint on .link-ink, never on the link box', () => {
 	const scope = (/** @type {string} */ v) => `[data-fx-link='${v}'] [data-fx-link]:not([data-fx-link='${v}'])`;
 	assert.ok(css.includes(scope('sweep')) && css.includes(scope('highlight')), 'closest-ancestor selectors kept');
 	assert.ok(css.includes(":not([data-fx-link]:not([data-fx-link='sweep'])"), 'sweep stays the default');
-	const blocks = [...css.matchAll(/\.link-ink \{([^{}]*)\}/g)].map((m) => m[1]).filter((b) => b.includes('background'));
+	const blocks = [...css.matchAll(/(?:^|[{};] )\.link-ink \{([^{}]*)\}/g)].map((m) => m[1]).filter((b) => b.includes('background'));
 	assert.equal(blocks.length, 2, 'one ink block per variant');
 	const [sweep, highlight] = blocks;
+	const raised = [...css.matchAll(/&(\.underline-always)?(:hover|:is\(:focus-visible, :active\)) \.link-ink \{([^{}]*)\}/g)];
+	assert.equal(raised.length, 6, 'hover and focus/press raise the ink per variant');
 	assert.match(sweep, /background-image: linear-gradient\(currentColor, currentColor\)/);
-	assert.match(sweep, /background-position: var\(--link-on, 100%\) 100%, 0 100%;/);
-	assert.match(sweep, /background-size: var\(--link-draw, 0%\) 1\.5px, var\(--link-base\) 1px;/);
+	assert.match(sweep, /background-position: 100% 100%, 0 100%;/);
+	assert.match(sweep, /background-size: 0% 1\.5px, 0% 1px;/);
+	assert.match(css, /&\.underline-always \.link-ink \{ background-size: 0% 1\.5px, 100% 1px; \}/);
+	assert.match(css, /&:hover \.link-ink \{ background-position: 0% 100%, 0 100%; background-size: 100% 1\.5px, 0% 1px; \}/);
+	assert.match(css, /&\.underline-always:hover \.link-ink \{ background-size: 100% 1\.5px, 100% 1px; \}/);
 	assert.match(sweep, /transition: background-size var\(--dur-fast\) var\(--ease-out\);/);
-	assert.match(highlight, /background-size: var\(--link-draw, 0%\) 100%;/);
+	assert.match(highlight, /background-size: 0% 100%;/);
 	assert.match(css, /\.link-text, \.link-ink \{ margin-inline: -0\.18em; padding-inline: 0\.18em; \}/, 'each level holds the marker overhang in its own padding');
-	assert.match(highlight, /transition: background-size var\(--link-grow, var\(--dur-instant\)\) var\(--ease-out\) var\(--link-hold, var\(--dur-exit\)\);/);
+	assert.match(highlight, /transition: background-size var\(--dur-instant\) var\(--ease-out\) var\(--dur-exit\), --link-mark var\(--dur-exit\) ease;/);
+	assert.match(
+		css,
+		/&:hover \.link-ink \{ --link-mark: color-mix\(in srgb, currentColor 30%, transparent\); background-size: 100% 100%; transition: background-size var\(--dur-fast\) var\(--ease-out\) var\(--dur-instant\), --link-mark var\(--dur-press\) ease; \}/
+	);
 	const outside = css.replace(/\.link-ink \{[^{}]*\}/g, '');
 	assert.doesNotMatch(outside, /background-(image|size|position)/, 'the link box paints nothing');
 	assert.doesNotMatch(css, /display:/, 'the outer run keeps its default display so a flex link blockifies it, not the ink');
-	assert.match(css, /@property --link-mark \{ syntax: '<color>'; inherits: true;/, 'the marker colour reaches the ink');
-	assert.match(css, /--link-mark var\(--link-in, var\(--dur-exit\)\) ease/);
+	assert.match(css, /@property --link-mark \{ syntax: '<color>'; inherits: false;/, 'the marker colour is set on the ink itself');
+	assert.deepEqual([...new Set(css.match(/--link-[a-z]+/g))], ['--link-mark'], 'the animated marker colour is the only variable');
 	assert.doesNotMatch(css, /prefers-reduced-motion/, 'reduced motion stays with the global reset');
 	assert.doesNotMatch(css, /transition(-property)?:[^;]*\b(width|height|top|left|margin|padding|inset)\b/);
 });
@@ -96,18 +105,22 @@ test('NavBar defaults to labels="fit" and sizes every label from the widest word
 	const nav = /** @type {HTMLElement} */ (doc.querySelector('nav'));
 	assert.ok(nav.classList.contains('labels-fit'));
 	assert.ok(nav.classList.contains('stacked'));
-	assert.match(nav.getAttribute('style') ?? '', /^--navbar-label-em: 4\.60;/, 'Grammar = G r a m m a r');
+	assert.ok(!nav.hasAttribute('style'), 'the bar carries no variable');
+	const fit = (/** @type {string} */ em) => `font-size: clamp(calc(0.625rem * var(--fs-scale)), 100cqi / ${em}, 1em);`;
 	const labels = [...doc.querySelectorAll('.navbar-label')];
 	assert.deepEqual(labels.map((l) => l.textContent), STUDY.map((i) => i.label));
-	assert.ok(labels.every((l) => !l.hasAttribute('style')), 'one size for the whole bar');
+	assert.ok(labels.every((l) => l.getAttribute('style') === fit('4.60')), 'Grammar = G r a m m a r, one size for the whole bar');
 	const multi = html(NavBar, { items: [{ value: 'a', label: 'Saturday farmers market' }, { value: 'b', label: 'Go' }], label: 'M', maxWidth: '20rem', style: 'color: red' });
-	assert.equal(multi.querySelector('nav')?.getAttribute('style'), '--navbar-label-em: 4.52; --navbar-max: 20rem;color: red', 'longest word, not the whole label');
+	assert.equal(multi.querySelector('nav')?.getAttribute('style'), 'color: red');
+	assert.equal(multi.querySelector('.navbar-row')?.getAttribute('style'), 'max-width: 20rem;');
+	assert.equal(multi.querySelector('.navbar-label')?.getAttribute('style'), fit('4.52'), 'longest word, not the whole label');
 	const cjk = html(NavBar, { items: [{ value: 'a', label: '設定画面' }], label: 'M' });
-	assert.match(cjk.querySelector('nav')?.getAttribute('style') ?? '', /--navbar-label-em: 4\.00;/);
+	assert.equal(cjk.querySelector('.navbar-label')?.getAttribute('style'), fit('4.00'));
 	for (const labels of ['truncate', 'full']) {
 		const d = html(NavBar, { items: STUDY, label: 'Main', labels });
 		assert.ok(d.querySelector('nav')?.classList.contains(`labels-${labels}`), labels);
 		assert.ok(!d.querySelector('nav')?.classList.contains('labels-fit'));
+		assert.ok([...d.querySelectorAll('.navbar-label')].every((l) => !l.hasAttribute('style')), 'only fit sizes the label');
 	}
 });
 
@@ -119,21 +132,24 @@ test('NavBar label mode survives a client mount', () => {
 	flushSync();
 	const nav = /** @type {HTMLElement} */ (window.document.querySelector('nav'));
 	assert.ok(nav.classList.contains('labels-full'));
-	assert.match(nav.getAttribute('style') ?? '', /--navbar-label-em: 4\.60;/);
+	assert.ok(!nav.hasAttribute('style'));
+	assert.ok([...nav.querySelectorAll('.navbar-label')].every((l) => !l.getAttribute('style')), 'full leaves the label at its own size');
 });
 
 test('fit shrinks the stacked label with a container clamp, then wraps two lines, then ellipsis', () => {
 	const css = flat(navCss);
 	assert.match(navSrc, /labels\?: 'fit' \| 'truncate' \| 'full';/);
 	assert.match(navSrc, /labels = 'fit',/);
-	assert.match(navSrc, /`--navbar-label-min` \(10px\)/, 'the floor token is documented on the prop');
+	assert.match(navSrc, /'fit' shrinks the font down to\s+\* 10px/, 'the floor is documented on the prop');
 	assert.match(css, /\.stacked\.labels-fit :is\(\.navbar-inner, \.navbar-side\) \{ gap: 0; \}/, 'items give their gap to the label');
 	const link = css.match(/\.stacked\.labels-fit \.navbar-link \{([^}]*)\}/)?.[1] ?? '';
 	assert.match(link, /container-type: inline-size;/);
 	assert.match(link, /contain-intrinsic-inline-size: 4rem;/, 'shrink-to-fit navs keep a sane width');
 	assert.match(link, /padding-inline: 0;/);
 	const label = css.match(/\.stacked\.labels-fit \.navbar-label \{([^}]*)\}/)?.[1] ?? '';
-	assert.match(label, /font-size: clamp\(var\(--navbar-label-min, calc\(0\.625rem \* var\(--fs-scale\)\)\), 100cqi \/ var\(--navbar-label-em\), 1em\);/);
+	assert.ok(navSrc.includes("orientation === 'stacked' && labels === 'fit'\n\t\t\t? `clamp(calc(0.625rem * var(--fs-scale)), 100cqi / ${labelEm}, 1em)`"), 'the clamp is set inline on each label');
+	assert.match(navSrc, /<span class="navbar-label" style:font-size=\{fitFontSize\}>/);
+	assert.doesNotMatch(label, /font-size/);
 	assert.match(label, /-webkit-line-clamp: 2;/);
 	assert.match(label, /white-space: normal;/);
 	assert.match(label, /text-align: center;/);

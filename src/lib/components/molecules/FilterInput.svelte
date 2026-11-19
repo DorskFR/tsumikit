@@ -475,7 +475,6 @@
 		min-width: 0;
 	}
 	.fi__bar {
-		--fi-icon: var(--control-icon-md);
 		display: flex;
 		flex-wrap: wrap;
 		align-items: center;
@@ -492,7 +491,9 @@
 	.fi--sm .fi__bar {
 		min-height: var(--control-height-compact);
 		padding: 0 var(--control-px-sm);
-		--fi-icon: var(--control-icon-sm);
+	}
+	.fi--sm :is(.fi__icon, .fi__clear) {
+		font-size: var(--control-icon-sm);
 	}
 	.fi--sm .fi__input {
 		font-size: var(--control-fs-sm);
@@ -526,7 +527,7 @@
 	}
 	.fi__icon {
 		display: flex;
-		font-size: var(--fi-icon);
+		font-size: var(--control-icon-md);
 		color: var(--text-faint);
 	}
 	.fi__field {
@@ -574,11 +575,10 @@
 		color: transparent;
 	}
 	.fi__clear {
-		--clear-scale-dur: var(--dur-fast);
 		display: flex;
 		border: 0;
 		background: transparent;
-		font-size: var(--fi-icon);
+		font-size: var(--control-icon-md);
 		color: var(--text-muted);
 		cursor: pointer;
 		padding: var(--sp-1);
@@ -587,7 +587,7 @@
 			color var(--dur-fast) ease,
 			background-color var(--dur-fast) ease,
 			opacity var(--dur-fast) ease,
-			scale var(--clear-scale-dur) var(--ease-out);
+			scale var(--dur-fast) var(--ease-out);
 	}
 	@starting-style {
 		.fi__clear {
@@ -595,7 +595,11 @@
 		}
 	}
 	.fi__clear:active {
-		--clear-scale-dur: var(--dur-press);
+		transition:
+			color var(--dur-fast) ease,
+			background-color var(--dur-fast) ease,
+			opacity var(--dur-fast) ease,
+			scale var(--dur-press) var(--ease-out);
 		scale: var(--press-scale-sm);
 	}
 	@media (hover: hover) and (pointer: fine) {

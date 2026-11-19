@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'Playback settings',
-		caption: 'showValue adds a bound <output>; format shapes it; marks are clickable labelled stops; --slider-accent recolours one instance.',
+		caption: 'showValue adds a bound <output>; format shapes it; marks are clickable labelled stops.',
 		layout: 'stack'
 	};
 </script>
@@ -23,7 +23,7 @@
 		<Slider bind:value={speed} min={0.5} max={2} step={0.25} marks={speeds} showValue />
 	</Field>
 	<Field label="Crossfade" hint="Seconds of overlap between tracks.">
-		<Slider bind:value={crossfade} min={0} max={12} ticks showValue format={(v) => (v ? `${v}s` : 'Off')} style="--slider-accent: var(--c-teal)" />
+		<Slider bind:value={crossfade} min={0} max={12} ticks showValue format={(v) => (v ? `${v}s` : 'Off')} />
 	</Field>
 	<Text size="xs" tone="muted">{volume}% · {speed}× · crossfade {crossfade}s</Text>
 </Stack>

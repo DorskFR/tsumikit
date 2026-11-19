@@ -28,6 +28,7 @@
 	<Button size="sm">Small</Button>
 	<Button size="md">Medium</Button>
 	<Button size="lg">Large</Button>
+	<Button size="xl">Extra large</Button>
 	<Button control>Control height</Button>
 	<Button pill>Pill</Button>
 	<Button pill variant="primary" size="sm">Pill small</Button>

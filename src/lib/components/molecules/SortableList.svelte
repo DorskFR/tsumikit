@@ -580,7 +580,7 @@
 		display: flex;
 		align-items: center;
 		gap: var(--sp-2);
-		min-height: var(--sortable-row-h, 2.25rem);
+		min-height: 2.25rem;
 		padding-inline-end: var(--sp-1);
 		border-radius: var(--r-sm);
 		background: transparent;
@@ -589,7 +589,7 @@
 			box-shadow var(--dur-base) var(--ease);
 	}
 	.sortable-sm .sl-lift {
-		min-height: var(--sortable-row-h, 1.875rem);
+		min-height: 1.875rem;
 	}
 	.sl-row.selected {
 		background: color-mix(in srgb, var(--accent) 10%, transparent);

@@ -23,10 +23,12 @@
 		children,
 		decorative = false,
 		class: klass = '',
+		style: styleProp,
 		...rest
 	}: Omit<HTMLAttributes<HTMLDivElement>, keyof Own> & Own = $props();
 
 	const vertical = $derived(orientation === 'vertical');
+	const inline = $derived(spacing ? `margin-${vertical ? 'inline' : 'block'}: ${spacing};` : '');
 	const semantic = $derived(!decorative || !!children);
 </script>
 
@@ -37,7 +39,7 @@
 	role={semantic ? 'separator' : undefined}
 	aria-orientation={semantic ? orientation : undefined}
 	aria-hidden={semantic ? undefined : 'true'}
-	style:--divider-spacing={spacing}
+	style={inline + (styleProp ?? '') || undefined}
 	{...rest}
 >
 	{#if children}
@@ -47,29 +49,21 @@
 
 <style>
 	.divider {
-		--divider-color: var(--border);
-		--divider-spacing: var(--sp-3);
 		flex: none;
 		border: 0;
-	}
-	.tone-strong {
-		--divider-color: var(--border-strong);
-	}
-	.tone-faint {
-		--divider-color: color-mix(in srgb, var(--border) 45%, transparent);
 	}
 	.horizontal {
 		width: 100%;
 		height: 1px;
-		background: var(--divider-color);
-		margin-block: var(--divider-spacing);
+		background: var(--border);
+		margin-block: var(--sp-3);
 	}
 	.vertical {
 		align-self: stretch;
 		width: 1px;
 		min-height: 1em;
-		background: var(--divider-color);
-		margin-inline: var(--divider-spacing);
+		background: var(--border);
+		margin-inline: var(--sp-3);
 	}
 	.horizontal.labelled,
 	.vertical.labelled {
@@ -90,14 +84,24 @@
 		content: '';
 		flex: 1;
 		height: 1px;
-		background: var(--divider-color);
+		background: var(--border);
 	}
 	.vertical.labelled::before,
 	.vertical.labelled::after {
 		content: '';
 		flex: 1;
 		width: 1px;
-		background: var(--divider-color);
+		background: var(--border);
+	}
+	.tone-strong:not(.labelled),
+	.tone-strong.labelled::before,
+	.tone-strong.labelled::after {
+		background: var(--border-strong);
+	}
+	.tone-faint:not(.labelled),
+	.tone-faint.labelled::before,
+	.tone-faint.labelled::after {
+		background: color-mix(in srgb, var(--border) 45%, transparent);
 	}
 	.divider-label {
 		min-width: 0;

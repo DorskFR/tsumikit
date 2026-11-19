@@ -130,25 +130,28 @@
 	class="ptr {klass}"
 	class:pulling
 	class:pending
-	style:--ptr-offset="{offset}px"
-	style:--ptr-threshold="{threshold}px"
-	style:--ptr-progress={progress}
 	aria-busy={pending || undefined}
 	{onpointerdown}
 	{@attach scrollRoot}
 	{...rest}
 >
-	<div class="ptr-indicator" aria-hidden="true">
+	<div
+		class="ptr-indicator"
+		aria-hidden="true"
+		style:height="{threshold}px"
+		style:translate="0 calc({offset}px - 100%)"
+		style:opacity={progress}
+	>
 		{#if pending}
 			<Spinner label={undefined} />
 		{:else}
-			<Icon name="arrow-down" class="ptr-arrow" />
+			<Icon name="arrow-down" class="ptr-arrow" style="rotate: {180 * progress}deg" />
 		{/if}
 	</div>
 	<div class="ptr-status sr-only" role="status" aria-live="polite">
 		{#if pending}{label}{:else if ready}{releaseLabel}{:else if pulling}{pullLabel}{/if}
 	</div>
-	<div class="ptr-content">
+	<div class="ptr-content" style:translate="0 {offset}px">
 		{@render children?.()}
 	</div>
 </div>
@@ -162,7 +165,6 @@
 		touch-action: pan-y;
 	}
 	.ptr-content {
-		translate: 0 var(--ptr-offset, 0px);
 		transition: translate var(--dur-exit-slow) var(--ease-out);
 	}
 	.pulling .ptr-content {
@@ -174,10 +176,7 @@
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		height: var(--ptr-threshold, 72px);
-		translate: 0 calc(var(--ptr-offset, 0px) - 100%);
 		color: var(--text-muted);
-		opacity: var(--ptr-progress, 0);
 		transition:
 			translate var(--dur-exit-slow) var(--ease-out),
 			opacity var(--dur-exit-slow) var(--ease-out);
@@ -187,8 +186,12 @@
 		transition: none;
 	}
 	.ptr-indicator :global(.ptr-arrow) {
-		rotate: calc(180deg * var(--ptr-progress, 0));
 		transition: rotate var(--dur-base) var(--ease);
+	}
+	@media (prefers-reduced-motion: reduce) {
+		.ptr-indicator :global(.ptr-arrow) {
+			rotate: none !important;
+		}
 	}
 	.pending .ptr-indicator {
 		color: var(--accent);
@@ -200,10 +203,5 @@
 		overflow: hidden;
 		clip: rect(0 0 0 0);
 		white-space: nowrap;
-	}
-	@media (prefers-reduced-motion: reduce) {
-		.ptr-indicator :global(.ptr-arrow) {
-			rotate: none;
-		}
 	}
 </style>

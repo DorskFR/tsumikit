@@ -30,5 +30,5 @@
 	<Avatar name="Jun Tanaka" tone="none" glyph="🦉" />
 	<Avatar name="Élodie" />
 	<Avatar name="🧑‍🚀 pilot" />
-	<Avatar name="Jun Tanaka" style="--avatar-bg: var(--c-violet); --avatar-fg: var(--text-on-accent)" />
+	<Avatar name="Jun Tanaka" style="background: var(--c-violet); color: var(--text-on-accent)" />
 </Cluster>

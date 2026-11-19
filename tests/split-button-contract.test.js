@@ -116,25 +116,27 @@ test('the root carries the anchor and spreads rest, class and style', () => {
 test('the caret is the kit chevron, sized to the control height, with square inner corners', () => {
 	assert.match(source, /<Icon name="chevron-down"/);
 	assert.doesNotMatch(source, /▾|▼/);
-	assert.ok(hasDecl(style, '.split-caret', 'width', 'var(--split-height)'));
-	assert.ok(hasDecl(style, '.split-caret', '--pop-trigger-radius', '0 var(--r-md) var(--r-md) 0'));
-	assert.ok(hasDecl(style, '.split-main', '--btn-radius', 'var(--r-md) 0 0 var(--r-md)'));
+	assert.equal(/** @type {HTMLElement} */ (render().root.querySelector('.split-caret')).style.width, 'var(--control-height-default)');
+	assert.ok(hasDecl(style, '.split .split-caret :global(.pop-trigger)', 'border-radius', '0 var(--r-md) var(--r-md) 0'));
+	assert.ok(hasDecl(style, '.split .split-caret :global(.pop-trigger)', 'padding', '0'));
+	assert.ok(hasDecl(style, '.split .split-main :global(.btn)', 'border-radius', 'var(--r-md) 0 0 var(--r-md)'));
 	assert.ok(hasDecl(style, '.split-caret', 'margin-inline-start', 'calc(-1 * var(--edge-width))'));
 });
 
 test('caret="half" halves the caret width and keeps its chevron size', () => {
-	assert.ok(hasDecl(style, '.split-half .split-caret', 'width', 'calc(var(--split-height) / 2)'));
 	assert.ok(!render().root.classList.contains('split-half'));
 	const half = render({ caret: 'half' });
 	assert.ok(half.root.classList.contains('split-half'));
+	assert.equal(/** @type {HTMLElement} */ (half.root.querySelector('.split-caret')).style.width, 'calc(var(--control-height-default) / 2)');
 	assert.ok(half.caret.querySelector('.caret-glyph svg'));
 	assert.ok(hasDecl(style, '.caret-glyph', 'font-size', 'var(--control-icon-md)'));
 	assert.ok(hasDecl(style, '.split-sm .caret-glyph', 'font-size', 'var(--control-icon-sm)'));
 	assert.ok(render({ caret: 'half', size: 'sm' }).root.classList.contains('split-sm'));
 });
 
-test('the segments are joined through published properties, not :global reach', () => {
-	assert.doesNotMatch(style, /:global\(/);
+test('the segments are joined by descendant selectors, with no custom property declared', () => {
+	assert.doesNotMatch(source, /(?:^|[\s;{"])--[a-z][a-z0-9-]*\s*:|style:--/);
+	assert.doesNotMatch(source, /var\(--[a-z0-9-]+,/);
 });
 
 test('tokens only: no literal colours in the stylesheet', () => {
@@ -145,10 +147,10 @@ test('height follows the Button size tiers and the control contract', () => {
 	assert.match(source, /sm: 'var\(--control-height-compact\)'/);
 	assert.match(source, /md: 'var\(--control-height-default\)'/);
 	assert.match(source, /lg: 'var\(--control-height-large\)'/);
-	assert.match(source, /control \? 'var\(--control-height\)' : HEIGHT\[size\]/);
+	assert.match(source, /control \? \(tier \? HEIGHT\[tier\] : 'var\(--control-height\)'\) : HEIGHT\[size\]/);
 	const ui = render({ size: 'sm' });
-	assert.equal(ui.root.style.getPropertyValue('--split-height'), 'var(--control-height-compact)');
-	assert.equal(render({ control: true }).root.style.getPropertyValue('--split-height'), 'var(--control-height)');
+	assert.equal(/** @type {HTMLElement} */ (ui.root.querySelector('.split-caret')).style.width, 'var(--control-height-compact)');
+	assert.equal(/** @type {HTMLElement} */ (render({ control: true }).root.querySelector('.split-caret')).style.width, 'var(--control-height)');
 });
 
 test('it is exported, documented and demoed', async () => {

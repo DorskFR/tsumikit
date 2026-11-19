@@ -93,14 +93,17 @@ test('Combobox source contract: anchor, top-layer listbox, active-descendant wir
 	assert.match(source, /placeAt\(r, panelEl, placement, gap\)/);
 	assert.match(source, /panelClass\?: string/);
 	assert.match(floating, /export function placeAt\(/);
-	assert.match(floating, /placeAt\(trigger\.getBoundingClientRect\(\), floating, placement, gap\)/);
+	assert.match(floating, /placeAt\(trigger\.getBoundingClientRect\(\), floating, placement, gap, enterShift\)/);
+	assert.match(floating, /floating\.style\.transformOrigin = ORIGIN\[resolved\]\(cx, cy\);/);
+	assert.match(floating, /if \(enterShift\) floating\.style\.setProperty\('--tsu-shift', SHIFT\[resolved\]\);/);
+	assert.doesNotMatch(floating + source, /--tsu-origin|--cb-/);
 });
 
 test('Combobox is exported, documented and demoed', async () => {
 	assert.match(index, /export \{ default as Combobox \} from '\.\/components\/molecules\/Combobox\.svelte';/);
 	assert.match(index, /findTrigger,\n\tnextComboboxIndex,\n\} from '\.\/components\/molecules\/combobox-keyboard\.js';/);
 	assert.match(readme, /Combobox \(suggestion listbox/);
-	assert.match(readme, /\| `Combobox` \| `--cb-bg`/);
+	assert.doesNotMatch(readme, /--cb-/);
 	assert.ok(await demoed('Combobox'));
 	assert.match(page, /<Combobox[\s\S]*anchor="caret"/);
 });

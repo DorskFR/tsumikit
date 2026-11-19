@@ -83,18 +83,17 @@ test('the pill is a token-coloured corner overlay that never changes the box', (
 		assert.ok(hasDecl(src, pill, 'font-size', 'var(--fs-xs)'));
 		assert.ok(hasDecl(src, pill, 'font-variant-numeric', 'tabular-nums'));
 	}
-	assert.ok(hasDecl(button, '.btn-count', 'background', 'var(--btn-count-bg, var(--accent))'));
-	assert.ok(hasDecl(button, '.btn-count', 'color', 'var(--btn-count-fg, var(--text-on-accent))'));
-	assert.ok(hasDecl(button, '.btn-count', 'min-width', 'var(--btn-count-size, 1.125rem)'));
-	assert.ok(hasDecl(button, '.btn-primary .btn-count', 'background', 'var(--btn-count-bg, var(--text-on-accent))'));
-	assert.ok(hasDecl(button, '.btn-primary .btn-count', 'color', 'var(--btn-count-fg, var(--accent))'));
-	assert.match(button, /\.btn-sm \.btn-count,\s*\.btn-link \.btn-count,\s*\.btn-icon-inline \.btn-count\s*{\s*--btn-count-size: 1rem;/);
-	assert.ok(hasDecl(popover, '.pop-count', 'background', 'var(--pop-count-bg, var(--accent))'));
-	assert.ok(hasDecl(popover, '.pop-count', 'color', 'var(--pop-count-fg, var(--text-on-accent))'));
-	assert.ok(hasDecl(popover, '.trigger-primary .pop-count', 'background', 'var(--pop-count-bg, var(--text-on-accent))'));
+	assert.ok(hasDecl(button, '.btn-count', 'background', 'var(--accent)'));
+	assert.ok(hasDecl(button, '.btn-count', 'color', 'var(--text-on-accent)'));
+	assert.ok(hasDecl(button, '.btn-count', 'min-width', '1.125rem'));
+	assert.ok(hasDecl(button, '.btn-primary .btn-count', 'background', 'var(--text-on-accent)'));
+	assert.ok(hasDecl(button, '.btn-primary .btn-count', 'color', 'var(--accent)'));
+	assert.match(button, /\.btn-sm \.btn-count,\s*\.btn-link \.btn-count,\s*\.btn-icon-inline \.btn-count\s*{\s*min-width: 1rem;\s*height: 1rem;/);
+	assert.ok(hasDecl(popover, '.pop-count', 'background', 'var(--accent)'));
+	assert.ok(hasDecl(popover, '.pop-count', 'color', 'var(--text-on-accent)'));
+	assert.ok(hasDecl(popover, '.trigger-primary .pop-count', 'background', 'var(--text-on-accent)'));
 	assert.doesNotMatch(button, /\.btn-count\s*{[^}]*#[0-9a-f]{3}/i);
-	assert.match(readme, /`--btn-count-bg`, `--btn-count-fg`, `--btn-count-size`/);
-	assert.match(readme, /`--pop-count-bg`, `--pop-count-fg`, `--pop-count-size`/);
+	assert.doesNotMatch(button + popover + readme, /--(btn|pop)-count-/, 'the pill has no hooks');
 });
 
 test('no count (undefined/0) renders no pill and leaves the accessible name alone', () => {

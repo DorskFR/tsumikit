@@ -15,7 +15,9 @@ test('Slider ticks: one dot per step, positioned inside the thumb travel, reache
 	assert.match(slider, /ticks\?: boolean \| number\[\]/);
 	assert.match(slider, /Array\.from\(\{ length: n \+ 1 \}, \(_, i\) => \+min \+ i \* \+step\)/);
 	assert.match(slider, /class="tick" class:reached=\{t <= Number\(value\)\}/);
-	assert.match(slider, /left: calc\(var\(--thumb\) \/ 2 \+ \(100% - var\(--thumb\)\) \* var\(--f\)\);/);
+	assert.match(slider, /style:left="calc\(0\.6rem \+ \(100% - 1\.2rem\) \* \{frac\(t\)\}\)"/, 'half a thumb in from each end');
+	assert.match(slider, /::-webkit-slider-thumb\s*{[^}]*width: 1\.2rem;/s);
+	assert.match(slider, /::-moz-range-thumb\s*{[^}]*width: 1\.2rem;/s);
 	assert.match(slider, /\.tick\.reached\s*{\s*background: var\(--bg\);/s);
 	assert.match(slider, /\.ticks\s*{[^}]*pointer-events: none;/s);
 });
@@ -45,10 +47,11 @@ test('ThemePicker: popover grid of data-theme scoped 2x2 swatches reading the ra
 
 test('the dark swatch carries the :root palette values (tokens.css stays theme-less)', () => {
 	assert.doesNotMatch(tokens.replace(/\/\*[\s\S]*?\*\//g, ''), /\[data-theme/);
+	assert.doesNotMatch(themePicker, /--c-[a-z-]+\s*:/);
 	for (const k of ['bg', 'surface', 'text', 'accent']) {
 		const root = tokens.match(new RegExp(`^  --c-${k}: (#[0-9a-f]+);`, 'm'))?.[1];
 		assert.ok(root, k);
-		assert.match(themePicker, new RegExp(`\\.swatch\\[data-theme='dark'\\]\\s*{[^}]*--c-${k}: ${root};`, 's'), k);
+		assert.match(themePicker, new RegExp(`\\.swatch\\[data-theme='dark'\\] \\.q\\.${k}\\s*{\\s*background: ${root};`), k);
 	}
 });
 

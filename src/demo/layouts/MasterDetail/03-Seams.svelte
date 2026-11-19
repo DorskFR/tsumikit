@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'Gap and divider',
-		caption: 'gap spaces the columns and divider="none" drops the seam so each pane can be its own Card; --md-divider restyles the seam instead.',
+		caption: 'gap spaces the columns and divider="none" drops the seam so each pane can be its own Card; the default divider="border" draws the seam.',
 		layout: 'stack'
 	};
 </script>
@@ -45,10 +45,10 @@
 	listWidth="12rem"
 	breakpoint="30rem"
 	selected
-	style="height: 7rem; border: 1px solid var(--border); border-radius: var(--r-md); --md-divider: 2px dashed var(--accent)"
+	style="height: 7rem; border: 1px solid var(--border); border-radius: var(--r-md)"
 >
 	{#snippet list()}
-		<Text size="sm" style="padding: var(--sp-3)">--md-divider: 2px dashed var(--accent)</Text>
+		<Text size="sm" style="padding: var(--sp-3)">divider="border"</Text>
 	{/snippet}
 	{#snippet detail()}
 		<Text size="sm" tone="muted" style="padding: var(--sp-3)">Detail column</Text>

@@ -54,15 +54,10 @@ test('layout: flex row that wraps, actions pushed right', () => {
 	assert.match(component, /\.callout-body\s*{[^}]*min-width: 0;/);
 });
 
-test('tone token --callout-tone maps to semantic colours', () => {
-	for (const t of ['ok', 'warn', 'danger', 'info']) {
-		assert.match(component, new RegExp(`\\.callout-${t}\\)\\s*{\\s*--callout-tone: var\\(--${t}\\);`));
+test('each tone colours the icon from its semantic token, outranking the muted base', () => {
+	assert.match(component, /\.callout-icon\s*{[^}]*color: var\(--text-muted\);/s);
+	for (const t of ['ok', 'warn', 'danger', 'info', 'accent']) {
+		assert.match(component, new RegExp(`:global\\(\\.card\\.callout-${t}\\) \\.callout-icon \\{\\s*color: var\\(--${t}\\);`));
 	}
-});
-
-test('tone selectors outrank the base .card.callout tone', () => {
-	assert.match(component, /:global\(\.card\.callout\) \{\s*--callout-tone: var\(--text-muted\);/);
-	for (const [tone, token] of [['ok', 'ok'], ['warn', 'warn'], ['danger', 'danger'], ['info', 'info'], ['accent', 'accent']]) {
-		assert.match(component, new RegExp(`:global\\(\\.card\\.callout-${tone}\\) \\{\\s*--callout-tone: var\\(--${token}\\);`));
-	}
+	assert.doesNotMatch(component, /--callout-tone/);
 });

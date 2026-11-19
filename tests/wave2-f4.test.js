@@ -245,7 +245,7 @@ test('floating: placeAt publishes the resolved side, a trigger-facing origin and
 	try {
 		const code = floating.replace(/^export /gm, '').replace(/: [A-Za-z<>\[\]| ]+(?=[,)=])/g, '');
 		assert.match(floating, /floating\.dataset\.side = resolved;/);
-		assert.match(floating, /setProperty\('--tsu-origin'/);
+		assert.match(floating, /floating\.style\.transformOrigin = ORIGIN\[resolved\]\(cx, cy\);/);
 		assert.match(floating, /setProperty\('--tsu-shift'/);
 		assert.match(floating, /bottom: '0 calc\(-1 \* var\(--shift-sm\)\)'/);
 		assert.match(floating, /top: '0 var\(--shift-sm\)'/);
@@ -257,7 +257,7 @@ test('floating: placeAt publishes the resolved side, a trigger-facing origin and
 
 test('Popover panel, Tooltip and Menu rows follow the F6 enter/exit and highlight pattern', () => {
 	const pop = normalize(css(popover));
-	assert.match(pop, /\.pop-panel { [^}]*transform-origin: var\(--tsu-origin, top left\); opacity: 0; scale: var\(--enter-scale\); transition: opacity var\(--dur-exit\) var\(--ease-out\), scale var\(--dur-exit\) var\(--ease-out\), translate var\(--dur-exit\) var\(--ease-out\), display var\(--dur-exit\) allow-discrete, overlay var\(--dur-exit\) allow-discrete; }/);
+	assert.match(pop, /\.pop-panel { [^}]*transform-origin: top left; opacity: 0; scale: var\(--enter-scale\); transition: opacity var\(--dur-exit\) var\(--ease-out\), scale var\(--dur-exit\) var\(--ease-out\), translate var\(--dur-exit\) var\(--ease-out\), display var\(--dur-exit\) allow-discrete, overlay var\(--dur-exit\) allow-discrete; }/);
 	assert.match(pop, /\.pop-panel:popover-open { opacity: 1; scale: 1; translate: 0; transition-duration: var\(--dur-base\); }/);
 	assert.match(pop, /@starting-style { \.pop-panel:popover-open { opacity: 0; scale: var\(--enter-scale\); translate: var\(--tsu-shift, 0 calc\(-1 \* var\(--shift-sm\)\)\); } }/);
 	assert.match(pop, /\.pop-panel\[data-instant\] { transition-duration: var\(--dur-instant\); }/);
@@ -278,23 +278,24 @@ test('Popover panel, Tooltip and Menu rows follow the F6 enter/exit and highligh
 
 test('Popover trigger: press scale, gated hover, control tier tokens', () => {
 	const pop = normalize(css(popover));
-	assert.match(pop, /\.pop-trigger:not\(\.bare, \.trigger-toggle\):active:not\(:disabled, \.is-disabled\) { --pop-scale-dur: var\(--dur-press\); scale: var\(--press-scale-sm\); }/);
+	assert.match(pop, /\.pop-trigger:not\(\.bare, \.trigger-toggle\):active:not\(:disabled, \.is-disabled\) { scale: var\(--press-scale-sm\); }/);
+	assert.match(pop, /:where\(\.pop-trigger:not\(\.bare, \.trigger-toggle\):active:not\(:disabled, \.is-disabled\)\) { transition-duration: (?:var\(--dur-fast\), ){5}var\(--dur-press\); }/);
 	assert.match(pop, /\.pop-trigger\.canonical:active:not\(:disabled, \.is-disabled\) { scale: var\(--press-scale\); }/);
 	assert.match(pop, /@media \(hover: hover\) and \(pointer: fine\) { :where\(\.pop-trigger:not\(\.bare\):hover:not\(:disabled\)\)/);
-	assert.equal(rule(popover, '.pop-trigger.canonical')['font-size'], 'var(--pop-trigger-size, var(--control-fs-md))');
-	assert.equal(rule(popover, '.pop-trigger.canonical').padding, 'var(--pop-trigger-pad, var(--sp-2) var(--btn-px-md))');
+	assert.equal(rule(popover, '.pop-trigger.canonical')['font-size'], 'var(--control-fs-md)');
+	assert.equal(rule(popover, '.pop-trigger.canonical').padding, 'var(--sp-2) var(--btn-px-md)');
 	assert.equal(rule(popover, '.pop-trigger.canonical')['line-height'], 'var(--lh-none)');
-	assert.equal(rule(popover, '.pop-trigger.trigger-sm')['--icon-size'], 'var(--control-icon-sm)');
-	assert.equal(rule(popover, '.pop-trigger.trigger-lg')['--icon-size'], 'var(--control-icon-lg)');
+	assert.equal(rule(popover, '.pop-trigger.trigger-sm :global(.icon)')['font-size'], 'var(--control-icon-sm)');
+	assert.equal(rule(popover, '.pop-trigger.trigger-lg :global(.icon)')['font-size'], 'var(--control-icon-lg)');
 	assert.match(normalize(css(popover)), /\.pop-trigger:disabled, \.pop-trigger\.is-disabled { opacity: var\(--disabled-opacity\); cursor: not-allowed; }/);
 });
 
 test('RadialMenu: stagger is capped per petal count, hover gated, press on petals and FAB', () => {
 	assert.match(radial, /Math\.min\(18, petals\.length > 1 \? 120 \/ \(petals\.length - 1\) : 18\)/);
-	assert.match(radial, /style:--radial-stagger={stagger}/);
+	assert.match(radial, /style:animation-delay="\{i \* stagger\}ms"/);
 	const r = normalize(css(radial));
-	assert.match(r, /\.radial-petal:active:not\(:disabled\) { --radial-scale-dur: var\(--dur-press\); scale: var\(--press-scale-sm\); }/);
-	assert.match(r, /\.radial-fab:active:not\(:disabled\) { --radial-scale-dur: var\(--dur-press\); scale: var\(--press-scale-sm\); }/);
+	assert.match(r, /\.radial-petal:active:not\(:disabled\) { scale: var\(--press-scale-sm\); transition-duration: var\(--dur-fast\), var\(--dur-fast\), var\(--dur-press\); }/);
+	assert.match(r, /\.radial-fab:active:not\(:disabled\) { scale: var\(--press-scale-sm\); transition-duration: var\(--dur-fast\), var\(--dur-fast\), var\(--dur-press\); }/);
 	assert.match(r, /@media \(hover: hover\) and \(pointer: fine\) { \.radial-petal:hover:not\(:disabled\)/);
 	assert.doesNotMatch(radial, /size=\{\d+\}/);
 	assert.ok(hasDecl(radial, '.radial-glyph', 'font-size', 'var(--icon-md)'));
@@ -308,8 +309,8 @@ test('Modal and Drawer dialogs transition in and out; Scrim fades in from @start
 	assert.match(m, /@media \(min-width: 40rem\) { \.sheet { [^}]*translate: 0; scale: var\(--enter-scale\); transition: opacity var\(--dur-exit\) var\(--ease-out\), scale var\(--dur-exit\) var\(--ease-out\); } \.modal\[open\] \.sheet { scale: 1; transition-duration: var\(--dur-slow\); }/);
 	assert.doesNotMatch(modal, /999px|size=\{18\}|pointer-events: none/);
 	const d = normalize(css(drawer));
-	assert.match(d, /\.panel { [^}]*will-change: translate;[^}]*--drawer-from: 100% 0; translate: var\(--drawer-from\); transition: translate var\(--dur-exit-slow\) var\(--ease-drawer\); }/);
-	assert.match(d, /\.drawer\[data-side='left'\] \.panel { --drawer-from: -100% 0; }/);
+	assert.match(d, /\.panel { [^}]*will-change: translate;[^}]*translate: 100% 0; transition: translate var\(--dur-exit-slow\) var\(--ease-drawer\); }/);
+	assert.match(d, /\.drawer\[data-side='left'\] \.panel { translate: -100% 0; }/);
 	assert.match(d, /\.drawer\[open\]::backdrop { opacity: 1; transition-duration: var\(--dur-base\); }/);
 	const s = normalize(css(scrim));
 	assert.match(s, /\.scrim { [^}]*transition: opacity var\(--dur-base\) var\(--ease-out\); } @starting-style { \.scrim { opacity: 0; } }/);

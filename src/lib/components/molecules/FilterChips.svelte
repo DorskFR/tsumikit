@@ -246,24 +246,15 @@
 
 <style>
 	.fc {
-		--fc-h: var(--control-sm);
-		--fc-px: var(--control-px-sm);
-		--fc-fs: var(--control-fs-sm);
-		--fc-icon: var(--control-icon-sm);
-		--fc-fade: var(--sp-6);
-		--fc-bleed: var(--sp-2);
 		display: grid;
 		grid-template-columns: minmax(0, 1fr);
 		align-items: center;
 		min-width: 0;
 		max-width: 100%;
-		height: var(--fc-h);
+		height: var(--control-sm);
 	}
 	.fc-md {
-		--fc-h: var(--control-md);
-		--fc-px: var(--control-px-md);
-		--fc-fs: var(--control-fs-md);
-		--fc-icon: var(--control-icon-md);
+		height: var(--control-md);
 	}
 	.menu,
 	.row,
@@ -282,20 +273,45 @@
 	}
 	/* Clipping starts only on overflow, and the block padding keeps the coarse-pointer slab inside the clip. */
 	.row[data-overflow] {
-		--fc-fade-start: 0px;
-		--fc-fade-end: 0px;
 		overflow-x: auto;
 		overflow-y: hidden;
-		padding-block: var(--fc-bleed);
-		margin-block: calc(-1 * var(--fc-bleed));
-		scroll-padding-inline: var(--fc-fade);
+		padding-block: var(--sp-2);
+		margin-block: calc(-1 * var(--sp-2));
+		scroll-padding-inline: var(--sp-6);
 		scrollbar-width: none;
 		-webkit-overflow-scrolling: touch;
 		mask-image: linear-gradient(
 			to right,
 			transparent,
-			black var(--fc-fade-start),
-			black calc(100% - var(--fc-fade-end)),
+			black 0px,
+			black calc(100% - 0px),
+			transparent
+		);
+	}
+	.row[data-overflow][data-fade-start] {
+		mask-image: linear-gradient(
+			to right,
+			transparent,
+			black var(--sp-6),
+			black calc(100% - 0px),
+			transparent
+		);
+	}
+	.row[data-overflow][data-fade-end] {
+		mask-image: linear-gradient(
+			to right,
+			transparent,
+			black 0px,
+			black calc(100% - var(--sp-6)),
+			transparent
+		);
+	}
+	.row[data-overflow][data-fade-start][data-fade-end] {
+		mask-image: linear-gradient(
+			to right,
+			transparent,
+			black var(--sp-6),
+			black calc(100% - var(--sp-6)),
 			transparent
 		);
 	}
@@ -303,19 +319,40 @@
 		mask-image: linear-gradient(
 			to left,
 			transparent,
-			black var(--fc-fade-start),
-			black calc(100% - var(--fc-fade-end)),
+			black 0px,
+			black calc(100% - 0px),
+			transparent
+		);
+	}
+	.row[data-overflow][data-fade-start]:dir(rtl) {
+		mask-image: linear-gradient(
+			to left,
+			transparent,
+			black var(--sp-6),
+			black calc(100% - 0px),
+			transparent
+		);
+	}
+	.row[data-overflow][data-fade-end]:dir(rtl) {
+		mask-image: linear-gradient(
+			to left,
+			transparent,
+			black 0px,
+			black calc(100% - var(--sp-6)),
+			transparent
+		);
+	}
+	.row[data-overflow][data-fade-start][data-fade-end]:dir(rtl) {
+		mask-image: linear-gradient(
+			to left,
+			transparent,
+			black var(--sp-6),
+			black calc(100% - var(--sp-6)),
 			transparent
 		);
 	}
 	.row[data-overflow]::-webkit-scrollbar {
 		display: none;
-	}
-	.row[data-fade-start] {
-		--fc-fade-start: var(--fc-fade);
-	}
-	.row[data-fade-end] {
-		--fc-fade-end: var(--fc-fade);
 	}
 	.row[data-overflow] :global(:is(.chip, .toggle):focus-visible) {
 		outline-offset: var(--focus-ring-offset-inset);
@@ -329,16 +366,15 @@
 		justify-content: center;
 		gap: var(--sp-1);
 		box-sizing: border-box;
-		height: var(--toggle-size, var(--fc-h));
-		padding: 0 var(--fc-px);
+		height: var(--control-sm);
+		padding: 0 var(--control-px-sm);
 		border: var(--edge-width) solid var(--surface-edge);
 		border-radius: var(--r-sm);
 		background: var(--surface-fill-2);
 		color: var(--text-muted);
-		font-size: var(--fc-fs);
+		font-size: var(--control-fs-sm);
 		font-weight: var(--fw-medium);
 		line-height: var(--lh-none);
-		--icon-size: var(--fc-icon);
 		white-space: nowrap;
 		text-decoration: none;
 		user-select: none;
@@ -349,6 +385,17 @@
 			color var(--dur-fast) var(--ease),
 			translate var(--dur-fast) var(--ease),
 			scale var(--dur-fast) var(--ease-out);
+	}
+	.chip :global(.icon) {
+		font-size: var(--control-icon-sm);
+	}
+	.fc-md .chip {
+		height: var(--control-md);
+		padding: 0 var(--control-px-md);
+		font-size: var(--control-fs-md);
+	}
+	.fc-md .chip :global(.icon) {
+		font-size: var(--control-icon-md);
 	}
 	.chip:disabled {
 		opacity: var(--disabled-opacity);
@@ -365,10 +412,9 @@
 		transition-duration: var(--dur-press);
 	}
 	.chip.on {
-		--tc: var(--toggle-accent, var(--accent));
-		color: var(--tc);
-		border-color: color-mix(in srgb, var(--tc) 55%, transparent);
-		background: color-mix(in srgb, var(--tc) 16%, transparent);
+		color: var(--accent);
+		border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+		background: color-mix(in srgb, var(--accent) 16%, transparent);
 	}
 	.count {
 		color: color-mix(in srgb, currentColor 65%, transparent);

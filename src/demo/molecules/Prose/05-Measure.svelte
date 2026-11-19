@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'Measure',
-		caption: 'Lines stop at --measure (68ch) however wide the pane; style="--measure: none" lets the text fill the box.',
+		caption: 'Lines stop at --measure (68ch) however wide the pane; style="max-inline-size: none" lets the text fill the box.',
 		layout: 'stack'
 	};
 </script>
@@ -14,5 +14,5 @@
 
 <Text variant="eyebrow">Default</Text>
 <Prose html={renderMarkdown(source)} />
-<Text variant="eyebrow">--measure: none</Text>
-<Prose html={renderMarkdown(source)} style="--measure: none" />
+<Text variant="eyebrow">max-inline-size: none</Text>
+<Prose html={renderMarkdown(source)} style="max-inline-size: none" />

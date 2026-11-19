@@ -173,7 +173,7 @@
 			{@render optionList()}
 		</select>
 		{#if hasFace}
-			<span class="select-face" class:compact={small} aria-hidden="true">
+			<span class="select-face" class:compact={small} class:select-lg={size === 'lg'} aria-hidden="true">
 				{#if selected?.icon}
 					<Icon name={selected.icon} />
 				{:else if selected?.emoji}
@@ -195,7 +195,6 @@
 
 <style>
 	.select-wrap {
-		--select-icon: var(--control-icon-md);
 		position: relative;
 		display: block;
 		width: 100%;
@@ -209,37 +208,34 @@
 		flex: 1 1 0;
 		min-width: 0;
 	}
-	.select-wrap:has(.select.compact) {
-		--select-icon: var(--control-icon-sm);
-	}
-	.select-wrap:has(.select.select-lg) {
-		--select-icon: var(--control-icon-lg);
-	}
 	.select {
 		width: 100%;
-		min-height: var(--select-size, var(--control-height-default));
+		min-height: var(--control-height-default);
 		padding: var(--sp-2) var(--control-px-md);
 		font-size: var(--control-fs-md);
 		line-height: var(--lh-tight);
-		background: var(--select-bg, var(--control-fill));
-		border: var(--edge-width) solid var(--select-border, var(--control-edge));
-		border-radius: var(--select-radius, var(--r-md));
+		background: var(--control-fill);
+		border: var(--edge-width) solid var(--control-edge);
+		border-radius: var(--r-md);
 		box-shadow: var(--control-shadow);
-		color: var(--select-fg, var(--text));
+		color: var(--text);
 		transition: border-color var(--dur-fast) ease;
 	}
 	/* Default variant: drop the OS chevron, reserve room for our own. */
 	.select-wrap .select {
 		appearance: none;
 		-webkit-appearance: none;
-		padding-right: calc(var(--control-px-md) + var(--select-icon) + var(--sp-1));
+		padding-right: calc(var(--control-px-md) + var(--control-icon-md) + var(--sp-1));
+	}
+	.select-wrap .select.select-lg {
+		padding-right: calc(var(--control-px-md) + var(--control-icon-lg) + var(--sp-1));
 	}
 	/* No custom chevron: reclaim the reserved right padding. */
 	.select-wrap.no-chevron .select {
 		padding-right: var(--control-px-md);
 	}
 	.select.select-lg {
-		min-height: var(--select-size, var(--control-height-large));
+		min-height: var(--control-height-large);
 		padding: var(--sp-3) var(--control-px-lg);
 		font-size: var(--control-fs-lg);
 	}
@@ -249,13 +245,13 @@
 		font-size: var(--control-fs-sm);
 	}
 	.select-wrap:not(.no-chevron) .select.compact {
-		padding-right: calc(var(--control-px-sm) + var(--select-icon) + var(--sp-1));
+		padding-right: calc(var(--control-px-sm) + var(--control-icon-sm) + var(--sp-1));
 	}
 	/* Toolbar contract: size="sm" shares the compact control height so it lines up
 	   with Button size="sm", Popover size="sm" and SegmentedControl size="sm". */
 	.select.select-sm {
-		height: var(--select-size, var(--control-height-compact));
-		min-height: var(--select-size, var(--control-height-compact));
+		height: var(--control-height-compact);
+		min-height: var(--control-height-compact);
 	}
 	.select.w-auto {
 		width: auto;
@@ -263,9 +259,9 @@
 		text-overflow: ellipsis;
 	}
 	.select.embedded {
-		background: var(--select-bg, var(--bg-elevated-2));
+		background: var(--bg-elevated-2);
 		border: none;
-		border-radius: var(--select-radius, var(--r-sm));
+		border-radius: var(--r-sm);
 		box-shadow: none;
 	}
 	.select:focus {
@@ -283,21 +279,23 @@
 	.select:is([aria-invalid='true'], :user-invalid):focus {
 		border-color: var(--danger);
 	}
-	.select {
-		--focus-tint: var(--accent);
-	}
-	.select:is([aria-invalid='true'], :user-invalid) {
-		--focus-tint: var(--danger);
-	}
 	/* Focus bloom: a solid ring whose soft halo swells, then settles to a quieter glow. */
 	.select:not(.ghost, .embedded):focus:not(:global([data-fx-focus='none']) *),
 	:global(:is([data-fx-focus='bloom'], [data-fx-focus='label'])) .select:not(.ghost, .embedded):focus:not(:global(:is([data-fx-focus='bloom'], [data-fx-focus='label']) [data-fx-focus='none']) *) {
 		outline: none;
 		box-shadow:
 			var(--control-shadow),
-			0 0 0 var(--focus-ring-width) var(--focus-tint),
-			0 0 16px 2px color-mix(in srgb, var(--focus-tint) 24%, transparent);
+			0 0 0 var(--focus-ring-width) var(--accent),
+			0 0 16px 2px color-mix(in srgb, var(--accent) 24%, transparent);
 		animation: focus-bloom var(--dur-fast) var(--ease-out);
+	}
+	.select:is([aria-invalid='true'], :user-invalid):not(.ghost, .embedded):focus:not(:global([data-fx-focus='none']) *),
+	:global(:is([data-fx-focus='bloom'], [data-fx-focus='label'])) .select:is([aria-invalid='true'], :user-invalid):not(.ghost, .embedded):focus:not(:global(:is([data-fx-focus='bloom'], [data-fx-focus='label']) [data-fx-focus='none']) *) {
+		box-shadow:
+			var(--control-shadow),
+			0 0 0 var(--focus-ring-width) var(--danger),
+			0 0 16px 2px color-mix(in srgb, var(--danger) 24%, transparent);
+		animation-name: focus-bloom-danger;
 	}
 	@keyframes focus-bloom {
 		0% {
@@ -309,8 +307,22 @@
 		45% {
 			box-shadow:
 				var(--control-shadow),
-				0 0 0 calc(var(--focus-ring-width) + 1px) var(--focus-tint),
-				0 0 20px 4px color-mix(in srgb, var(--focus-tint) 32%, transparent);
+				0 0 0 calc(var(--focus-ring-width) + 1px) var(--accent),
+				0 0 20px 4px color-mix(in srgb, var(--accent) 32%, transparent);
+		}
+	}
+	@keyframes focus-bloom-danger {
+		0% {
+			box-shadow:
+				var(--control-shadow),
+				0 0 0 0 transparent,
+				0 0 0 0 transparent;
+		}
+		45% {
+			box-shadow:
+				var(--control-shadow),
+				0 0 0 calc(var(--focus-ring-width) + 1px) var(--danger),
+				0 0 20px 4px color-mix(in srgb, var(--danger) 32%, transparent);
 		}
 	}
 	.select:disabled {
@@ -338,22 +350,31 @@
 		align-items: center;
 		gap: var(--sp-2);
 		padding: 0 var(--control-px-md);
-		padding-right: calc(var(--control-px-md) + var(--select-icon) + var(--sp-1));
+		padding-right: calc(var(--control-px-md) + var(--control-icon-md) + var(--sp-1));
 		font-size: var(--control-fs-md);
-		color: var(--select-fg, var(--text));
+		color: var(--text);
 		pointer-events: none;
 		overflow: hidden;
 	}
+	.select-face.select-lg {
+		padding-right: calc(var(--control-px-md) + var(--control-icon-lg) + var(--sp-1));
+	}
 	.select-face > :global(svg) {
 		flex: none;
-		font-size: var(--select-icon);
+		font-size: var(--control-icon-md);
+	}
+	.select-face.compact > :global(svg) {
+		font-size: var(--control-icon-sm);
+	}
+	.select-face.select-lg > :global(svg) {
+		font-size: var(--control-icon-lg);
 	}
 	.select-wrap.no-chevron .select-face {
 		padding-right: var(--control-px-md);
 	}
 	.select-face.compact {
 		padding: 0 var(--control-px-sm);
-		padding-right: calc(var(--control-px-sm) + var(--select-icon) + var(--sp-1));
+		padding-right: calc(var(--control-px-sm) + var(--control-icon-sm) + var(--sp-1));
 		font-size: var(--control-fs-sm);
 	}
 	.select-wrap.no-chevron .select-face.compact {
@@ -397,12 +418,16 @@
 		right: var(--control-px-md);
 		transform: translateY(-50%);
 		display: inline-flex;
-		font-size: var(--select-icon);
+		font-size: var(--control-icon-md);
 		color: var(--text-muted);
 		pointer-events: none; /* clicks fall through to the select */
 	}
 	.select-wrap:has(.select.compact) .select-chevron {
 		right: var(--control-px-sm);
+		font-size: var(--control-icon-sm);
+	}
+	.select-wrap:has(.select.select-lg) .select-chevron {
+		font-size: var(--control-icon-lg);
 	}
 	@media (hover: hover) and (pointer: fine) {
 		.select:hover:not(:disabled, :focus, [aria-invalid='true'], :user-invalid, .ghost, .embedded) {

@@ -31,14 +31,14 @@ test('icon is inset, clear button appears only with a value and restores focus',
 	assert.match(source, /{#if clearable && value}/);
 	assert.match(source, /aria-label={clearLabel} onclick={clear}/);
 	assert.match(source, /function clear\(\) {\s*value = '';\s*onclear\?\.\(\);\s*el\?\.focus\(\);/);
-	assert.match(source, /\.has-icon\s*{[^}]*padding-inline-start: calc\(var\(--control-px-md\) \+ var\(--input-icon\) \+ var\(--sp-2\)\);/s);
+	assert.match(source, /\.has-icon\s*{[^}]*padding-inline-start: calc\(var\(--control-px-md\) \+ var\(--control-icon-md\) \+ var\(--sp-2\)\);/s);
 });
 
 test('width sets a fixed width with flex: none; pill uses the pill radius', () => {
 	assert.match(source, /style:width={wrapped \? undefined : width}/);
 	assert.match(source, /class:input-fixed={!!width}/);
 	assert.match(source, /\.input-fixed\s*{\s*flex: none;/);
-	assert.match(source, /\.input-pill\s*{[^}]*border-radius: var\(--input-radius, var\(--r-pill\)\);/s);
+	assert.match(source, /\.input-pill\s*{[^}]*border-radius: var\(--r-pill\);/s);
 });
 
 test('onenter fires with the value on Enter and still calls a consumer onkeydown', () => {
@@ -48,6 +48,6 @@ test('onenter fires with the value on Enter and still calls a consumer onkeydown
 });
 
 test('Input adopts the default control height so it lines up with FilterInput and Button', () => {
-	assert.match(source, /\.input\s*{[^}]*min-height: var\(--input-size, var\(--control-height-default\)\);[^}]*padding: var\(--sp-2\) var\(--control-px-md\);/s);
-	assert.match(source, /\.input-sm\s*{\s*min-height: var\(--input-size, var\(--control-height-compact\)\);/);
+	assert.match(source, /\.input\s*{[^}]*min-height: var\(--control-height-default\);[^}]*padding: var\(--sp-2\) var\(--control-px-md\);/s);
+	assert.match(source, /\.input-sm\s*{\s*min-height: var\(--control-height-compact\);/);
 });

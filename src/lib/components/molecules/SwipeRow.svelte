@@ -197,7 +197,7 @@
 	class:swiperow-tone-info={tone === 'info'}
 	class:swiperow-tone-warn={tone === 'warn'}
 	class:swiperow-tone-danger={tone === 'danger'}
-	style="--swiperow-x: {offset}px;{styleProp ?? ''}"
+	style={styleProp}
 	{onpointerdown}
 	{onpointermove}
 	{onpointerup}
@@ -226,7 +226,7 @@
 			{/if}
 		</div>
 	{/if}
-	<div class="swiperow-content" data-part="content">
+	<div class="swiperow-content" data-part="content" style:transform="translate3d({offset}px, 0, 0)">
 		{@render children()}
 	</div>
 	{#if leadingAction || trailingAction}
@@ -247,33 +247,11 @@
 
 <style>
 	.swiperow {
-		--swiperow-tone: var(--bg-elevated-2);
-		--swiperow-ink: var(--text);
 		position: relative;
 		overflow: hidden;
 		touch-action: pan-y;
 		user-select: none;
 		-webkit-user-select: none;
-	}
-	.swiperow-tone-accent {
-		--swiperow-tone: var(--accent);
-		--swiperow-ink: var(--text-on-accent);
-	}
-	.swiperow-tone-success {
-		--swiperow-tone: var(--ok);
-		--swiperow-ink: var(--bg);
-	}
-	.swiperow-tone-info {
-		--swiperow-tone: var(--info);
-		--swiperow-ink: var(--bg);
-	}
-	.swiperow-tone-warn {
-		--swiperow-tone: var(--warn);
-		--swiperow-ink: var(--bg);
-	}
-	.swiperow-tone-danger {
-		--swiperow-tone: var(--danger);
-		--swiperow-ink: var(--bg);
 	}
 	.swiperow-pane {
 		position: absolute;
@@ -282,12 +260,32 @@
 		align-items: center;
 		gap: var(--sp-2);
 		padding: 0 var(--sp-4);
-		background: var(--swiperow-tone);
-		color: var(--swiperow-ink);
+		background: var(--bg-elevated-2);
+		color: var(--text);
 		font-size: var(--fs-sm);
 		font-weight: var(--fw-semibold);
 		visibility: hidden;
 		pointer-events: none;
+	}
+	.swiperow-tone-accent .swiperow-pane {
+		background: var(--accent);
+		color: var(--text-on-accent);
+	}
+	.swiperow-tone-success .swiperow-pane {
+		background: var(--ok);
+		color: var(--bg);
+	}
+	.swiperow-tone-info .swiperow-pane {
+		background: var(--info);
+		color: var(--bg);
+	}
+	.swiperow-tone-warn .swiperow-pane {
+		background: var(--warn);
+		color: var(--bg);
+	}
+	.swiperow-tone-danger .swiperow-pane {
+		background: var(--danger);
+		color: var(--bg);
 	}
 	.swiperow-pane--leading {
 		justify-content: flex-start;
@@ -308,7 +306,6 @@
 	.swiperow-content {
 		position: relative;
 		background: var(--bg);
-		transform: translate3d(var(--swiperow-x), 0, 0);
 		will-change: transform;
 	}
 	.swiperow--settling .swiperow-content {
@@ -347,10 +344,30 @@
 		pointer-events: auto;
 		font: inherit;
 		font-size: var(--fs-sm);
-		color: var(--swiperow-ink);
-		background: var(--swiperow-tone);
+		color: var(--text);
+		background: var(--bg-elevated-2);
 		border-radius: var(--r-sm);
 		outline: var(--focus-ring);
 		outline-offset: var(--sp-px);
+	}
+	.swiperow-tone-accent .swiperow-sr:focus-visible {
+		color: var(--text-on-accent);
+		background: var(--accent);
+	}
+	.swiperow-tone-success .swiperow-sr:focus-visible {
+		color: var(--bg);
+		background: var(--ok);
+	}
+	.swiperow-tone-info .swiperow-sr:focus-visible {
+		color: var(--bg);
+		background: var(--info);
+	}
+	.swiperow-tone-warn .swiperow-sr:focus-visible {
+		color: var(--bg);
+		background: var(--warn);
+	}
+	.swiperow-tone-danger .swiperow-sr:focus-visible {
+		color: var(--bg);
+		background: var(--danger);
 	}
 </style>

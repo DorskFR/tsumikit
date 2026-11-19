@@ -17,16 +17,17 @@ test('border toggles a border-<style> class; solid adds none', () => {
 	assert.doesNotMatch(card, /class:border-solid/);
 });
 
-test('the frame reads its style from a token so tone keeps owning the colour', () => {
-	assert.match(card, /--card-border-style: solid;/);
-	assert.match(card, /border: var\(--edge-width\) var\(--card-border-style\) var\(--surface-edge\);/);
-	assert.match(card, /\.border-dashed\s*{\s*--card-border-style: dashed;/);
-	assert.match(card, /\.border-none\s*{\s*--card-border-style: none;/);
-	assert.match(card, /border-color: color-mix\(in srgb, var\(--card-tone\) \d+%, var\(--surface-edge\)\)/);
+test('the variants set only border-style so tone keeps owning the colour', () => {
+	assert.match(card, /border: var\(--edge-width\) solid var\(--surface-edge\);/);
+	assert.match(card, /\.border-dashed\s*{\s*border-style: dashed;/);
+	assert.match(card, /\.border-none\s*{\s*border-style: none;/);
+	assert.match(card, /\.card-ok\s*{\s*border-color: color-mix\(in srgb, var\(--ok\) \d+%, var\(--surface-edge\)\)/);
+	assert.doesNotMatch(card, /--card-border-style/);
 });
 
 test('stacked back layers follow the same border style', () => {
-	assert.match(card, /border: var\(--edge-width\) var\(--card-border-style\) var\(--stack-border\);/);
+	assert.match(card, /\.card-stacked\.border-dashed::before,\s*\.card-stacked\.border-dashed::after\s*{\s*border-style: dashed;/);
+	assert.match(card, /\.card-stacked\.border-none::before,\s*\.card-stacked\.border-none::after\s*{\s*border-style: none;/);
 });
 
 test('the showcase demos the dashed and borderless variants', () => {

@@ -36,7 +36,7 @@
 	// Inline loading indicator. `icon` (default) spins the `loader` glyph; the
 	// other variants are pure-CSS pictograms drawn in currentColor inside a 1em
 	// box. Every variant's base style is a meaningful static pose, which is what
-	// shows under prefers-reduced-motion. `--spinner-speed` scales the tempo.
+	// shows under prefers-reduced-motion.
 	// `clock` and `bounce` read best at 20px and up; `breath` is 2.5em wide.
 	import Icon from './Icon.svelte';
 
@@ -97,8 +97,6 @@
 	}
 
 	.spinner {
-		--sw: max(1.5px, 0.11em);
-		--t: calc(1s * var(--spinner-speed, 1));
 		position: relative;
 		display: inline-block;
 		flex: none;
@@ -126,13 +124,13 @@
 		background: currentColor;
 		-webkit-mask: radial-gradient(
 			farthest-side,
-			transparent calc(100% - var(--sw)),
-			#000 calc(100% - var(--sw) + 0.5px)
+			transparent calc(100% - max(1.5px, 0.11em)),
+			#000 calc(100% - max(1.5px, 0.11em) + 0.5px)
 		);
 		mask: radial-gradient(
 			farthest-side,
-			transparent calc(100% - var(--sw)),
-			#000 calc(100% - var(--sw) + 0.5px)
+			transparent calc(100% - max(1.5px, 0.11em)),
+			#000 calc(100% - max(1.5px, 0.11em) + 0.5px)
 		);
 	}
 	.v-arc::before {
@@ -141,17 +139,17 @@
 	.v-arc::after {
 		--tsu-spin-arc: 100deg;
 		-webkit-mask:
-			radial-gradient(farthest-side, transparent calc(100% - var(--sw)), #000 calc(100% - var(--sw) + 0.5px)),
+			radial-gradient(farthest-side, transparent calc(100% - max(1.5px, 0.11em)), #000 calc(100% - max(1.5px, 0.11em) + 0.5px)),
 			conic-gradient(#000 var(--tsu-spin-arc), transparent 0);
 		-webkit-mask-composite: source-in;
 		mask:
-			radial-gradient(farthest-side, transparent calc(100% - var(--sw)), #000 calc(100% - var(--sw) + 0.5px))
+			radial-gradient(farthest-side, transparent calc(100% - max(1.5px, 0.11em)), #000 calc(100% - max(1.5px, 0.11em) + 0.5px))
 				intersect,
 			conic-gradient(#000 var(--tsu-spin-arc), transparent 0);
 		mask-composite: intersect;
 		animation:
-			tsu-spin-arc calc(var(--t) * 1.4) cubic-bezier(0.5, 0, 0.5, 1) infinite,
-			tsu-spin-rot calc(var(--t) * 1.4) linear infinite;
+			tsu-spin-arc 1.4s cubic-bezier(0.5, 0, 0.5, 1) infinite,
+			tsu-spin-rot 1.4s linear infinite;
 	}
 	@keyframes tsu-spin-arc {
 		0% {
@@ -187,18 +185,18 @@
 		height: 0.24em;
 		border-radius: 50%;
 		background: currentColor;
-		animation: tsu-spin-dot calc(var(--t) * 1.1) cubic-bezier(0.45, 0, 0.55, 1) infinite;
+		animation: tsu-spin-dot 1.1s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 	}
 	.v-dots .in span:nth-child(1) {
 		opacity: 1;
 	}
 	.v-dots .in span:nth-child(2) {
 		opacity: 0.6;
-		animation-delay: calc(var(--t) * 0.14);
+		animation-delay: 0.14s;
 	}
 	.v-dots .in span:nth-child(3) {
 		opacity: 0.32;
-		animation-delay: calc(var(--t) * 0.28);
+		animation-delay: 0.28s;
 	}
 	@keyframes tsu-spin-dot {
 		0%,
@@ -230,13 +228,13 @@
 		margin: -0.15em;
 		border-radius: 50%;
 		background: currentColor;
-		animation: tsu-spin-core calc(var(--t) * 1.2) ease-in-out infinite;
+		animation: tsu-spin-core 1.2s ease-in-out infinite;
 	}
 	.v-orbit > span:nth-child(2) {
 		position: absolute;
 		inset: 0;
 		transform: rotate(45deg);
-		animation: tsu-spin-orbit calc(var(--t) * 1.2) cubic-bezier(0.6, 0.15, 0.4, 0.85) infinite;
+		animation: tsu-spin-orbit 1.2s cubic-bezier(0.6, 0.15, 0.4, 0.85) infinite;
 	}
 	.v-orbit > span:nth-child(2)::before {
 		content: '';
@@ -283,13 +281,13 @@
 		position: absolute;
 		inset: 0;
 		border-radius: 50%;
-		border: var(--sw) solid currentColor;
+		border: max(1.5px, 0.11em) solid currentColor;
 		transform: scale(0.72);
 		opacity: 0.45;
-		animation: tsu-spin-ripple calc(var(--t) * 1.6) cubic-bezier(0.2, 0.6, 0.35, 1) infinite;
+		animation: tsu-spin-ripple 1.6s cubic-bezier(0.2, 0.6, 0.35, 1) infinite;
 	}
 	.v-pulse::after {
-		animation-delay: calc(var(--t) * -0.8);
+		animation-delay: -0.8s;
 	}
 	@keyframes tsu-spin-ripple {
 		0% {
@@ -314,23 +312,23 @@
 		border-radius: 0.1em;
 		background: currentColor;
 		transform-origin: 50% 50%;
-		animation: tsu-spin-bar var(--t) ease-in-out infinite;
+		animation: tsu-spin-bar 1s ease-in-out infinite;
 	}
 	.v-bars .in span:nth-child(1) {
 		transform: scaleY(0.4);
-		animation-delay: calc(var(--t) * -0.9);
+		animation-delay: -0.9s;
 	}
 	.v-bars .in span:nth-child(2) {
 		transform: scaleY(0.85);
-		animation-delay: calc(var(--t) * -0.6);
+		animation-delay: -0.6s;
 	}
 	.v-bars .in span:nth-child(3) {
 		transform: scaleY(0.6);
-		animation-delay: calc(var(--t) * -0.3);
+		animation-delay: -0.3s;
 	}
 	.v-bars .in span:nth-child(4) {
 		transform: scaleY(1);
-		animation-delay: calc(var(--t) * -0.75);
+		animation-delay: -0.75s;
 	}
 	@keyframes tsu-spin-bar {
 		0%,
@@ -353,28 +351,29 @@
 		height: 0.2em;
 		border-radius: 0.05em;
 		background: currentColor;
-		opacity: calc(1 - var(--d) * 0.18);
-		animation: tsu-spin-cell calc(var(--t) * 1.2) ease-in-out infinite;
-		animation-delay: calc(var(--t) * 0.1 * var(--d) - var(--t) * 1.2);
-	}
-	.v-grid .in span:nth-child(1) {
-		--d: 0;
+		opacity: 1;
+		animation: tsu-spin-cell 1.2s ease-in-out infinite;
+		animation-delay: -1.2s;
 	}
 	.v-grid .in span:nth-child(2),
 	.v-grid .in span:nth-child(4) {
-		--d: 1;
+		opacity: 0.82;
+		animation-delay: -1.1s;
 	}
 	.v-grid .in span:nth-child(3),
 	.v-grid .in span:nth-child(5),
 	.v-grid .in span:nth-child(7) {
-		--d: 2;
+		opacity: 0.64;
+		animation-delay: -1s;
 	}
 	.v-grid .in span:nth-child(6),
 	.v-grid .in span:nth-child(8) {
-		--d: 3;
+		opacity: 0.46;
+		animation-delay: -0.9s;
 	}
 	.v-grid .in span:nth-child(9) {
-		--d: 4;
+		opacity: 0.28;
+		animation-delay: -0.8s;
 	}
 	@keyframes tsu-spin-cell {
 		0%,
@@ -390,7 +389,7 @@
 
 	.v-clock {
 		border-radius: 50%;
-		border: var(--sw) solid currentColor;
+		border: max(1.5px, 0.11em) solid currentColor;
 	}
 	.v-clock::before,
 	.v-clock::after {
@@ -398,22 +397,22 @@
 		position: absolute;
 		left: 50%;
 		bottom: 50%;
-		width: var(--sw);
-		margin-left: calc(var(--sw) / -2);
-		border-radius: var(--sw);
+		width: max(1.5px, 0.11em);
+		margin-left: calc(max(1.5px, 0.11em) / -2);
+		border-radius: max(1.5px, 0.11em);
 		background: currentColor;
 		transform-origin: 50% 100%;
-		translate: 0 calc(var(--sw) / 2);
+		translate: 0 calc(max(1.5px, 0.11em) / 2);
 	}
 	.v-clock::before {
 		height: 0.32em;
 		transform: rotate(0deg);
-		animation: tsu-spin-hand-m var(--t) linear infinite;
+		animation: tsu-spin-hand-m 1s linear infinite;
 	}
 	.v-clock::after {
 		height: 0.22em;
 		transform: rotate(90deg);
-		animation: tsu-spin-hand-h calc(var(--t) * 12) linear infinite;
+		animation: tsu-spin-hand-h 12s linear infinite;
 	}
 	@keyframes tsu-spin-hand-m {
 		from {
@@ -442,7 +441,7 @@
 		border-radius: 50%;
 		background: currentColor;
 		transform-origin: 50% 100%;
-		animation: tsu-spin-ball calc(var(--t) * 0.9) infinite;
+		animation: tsu-spin-ball 0.9s infinite;
 	}
 	.v-bounce > span:nth-child(2) {
 		position: absolute;
@@ -454,7 +453,7 @@
 		border-radius: 50%;
 		background: currentColor;
 		opacity: 0.3;
-		animation: tsu-spin-shadow calc(var(--t) * 0.9) infinite;
+		animation: tsu-spin-shadow 0.9s infinite;
 	}
 	@keyframes tsu-spin-ball {
 		0% {
@@ -494,13 +493,13 @@
 		border-radius: 50%;
 		-webkit-mask: radial-gradient(
 			farthest-side,
-			transparent calc(100% - var(--sw)),
-			#000 calc(100% - var(--sw) + 0.5px)
+			transparent calc(100% - max(1.5px, 0.11em)),
+			#000 calc(100% - max(1.5px, 0.11em) + 0.5px)
 		);
 		mask: radial-gradient(
 			farthest-side,
-			transparent calc(100% - var(--sw)),
-			#000 calc(100% - var(--sw) + 0.5px)
+			transparent calc(100% - max(1.5px, 0.11em)),
+			#000 calc(100% - max(1.5px, 0.11em) + 0.5px)
 		);
 	}
 	.v-comet::before {
@@ -509,15 +508,15 @@
 	}
 	.v-comet > span {
 		background: conic-gradient(from 0deg, transparent 0 35%, currentColor 100%);
-		animation: tsu-spin-comet calc(var(--t) * 1.1) linear infinite;
+		animation: tsu-spin-comet 1.1s linear infinite;
 	}
 	.v-comet > span::after {
 		content: '';
 		position: absolute;
 		top: 0;
 		left: 50%;
-		width: var(--sw);
-		height: var(--sw);
+		width: max(1.5px, 0.11em);
+		height: max(1.5px, 0.11em);
 		border-radius: 50%;
 		background: currentColor;
 		box-shadow: 0 0 0.25em 0.04em currentColor;
@@ -536,7 +535,7 @@
 			currentColor 50%,
 			color-mix(in srgb, currentColor 18%, transparent)
 		);
-		animation: tsu-spin-sweep calc(var(--t) * 1.4) linear infinite;
+		animation: tsu-spin-sweep 1.4s linear infinite;
 	}
 	@keyframes tsu-spin-sweep {
 		to {
@@ -550,7 +549,7 @@
 		inset: 0.08em;
 		border-radius: 50%;
 		background: currentColor;
-		animation: tsu-spin-morph calc(var(--t) * 2.4) cubic-bezier(0.77, 0, 0.175, 1) infinite;
+		animation: tsu-spin-morph 2.4s cubic-bezier(0.77, 0, 0.175, 1) infinite;
 	}
 	@keyframes tsu-spin-morph {
 		0% {
@@ -588,23 +587,23 @@
 		height: 0.34em;
 		border-radius: 50%;
 		background: currentColor;
-		animation: tsu-spin-breath calc(var(--t) * 1.3) cubic-bezier(0.77, 0, 0.175, 1) infinite;
+		animation: tsu-spin-breath 1.3s cubic-bezier(0.77, 0, 0.175, 1) infinite;
 	}
 	.v-breath .in span:nth-child(1) {
 		opacity: 1;
-		animation-delay: calc(var(--t) * -0.52);
+		animation-delay: -0.52s;
 	}
 	.v-breath .in span:nth-child(2) {
 		opacity: 0.75;
-		animation-delay: calc(var(--t) * -0.39);
+		animation-delay: -0.39s;
 	}
 	.v-breath .in span:nth-child(3) {
 		opacity: 0.55;
-		animation-delay: calc(var(--t) * -0.26);
+		animation-delay: -0.26s;
 	}
 	.v-breath .in span:nth-child(4) {
 		opacity: 0.4;
-		animation-delay: calc(var(--t) * -0.13);
+		animation-delay: -0.13s;
 	}
 	.v-breath .in span:nth-child(5) {
 		opacity: 0.28;

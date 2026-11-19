@@ -25,7 +25,7 @@ test('option shape gains description and note', () => {
 test('rows: bordered row, selected row uses --accent-dim border and --surface-fill', () => {
 	assert.match(src, /class="row" class:selected={o\.value === value}/);
 	assert.match(src, /\.row\s*{[^}]*border: var\(--edge-width\) solid var\(--surface-edge\);[^}]*border-radius: var\(--r-md\);/s);
-	assert.match(src, /\.row\s*{[^}]*padding: var\(--pad,/s);
+	assert.match(src, /\.row\s*{[^}]*padding: var\(--sp-2\) var\(--sp-3\);/s);
 	assert.match(src, /\.row\.selected\s*{[^}]*border-color: var\(--accent-dim\);[^}]*background: var\(--surface-fill\);/s);
 });
 
