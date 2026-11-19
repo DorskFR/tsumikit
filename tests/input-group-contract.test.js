@@ -4,13 +4,14 @@ import test from 'node:test';
 import { JSDOM } from 'jsdom';
 import { compile } from 'svelte/compiler';
 import { buildFixture } from './fixtures/build.mjs';
+import { inputGroupPadding } from '../src/lib/input-group-context.ts';
 import { hasDecl, readDocs, rule } from './helpers.mjs';
 
 // jsdom has no layout engine: the geometry contract (the field's border box
 // spanning the group, text clear of the adornments, bottom alignment while
 // growing, the 390px zoom rect) is asserted structurally here — the field is
-// the full-width element, the adornments are overlays, the padding reads the
-// measured vars and the ResizeObserver writes them.
+// the full-width element, the adornments are overlays, the ResizeObserver
+// feeds the measured widths to the group context and the field pads inline from it.
 
 const read = (/** @type {string} */ p) => readFile(new URL(`../src/lib/${p}`, import.meta.url), 'utf8');
 const [group, input, textarea, composer, index, readme] = await Promise.all([
@@ -22,6 +23,13 @@ const [group, input, textarea, composer, index, readme] = await Promise.all([
 	readDocs('components.md')
 ]);
 const bundle = await buildFixture('mount-input-group.js');
+
+const FUSE = 'calc(var(--r-md) - var(--sp-px))';
+/** The outer adornment and the buttons nested in it share one corner-fusing rule. */
+const fused = (/** @type {string} */ root, /** @type {string} */ side, /** @type {string} */ edge, /** @type {string} */ radius) =>
+	group.includes(
+		`\t${root} ${side} > :global(${edge}),\n\t${root} ${side} > :global(${edge} :is(.btn, .btn-control)) {\n\t\tborder-radius: ${radius};\n\t}`
+	);
 
 const TABBABLE = 'a[href], button, input, select, textarea, [tabindex]:not([tabindex="-1"])';
 
@@ -70,6 +78,7 @@ function render(/** @type {Record<string, unknown>} */ props = {}) {
 		observers,
 		flush: flushSync,
 		field: () => /** @type {HTMLElement} */ (doc.getElementById('msg')),
+		pad: () => doc.getElementById('msg')?.getAttribute('style') ?? '',
 		leading: () => /** @type {HTMLElement | null} */ (ig.querySelector('.ig-leading')),
 		trailing: () => /** @type {HTMLElement | null} */ (ig.querySelector('.ig-trailing')),
 		/** @param {Element} el @param {number} px */
@@ -100,50 +109,58 @@ test('the grouped field pads its text from the measured adornment widths', () =>
 		[textarea, '.textarea.grouped'],
 		[input, '.input.grouped']
 	]) {
-		const pad = rule(src, sel)['padding-inline'];
-		assert.ok(pad, `${sel} declares padding-inline`);
-		assert.match(pad, /max\(var\(--ig-pad-x\), var\(--ig-leading-w, 0px\) \+ var\(--ig-gap\)\)/);
-		assert.match(pad, /max\(var\(--ig-pad-x\), var\(--ig-trailing-w, 0px\) \+ var\(--ig-gap\)\)/);
-		assert.ok(hasDecl(src, sel, 'border-radius', 'var(--ig-radius)'));
+		assert.equal(rule(src, sel)['padding-inline'], undefined, `${sel} takes its padding inline`);
+		assert.match(src, /style:padding-inline-start={pad\?\.start}\s+style:padding-inline-end={pad\?\.end}/);
+		assert.ok(hasDecl(src, sel, 'border-radius', 'var(--r-md)'));
 	}
+	assert.doesNotMatch(group + input + textarea, /--ig-/);
 	assert.ok(hasDecl(input, '.input.grouped', 'width', '100%'));
 	assert.ok(hasDecl(textarea, '.textarea-wrap.grouped', 'width', '100%'));
-	for (const size of ['sm', 'lg']) assert.ok(rule(group, `.ig-${size}`)['--ig-h'], `.ig-${size} sets --ig-h`);
-	assert.ok(hasDecl(group, '.ig', '--ig-h', 'var(--control-height-default)'));
-	assert.ok(hasDecl(group, '.ig-sm', '--ig-h', 'var(--control-height-compact)'));
-	assert.ok(hasDecl(group, '.ig-lg', '--ig-h', 'var(--control-height-large)'));
+
+	const ctx = { size: 'md', disabled: false, invalid: false, leadingW: 40, trailingW: 0, bar: false, setBar() {} };
+	assert.deepEqual(inputGroupPadding(ctx), {
+		start: 'max(var(--control-px-md), 40px + var(--sp-2))',
+		end: 'max(var(--control-px-md), 0px + var(--sp-2))'
+	});
+	assert.deepEqual(inputGroupPadding({ ...ctx, size: 'sm', trailingW: 96 }), {
+		start: 'max(var(--control-px-sm), 40px + var(--sp-1))',
+		end: 'max(var(--control-px-sm), 96px + var(--sp-1))'
+	});
+	assert.equal(inputGroupPadding({ ...ctx, size: 'lg' }).start, 'max(var(--control-px-lg), 40px + var(--sp-2))');
+	assert.deepEqual(inputGroupPadding({ ...ctx, bar: true }), { start: 'var(--control-px-md)', end: 'var(--control-px-md)' });
 });
 
-test('a ResizeObserver per adornment writes --ig-leading-w / --ig-trailing-w on the group', () => {
+test('a ResizeObserver per adornment feeds the field its inline padding', () => {
 	const ui = render();
 	const lead = /** @type {HTMLElement} */ (ui.leading());
 	const trail = /** @type {HTMLElement} */ (ui.trailing());
 	assert.ok(ui.observers.some((o) => o.observed.includes(lead)), 'leading cell observed');
 	assert.ok(ui.observers.some((o) => o.observed.includes(trail)), 'trailing cell observed');
-	assert.equal(ui.ig.style.getPropertyValue('--ig-leading-w'), '0px');
-	assert.equal(ui.ig.style.getPropertyValue('--ig-trailing-w'), '0px');
+	assert.match(ui.pad(), /padding-inline-start: max\(var\(--control-px-md\), 0px \+ var\(--sp-2\)\)/);
+	assert.match(ui.pad(), /padding-inline-end: max\(var\(--control-px-md\), 0px \+ var\(--sp-2\)\)/);
+	assert.doesNotMatch(ui.ig.getAttribute('style') ?? '', /--ig-/, 'the group itself carries no measured variable');
 
 	ui.resize(lead, 40);
 	ui.resize(trail, 96);
-	assert.equal(ui.ig.style.getPropertyValue('--ig-leading-w'), '40px');
-	assert.equal(ui.ig.style.getPropertyValue('--ig-trailing-w'), '96px');
+	assert.match(ui.pad(), /padding-inline-start: max\(var\(--control-px-md\), 40px \+ var\(--sp-2\)\)/);
+	assert.match(ui.pad(), /padding-inline-end: max\(var\(--control-px-md\), 96px \+ var\(--sp-2\)\)/);
 });
 
-test('a trailing label that changes width re-pads the field (the var follows the observer)', () => {
+test('a trailing label that changes width re-pads the field (the padding follows the observer)', () => {
 	const ui = render({ sendLabel: 'Send' });
 	const trail = /** @type {HTMLElement} */ (ui.trailing());
 	ui.resize(trail, 64);
-	assert.equal(ui.ig.style.getPropertyValue('--ig-trailing-w'), '64px');
+	assert.match(ui.pad(), /padding-inline-end: max\(var\(--control-px-md\), 64px \+ var\(--sp-2\)\)/);
 	ui.resize(trail, 132);
-	assert.equal(ui.ig.style.getPropertyValue('--ig-trailing-w'), '132px');
+	assert.match(ui.pad(), /padding-inline-end: max\(var\(--control-px-md\), 132px \+ var\(--sp-2\)\)/);
 	assert.ok(ui.field().classList.contains('grouped'));
 });
 
-test('without an adornment its var is 0px and no empty cell renders', () => {
+test('without an adornment its side keeps the tier padding and no empty cell renders', () => {
 	const ui = render({ withLeading: false });
 	assert.equal(ui.leading(), null);
 	assert.equal(ui.ig.children.length, 2);
-	assert.equal(ui.ig.style.getPropertyValue('--ig-leading-w'), '0px');
+	assert.match(ui.pad(), /padding-inline-start: max\(var\(--control-px-md\), 0px \+ var\(--sp-2\)\)/);
 });
 
 test('Tab order is leading → field → trailing', () => {
@@ -159,7 +176,7 @@ test('Tab order is leading → field → trailing', () => {
 test('the group draws the focus ring around the whole unit; the grouped field yields its own', () => {
 	assert.match(group, /\.ig:has\(:global\(:focus-visible\)\)::after\s*{[^}]*outline: var\(--focus-ring\);/s);
 	assert.ok(hasDecl(group, '.ig:has(:global(:focus-visible))::after', 'inset', '0'));
-	assert.ok(hasDecl(group, '.ig:has(:global(:focus-visible))::after', 'border-radius', 'var(--ig-radius)'));
+	assert.ok(hasDecl(group, '.ig:has(:global(:focus-visible))::after', 'border-radius', 'var(--r-md)'));
 	assert.ok(hasDecl(textarea, '.textarea.grouped:focus-visible', 'outline', 'none'));
 	assert.ok(hasDecl(input, '.input.grouped:focus-visible', 'outline', 'none'));
 	assert.ok(hasDecl(textarea, '.textarea:focus-visible', 'outline', 'var(--focus-ring)'));
@@ -199,12 +216,13 @@ test('align, class, style and rest attributes land on the anchor element', () =>
 });
 
 test('the top resize handle stays between the adornments and still drags', async () => {
-	assert.ok(hasDecl(textarea, '.textarea-wrap.grouped .resize-handle', 'left', 'var(--ig-leading-w, 0px)'));
-	assert.ok(hasDecl(textarea, '.textarea-wrap.grouped .resize-handle', 'right', 'var(--ig-trailing-w, 0px)'));
-
 	const ui = render({ resize: 'top' });
 	const handle = /** @type {HTMLElement} */ (ui.ig.querySelector('.resize-handle.resize-top'));
 	assert.ok(handle, 'top handle rendered inside the group');
+	ui.resize(/** @type {HTMLElement} */ (ui.leading()), 40);
+	ui.resize(/** @type {HTMLElement} */ (ui.trailing()), 96);
+	assert.equal(handle.style.left, '40px');
+	assert.equal(handle.style.right, '96px');
 	const field = ui.field();
 	const wrap = /** @type {HTMLElement} */ (field.parentElement);
 	assert.ok(wrap.classList.contains('grouped'));
@@ -224,19 +242,19 @@ test('the top resize handle stays between the adornments and still drags', async
 });
 
 test('a field taller than one row moves the adornments into a bar under the text', () => {
-	assert.ok(hasDecl(group, '.ig-bar .ig-field', 'padding-bottom', 'var(--ig-h)'));
-	assert.ok(hasDecl(group, '.ig-bar::before', 'height', 'var(--ig-h)'));
+	for (const [tier, height] of [['', 'default'], ['.ig-sm', 'compact'], ['.ig-lg', 'large']]) {
+		const bar = tier ? `${tier}.ig-bar` : '.ig-bar';
+		assert.ok(hasDecl(group, `${bar} .ig-field`, 'padding-bottom', `var(--control-height-${height})`));
+		assert.ok(hasDecl(group, `${bar}::before`, 'height', `var(--control-height-${height})`));
+		assert.ok(hasDecl(group, `${bar} .ig-adorn`, 'height', `calc(var(--control-height-${height}) - var(--sp-px))`));
+	}
 	assert.ok(hasDecl(group, '.ig-bar::before', 'inset', 'auto 0 0 0'));
 	assert.ok(hasDecl(group, '.ig-bar::before', 'border-top', '0'));
 	assert.ok(hasDecl(group, '.ig-bar:has(.ig-field :global(:focus))::before', 'border-color', 'var(--accent)'));
 	assert.ok(hasDecl(group, ".ig-bar:has(.ig-field :global([aria-invalid='true']))::before", 'border-color', 'var(--danger)'));
-	assert.ok(hasDecl(textarea, '.textarea.grouped.bar', 'padding-inline', 'var(--ig-pad-x)'));
 	assert.ok(hasDecl(textarea, '.textarea.grouped.bar', 'border-bottom', '0'));
 	assert.ok(hasDecl(textarea, '.textarea.grouped.bar', 'border-end-start-radius', '0'));
 	assert.ok(hasDecl(textarea, '.textarea.grouped.bar', 'border-end-end-radius', '0'));
-	assert.ok(hasDecl(textarea, '.textarea-wrap.grouped.bar .resize-handle', 'left', '0'));
-	assert.ok(hasDecl(textarea, '.textarea-wrap.grouped.bar .resize-handle', 'right', '0'));
-	assert.doesNotMatch(rule(textarea, '.textarea.grouped.bar')['padding-inline'] ?? '', /--ig-leading-w|--ig-trailing-w/);
 
 	const ui = render();
 	const field = ui.field();
@@ -250,6 +268,7 @@ test('a field taller than one row moves the adornments into a bar under the text
 	assert.ok(ui.ig.classList.contains('ig-bar'));
 	assert.ok(field.classList.contains('bar'));
 	assert.ok(wrap.classList.contains('bar'));
+	assert.match(ui.pad(), /padding-inline-start: var\(--control-px-md\); padding-inline-end: var\(--control-px-md\)/);
 	assert.equal(field.style.minHeight, '120px', 'the probe restores the drag floor');
 
 	field.style.minHeight = '';
@@ -288,22 +307,25 @@ test('exported and documented', () => {
 test('adornments fill the field inside its border and follow its outer corners', () => {
 	assert.ok(hasDecl(group, '.ig-adorn', 'top', 'var(--sp-px)'));
 	assert.ok(hasDecl(group, '.ig-adorn', 'bottom', 'var(--sp-px)'));
-	assert.ok(hasDecl(group, '.ig-adorn', '--ig-fuse-r', 'calc(var(--ig-radius) - var(--sp-px))'));
 	assert.ok(hasDecl(group, '.ig-leading', 'inset-inline-start', 'var(--sp-px)'));
 	assert.ok(hasDecl(group, '.ig-trailing', 'inset-inline-end', 'var(--sp-px)'));
 	const child = '.ig-adorn > :global(*)';
 	assert.ok(hasDecl(group, child, 'align-self', 'stretch'));
-	assert.ok(hasDecl(group, child, '--btn-size', '100%'));
 	assert.ok(hasDecl(group, child, 'border-radius', '0'));
-	assert.ok(hasDecl(group, '.ig-leading > :global(:first-child)', 'border-radius', 'var(--ig-fuse-r) 0 0 var(--ig-fuse-r)'));
-	assert.ok(hasDecl(group, '.ig-trailing > :global(:last-child)', 'border-radius', '0 var(--ig-fuse-r) var(--ig-fuse-r) 0'));
-	assert.ok(hasDecl(group, '.ig-trailing > :global(:last-child .split-caret)', '--pop-trigger-radius', '0 var(--ig-fuse-r) var(--ig-fuse-r) 0'));
+	const nested = ':is(.btn, .btn-control)';
+	assert.ok(hasDecl(group, `.ig .ig-adorn :global(:is(.btn, .btn-control, .pop-trigger))`, 'border-radius', '0'));
+	assert.ok(hasDecl(group, `.ig .ig-adorn :global(${nested})`, 'min-height', '100%'));
+	assert.ok(fused('.ig', '.ig-leading', ':first-child', `${FUSE} 0 0 ${FUSE}`));
+	assert.ok(fused('.ig', '.ig-trailing', ':last-child', `0 ${FUSE} ${FUSE} 0`));
+	assert.ok(hasDecl(group, '.ig .ig-trailing > :global(:last-child .split-caret .pop-trigger)', 'border-radius', `0 ${FUSE} ${FUSE} 0`));
+	assert.ok(hasDecl(group, `.ig .ig-trailing > :global(:last-child .split-main ${nested})`, 'border-radius', '0'));
+	assert.doesNotMatch(group, /--(btn|pop-trigger)-/);
 	assert.doesNotMatch(group, /\.ig:not\(\.ig-bar\)/, 'the bar keeps the adornments flush too');
 });
 
 test('a fixed-box adornment (FileButton box) still stretches square to the slot, so its glyph centres', async () => {
 	const fileButton = await read('components/molecules/FileButton.svelte');
-	assert.ok(hasDecl(fileButton, '.file-btn.box', 'height', 'var(--file-box)'));
+	assert.ok(hasDecl(fileButton, '.file-btn.box-sm', 'height', 'var(--box-sm)'));
 	const sizing = '.ig.ig .ig-adorn > :global(*)';
 	assert.ok(hasDecl(group, sizing, 'height', 'auto'));
 	assert.ok(hasDecl(group, sizing, 'min-height', '0'));
@@ -316,11 +338,9 @@ test('a fixed-box adornment (FileButton box) still stretches square to the slot,
 
 test('in the bar the adornments hug the bottom and side borders, rounding only the bottom-outer corner', () => {
 	assert.ok(hasDecl(group, '.ig-bar .ig-adorn', 'top', 'auto'));
-	assert.ok(hasDecl(group, '.ig-bar .ig-adorn', 'height', 'calc(var(--ig-h) - var(--sp-px))'));
-	assert.ok(hasDecl(group, '.ig-bar .ig-leading > :global(:first-child)', 'border-radius', '0 0 0 var(--ig-fuse-r)'));
-	assert.ok(hasDecl(group, '.ig-bar .ig-trailing > :global(:last-child)', 'border-radius', '0 0 var(--ig-fuse-r) 0'));
-	assert.ok(hasDecl(group, '.ig-bar .ig-leading > :global(:first-child .split-main)', '--btn-radius', '0 0 0 var(--ig-fuse-r)'));
-	assert.ok(hasDecl(group, '.ig-bar .ig-trailing > :global(:last-child .split-caret)', '--pop-trigger-radius', '0 0 var(--ig-fuse-r) 0'));
+	assert.ok(fused('.ig-bar', '.ig-leading', ':first-child', `0 0 0 ${FUSE}`));
+	assert.ok(fused('.ig-bar', '.ig-trailing', ':last-child', `0 0 ${FUSE} 0`));
+	assert.ok(hasDecl(group, '.ig-bar .ig-trailing > :global(:last-child .split-caret .pop-trigger)', 'border-radius', `0 0 ${FUSE} 0`));
 });
 
 /** @param {string} sel */

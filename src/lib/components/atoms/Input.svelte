@@ -8,7 +8,7 @@
 	import type { HTMLInputAttributes } from 'svelte/elements';
 	import Icon, { type IconName } from '$lib/components/atoms/Icon.svelte';
 	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
-	import { getInputGroupContext } from '$lib/input-group-context';
+	import { getInputGroupContext, inputGroupPadding } from '$lib/input-group-context';
 	import { isComposing } from '$lib/ime.js';
 	import { controlValidity } from '$lib/user-validity.svelte';
 
@@ -71,6 +71,7 @@
 	const field = getFieldContext();
 	const group = getInputGroupContext();
 	const sizeEff = $derived(size ?? group?.size ?? 'md');
+	const pad = $derived(group && inputGroupPadding(group));
 	const validity = controlValidity(field, () => value);
 	const isInvalid = $derived(invalid || !!field?.invalid || !!group?.invalid || validity.invalid);
 	const isDisabled = $derived(disabled || !!group?.disabled);
@@ -108,6 +109,8 @@
 		class:has-icon={!!icon}
 		class:has-clear={clearable}
 		style:width={wrapped ? undefined : width}
+		style:padding-inline-start={pad?.start}
+		style:padding-inline-end={pad?.end}
 		bind:value
 		{@attach validity.attach}
 		{...rest}
@@ -142,17 +145,16 @@
 
 <style>
 	.input {
-		--input-icon: var(--control-icon-md);
 		width: 100%;
-		min-height: var(--input-size, var(--control-height-default));
+		min-height: var(--control-height-default);
 		padding: var(--sp-2) var(--control-px-md);
 		font-size: var(--control-fs-md);
 		line-height: var(--lh-tight);
-		background: var(--input-bg, var(--control-fill));
-		border: var(--edge-width) solid var(--input-border, var(--control-edge));
-		border-radius: var(--input-radius, var(--r-md));
+		background: var(--control-fill);
+		border: var(--edge-width) solid var(--control-edge);
+		border-radius: var(--r-md);
 		box-shadow: var(--control-shadow);
-		color: var(--input-fg, var(--text));
+		color: var(--text);
 		transition: border-color var(--dur-fast) ease;
 	}
 	.input:focus {
@@ -173,16 +175,14 @@
 		cursor: not-allowed;
 	}
 	.input-sm {
-		min-height: var(--input-size, var(--control-height-compact));
+		min-height: var(--control-height-compact);
 		padding: var(--sp-1) var(--control-px-sm);
 		font-size: var(--control-fs-sm);
-		--input-icon: var(--control-icon-sm);
 	}
 	.input-lg {
-		min-height: var(--input-size, var(--control-height-large));
+		min-height: var(--control-height-large);
 		padding: var(--sp-3) var(--control-px-lg);
 		font-size: var(--control-fs-lg);
-		--input-icon: var(--control-icon-lg);
 	}
 	/* iOS auto-zooms any field under 16px on focus; on touch the size modifiers
 	   carry their difference through padding and height alone. */
@@ -197,7 +197,7 @@
 			font-size: max(16px, var(--control-fs-lg));
 		}
 		.input-sm:not(.grouped) {
-			min-height: max(var(--touch-target-compact), var(--input-size, var(--control-height-compact)));
+			min-height: max(var(--touch-target-compact), var(--control-height-compact));
 		}
 	}
 	.input-grow {
@@ -209,7 +209,7 @@
 		flex: none;
 	}
 	.input-pill {
-		border-radius: var(--input-radius, var(--r-pill));
+		border-radius: var(--r-pill);
 		padding-inline: var(--sp-4);
 	}
 	.input:is([aria-invalid='true'], :user-invalid) {
@@ -218,21 +218,23 @@
 	.input:is([aria-invalid='true'], :user-invalid):focus {
 		border-color: var(--danger);
 	}
-	.input {
-		--focus-tint: var(--accent);
-	}
-	.input:is([aria-invalid='true'], :user-invalid) {
-		--focus-tint: var(--danger);
-	}
 	/* Focus bloom: a solid ring whose soft halo swells, then settles to a quieter glow. */
 	.input:not(.grouped):focus:not(:global([data-fx-focus='none']) *),
 	:global(:is([data-fx-focus='bloom'], [data-fx-focus='label'])) .input:not(.grouped):focus:not(:global(:is([data-fx-focus='bloom'], [data-fx-focus='label']) [data-fx-focus='none']) *) {
 		outline: none;
 		box-shadow:
 			var(--control-shadow),
-			0 0 0 var(--focus-ring-width) var(--focus-tint),
-			0 0 16px 2px color-mix(in srgb, var(--focus-tint) 24%, transparent);
+			0 0 0 var(--focus-ring-width) var(--accent),
+			0 0 16px 2px color-mix(in srgb, var(--accent) 24%, transparent);
 		animation: focus-bloom var(--dur-fast) var(--ease-out);
+	}
+	.input:is([aria-invalid='true'], :user-invalid):not(.grouped):focus:not(:global([data-fx-focus='none']) *),
+	:global(:is([data-fx-focus='bloom'], [data-fx-focus='label'])) .input:is([aria-invalid='true'], :user-invalid):not(.grouped):focus:not(:global(:is([data-fx-focus='bloom'], [data-fx-focus='label']) [data-fx-focus='none']) *) {
+		box-shadow:
+			var(--control-shadow),
+			0 0 0 var(--focus-ring-width) var(--danger),
+			0 0 16px 2px color-mix(in srgb, var(--danger) 24%, transparent);
+		animation-name: focus-bloom-danger;
 	}
 	@keyframes focus-bloom {
 		0% {
@@ -244,17 +246,29 @@
 		45% {
 			box-shadow:
 				var(--control-shadow),
-				0 0 0 calc(var(--focus-ring-width) + 1px) var(--focus-tint),
-				0 0 20px 4px color-mix(in srgb, var(--focus-tint) 32%, transparent);
+				0 0 0 calc(var(--focus-ring-width) + 1px) var(--accent),
+				0 0 20px 4px color-mix(in srgb, var(--accent) 32%, transparent);
+		}
+	}
+	@keyframes focus-bloom-danger {
+		0% {
+			box-shadow:
+				var(--control-shadow),
+				0 0 0 0 transparent,
+				0 0 0 0 transparent;
+		}
+		45% {
+			box-shadow:
+				var(--control-shadow),
+				0 0 0 calc(var(--focus-ring-width) + 1px) var(--danger),
+				0 0 20px 4px color-mix(in srgb, var(--danger) 32%, transparent);
 		}
 	}
 	/* Inside an InputGroup the group draws the focus ring, dims the whole group
-	   and the overlaid adornments report their widths; the text stays clear of them. */
+	   and hands the field an inline padding that clears the overlaid adornments. */
 	.input.grouped {
 		width: 100%;
-		border-radius: var(--ig-radius);
-		padding-inline: max(var(--ig-pad-x), var(--ig-leading-w, 0px) + var(--ig-gap))
-			max(var(--ig-pad-x), var(--ig-trailing-w, 0px) + var(--ig-gap));
+		border-radius: var(--r-md);
 	}
 	.input.grouped:focus-visible {
 		outline: none;
@@ -285,10 +299,22 @@
 		opacity: 1;
 	}
 	.has-icon {
-		padding-inline-start: calc(var(--control-px-md) + var(--input-icon) + var(--sp-2));
+		padding-inline-start: calc(var(--control-px-md) + var(--control-icon-md) + var(--sp-2));
 	}
 	.has-clear {
-		padding-inline-end: calc(var(--control-px-md) + var(--input-icon) + var(--sp-2));
+		padding-inline-end: calc(var(--control-px-md) + var(--control-icon-md) + var(--sp-2));
+	}
+	.input-sm.has-icon {
+		padding-inline-start: calc(var(--control-px-md) + var(--control-icon-sm) + var(--sp-2));
+	}
+	.input-sm.has-clear {
+		padding-inline-end: calc(var(--control-px-md) + var(--control-icon-sm) + var(--sp-2));
+	}
+	.input-lg.has-icon {
+		padding-inline-start: calc(var(--control-px-md) + var(--control-icon-lg) + var(--sp-2));
+	}
+	.input-lg.has-clear {
+		padding-inline-end: calc(var(--control-px-md) + var(--control-icon-lg) + var(--sp-2));
 	}
 	.input-icon,
 	.input-clear {
@@ -297,21 +323,20 @@
 		bottom: 0;
 		display: flex;
 		align-items: center;
-		font-size: var(--input-icon, var(--control-icon-md));
+		font-size: var(--control-icon-md);
 		color: var(--text-faint);
 		pointer-events: none;
 	}
-	.input-wrap:has(.input-sm) {
-		--input-icon: var(--control-icon-sm);
+	.input-wrap:has(.input-sm) :is(.input-icon, .input-clear) {
+		font-size: var(--control-icon-sm);
 	}
-	.input-wrap:has(.input-lg) {
-		--input-icon: var(--control-icon-lg);
+	.input-wrap:has(.input-lg) :is(.input-icon, .input-clear) {
+		font-size: var(--control-icon-lg);
 	}
 	.input-icon {
 		left: var(--control-px-md);
 	}
 	.input-clear {
-		--clear-scale-dur: var(--dur-fast);
 		right: var(--sp-2);
 		pointer-events: auto;
 		border: 0;
@@ -322,7 +347,7 @@
 		transition:
 			color var(--dur-fast) ease,
 			opacity var(--dur-fast) ease,
-			scale var(--clear-scale-dur) var(--ease-out);
+			scale var(--dur-fast) var(--ease-out);
 	}
 	@starting-style {
 		.input-clear {
@@ -335,7 +360,10 @@
 		outline-offset: var(--focus-ring-offset-inset);
 	}
 	.input-clear:active {
-		--clear-scale-dur: var(--dur-press);
+		transition:
+			color var(--dur-fast) ease,
+			opacity var(--dur-fast) ease,
+			scale var(--dur-press) var(--ease-out);
 		scale: var(--press-scale-sm);
 	}
 	@media (hover: hover) and (pointer: fine) {

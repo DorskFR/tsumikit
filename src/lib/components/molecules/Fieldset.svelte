@@ -119,13 +119,11 @@
 
 <style>
 	.fieldset {
-		--fieldset-border: var(--accent-dim);
-		--fieldset-pad: var(--sp-4);
 		position: relative;
 		min-width: 0;
 		margin: 0;
-		padding: calc(var(--fieldset-pad) + var(--sp-1)) var(--fieldset-pad) var(--fieldset-pad);
-		border: 2px solid var(--fieldset-border);
+		padding: calc(var(--sp-4) + var(--sp-1)) var(--sp-4) var(--sp-4);
+		border: 2px solid var(--accent-dim);
 		border-radius: var(--r-lg);
 		background: var(--bg);
 		transition:
@@ -136,16 +134,16 @@
 		border-style: dashed;
 	}
 	.fieldset-neutral {
-		--fieldset-border: var(--border);
+		border-color: var(--border);
 	}
 	.fieldset-strong {
-		--fieldset-border: var(--border-strong);
+		border-color: var(--border-strong);
 	}
 	.pad-sm {
-		--fieldset-pad: var(--sp-3);
+		padding: calc(var(--sp-3) + var(--sp-1)) var(--sp-3) var(--sp-3);
 	}
 	.pad-lg {
-		--fieldset-pad: var(--sp-6);
+		padding: calc(var(--sp-6) + var(--sp-1)) var(--sp-6) var(--sp-6);
 	}
 
 	.fieldset-legend {
@@ -165,7 +163,7 @@
 	}
 
 	.fieldset.over {
-		--fieldset-border: var(--accent);
+		border-color: var(--accent);
 		background: color-mix(in srgb, var(--accent) 6%, var(--bg));
 	}
 	.fieldset.over .fieldset-legend {

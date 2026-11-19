@@ -11,8 +11,8 @@ const css = source.slice(source.indexOf('<style>'));
 
 test('Select size="sm" floors min-height at the compact height so the base min-height cannot win', () => {
 	const sm = rule(css, '.select.select-sm');
-	assert.equal(sm.height, 'var(--select-size, var(--control-height-compact))');
-	assert.equal(sm['min-height'], 'var(--select-size, var(--control-height-compact))');
-	assert.equal(rule(css, '.select')['min-height'], 'var(--select-size, var(--control-height-default))');
+	assert.equal(sm.height, 'var(--control-height-compact)');
+	assert.equal(sm['min-height'], 'var(--control-height-compact)');
+	assert.equal(rule(css, '.select')['min-height'], 'var(--control-height-default)');
 	assert.ok(css.indexOf('.select.select-sm {') > css.indexOf('.select {'), 'sm rule follows the base rule');
 });

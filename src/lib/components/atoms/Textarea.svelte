@@ -28,7 +28,7 @@
 	import type { HTMLTextareaAttributes } from 'svelte/elements';
 	import { autoresize as autoresizeAction, rowsFloor, rowsHeight } from '$lib/autoresize';
 	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
-	import { getInputGroupContext } from '$lib/input-group-context';
+	import { getInputGroupContext, inputGroupPadding } from '$lib/input-group-context';
 	import { isComposing } from '$lib/ime.js';
 	import { controlValidity } from '$lib/user-validity.svelte';
 
@@ -98,6 +98,7 @@
 	const field = getFieldContext();
 	const group = getInputGroupContext();
 	const sizeEff = $derived(size ?? group?.size ?? 'md');
+	const pad = $derived(group && inputGroupPadding(group));
 	const validity = controlValidity(field, () => value);
 	const isInvalid = $derived(invalid || !!field?.invalid || !!group?.invalid || validity.invalid);
 	const isDisabled = $derived(disabled || !!group?.disabled);
@@ -250,6 +251,8 @@
 			class:bar={!!group?.bar}
 			class:capped={!!maxHeight}
 			style:max-height={maxHeight}
+			style:padding-inline-start={pad?.start}
+			style:padding-inline-end={pad?.end}
 			aria-hidden="true"
 			data-tsu="TextareaMirror"
 		>{#each segs as seg}<span class={seg.class} class:masked={!!seg.mask}>{seg.text}</span>{/each}<span class="tail">{'\u200b'}</span></div>
@@ -267,6 +270,8 @@
 			class:mirrored={!!segs}
 			disabled={isDisabled}
 			style:max-height={maxHeight}
+			style:padding-inline-start={pad?.start}
+			style:padding-inline-end={pad?.end}
 			bind:value
 			{@attach validity.attach}
 			use:autoresizeAction={typeof value === 'string' ? value : ''}
@@ -292,6 +297,8 @@
 			class:mirrored={!!segs}
 			disabled={isDisabled}
 			style:max-height={maxHeight}
+			style:padding-inline-start={pad?.start}
+			style:padding-inline-end={pad?.end}
 			bind:value
 			{@attach validity.attach}
 			{...rest}
@@ -307,6 +314,8 @@
 	{#if showHandle}
 		<div
 			class="resize-handle resize-{handleEdge}"
+			style:left={group && !group.bar ? `${group.leadingW}px` : undefined}
+			style:right={group && !group.bar ? `${group.trailingW}px` : undefined}
 			onpointerdown={startDrag}
 			onpointermove={onDrag}
 			onpointerup={endDrag}
@@ -346,17 +355,17 @@
 		   --sp-3 top+bottom would overshoot it and a `rows={1}` textarea would
 		   render taller than the buttons it sits beside. */
 		padding: var(--sp-2) var(--control-px-md);
-		background: var(--textarea-bg, var(--control-fill));
-		border: var(--edge-width) solid var(--textarea-border, var(--control-edge));
-		border-radius: var(--textarea-radius, var(--r-md));
+		background: var(--control-fill);
+		border: var(--edge-width) solid var(--control-edge);
+		border-radius: var(--r-md);
 		box-shadow: var(--control-shadow);
-		color: var(--textarea-fg, var(--text));
+		color: var(--text);
 		transition: border-color var(--dur-fast) ease;
 		/* Custom handle replaces the native grip; never show the native one. */
 		resize: none;
 		/* Match the single-row height of Button/Input so a `rows={1}` textarea
 		   lines up with them; the native `rows` attribute grows it from here. */
-		min-height: var(--textarea-size, var(--control-height-default));
+		min-height: var(--control-height-default);
 		font-size: var(--control-fs-md);
 		line-height: var(--lh-tight);
 		font-family: inherit;
@@ -386,7 +395,7 @@
 		position: relative;
 		z-index: 1;
 		color: transparent;
-		caret-color: var(--textarea-fg, var(--text));
+		caret-color: var(--text);
 		background: transparent;
 	}
 	.textarea.mirrored::selection {
@@ -398,7 +407,7 @@
 	}
 	.mirror .masked {
 		color: transparent;
-		background: var(--textarea-mask, color-mix(in srgb, var(--text) 18%, transparent));
+		background: color-mix(in srgb, var(--text) 18%, transparent);
 		border-radius: var(--r-sm);
 		box-decoration-break: clone;
 	}
@@ -424,12 +433,12 @@
 	.textarea-sm {
 		padding: var(--sp-1) var(--control-px-sm);
 		font-size: var(--control-fs-sm);
-		min-height: var(--textarea-size, var(--control-height-compact));
+		min-height: var(--control-height-compact);
 	}
 	.textarea-lg {
 		padding: var(--sp-3) var(--control-px-lg);
 		font-size: var(--control-fs-lg);
-		min-height: var(--textarea-size, var(--control-height-large));
+		min-height: var(--control-height-large);
 	}
 	/* iOS auto-zooms any field under 16px on focus; on touch the size modifiers
 	   carry their difference through padding and height alone. */
@@ -448,21 +457,23 @@
 	.textarea:is([aria-invalid='true'], :user-invalid):focus {
 		border-color: var(--danger);
 	}
-	.textarea {
-		--focus-tint: var(--accent);
-	}
-	.textarea:is([aria-invalid='true'], :user-invalid) {
-		--focus-tint: var(--danger);
-	}
 	/* Focus bloom: a solid ring whose soft halo swells, then settles to a quieter glow. */
 	.textarea:not(.grouped):focus:not(:global([data-fx-focus='none']) *),
 	:global(:is([data-fx-focus='bloom'], [data-fx-focus='label'])) .textarea:not(.grouped):focus:not(:global(:is([data-fx-focus='bloom'], [data-fx-focus='label']) [data-fx-focus='none']) *) {
 		outline: none;
 		box-shadow:
 			var(--control-shadow),
-			0 0 0 var(--focus-ring-width) var(--focus-tint),
-			0 0 16px 2px color-mix(in srgb, var(--focus-tint) 24%, transparent);
+			0 0 0 var(--focus-ring-width) var(--accent),
+			0 0 16px 2px color-mix(in srgb, var(--accent) 24%, transparent);
 		animation: focus-bloom var(--dur-fast) var(--ease-out);
+	}
+	.textarea:is([aria-invalid='true'], :user-invalid):not(.grouped):focus:not(:global([data-fx-focus='none']) *),
+	:global(:is([data-fx-focus='bloom'], [data-fx-focus='label'])) .textarea:is([aria-invalid='true'], :user-invalid):not(.grouped):focus:not(:global(:is([data-fx-focus='bloom'], [data-fx-focus='label']) [data-fx-focus='none']) *) {
+		box-shadow:
+			var(--control-shadow),
+			0 0 0 var(--focus-ring-width) var(--danger),
+			0 0 16px 2px color-mix(in srgb, var(--danger) 24%, transparent);
+		animation-name: focus-bloom-danger;
 	}
 	@keyframes focus-bloom {
 		0% {
@@ -474,16 +485,28 @@
 		45% {
 			box-shadow:
 				var(--control-shadow),
-				0 0 0 calc(var(--focus-ring-width) + 1px) var(--focus-tint),
-				0 0 20px 4px color-mix(in srgb, var(--focus-tint) 32%, transparent);
+				0 0 0 calc(var(--focus-ring-width) + 1px) var(--accent),
+				0 0 20px 4px color-mix(in srgb, var(--accent) 32%, transparent);
 		}
 	}
-	/* Inside an InputGroup the group draws the focus ring and the overlaid
-	   adornments report their widths; the text stays clear of them. */
+	@keyframes focus-bloom-danger {
+		0% {
+			box-shadow:
+				var(--control-shadow),
+				0 0 0 0 transparent,
+				0 0 0 0 transparent;
+		}
+		45% {
+			box-shadow:
+				var(--control-shadow),
+				0 0 0 calc(var(--focus-ring-width) + 1px) var(--danger),
+				0 0 20px 4px color-mix(in srgb, var(--danger) 32%, transparent);
+		}
+	}
+	/* Inside an InputGroup the group draws the focus ring and hands the field
+	   an inline padding that clears the overlaid adornments. */
 	.textarea.grouped {
-		border-radius: var(--ig-radius);
-		padding-inline: max(var(--ig-pad-x), var(--ig-leading-w, 0px) + var(--ig-gap))
-			max(var(--ig-pad-x), var(--ig-trailing-w, 0px) + var(--ig-gap));
+		border-radius: var(--r-md);
 	}
 	.textarea.grouped:not(.bar)::placeholder {
 		white-space: nowrap;
@@ -495,21 +518,12 @@
 		box-shadow: var(--control-shadow);
 	}
 	.textarea.grouped.bar {
-		padding-inline: var(--ig-pad-x);
 		border-bottom: 0;
 		border-end-start-radius: 0;
 		border-end-end-radius: 0;
 	}
 	.textarea-wrap.grouped {
 		width: 100%;
-	}
-	.textarea-wrap.grouped .resize-handle {
-		left: var(--ig-leading-w, 0px);
-		right: var(--ig-trailing-w, 0px);
-	}
-	.textarea-wrap.grouped.bar .resize-handle {
-		left: 0;
-		right: 0;
 	}
 	.mono {
 		font-family: var(--font-mono);

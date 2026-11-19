@@ -31,7 +31,7 @@ test('children remain the option source when options is absent, in every variant
 test('trigger face shows the selected option icon/emoji, label and muted right-aligned hint', () => {
 	assert.match(select, /const selected = \$derived\(options\?\.find\(\(o\) => o\.value === value\)\)/);
 	assert.match(select, /const hasFace = \$derived\(!!options && variant !== 'ghost'\)/);
-	assert.match(select, /<span class="select-face" class:compact={small} aria-hidden="true">/);
+	assert.match(select, /<span class="select-face" class:compact={small} class:select-lg={size === 'lg'} aria-hidden="true">/);
 	assert.match(select, /{#if selected\?\.icon}\s*<Icon name={selected\.icon}/);
 	assert.match(select, /{:else if selected\?\.emoji}\s*<span class="select-emoji">{selected\.emoji}<\/span>/);
 	assert.match(select, /{#if selected\?\.hint}\s*<span class="select-hint">{selected\.hint}<\/span>/);
