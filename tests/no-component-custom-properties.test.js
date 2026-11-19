@@ -5,7 +5,7 @@ import test from 'node:test';
 import { fileURLToPath } from 'node:url';
 
 const root = new URL('../', import.meta.url);
-const rel = (url) => relative(fileURLToPath(root), fileURLToPath(url));
+const rel = (/** @type {URL} */ url) => relative(fileURLToPath(root), fileURLToPath(url));
 
 /**
  * The only custom properties a component, a library module or a look selector may declare or read
@@ -62,6 +62,12 @@ const ALLOW = [
 
 const NAME = '--[a-zA-Z_][\\w-]*';
 
+/**
+ * @param {URL} dir
+ * @param {(name: string) => boolean} keep
+ * @param {URL[]} [out]
+ * @returns {Promise<URL[]>}
+ */
 async function walk(dir, keep, out = []) {
 	for (const entry of await readdir(dir, { withFileTypes: true })) {
 		const url = new URL(entry.isDirectory() ? `${entry.name}/` : entry.name, dir);
@@ -71,6 +77,10 @@ async function walk(dir, keep, out = []) {
 	return out;
 }
 
+/**
+ * @param {string} src
+ * @param {RegExp[]} patterns
+ */
 function blank(src, patterns) {
 	let out = src;
 	for (const re of patterns) out = out.replace(re, (m) => m.replace(/[^\n]/g, ' '));
@@ -80,21 +90,37 @@ const CSS_COMMENT = /\/\*[\s\S]*?\*\//g;
 const HTML_COMMENT = /<!--[\s\S]*?-->/g;
 const LINE_COMMENT = /(?<![:'"`\w])\/\/[^\n]*/g;
 
-const lineOf = (src, index) => src.slice(0, index).split('\n').length;
+const lineOf = (/** @type {string} */ src, /** @type {number} */ index) => src.slice(0, index).split('\n').length;
 
+/** @typedef {{ name: string, line: number, kind: string }} Hit */
+/** @typedef {{ prelude: string, body: string, index: number, wrappers: string[] }} Rule */
+
+/**
+ * @param {string} src
+ * @param {RegExp} re
+ * @param {string} kind
+ * @returns {Hit[]}
+ */
 function hits(src, re, kind) {
 	return [...src.matchAll(re)].map((m) => ({ name: m[1], line: lineOf(src, m.index), kind }));
 }
 
-const declarations = (src) => [
+const declarations = (/** @type {string} */ src) => [
 	...hits(src, new RegExp(`(?<![\\w-])(${NAME})\\s*:`, 'g'), 'declares'),
 	...hits(src, new RegExp(`@property\\s+(${NAME})`, 'g'), 'registers')
 ];
-const reads = (src) => hits(src, new RegExp(`var\\(\\s*(${NAME})\\s*[,)]`, 'g'), 'reads');
-const fallbackReads = (src) => hits(src, new RegExp(`var\\(\\s*(${NAME})\\s*,`, 'g'), 'reads with a fallback');
-const scriptNames = (src) => hits(src, new RegExp(`['"\`](${NAME})['"\`]`, 'g'), 'names');
+const reads = (/** @type {string} */ src) => hits(src, new RegExp(`var\\(\\s*(${NAME})\\s*[,)]`, 'g'), 'reads');
+const fallbackReads = (/** @type {string} */ src) => hits(src, new RegExp(`var\\(\\s*(${NAME})\\s*,`, 'g'), 'reads with a fallback');
+const scriptNames = (/** @type {string} */ src) => hits(src, new RegExp(`['"\`](${NAME})['"\`]`, 'g'), 'names');
 
+/**
+ * @param {string} css
+ * @param {number} [base]
+ * @param {string[]} [wrappers]
+ * @returns {Rule[]}
+ */
 function rules(css, base = 0, wrappers = []) {
+	/** @type {Rule[]} */
 	const out = [];
 	let i = 0;
 	while (i < css.length) {
@@ -118,7 +144,7 @@ function rules(css, base = 0, wrappers = []) {
 	return out;
 }
 
-const isRootSelector = (prelude) =>
+const isRootSelector = (/** @type {string} */ prelude) =>
 	prelude.split(',').every((selector) => /^(:root|html)(\[[^\]]+\])*$/.test(selector.trim()));
 
 const stylesDir = new URL('src/lib/styles/', root);
@@ -140,10 +166,15 @@ for (const url of await walk(looksDir, (name) => name.endsWith('.css'))) {
 }
 
 const READS = new Set(['reads', 'reads with a fallback', 'names']);
-const allowed = (name, file) => ALLOW.some((entry) => entry.name === name && entry.files.includes(file));
+const allowed = (/** @type {string} */ name, /** @type {string} */ file) => ALLOW.some((entry) => entry.name === name && entry.files.includes(file));
 const used = new Set();
-const note = (name, file) => used.add(`${name} ${file}`);
+const note = (/** @type {string} */ name, /** @type {string} */ file) => used.add(`${name} ${file}`);
 
+/**
+ * @param {string} file
+ * @param {Hit[]} found
+ * @param {string[]} findings
+ */
 function judge(file, found, findings) {
 	for (const { name, line, kind } of found) {
 		if (allowed(name, file)) {
@@ -155,6 +186,7 @@ function judge(file, found, findings) {
 	}
 }
 
+/** @type {string[]} */
 const componentFindings = [];
 const components = await walk(new URL('src/lib/components/', root), (name) => name.endsWith('.svelte'));
 for (const url of components) {
@@ -172,6 +204,7 @@ for (const url of components) {
 	);
 }
 
+/** @type {string[]} */
 const moduleFindings = [];
 const modules = await walk(
 	new URL('src/lib/', root),
@@ -183,6 +216,7 @@ for (const url of modules) {
 	judge(file, [...scriptNames(src), ...declarations(src), ...reads(src)], moduleFindings);
 }
 
+/** @type {string[]} */
 const lookFindings = [];
 const runtime = new Set(ALLOW.filter((entry) => entry.category !== 'A').map((entry) => entry.name));
 for (const { file, css, parsed } of looks) {
@@ -190,7 +224,7 @@ for (const { file, css, parsed } of looks) {
 		parsed.filter((r) => /^@property\b/.test(r.prelude)).map((r) => r.prelude.replace(/^@property\s+/, ''))
 	);
 	for (const { prelude, body, index } of parsed) {
-		const at = (found) => found.map((hit) => ({ ...hit, line: lineOf(css, index) + hit.line - 1 }));
+		const at = (/** @type {Hit[]} */ found) => found.map((hit) => ({ ...hit, line: lineOf(css, index) + hit.line - 1 }));
 		if (/^@property\b/.test(prelude)) {
 			if (!/inherits:\s*false/.test(body)) lookFindings.push(`${file}:${lineOf(css, index)} ${prelude} inherits`);
 			continue;

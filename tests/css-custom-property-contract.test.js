@@ -8,6 +8,7 @@ const styling = await readDocs('styling.md');
 const migration = await readDocs('MIGRATION-0.94.md');
 
 const PAGES = ['styling.md', 'components.md', 'layout.md', 'patterns.md', 'theming.md', 'design.md', 'accessibility.md'];
+/** @type {Map<string, string>} */
 const pages = new Map();
 for (const page of PAGES) pages.set(`docs/${page}`, await readDocs(page));
 pages.set('README.md', await readFile(new URL('README.md', root), 'utf8'));
@@ -29,10 +30,12 @@ const SIGNALS = [
 ];
 const CONSUMER_OWNED = ['--player-h', '--dock-left-w', '--dock-right-w', '--shiki-'];
 
-const isToken = (name) => tokens.has(name) || (name.endsWith('-') && [...tokens].some((t) => t.startsWith(name)));
+const isToken = (/** @type {string} */ name) => tokens.has(name) || (name.endsWith('-') && [...tokens].some((t) => t.startsWith(name)));
 
 async function librarySource() {
+	/** @type {string[]} */
 	const out = [];
+	/** @param {URL} dir */
 	async function walk(dir) {
 		for (const entry of await readdir(dir, { withFileTypes: true })) {
 			if (entry.isDirectory()) await walk(new URL(`${entry.name}/`, dir));
@@ -44,6 +47,7 @@ async function librarySource() {
 }
 
 test('the docs name no custom property that is not a root token or a page-layout signal', () => {
+	/** @type {string[]} */
 	const unknown = [];
 	for (const [page, text] of pages) {
 		text.split('\n').forEach((line, i) => {

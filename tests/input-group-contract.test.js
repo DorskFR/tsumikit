@@ -117,16 +117,16 @@ test('the grouped field pads its text from the measured adornment widths', () =>
 	assert.ok(hasDecl(input, '.input.grouped', 'width', '100%'));
 	assert.ok(hasDecl(textarea, '.textarea-wrap.grouped', 'width', '100%'));
 
-	const ctx = { size: 'md', disabled: false, invalid: false, leadingW: 40, trailingW: 0, bar: false, setBar() {} };
+	const ctx = { size: /** @type {import('../src/lib/size').ControlSize} */ ('md'), disabled: false, invalid: false, leadingW: 40, trailingW: 0, bar: false, setBar() {} };
 	assert.deepEqual(inputGroupPadding(ctx), {
 		start: 'max(var(--control-px-md), 40px + var(--sp-2))',
 		end: 'max(var(--control-px-md), 0px + var(--sp-2))'
 	});
-	assert.deepEqual(inputGroupPadding({ ...ctx, size: 'sm', trailingW: 96 }), {
+	assert.deepEqual(inputGroupPadding({ ...ctx, size: /** @type {const} */ ('sm'), trailingW: 96 }), {
 		start: 'max(var(--control-px-sm), 40px + var(--sp-1))',
 		end: 'max(var(--control-px-sm), 96px + var(--sp-1))'
 	});
-	assert.equal(inputGroupPadding({ ...ctx, size: 'lg' }).start, 'max(var(--control-px-lg), 40px + var(--sp-2))');
+	assert.equal(inputGroupPadding({ ...ctx, size: /** @type {const} */ ('lg') }).start, 'max(var(--control-px-lg), 40px + var(--sp-2))');
 	assert.deepEqual(inputGroupPadding({ ...ctx, bar: true }), { start: 'var(--control-px-md)', end: 'var(--control-px-md)' });
 });
 

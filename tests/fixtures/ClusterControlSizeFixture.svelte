@@ -23,9 +23,9 @@
 		{#snippet trigger()}More{/snippet}
 		Panel
 	</Popover>
-	<FileButton control size={own} label="Upload" />
+	<FileButton control size={own} label="Upload" onfiles={() => {}} />
 	<SegmentedControl control size={own} label="Range" value="a" {options} />
-	<SplitButton control size={own} {items} menuLabel="More actions">Save</SplitButton>
+	<SplitButton control size={own} {items} label="More actions">Save</SplitButton>
 	<Cluster>
 		<Button control id="nested">Nested</Button>
 	</Cluster>
