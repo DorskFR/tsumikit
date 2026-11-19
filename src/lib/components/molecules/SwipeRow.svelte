@@ -344,10 +344,30 @@
 		pointer-events: auto;
 		font: inherit;
 		font-size: var(--fs-sm);
-		color: var(--swiperow-ink);
-		background: var(--swiperow-tone);
+		color: var(--text);
+		background: var(--bg-elevated-2);
 		border-radius: var(--r-sm);
 		outline: var(--focus-ring);
 		outline-offset: var(--sp-px);
+	}
+	.swiperow-tone-accent .swiperow-sr:focus-visible {
+		color: var(--text-on-accent);
+		background: var(--accent);
+	}
+	.swiperow-tone-success .swiperow-sr:focus-visible {
+		color: var(--bg);
+		background: var(--ok);
+	}
+	.swiperow-tone-info .swiperow-sr:focus-visible {
+		color: var(--bg);
+		background: var(--info);
+	}
+	.swiperow-tone-warn .swiperow-sr:focus-visible {
+		color: var(--bg);
+		background: var(--warn);
+	}
+	.swiperow-tone-danger .swiperow-sr:focus-visible {
+		color: var(--bg);
+		background: var(--danger);
 	}
 </style>
