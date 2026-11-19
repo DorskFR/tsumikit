@@ -1,28 +1,22 @@
 <script lang="ts">
 	import { Input, NavItem, NavSection, Text } from '@dorsk/tsumikit';
 	import { FAMILY_LABEL } from './catalog';
+	import { demoFilter } from './filter.svelte';
 	import { groups } from './registry';
+	import { pageOf } from './routes';
 
-	let {
-		filter = $bindable(''),
-		active = '',
-		visible
-	}: {
-		filter?: string;
-		active?: string;
-		visible: Set<string>;
-	} = $props();
+	let { active = '' }: { active?: string } = $props();
 
 	const shown = $derived(
 		groups
-			.map((g) => ({ ...g, entries: g.entries.filter((e) => visible.has(e.id)) }))
+			.map((g) => ({ ...g, entries: g.entries.filter((e) => demoFilter.visible.has(e.id)) }))
 			.filter((g) => g.entries.length > 0)
 	);
 </script>
 
 <nav class="demo-nav" data-demo-nav aria-label="Components">
 	<Input
-		bind:value={filter}
+		bind:value={demoFilter.text}
 		icon="search"
 		clearable
 		size="sm"
@@ -35,7 +29,7 @@
 			{#each group.entries as entry (entry.id)}
 				<NavItem
 					label={entry.name}
-					href="#{entry.id}"
+					href={pageOf(entry)}
 					active={active === entry.id}
 					badge={entry.count || undefined}
 				/>

@@ -89,7 +89,7 @@ test('generic and inline-typed components: required flags and intersections', ()
 test('DemoSection renders the PropsTable under the examples', async () => {
 	const section = await readFile(new URL('../src/demo/framework/DemoSection.svelte', import.meta.url), 'utf8');
 	assert.match(section, /import PropsTable from '\.\/PropsTable\.svelte'/);
-	assert.match(section, /{\/each}\s*<PropsTable \{entry\} rows=\{content\?\.props\} \/>/);
+	assert.match(section, /{\/each}\s*<PropsTable \{entry\} rows=\{content\.props\} \/>/);
 	const table = await readFile(new URL('../src/demo/framework/PropsTable.svelte', import.meta.url), 'utf8');
 	assert.match(table, /<DataTable[\s\S]*responsive="stack"/);
 	assert.match(table, /aria-labelledby="\{entry\.id\}--props"/);

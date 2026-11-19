@@ -2,40 +2,13 @@
 	import { Badge, Cluster, Heading, Link, Text } from '@dorsk/tsumikit';
 	import Example from './Example.svelte';
 	import PropsTable from './PropsTable.svelte';
-	import { SSR, defer } from './lazy';
-	import { type DemoEntry, loadSection, loadedSection, resolveRef } from './registry';
+	import type { DemoEntry, SectionContent } from './registry';
+	import { pathOf } from './routes';
 
-	let { entry, hidden = false }: { entry: DemoEntry; hidden?: boolean } = $props();
-
-	let section: HTMLElement;
-	// svelte-ignore state_referenced_locally
-	let content = $state.raw(SSR ? loadedSection(entry) : undefined);
-	$effect(() => {
-		if (!content) return defer(section, () => loadSection(entry), (c) => (content = c));
-	});
+	let { entry, content }: { entry: DemoEntry; content: SectionContent } = $props();
 </script>
 
-{#snippet examples()}
-	<div class="demo-section__examples">
-		{#each content?.examples ?? [] as example (example.id)}
-			<Example {example} />
-		{/each}
-		<PropsTable {entry} rows={content?.props} />
-	</div>
-{/snippet}
-
-{#snippet dormant()}
-	<div class="demo-section__examples"></div>
-{/snippet}
-
-<section
-	bind:this={section}
-	id={entry.id}
-	class="demo-section"
-	data-demo-section
-	data-demo-live={content && !SSR ? '' : undefined}
-	{hidden}
->
+<section id={entry.id} class="demo-section" data-demo-section>
 	<header class="demo-section__head">
 		<Heading level={2} size="xl"><a href="#{entry.id}">{entry.name}</a></Heading>
 		<Badge size="sm" uppercase>{entry.family}</Badge>
@@ -47,11 +20,14 @@
 		<Cluster class="demo-section__see-also">
 			<Text size="sm" tone="muted">See also</Text>
 			{#each entry.meta.seeAlso as ref (ref)}
-				<Link href="#{resolveRef(ref)}">{ref}</Link>
+				<Link href={pathOf(ref)}>{ref}</Link>
 			{/each}
 		</Cluster>
 	{/if}
-	{@render (content ? examples : dormant)()}
+	{#each content.examples as example (example.id)}
+		<Example {example} />
+	{/each}
+	<PropsTable {entry} rows={content.props} />
 </section>
 
 <style>
@@ -59,12 +35,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--sp-4);
-		scroll-margin-top: calc(var(--header-h) + var(--sp-4));
-		content-visibility: auto;
-		contain-intrinsic-size: auto 600px;
-	}
-	.demo-section__examples {
-		display: contents;
 	}
 	.demo-section__head {
 		display: flex;
