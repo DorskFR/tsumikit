@@ -112,7 +112,7 @@
 	<div
 		class="bar"
 		style:translate={indeterminate ? undefined : `${pct - 100}% 0`}
-		style:background-color={color && !gradient ? color : undefined}
+		style:color={color}
 		style:background-image={barImage}
 	></div>
 	{#each markers as m, i (`${i}:${m.at}`)}
@@ -218,6 +218,9 @@
 	}
 	.tone-danger .bar {
 		background: var(--danger);
+	}
+	.progress.colored .bar {
+		background: currentColor;
 	}
 	.progress.gradient .bar {
 		background: linear-gradient(90deg, var(--accent), var(--c-teal));

@@ -45,7 +45,20 @@ test('Dot ring adds a dark halo and composes with glow', () => {
 	assert.match(dot, /ring = false/);
 	assert.match(dot, /ring\?: boolean;/);
 	assert.equal(dot.match(/class:ring/g)?.length, 2);
-	assert.match(dot, /\.ring \{\s*box-shadow: 0 0 0 3px rgb\(0 0 0 \/ 0\.35\);/);
-	assert.match(dot, /`background: \$\{resolved\};` \+\s*\(glow \? ` box-shadow: \$\{ring \? '0 0 0 3px rgb\(0 0 0 \/ 0\.35\), ' : ''\}0 0 6px \$\{resolved\};` : ''\)/);
+	assert.match(dot, /\.dot\.ring \{\s*box-shadow: 0 0 0 3px rgb\(0 0 0 \/ 0\.35\);/);
+	assert.match(dot, /const inline = \$derived\(color \? `color: \$\{color\};` : ''\);/);
+	assert.equal(dot.match(/class="dot \{color \? 'dot-colored' : `dot-\$\{status\}`\}/g)?.length, 2);
+	assert.match(dot, /\.dot-colored \{\s*background: currentColor;/);
+	assert.match(dot, /\.dot-colored\.glow \{\s*box-shadow: 0 0 6px currentColor;/);
+	assert.match(dot, /\.dot-colored\.ring\.glow \{\s*box-shadow:\s*0 0 0 3px rgb\(0 0 0 \/ 0\.35\),\s*0 0 6px currentColor;/);
+	for (const status of ['active', 'stale', 'dead', 'hibernated']) {
+		assert.match(dot, new RegExp(`\\.dot-${status} \\{\\s*background: var\\(--dot-${status}\\);`));
+		assert.match(dot, new RegExp(`\\.dot-${status}\\.glow \\{\\s*box-shadow: 0 0 6px var\\(--dot-${status}\\);`));
+		assert.match(
+			dot,
+			new RegExp(`\\.dot-${status}\\.ring\\.glow \\{\\s*box-shadow:\\s*0 0 0 3px rgb\\(0 0 0 / 0\\.35\\),\\s*0 0 6px var\\(--dot-${status}\\);`)
+		);
+	}
+	assert.doesNotMatch(dot, /box-shadow: \$\{|background: \$\{/);
 	assert.doesNotMatch(dot, /--dot-color/);
 });

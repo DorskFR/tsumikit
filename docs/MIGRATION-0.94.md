@@ -113,3 +113,12 @@ offset, the floating-panel entry shift), and the page-layout signals, which are 
 A look sets tokens on `:root[data-look]` and real properties on component selectors; it no longer
 sets component variables. A custom look written against 0.93 that assigns `--btn-*`, `--card-*`,
 `--badge-*` or `--pop-trigger-*` must write the properties themselves.
+
+Visible changes in the bundled looks, all fixes of 0.93 behaviour:
+
+- Editorial: a toned card or callout no longer inverts the controls nested in it. It sets the text
+  colour on itself and its direct text; nested buttons, inputs and switches keep their normal look.
+- Depth: toned modals show their tone stripe (the sheet border used to hide it), and an invalid
+  `Select` gets the same danger halo as an invalid input.
+- Tactile: toned `PopoverTrigger`s render their own tone instead of falling back to danger red.
+- Tactile and editorial: invalid controls keep their danger ring or underline while pressed.

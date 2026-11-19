@@ -14,13 +14,6 @@
 
 	type Status = 'active' | 'stale' | 'dead' | 'hibernated';
 
-	const STATUS_COLOR: Record<Status, string> = {
-		active: 'var(--dot-active)',
-		stale: 'var(--dot-stale)',
-		dead: 'var(--dot-dead)',
-		hibernated: 'var(--dot-hibernated)',
-	};
-
 	type Own = {
 		status?: Status;
 		color?: string;
@@ -43,22 +36,18 @@
 		...rest
 	}: Omit<HTMLAttributes<HTMLSpanElement>, keyof Own> & Own = $props();
 
-	const resolved = $derived(color ?? STATUS_COLOR[status]);
-	const inline = $derived(
-		`background: ${resolved};` +
-			(glow ? ` box-shadow: ${ring ? '0 0 0 3px rgb(0 0 0 / 0.35), ' : ''}0 0 6px ${resolved};` : '')
-	);
+	const inline = $derived(color ? `color: ${color};` : '');
 </script>
 
 {#if label}
 	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
 	<span class="dot-row {klass}" data-tsu="Dot" role={interactive ? 'img' : undefined} tabindex={interactive ? 0 : undefined} aria-label={interactive ? label : undefined} style={styleProp} {...rest}>
-		<span class="dot" class:glow class:ring style={inline}></span>
+		<span class="dot {color ? 'dot-colored' : `dot-${status}`}" class:glow class:ring style={inline || undefined}></span>
 		<Text variant="caption">{label}</Text>
 	</span>
 {:else}
 	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-	<span class="dot {klass}" class:glow class:ring style={inline + (styleProp ?? '')} data-tsu="Dot" role={interactive ? 'img' : undefined} tabindex={interactive ? 0 : undefined} aria-label={interactive && !color ? status : undefined} {...rest}></span>
+	<span class="dot {color ? 'dot-colored' : `dot-${status}`} {klass}" class:glow class:ring style={inline + (styleProp ?? '') || undefined} data-tsu="Dot" role={interactive ? 'img' : undefined} tabindex={interactive ? 0 : undefined} aria-label={interactive && !color ? status : undefined} {...rest}></span>
 {/if}
 
 <style>
@@ -74,7 +63,62 @@
 		flex: none;
 		display: inline-block;
 	}
-	.ring {
+	.dot-colored {
+		background: currentColor;
+	}
+	.dot-active {
+		background: var(--dot-active);
+	}
+	.dot-stale {
+		background: var(--dot-stale);
+	}
+	.dot-dead {
+		background: var(--dot-dead);
+	}
+	.dot-hibernated {
+		background: var(--dot-hibernated);
+	}
+	.dot-colored.glow {
+		box-shadow: 0 0 6px currentColor;
+	}
+	.dot-active.glow {
+		box-shadow: 0 0 6px var(--dot-active);
+	}
+	.dot-stale.glow {
+		box-shadow: 0 0 6px var(--dot-stale);
+	}
+	.dot-dead.glow {
+		box-shadow: 0 0 6px var(--dot-dead);
+	}
+	.dot-hibernated.glow {
+		box-shadow: 0 0 6px var(--dot-hibernated);
+	}
+	.dot.ring {
 		box-shadow: 0 0 0 3px rgb(0 0 0 / 0.35);
+	}
+	.dot-colored.ring.glow {
+		box-shadow:
+			0 0 0 3px rgb(0 0 0 / 0.35),
+			0 0 6px currentColor;
+	}
+	.dot-active.ring.glow {
+		box-shadow:
+			0 0 0 3px rgb(0 0 0 / 0.35),
+			0 0 6px var(--dot-active);
+	}
+	.dot-stale.ring.glow {
+		box-shadow:
+			0 0 0 3px rgb(0 0 0 / 0.35),
+			0 0 6px var(--dot-stale);
+	}
+	.dot-dead.ring.glow {
+		box-shadow:
+			0 0 0 3px rgb(0 0 0 / 0.35),
+			0 0 6px var(--dot-dead);
+	}
+	.dot-hibernated.ring.glow {
+		box-shadow:
+			0 0 0 3px rgb(0 0 0 / 0.35),
+			0 0 6px var(--dot-hibernated);
 	}
 </style>

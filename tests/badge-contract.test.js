@@ -51,10 +51,19 @@ test('Badge tints from root tokens per tone class; color tints inline', () => {
 		assert.ok(tint.includes(`border-color: color-mix(in srgb, var(${token}) 40%, transparent);`), tone);
 		assert.ok(tint.includes(`background: color-mix(in srgb, var(${token}) 12%, transparent);`), tone);
 	}
-	assert.match(badge, /`color: color-mix\(in oklab, \$\{color\} 75%, var\(--text\)\);/);
-	assert.match(badge, /background: color-mix\(in srgb, \$\{color\} 12%, transparent\);/);
-	assert.match(badge, /border-color: color-mix\(in srgb, \$\{color\} 40%, transparent\);/);
-	assert.match(badge, /if \(filled\) return `background: \$\{color\}; border-color: \$\{color\};/);
+	assert.match(badge, /const inline = \$derived\(\(color \? `color: \$\{color\};` : ''\) \+/);
+	assert.doesNotMatch(badge, /(background|border-color|outline-color): \$\{/);
+	assert.match(badge, /class:badge-custom=\{color !== undefined\}/);
+	assert.match(badge, /\{#if color !== undefined\}\s*<span class="badge-ink">\{@render content\(\)\}<\/span>\s*\{:else\}\s*\{@render content\(\)\}/);
+	const custom = rule('.badge-custom');
+	assert.ok(custom.includes('border-color: color-mix(in srgb, currentColor 40%, transparent);'));
+	assert.ok(custom.includes('background: color-mix(in srgb, currentColor 12%, transparent);'));
+	const ink = rule('.badge-ink');
+	assert.ok(ink.includes('display: contents;'));
+	assert.ok(ink.includes('color: color-mix(in oklab, currentColor 75%, var(--text));'));
+	assert.match(css, /\.active\.badge-custom,\s*\.solid\.badge-custom \{\s*background: currentColor;\s*border-color: currentColor;/);
+	assert.match(css, /\.active > \.badge-ink,\s*\.solid > \.badge-ink \{\s*color: var\(--text-on-accent\);/);
+	assert.match(css, /\.interactive:hover > \.badge-ink \{\s*color: var\(--text\);/);
 	assert.match(css, /\.active,\s*\.solid \{\s*color: var\(--text-on-accent\);\s*background: var\(--accent\);\s*border-color: var\(--accent\);/);
 	assert.match(css, /\.badge :global\(\.icon\) \{\s*font-size: var\(--icon-xs\);/);
 });
@@ -136,7 +145,7 @@ test('Interactive Badge shows a tone-derived focus ring', () => {
 		if (tone === 'accent') continue;
 		assert.ok(rule(`.interactive.badge-${tone}:focus-visible`).includes(`outline-color: var(${token});`), tone);
 	}
-	assert.match(badge, /const ring = clickable \? ` outline-color: \$\{color\};` : '';/);
+	assert.match(css, /\.interactive\.badge-custom:focus-visible \{\s*outline-color: currentColor;/);
 });
 
 test('Badge sm/xs font stays on the token scale', () => {

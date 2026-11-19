@@ -41,7 +41,8 @@ test('kusaritoi nits: Tooltip inline/width/tabindex fallback', () => {
 test('kusaritoi nits: Progress color/showValue, IconButton spin/loading, Icon filled/tone', () => {
 	assert.match(progress, /color\?: string;/);
 	assert.match(progress, /showValue\?: boolean;/);
-	assert.match(progress, /style:background-color={color && !gradient \? color : undefined}/, 'the bar takes the colour inline');
+	assert.match(progress, /class="bar"[^>]*style:color={color}/, 'the bar carries the colour as its text colour');
+	assert.match(progress, /\.progress\.colored \.bar \{\s*background: currentColor;/);
 	assert.match(progress, /style:--fill={liquid \? color : undefined}/, 'only the liquid pseudo-elements read the variable');
 	assert.match(iconButton, /spin\?: boolean;/);
 	assert.match(iconButton, /loading\?: boolean;/);
