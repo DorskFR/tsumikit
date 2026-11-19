@@ -12,8 +12,8 @@ test('Modal keeps mount-to-open by default and follows a bound `open` when provi
 	assert.match(source, /open\?: boolean;/);
 	assert.match(source, /onclose\?: \(\) => void;/);
 	assert.match(source, /const controlled = \$derived\(open !== undefined\);/);
-	assert.match(source, /if \(!controlled\) {\s*dialogEl\.showModal\(\);\s*return;\s*}/s);
-	assert.match(source, /if \(open && !dialogEl\.open\) {\s*dialogEl\.showModal\(\);\s*if \(synced\) playSound\('open', sound\);\s*}/);
+	assert.match(source, /if \(!controlled\) {\s*showModalUnscrolled\(dialogEl\);\s*return;\s*}/s);
+	assert.match(source, /if \(open && !dialogEl\.open\) {\s*showModalUnscrolled\(dialogEl\);\s*if \(synced\) playSound\('open', sound\);\s*}/);
 	assert.match(source, /else if \(!open && dialogEl\.open\) dialogEl\.close\(\);/);
 	assert.match(source, /function requestClose\(\) {\s*if \(busy\) return;\s*if \(controlled\) open = false;\s*else {\s*dismissed = true;\s*playSound\('close', sound\);\s*}\s*onclose\?\.\(\);/s);
 	assert.match(source, /function onDialogClose\(\) {\s*const forced = controlled \? open : !dismissed;\s*dismissed = false;\s*if \(controlled\) open = false;\s*if \(controlled \|\| forced\) playSound\('close', sound\);\s*if \(forced\) onclose\?\.\(\);/s);
