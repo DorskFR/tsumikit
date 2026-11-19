@@ -80,6 +80,14 @@
 	});
 	const toneClass = $derived(canonicalTone(autoTone) === 'ok' ? 'success' : canonicalTone(autoTone));
 	const markerPct = (at: number) => Math.max(0, Math.min(100, (at / max) * 100));
+	const STRIPES =
+		'linear-gradient(45deg, rgba(255, 255, 255, 0.18) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.18) 50%, rgba(255, 255, 255, 0.18) 75%, transparent 75%, transparent)';
+	const barImage = $derived.by(() => {
+		if (!color || !gradient) return undefined;
+		const sweep = `linear-gradient(90deg, ${color}, var(--c-teal))`;
+		return striped ? `${STRIPES}, ${sweep}` : sweep;
+	});
+	const liquid = $derived(variant === 'liquid' && indeterminate);
 </script>
 
 {#snippet track()}
@@ -90,7 +98,8 @@
 	class:no-shrink={!shrink}
 	class:block={block}
 	class:indeterminate
-	style:--fill={color}
+	class:colored={!!color}
+	style:--fill={liquid ? color : undefined}
 	{...rest}
 	class:gradient
 	class:striped
@@ -100,7 +109,12 @@
 	aria-valuemax={indeterminate ? undefined : max}
 	aria-valuenow={indeterminate ? undefined : value}
 >
-	<div class="bar" style={indeterminate ? undefined : `--p: ${pct / 100}`}></div>
+	<div
+		class="bar"
+		style:translate={indeterminate ? undefined : `${pct - 100}% 0`}
+		style:background-color={color && !gradient ? color : undefined}
+		style:background-image={barImage}
+	></div>
 	{#each markers as m, i (`${i}:${m.at}`)}
 		<span
 			class="marker tone-{m.tone ? canonicalTone(m.tone) : 'text'}"
@@ -161,9 +175,9 @@
 	.bar {
 		width: 100%;
 		height: 100%;
-		background: var(--fill, var(--accent));
+		background: var(--accent);
 		border-radius: inherit;
-		translate: calc((var(--p, 1) - 1) * 100%) 0;
+		translate: 0% 0;
 		transition: translate var(--dur-base) var(--ease-out);
 	}
 	.marker {
@@ -172,41 +186,56 @@
 		bottom: 0;
 		width: 2px;
 		transform: translateX(-50%);
-		background: var(--marker, var(--text));
+		background: var(--text);
 		pointer-events: none;
 	}
 	.marker.tone-ok {
-		--marker: var(--ok);
+		background: var(--ok);
 	}
 	.marker.tone-warn {
-		--marker: var(--warn);
+		background: var(--warn);
 	}
 	.marker.tone-danger {
-		--marker: var(--danger);
+		background: var(--danger);
 	}
 	.marker.tone-info {
-		--marker: var(--info);
+		background: var(--info);
 	}
 	.marker.tone-accent {
-		--marker: var(--accent);
+		background: var(--accent);
 	}
-	.tone-success {
-		--fill: var(--ok);
+	.tone-success .bar {
+		background: var(--ok);
 	}
-	.tone-info {
-		--fill: var(--info);
+	.tone-info .bar {
+		background: var(--info);
 	}
-	.tone-neutral {
-		--fill: var(--text-faint);
+	.tone-neutral .bar {
+		background: var(--text-faint);
 	}
-	.tone-warn {
-		--fill: var(--warn);
+	.tone-warn .bar {
+		background: var(--warn);
 	}
-	.tone-danger {
-		--fill: var(--danger);
+	.tone-danger .bar {
+		background: var(--danger);
 	}
 	.progress.gradient .bar {
-		background: linear-gradient(90deg, var(--fill, var(--accent)), var(--c-teal));
+		background: linear-gradient(90deg, var(--accent), var(--c-teal));
+	}
+	.progress.gradient.tone-success .bar {
+		background: linear-gradient(90deg, var(--ok), var(--c-teal));
+	}
+	.progress.gradient.tone-info .bar {
+		background: linear-gradient(90deg, var(--info), var(--c-teal));
+	}
+	.progress.gradient.tone-neutral .bar {
+		background: linear-gradient(90deg, var(--text-faint), var(--c-teal));
+	}
+	.progress.gradient.tone-warn .bar {
+		background: linear-gradient(90deg, var(--warn), var(--c-teal));
+	}
+	.progress.gradient.tone-danger .bar {
+		background: linear-gradient(90deg, var(--danger), var(--c-teal));
 	}
 	.progress.striped .bar {
 		background-image: linear-gradient(
@@ -233,10 +262,80 @@
 				transparent 75%,
 				transparent
 			),
-			linear-gradient(90deg, var(--fill, var(--accent)), var(--c-teal));
+			linear-gradient(90deg, var(--accent), var(--c-teal));
 		background-size:
 			1rem 1rem,
 			100% 100%;
+	}
+	.progress.gradient.striped.tone-success .bar {
+		background-image:
+			linear-gradient(
+				45deg,
+				rgba(255, 255, 255, 0.18) 25%,
+				transparent 25%,
+				transparent 50%,
+				rgba(255, 255, 255, 0.18) 50%,
+				rgba(255, 255, 255, 0.18) 75%,
+				transparent 75%,
+				transparent
+			),
+			linear-gradient(90deg, var(--ok), var(--c-teal));
+	}
+	.progress.gradient.striped.tone-info .bar {
+		background-image:
+			linear-gradient(
+				45deg,
+				rgba(255, 255, 255, 0.18) 25%,
+				transparent 25%,
+				transparent 50%,
+				rgba(255, 255, 255, 0.18) 50%,
+				rgba(255, 255, 255, 0.18) 75%,
+				transparent 75%,
+				transparent
+			),
+			linear-gradient(90deg, var(--info), var(--c-teal));
+	}
+	.progress.gradient.striped.tone-neutral .bar {
+		background-image:
+			linear-gradient(
+				45deg,
+				rgba(255, 255, 255, 0.18) 25%,
+				transparent 25%,
+				transparent 50%,
+				rgba(255, 255, 255, 0.18) 50%,
+				rgba(255, 255, 255, 0.18) 75%,
+				transparent 75%,
+				transparent
+			),
+			linear-gradient(90deg, var(--text-faint), var(--c-teal));
+	}
+	.progress.gradient.striped.tone-warn .bar {
+		background-image:
+			linear-gradient(
+				45deg,
+				rgba(255, 255, 255, 0.18) 25%,
+				transparent 25%,
+				transparent 50%,
+				rgba(255, 255, 255, 0.18) 50%,
+				rgba(255, 255, 255, 0.18) 75%,
+				transparent 75%,
+				transparent
+			),
+			linear-gradient(90deg, var(--warn), var(--c-teal));
+	}
+	.progress.gradient.striped.tone-danger .bar {
+		background-image:
+			linear-gradient(
+				45deg,
+				rgba(255, 255, 255, 0.18) 25%,
+				transparent 25%,
+				transparent 50%,
+				rgba(255, 255, 255, 0.18) 50%,
+				rgba(255, 255, 255, 0.18) 75%,
+				transparent 75%,
+				transparent
+			),
+			linear-gradient(90deg, var(--danger), var(--c-teal));
 	}
 	.progress.indeterminate .bar {
 		width: 40%;
@@ -288,9 +387,33 @@
 		inset: 0;
 		width: 55%;
 		border-radius: inherit;
-		background: linear-gradient(90deg, transparent, var(--fill, var(--accent)) 35% 65%, transparent);
+		background: linear-gradient(90deg, transparent, var(--accent) 35% 65%, transparent);
 		transform: translateX(-100%);
 		animation: tsu-progress-liquid 1.7s var(--ease-drawer) infinite;
+	}
+	.progress.v-liquid.indeterminate.tone-success::before,
+	.progress.v-liquid.indeterminate.tone-success::after {
+		background: linear-gradient(90deg, transparent, var(--ok) 35% 65%, transparent);
+	}
+	.progress.v-liquid.indeterminate.tone-info::before,
+	.progress.v-liquid.indeterminate.tone-info::after {
+		background: linear-gradient(90deg, transparent, var(--info) 35% 65%, transparent);
+	}
+	.progress.v-liquid.indeterminate.tone-neutral::before,
+	.progress.v-liquid.indeterminate.tone-neutral::after {
+		background: linear-gradient(90deg, transparent, var(--text-faint) 35% 65%, transparent);
+	}
+	.progress.v-liquid.indeterminate.tone-warn::before,
+	.progress.v-liquid.indeterminate.tone-warn::after {
+		background: linear-gradient(90deg, transparent, var(--warn) 35% 65%, transparent);
+	}
+	.progress.v-liquid.indeterminate.tone-danger::before,
+	.progress.v-liquid.indeterminate.tone-danger::after {
+		background: linear-gradient(90deg, transparent, var(--danger) 35% 65%, transparent);
+	}
+	.progress.v-liquid.indeterminate.colored::before,
+	.progress.v-liquid.indeterminate.colored::after {
+		background: linear-gradient(90deg, transparent, var(--fill) 35% 65%, transparent);
 	}
 	.progress.v-liquid.indeterminate::after {
 		width: 35%;
@@ -332,7 +455,25 @@
 	}
 	@media (prefers-reduced-motion: reduce) {
 		.progress.v-liquid.indeterminate {
-			background: color-mix(in srgb, var(--fill, var(--accent)) 35%, transparent);
+			background: color-mix(in srgb, var(--accent) 35%, transparent);
+		}
+		.progress.v-liquid.indeterminate.tone-success {
+			background: color-mix(in srgb, var(--ok) 35%, transparent);
+		}
+		.progress.v-liquid.indeterminate.tone-info {
+			background: color-mix(in srgb, var(--info) 35%, transparent);
+		}
+		.progress.v-liquid.indeterminate.tone-neutral {
+			background: color-mix(in srgb, var(--text-faint) 35%, transparent);
+		}
+		.progress.v-liquid.indeterminate.tone-warn {
+			background: color-mix(in srgb, var(--warn) 35%, transparent);
+		}
+		.progress.v-liquid.indeterminate.tone-danger {
+			background: color-mix(in srgb, var(--danger) 35%, transparent);
+		}
+		.progress.v-liquid.indeterminate.colored {
+			background: color-mix(in srgb, var(--fill) 35%, transparent);
 		}
 		.progress.v-liquid.indeterminate::before,
 		.progress.v-liquid.indeterminate::after {

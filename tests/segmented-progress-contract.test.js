@@ -29,10 +29,13 @@ test('renders proportional segments with native title tooltips', () => {
 });
 
 test('tones map to semantic tokens', () => {
-	assert.match(component, /\.tone-success,\s*\.tone-ok\s*{\s*--fill: var\(--ok\);/);
-	assert.match(component, /\.tone-warn\s*{\s*--fill: var\(--warn\);/);
-	assert.match(component, /\.tone-danger\s*{\s*--fill: var\(--danger\);/);
-	assert.match(component, /\.tone-muted\s*{\s*--fill: var\(--text-faint\);/);
+	assert.match(component, /\.bar\s*{[^}]*background: var\(--accent\);/);
+	assert.match(component, /\.tone-success \.bar,\s*\.tone-ok \.bar\s*{\s*background: var\(--ok\);/);
+	assert.match(component, /\.tone-warn \.bar\s*{\s*background: var\(--warn\);/);
+	assert.match(component, /\.tone-danger \.bar\s*{\s*background: var\(--danger\);/);
+	assert.match(component, /\.tone-muted \.bar\s*{\s*background: var\(--text-faint\);/);
+	assert.equal(component.match(/<div class="bar" style:translate="{pct\(seg\) - 100}% 0"><\/div>/g)?.length, 2);
+	assert.doesNotMatch(component, /--(fill|seg-fill|p)\b/);
 });
 
 test('defaults keep the segments mode with a 2px gap and progressbar semantics', () => {

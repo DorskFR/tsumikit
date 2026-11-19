@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'Content shapes',
-		caption: 'items accepts plain strings; fewer than four cells leave the grid partly empty; children takes a free-form run where each direct child is a cell; the inline gap follows --glyph-stack-gap.'
+		caption: 'items accepts plain strings; fewer than four cells leave the grid partly empty; children takes a free-form run where each direct child is a cell; an inline gap widens the run.'
 	};
 </script>
 
@@ -30,7 +30,7 @@
 	<Text size="xs" tone="muted">children</Text>
 </Cluster>
 <Cluster gap="var(--sp-2)">
-	<GlyphStack stack="never" style="--glyph-stack-gap: var(--sp-3)">
+	<GlyphStack stack="never" style="gap: var(--sp-3)">
 		<Icon name="git-branch" size={14} />
 		<Icon name="lock" size={14} />
 		<Dot status="dead" label="Offline" />

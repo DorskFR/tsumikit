@@ -25,7 +25,8 @@ test('CapBar is exported from the molecules block', () => {
 test('label | track | readout grid with overridable widths', () => {
 	assert.match(component, /labelWidth = '96px'/);
 	assert.match(component, /readoutWidth = 'auto'/);
-	assert.match(component, /grid-template-columns: var\(--label-w\) 1fr var\(--readout-w\);/);
+	assert.match(component, /stacked \? '' : `grid-template-columns: \$\{labelWidth\} 1fr \$\{readoutWidth\}; `/);
+	assert.doesNotMatch(component, /--(label-w|readout-w|pct|marker|track-h|fill)\b/);
 	assert.match(component, /label\?: string \| Snippet/);
 	assert.match(component, /readout\?: string \| Snippet/);
 	assert.match(component, /caption\?: Snippet/);
@@ -34,16 +35,20 @@ test('label | track | readout grid with overridable widths', () => {
 test('fill width follows value, tone thresholds default to 75 / cap', () => {
 	assert.match(component, /warnAt = 75/);
 	assert.match(component, /const tone = \$derived\(capTone\(value, cap, warnAt\)\)/);
-	assert.match(component, /\.fill\s*{[^}]*translate: calc\(var\(--pct\) - 100%\) 0;/);
-	assert.match(component, /--fill: var\(--ok\);/);
-	assert.match(component, /\.tone-warn\s*{\s*--fill: var\(--warn\);/);
-	assert.match(component, /\.tone-danger\s*{\s*--fill: var\(--danger\);/);
+	assert.match(component, /<div class="fill" style:translate="calc\({pct}% - 100%\) 0"><\/div>/);
+	assert.match(component, /\.fill\s*{[^}]*background: var\(--ok\);/);
+	assert.match(component, /\.tone-warn \.fill\s*{\s*background: var\(--warn\);/);
+	assert.match(component, /\.tone-danger \.fill\s*{\s*background: var\(--danger\);/);
 });
 
 test('track base up to the cap, subdued bg + border region past it', () => {
-	assert.match(component, /--track-h: 6px;/);
-	assert.match(component, /\.cap-bar\.size-lg\s*{\s*--track-h: 10px;/);
-	assert.match(component, /\.track\s*{[^}]*background: color-mix\(in oklab, var\(--fill\) 26%, var\(--bg\)\);/);
+	assert.match(component, /\.track\s*{[^}]*height: 6px;/);
+	assert.match(component, /\.size-lg \.track\s*{\s*height: 10px;/);
+	assert.match(component, /\.marker\s*{[^}]*height: 12px;/);
+	assert.match(component, /\.size-lg \.marker\s*{\s*height: 16px;/);
+	assert.match(component, /\.track\s*{[^}]*background: color-mix\(in oklab, var\(--ok\) 26%, var\(--bg\)\);/);
+	assert.match(component, /bind:this={trackEl}\s*style:--cap="{capPct}%"/);
+	assert.equal(component.match(/--cap\b/g)?.length, 2);
 	assert.match(component, /\.track::after\s*{[^}]*inset: 0 0 0 var\(--cap\);[^}]*background: var\(--bg\);[^}]*box-shadow: inset 0 0 0 var\(--edge-width\) var\(--track-edge\);/);
 	assert.match(component, /\.track\s*{[^}]*cursor: ew-resize;/);
 });
@@ -74,8 +79,12 @@ test('pointer sets the cap live, keyboard steps, oninput vs onchange', () => {
 });
 
 test('cap bubble reads the live cap while dragging or keyboard-focused', () => {
-	assert.match(component, /<div class="bubble" aria-hidden="true">{capText}<\/div>/);
-	assert.match(component, /\.bubble\s*{[^}]*left: clamp\(0%, var\(--cap\), 100%\);[^}]*translate: calc\(-1 \* clamp\(0%, var\(--cap\), 100%\)\) 0;[^}]*pointer-events: none;[^}]*opacity: 0;[^}]*visibility: hidden;/s);
+	assert.match(
+		component,
+		/class="bubble"\s*style:left="clamp\(0%, {capPct}%, 100%\)"\s*style:translate="calc\(-1 \* clamp\(0%, {capPct}%, 100%\)\) 0"\s*aria-hidden="true"\s*>{capText}<\/div>/
+	);
+	assert.match(component, /class="handle"\s*style:left="{capPct}%"/);
+	assert.match(component, /\.bubble\s*{[^}]*pointer-events: none;[^}]*opacity: 0;[^}]*visibility: hidden;/s);
 	assert.match(component, /\.dragging \.bubble,\s*\.keying \.bubble\s*{\s*opacity: 1;\s*visibility: visible;/);
 	assert.match(component, /class:keying/);
 	assert.match(component, /onblur={\(\) => \(keying = false\)}/);
@@ -99,10 +108,11 @@ test('capLabel and capValueText override the built-in English ARIA strings', () 
 test('marker draws a non-interactive rule described by the slider', () => {
 	assert.match(component, /marker\?: number \| null;/);
 	assert.match(component, /markerTone\?: 'neutral' \| 'ok' \| 'warn' \| 'danger';/);
-	assert.match(component, /<div class="marker marker-{markerTone}" title={markerLabel} aria-hidden="true"><\/div>/);
+	assert.match(component, /<div class="marker marker-{markerTone}" style:left="{markerPct}%" title={markerLabel} aria-hidden="true"><\/div>/);
 	assert.match(component, /aria-describedby={markerId}/);
 	assert.match(component, /<span class="sr-only" id={markerId}>{markerLabel}<\/span>/);
-	assert.match(component, /\.marker\s*{[^}]*left: var\(--marker\);[^}]*pointer-events: none;/s);
+	assert.match(component, /\.marker\s*{[^}]*background: var\(--text-muted\);[^}]*pointer-events: none;/s);
+	assert.match(component, /\.marker-warn\s*{\s*background: var\(--warn\);/);
 	assert.doesNotMatch(component, /class="marker[^"]*"[^>]*tabindex/);
 });
 
@@ -206,7 +216,8 @@ test('capTone thresholds', () => {
 });
 
 test('track base tint follows the current tone, not the accent', () => {
-	assert.match(component, /\.track\s*{[^}]*background: color-mix\(in oklab, var\(--fill\) 26%, var\(--bg\)\);/s);
+	assert.match(component, /\.tone-warn \.track\s*{\s*background: color-mix\(in oklab, var\(--warn\) 26%, var\(--bg\)\);/);
+	assert.match(component, /\.tone-danger \.track\s*{\s*background: color-mix\(in oklab, var\(--danger\) 26%, var\(--bg\)\);/);
 	assert.doesNotMatch(component, /var\(--accent\) 26%/);
 });
 

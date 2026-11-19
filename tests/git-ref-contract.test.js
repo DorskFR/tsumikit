@@ -21,12 +21,12 @@ test('GitRef row is inline-flex with --sp-1 gap and mono type', () => {
 });
 
 test('branch chip shows the fork icon, truncates and carries the full name as title', () => {
-	assert.match(src, /<span class="chip branch" title=\{branch\}>/);
+	assert.match(src, /<span class="chip branch" style:max-width=\{maxWidth\} title=\{branch\}>/);
 	assert.match(src, /<Icon name="fork" label="Branch" \/>/);
 	assert.match(src, /<span class="text">\{branch\}<\/span>/);
 	assert.match(src, /maxWidth = '14rem'/);
-	assert.match(src, /style:--git-ref-max-width=\{maxWidth\}/);
-	assert.match(css, /\.branch \{\s*max-width: var\(--git-ref-max-width, 14rem\);/);
+	assert.match(css, /\.branch \{\s*max-width: 14rem;/);
+	assert.doesNotMatch(src, /--git-ref-/);
 	assert.match(css, /\.text \{\s*min-width: 0;\s*overflow: hidden;\s*text-overflow: ellipsis;/);
 });
 
@@ -43,10 +43,18 @@ test('PR state maps onto the shared Tone vocabulary', () => {
 	assert.match(src, /import type \{ Tone \} from '\$lib\/tone'/);
 	assert.match(src, /export type PrState = 'open' \| 'merged' \| 'closed' \| 'draft'/);
 	assert.match(src, /PR_TONE: Record<PrState, Tone> = \{\s*open: 'ok',\s*merged: 'accent',\s*closed: 'danger',\s*draft: 'neutral',/);
-	assert.match(src, /neutral: 'var\(--text-muted\)'/);
-	assert.match(src, /TONE_COLOR\[PR_TONE\[pr\.state \?\? 'open'\]\]/);
-	assert.match(src, /style:--git-ref-tone=\{prTone\}/);
-	assert.match(css, /\.pr \{\s*color: var\(--git-ref-tone\);/);
+	assert.match(src, /const prTone = \$derived\(pr \? PR_TONE\[pr\.state \?\? 'open'\] : undefined\);/);
+	assert.match(src, /class="chip pr tone-\{prTone\}"/);
+	for (const [tone, token] of [['ok', '--ok'], ['accent', '--accent'], ['danger', '--danger'], ['neutral', '--text-muted']]) {
+		assert.ok(
+			css.includes(
+				`.pr.tone-${tone} {\n\t\tcolor: var(${token});\n\t\tborder-color: color-mix(in srgb, var(${token}) 40%, transparent);\n\t\tbackground: color-mix(in srgb, var(${token}) 12%, transparent);`
+			),
+			tone
+		);
+		assert.ok(css.includes(`.pr.tone-${tone}:hover {\n\t\t\tborder-color: var(${token});`), tone);
+	}
+	assert.match(css, /\.pr:focus-visible \{\s*outline: var\(--focus-ring-width\) solid currentColor;/);
 });
 
 test('diff stats colour additions --ok and deletions --danger with tabular digits', () => {

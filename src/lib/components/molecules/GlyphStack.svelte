@@ -290,7 +290,7 @@
 	.glyph-stack {
 		display: inline-flex;
 		align-items: center;
-		gap: var(--glyph-stack-gap, var(--sp-1));
+		gap: var(--sp-1);
 		flex: none;
 		vertical-align: middle;
 	}
@@ -309,7 +309,6 @@
 	}
 	/* Cells clip, so any focus ring inside draws inset. */
 	.stacked > :global(*) {
-		--focus-ring-offset: var(--focus-ring-offset-inset);
 		width: 1rem;
 		height: 1rem;
 		max-width: 1rem;
@@ -339,8 +338,8 @@
 		clip-path: inset(50%);
 		white-space: nowrap;
 	}
-	.stacked > :global(*) :global(:focus-visible),
-	.stacked > :global(:focus-visible) {
+	.glyph-stack.stacked > :global(*) :global(:focus-visible),
+	.glyph-stack.stacked > :global(:focus-visible) {
 		outline-offset: var(--focus-ring-offset-inset);
 	}
 	.glyph-stack[data-expand] {
@@ -374,8 +373,8 @@
 	}
 	.expand-panel:popover-open {
 		display: grid;
-		grid-template-columns: repeat(2, minmax(var(--glyph-stack-tile, 3rem), 1fr));
-		grid-auto-rows: minmax(var(--glyph-stack-tile, 3rem), 1fr);
+		grid-template-columns: repeat(2, minmax(3rem, 1fr));
+		grid-auto-rows: minmax(3rem, 1fr);
 		gap: var(--sp-1);
 		opacity: 1;
 		scale: 1;
@@ -406,6 +405,6 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		zoom: var(--glyph-stack-zoom, 1.75);
+		zoom: 1.75;
 	}
 </style>

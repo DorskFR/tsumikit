@@ -95,31 +95,31 @@
 	/* Base: inherit everything — a bare <Text> renders like a plain span. */
 	.text {
 		margin: 0;
-		color: var(--txt-fg, inherit);
-		font-size: var(--txt-size, inherit);
+		color: inherit;
+		font-size: inherit;
 	}
 	/* Variants (presets) — listed before tone/weight/size so those override. */
 	.v-body {
-		font-size: var(--txt-size, var(--fs-base));
+		font-size: var(--fs-base);
 		line-height: var(--lh-normal);
-		color: var(--txt-fg, var(--text));
+		color: var(--text);
 	}
 	.v-label {
-		font-size: var(--txt-size, var(--fs-sm));
+		font-size: var(--fs-sm);
 		font-weight: var(--fw-medium);
-		color: var(--txt-fg, var(--text-muted));
+		color: var(--text-muted);
 	}
 	.v-caption {
-		font-size: var(--txt-size, var(--fs-xs));
-		color: var(--txt-fg, var(--text-muted));
+		font-size: var(--fs-xs);
+		color: var(--text-muted);
 	}
 	.v-code {
 		font-family: var(--font-mono);
-		font-size: var(--txt-size, 0.92em);
+		font-size: 0.92em;
 	}
 	.v-eyebrow {
-		font-size: var(--txt-size, var(--fs-xs));
-		color: var(--txt-fg, var(--text-muted));
+		font-size: var(--fs-xs);
+		color: var(--text-muted);
 		font-weight: var(--fw-medium);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
@@ -129,28 +129,28 @@
 		font-family: var(--font-mono);
 	}
 	.tone-default {
-		color: var(--txt-fg, var(--text));
+		color: var(--text);
 	}
 	.tone-muted {
-		color: var(--txt-fg, var(--text-muted));
+		color: var(--text-muted);
 	}
 	.tone-faint {
-		color: var(--txt-fg, var(--text-faint));
+		color: var(--text-faint);
 	}
 	.tone-success {
-		color: var(--txt-fg, var(--ok));
+		color: var(--ok);
 	}
 	.tone-warn {
-		color: var(--txt-fg, var(--warn));
+		color: var(--warn);
 	}
 	.tone-danger {
-		color: var(--txt-fg, var(--danger));
+		color: var(--danger);
 	}
 	.tone-info {
-		color: var(--txt-fg, var(--info));
+		color: var(--info);
 	}
 	.tone-accent {
-		color: var(--txt-fg, var(--accent));
+		color: var(--accent);
 	}
 	/* Weight — overrides variant weight. */
 	.fw-normal {
@@ -167,46 +167,46 @@
 	}
 	/* Size — overrides variant size (listed last so it wins). */
 	.fs-xs {
-		font-size: var(--txt-size, var(--fs-xs));
+		font-size: var(--fs-xs);
 	}
 	.fs-sm {
-		font-size: var(--txt-size, var(--fs-sm));
+		font-size: var(--fs-sm);
 	}
 	.fs-base {
-		font-size: var(--txt-size, var(--fs-base));
+		font-size: var(--fs-base);
 	}
 	.fs-md {
-		font-size: var(--txt-size, var(--fs-md));
+		font-size: var(--fs-md);
 	}
 	.fs-lg {
-		font-size: var(--txt-size, var(--fs-lg));
+		font-size: var(--fs-lg);
 	}
 	.fs-xl {
-		font-size: var(--txt-size, var(--fs-xl));
+		font-size: var(--fs-xl);
 	}
 	.fs-2xl {
-		font-size: var(--txt-size, var(--fs-2xl));
+		font-size: var(--fs-2xl);
 	}
 	.noscale.fs-xs {
-		font-size: var(--txt-size, 12px);
+		font-size: 12px;
 	}
 	.noscale.fs-sm {
-		font-size: var(--txt-size, 13px);
+		font-size: 13px;
 	}
 	.noscale.fs-base {
-		font-size: var(--txt-size, 15px);
+		font-size: 15px;
 	}
 	.noscale.fs-md {
-		font-size: var(--txt-size, 16px);
+		font-size: 16px;
 	}
 	.noscale.fs-lg {
-		font-size: var(--txt-size, 18px);
+		font-size: 18px;
 	}
 	.noscale.fs-xl {
-		font-size: var(--txt-size, 22px);
+		font-size: 22px;
 	}
 	.noscale.fs-2xl {
-		font-size: var(--txt-size, 28px);
+		font-size: 28px;
 	}
 	.italic {
 		font-style: italic;

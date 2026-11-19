@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'Tones, sizes and shapes',
-		caption: 'tone or color sets the tint; border={false} is the soft fill; variant="text" drops the chip; size xs, sm, md; uppercase, mono, dot and icon decorate.',
+		caption: 'tone or color sets the tint; border={false} is the soft fill; variant="solid" fills the pill with the tone; variant="text" drops the chip; size xs, sm, md; uppercase, mono, dot and icon decorate.',
 		layout: 'stack'
 	};
 </script>
@@ -34,4 +34,8 @@
 	<Badge tone="ok" icon="check">passed</Badge>
 	<Badge color="var(--role-system)" dot>system</Badge>
 	<Badge tone="warn" dot border={false}>pending</Badge>
+</Cluster>
+<Cluster>
+	{#each tones as tone (tone)}<Badge {tone} variant="solid">{tone}</Badge>{/each}
+	<Badge color="hsl(160 60% 30%)" variant="solid">color</Badge>
 </Cluster>

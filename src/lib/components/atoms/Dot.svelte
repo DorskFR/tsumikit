@@ -39,21 +39,26 @@
 		ring = false,
 		interactive = false,
 		class: klass = '',
+		style: styleProp,
 		...rest
 	}: Omit<HTMLAttributes<HTMLSpanElement>, keyof Own> & Own = $props();
 
 	const resolved = $derived(color ?? STATUS_COLOR[status]);
+	const inline = $derived(
+		`background: ${resolved};` +
+			(glow ? ` box-shadow: ${ring ? '0 0 0 3px rgb(0 0 0 / 0.35), ' : ''}0 0 6px ${resolved};` : '')
+	);
 </script>
 
 {#if label}
 	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-	<span class="dot-row {klass}" data-tsu="Dot" role={interactive ? 'img' : undefined} tabindex={interactive ? 0 : undefined} aria-label={interactive ? label : undefined} {...rest}>
-		<span class="dot" class:glow class:ring style="--dot-color:{resolved}"></span>
+	<span class="dot-row {klass}" data-tsu="Dot" role={interactive ? 'img' : undefined} tabindex={interactive ? 0 : undefined} aria-label={interactive ? label : undefined} style={styleProp} {...rest}>
+		<span class="dot" class:glow class:ring style={inline}></span>
 		<Text variant="caption">{label}</Text>
 	</span>
 {:else}
 	<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
-	<span class="dot {klass}" class:glow class:ring style="--dot-color:{resolved}" data-tsu="Dot" role={interactive ? 'img' : undefined} tabindex={interactive ? 0 : undefined} aria-label={interactive && !color ? status : undefined} {...rest}></span>
+	<span class="dot {klass}" class:glow class:ring style={inline + (styleProp ?? '')} data-tsu="Dot" role={interactive ? 'img' : undefined} tabindex={interactive ? 0 : undefined} aria-label={interactive && !color ? status : undefined} {...rest}></span>
 {/if}
 
 <style>
@@ -68,17 +73,8 @@
 		border-radius: var(--r-pill);
 		flex: none;
 		display: inline-block;
-		background: var(--dot-color);
-	}
-	.glow {
-		box-shadow: 0 0 6px var(--dot-color);
 	}
 	.ring {
 		box-shadow: 0 0 0 3px rgb(0 0 0 / 0.35);
-	}
-	.ring.glow {
-		box-shadow:
-			0 0 0 3px rgb(0 0 0 / 0.35),
-			0 0 6px var(--dot-color);
 	}
 </style>

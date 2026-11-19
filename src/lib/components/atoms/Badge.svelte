@@ -8,8 +8,7 @@
 	//              `actionIcon`/`onaction` swap in any other trailing action and
 	//              `removed` mutes + strikes the pill for a "restorable" state
 	// Polymorphic via `as` so it can be a static <span> or an interactive
-	// <button>. Every tinted style derives from the `--badge-tone` custom
-	// property, which is the public hook for consumers who theme by CSS.
+	// <button>.
 	import type { Snippet } from 'svelte';
 	import Dot from './Dot.svelte';
 	import Icon, { type IconName } from './Icon.svelte';
@@ -46,7 +45,8 @@
 		size?: 'xs' | 'sm' | 'md';
 		// `text` drops the chip (no fill, ring or padding) but keeps badge
 		// typography and tint — for mono metadata that must not read as a pill.
-		variant?: 'chip' | 'text';
+		// `solid` fills the pill with its tone (accent when there is none).
+		variant?: 'chip' | 'text' | 'solid';
 		mono?: boolean;
 		// Uppercase, letter-spaced label — for status tags/eyebrows.
 		uppercase?: boolean;
@@ -104,12 +104,25 @@
 		shrink = true,
 		block = false,
 		children,
+		style: styleProp,
 		...rest
 	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
 
 	const t = $derived(canonicalTone(tone));
 	const toneColor = $derived(color ?? (t === 'neutral' ? undefined : TONE_COLOR[t]));
 	const hasAction = $derived(removable || actionIcon !== undefined);
+	const clickable = $derived(as === 'button' || !!href);
+	const filled = $derived(active || variant === 'solid');
+	const tint = $derived.by(() => {
+		if (!color) return '';
+		const ring = clickable ? ` outline-color: ${color};` : '';
+		if (filled) return `background: ${color}; border-color: ${color};${ring}`;
+		const fg = `color: color-mix(in oklab, ${color} 75%, var(--text));${ring}`;
+		if (variant === 'text') return fg;
+		const fill = `${fg} background: color-mix(in srgb, ${color} 12%, transparent);`;
+		return border ? `${fill} border-color: color-mix(in srgb, ${color} 40%, transparent);` : fill;
+	});
+	const inline = $derived(tint + (maxWidth ? `max-width: ${maxWidth};` : ''));
 </script>
 
 <svelte:element
@@ -126,10 +139,14 @@
 	class:badge-warn={t === 'warn'}
 	class:badge-danger={t === 'danger'}
 	class:badge-info={t === 'info'}
+	class:badge-accent={t === 'accent'}
+	class:badge-muted={t === 'muted'}
+	class:badge-violet={t === 'violet'}
 	class:toned={toneColor !== undefined}
 	class:badge-sm={size === 'sm'}
 	class:badge-xs={size === 'xs'}
 	class:text={variant === 'text'}
+	class:solid={variant === 'solid'}
 	class:mono
 	class:uppercase
 	class:numeric
@@ -137,14 +154,13 @@
 	class:borderless={!border}
 	class:active
 	class:removed
-	class:interactive={as === 'button' || !!href}
-	style:--badge-tone={toneColor}
-	style:--badge-max-width={maxWidth}
+	class:interactive={clickable}
+	style={inline + (styleProp ?? '') || undefined}
 	type={!href && as === 'button' ? 'button' : undefined}
 	{...rest}
 >
 	{#if dot}
-		<Dot color="var(--badge-tone, currentColor)" />
+		<Dot color={toneColor ?? 'currentColor'} />
 	{/if}
 	{#if icon}
 		<Icon name={icon} />
@@ -182,40 +198,71 @@
 	/* Chip heights sit on the 4px grid (md 24 / sm 20 / xs 16) through a
 	   min-height, so the leading never decides the box. */
 	.badge {
-		--badge-h: var(--chip-md);
 		display: inline-flex;
 		align-items: center;
 		gap: var(--sp-1);
-		min-height: var(--badge-h);
+		min-height: var(--chip-md);
 		padding: 0 var(--sp-2);
-		border-radius: var(--badge-radius, var(--r-pill));
-		font-size: var(--badge-fs, var(--fs-xs));
-		font-weight: var(--badge-fw, var(--fw-medium));
+		border-radius: var(--r-pill);
+		font-size: var(--fs-xs);
+		font-weight: var(--fw-medium);
 		line-height: var(--lh-snug);
-		--icon-size: var(--icon-xs);
-		background: var(--badge-bg, var(--bg-elevated-2));
-		color: var(--badge-fg, var(--text-muted));
-		border: var(--edge-width) solid var(--badge-border, var(--border));
+		background: var(--bg-elevated-2);
+		color: var(--text-muted);
+		border: var(--edge-width) solid var(--border);
 		white-space: nowrap;
-		max-width: var(--badge-max-width, 100%);
+		max-width: 100%;
+	}
+	.badge :global(.icon) {
+		font-size: var(--icon-xs);
 	}
 	.badge-sm,
 	.badge-xs {
-		font-size: var(--badge-fs, var(--fs-xs));
+		font-size: var(--fs-xs);
 		gap: var(--sp-0-5);
 	}
 	.badge-sm {
-		--badge-h: var(--chip-sm);
+		min-height: var(--chip-sm);
 		padding: 0 var(--sp-1-5);
 	}
 	.badge-xs {
-		--badge-h: var(--chip-xs);
+		min-height: var(--chip-xs);
 		line-height: var(--lh-none);
 	}
-	.toned {
-		color: var(--badge-fg, color-mix(in oklab, var(--badge-tone) 75%, var(--text)));
-		border-color: var(--badge-border, color-mix(in srgb, var(--badge-tone) 40%, transparent));
-		background: var(--badge-bg, color-mix(in srgb, var(--badge-tone) 12%, transparent));
+	.badge-ok {
+		color: color-mix(in oklab, var(--ok) 75%, var(--text));
+		border-color: color-mix(in srgb, var(--ok) 40%, transparent);
+		background: color-mix(in srgb, var(--ok) 12%, transparent);
+	}
+	.badge-warn {
+		color: color-mix(in oklab, var(--warn) 75%, var(--text));
+		border-color: color-mix(in srgb, var(--warn) 40%, transparent);
+		background: color-mix(in srgb, var(--warn) 12%, transparent);
+	}
+	.badge-danger {
+		color: color-mix(in oklab, var(--danger) 75%, var(--text));
+		border-color: color-mix(in srgb, var(--danger) 40%, transparent);
+		background: color-mix(in srgb, var(--danger) 12%, transparent);
+	}
+	.badge-info {
+		color: color-mix(in oklab, var(--info) 75%, var(--text));
+		border-color: color-mix(in srgb, var(--info) 40%, transparent);
+		background: color-mix(in srgb, var(--info) 12%, transparent);
+	}
+	.badge-accent {
+		color: color-mix(in oklab, var(--accent) 75%, var(--text));
+		border-color: color-mix(in srgb, var(--accent) 40%, transparent);
+		background: color-mix(in srgb, var(--accent) 12%, transparent);
+	}
+	.badge-muted {
+		color: color-mix(in oklab, var(--text-muted) 75%, var(--text));
+		border-color: color-mix(in srgb, var(--text-muted) 40%, transparent);
+		background: color-mix(in srgb, var(--text-muted) 12%, transparent);
+	}
+	.badge-violet {
+		color: color-mix(in oklab, var(--c-violet) 75%, var(--text));
+		border-color: color-mix(in srgb, var(--c-violet) 40%, transparent);
+		background: color-mix(in srgb, var(--c-violet) 12%, transparent);
 	}
 	.text {
 		min-height: 0;
@@ -232,18 +279,24 @@
 	.mono {
 		font-family: var(--font-numeric);
 		font-variant-numeric: tabular-nums;
-		font-weight: var(--badge-fw, var(--fw-normal));
+		font-weight: var(--fw-normal);
 	}
 	.uppercase {
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
-		font-weight: var(--badge-fw, var(--fw-semibold));
+		font-weight: var(--fw-semibold);
 	}
 	.numeric {
 		font-variant-numeric: tabular-nums;
-		min-width: var(--badge-min-size, 1.5em);
-		min-height: var(--badge-min-size, var(--badge-h));
+		min-width: 1.5em;
+		min-height: var(--chip-md);
 		justify-content: center;
+	}
+	.numeric.badge-sm {
+		min-height: var(--chip-sm);
+	}
+	.numeric.badge-xs {
+		min-height: var(--chip-xs);
 	}
 	.truncate {
 		min-width: 0;
@@ -254,12 +307,43 @@
 		text-overflow: ellipsis;
 		white-space: nowrap;
 	}
-	/* Interactive "on" state: fill the pill with its tone. Falls back to the
-	   neutral accent when no tone or colour is set. */
-	.active {
+	/* Interactive "on" state and the solid variant: fill the pill with its tone.
+	   Falls back to the accent when no tone or colour is set. */
+	.active,
+	.solid {
 		color: var(--text-on-accent);
-		background: var(--badge-tone, var(--accent));
-		border-color: var(--badge-tone, var(--accent));
+		background: var(--accent);
+		border-color: var(--accent);
+	}
+	.active.badge-ok,
+	.solid.badge-ok {
+		background: var(--ok);
+		border-color: var(--ok);
+	}
+	.active.badge-warn,
+	.solid.badge-warn {
+		background: var(--warn);
+		border-color: var(--warn);
+	}
+	.active.badge-danger,
+	.solid.badge-danger {
+		background: var(--danger);
+		border-color: var(--danger);
+	}
+	.active.badge-info,
+	.solid.badge-info {
+		background: var(--info);
+		border-color: var(--info);
+	}
+	.active.badge-muted,
+	.solid.badge-muted {
+		background: var(--text-muted);
+		border-color: var(--text-muted);
+	}
+	.active.badge-violet,
+	.solid.badge-violet {
+		background: var(--c-violet);
+		border-color: var(--c-violet);
 	}
 	.interactive {
 		cursor: pointer;
@@ -273,10 +357,35 @@
 			border-color: var(--border-strong);
 			color: var(--text);
 		}
-		.interactive.active:hover {
+		.interactive.active:hover,
+		.interactive.solid:hover {
 			color: var(--text-on-accent);
-			border-color: var(--badge-tone, var(--accent));
+			border-color: var(--accent);
 			filter: brightness(1.08);
+		}
+		.interactive.active.badge-ok:hover,
+		.interactive.solid.badge-ok:hover {
+			border-color: var(--ok);
+		}
+		.interactive.active.badge-warn:hover,
+		.interactive.solid.badge-warn:hover {
+			border-color: var(--warn);
+		}
+		.interactive.active.badge-danger:hover,
+		.interactive.solid.badge-danger:hover {
+			border-color: var(--danger);
+		}
+		.interactive.active.badge-info:hover,
+		.interactive.solid.badge-info:hover {
+			border-color: var(--info);
+		}
+		.interactive.active.badge-muted:hover,
+		.interactive.solid.badge-muted:hover {
+			border-color: var(--text-muted);
+		}
+		.interactive.active.badge-violet:hover,
+		.interactive.solid.badge-violet:hover {
+			border-color: var(--c-violet);
 		}
 	}
 	.interactive:active:not(:disabled, [aria-disabled='true']) {
@@ -284,8 +393,26 @@
 		transition-duration: var(--dur-press);
 	}
 	.interactive:focus-visible {
-		outline: var(--focus-ring-width) solid var(--badge-tone, var(--accent));
+		outline: var(--focus-ring-width) solid var(--accent);
 		outline-offset: var(--focus-ring-offset);
+	}
+	.interactive.badge-ok:focus-visible {
+		outline-color: var(--ok);
+	}
+	.interactive.badge-warn:focus-visible {
+		outline-color: var(--warn);
+	}
+	.interactive.badge-danger:focus-visible {
+		outline-color: var(--danger);
+	}
+	.interactive.badge-info:focus-visible {
+		outline-color: var(--info);
+	}
+	.interactive.badge-muted:focus-visible {
+		outline-color: var(--text-muted);
+	}
+	.interactive.badge-violet:focus-visible {
+		outline-color: var(--c-violet);
 	}
 	.removed {
 		opacity: 0.55;

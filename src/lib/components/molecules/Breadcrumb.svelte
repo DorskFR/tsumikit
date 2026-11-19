@@ -153,7 +153,7 @@
 	.sep {
 		display: inline-flex;
 		align-items: center;
-		color: var(--text-subtle, var(--text-muted));
+		color: var(--text-muted);
 		font-size: var(--icon-sm);
 	}
 	.crumbs--md .sep {

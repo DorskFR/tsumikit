@@ -72,21 +72,30 @@ test('sweep and highlight paint on .link-ink, never on the link box', () => {
 	const scope = (/** @type {string} */ v) => `[data-fx-link='${v}'] [data-fx-link]:not([data-fx-link='${v}'])`;
 	assert.ok(css.includes(scope('sweep')) && css.includes(scope('highlight')), 'closest-ancestor selectors kept');
 	assert.ok(css.includes(":not([data-fx-link]:not([data-fx-link='sweep'])"), 'sweep stays the default');
-	const blocks = [...css.matchAll(/\.link-ink \{([^{}]*)\}/g)].map((m) => m[1]).filter((b) => b.includes('background'));
+	const blocks = [...css.matchAll(/(?:^|[{};] )\.link-ink \{([^{}]*)\}/g)].map((m) => m[1]).filter((b) => b.includes('background'));
 	assert.equal(blocks.length, 2, 'one ink block per variant');
 	const [sweep, highlight] = blocks;
+	const raised = [...css.matchAll(/&(\.underline-always)?(:hover|:is\(:focus-visible, :active\)) \.link-ink \{([^{}]*)\}/g)];
+	assert.equal(raised.length, 6, 'hover and focus/press raise the ink per variant');
 	assert.match(sweep, /background-image: linear-gradient\(currentColor, currentColor\)/);
-	assert.match(sweep, /background-position: var\(--link-on, 100%\) 100%, 0 100%;/);
-	assert.match(sweep, /background-size: var\(--link-draw, 0%\) 1\.5px, var\(--link-base\) 1px;/);
+	assert.match(sweep, /background-position: 100% 100%, 0 100%;/);
+	assert.match(sweep, /background-size: 0% 1\.5px, 0% 1px;/);
+	assert.match(css, /&\.underline-always \.link-ink \{ background-size: 0% 1\.5px, 100% 1px; \}/);
+	assert.match(css, /&:hover \.link-ink \{ background-position: 0% 100%, 0 100%; background-size: 100% 1\.5px, 0% 1px; \}/);
+	assert.match(css, /&\.underline-always:hover \.link-ink \{ background-size: 100% 1\.5px, 100% 1px; \}/);
 	assert.match(sweep, /transition: background-size var\(--dur-fast\) var\(--ease-out\);/);
-	assert.match(highlight, /background-size: var\(--link-draw, 0%\) 100%;/);
+	assert.match(highlight, /background-size: 0% 100%;/);
 	assert.match(css, /\.link-text, \.link-ink \{ margin-inline: -0\.18em; padding-inline: 0\.18em; \}/, 'each level holds the marker overhang in its own padding');
-	assert.match(highlight, /transition: background-size var\(--link-grow, var\(--dur-instant\)\) var\(--ease-out\) var\(--link-hold, var\(--dur-exit\)\);/);
+	assert.match(highlight, /transition: background-size var\(--dur-instant\) var\(--ease-out\) var\(--dur-exit\), --link-mark var\(--dur-exit\) ease;/);
+	assert.match(
+		css,
+		/&:hover \.link-ink \{ --link-mark: color-mix\(in srgb, currentColor 30%, transparent\); background-size: 100% 100%; transition: background-size var\(--dur-fast\) var\(--ease-out\) var\(--dur-instant\), --link-mark var\(--dur-press\) ease; \}/
+	);
 	const outside = css.replace(/\.link-ink \{[^{}]*\}/g, '');
 	assert.doesNotMatch(outside, /background-(image|size|position)/, 'the link box paints nothing');
 	assert.doesNotMatch(css, /display:/, 'the outer run keeps its default display so a flex link blockifies it, not the ink');
-	assert.match(css, /@property --link-mark \{ syntax: '<color>'; inherits: true;/, 'the marker colour reaches the ink');
-	assert.match(css, /--link-mark var\(--link-in, var\(--dur-exit\)\) ease/);
+	assert.match(css, /@property --link-mark \{ syntax: '<color>'; inherits: false;/, 'the marker colour is set on the ink itself');
+	assert.deepEqual([...new Set(css.match(/--link-[a-z]+/g))], ['--link-mark'], 'the animated marker colour is the only variable');
 	assert.doesNotMatch(css, /prefers-reduced-motion/, 'reduced motion stays with the global reset');
 	assert.doesNotMatch(css, /transition(-property)?:[^;]*\b(width|height|top|left|margin|padding|inset)\b/);
 });

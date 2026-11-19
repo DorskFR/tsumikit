@@ -59,6 +59,7 @@
 	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
 
 	const pct = $derived(clampPct(value));
+	const inline = $derived((width ? `width: ${width};` : '') + (height ? `height: ${height};` : ''));
 	const resolvedTone = $derived(tone ?? gaugeTone(pct, warnAt, dangerAt));
 	const lit = $derived(litSegments(pct, segments));
 	const segmentCount = $derived(Math.max(0, Math.floor(segments)));
@@ -79,19 +80,17 @@
 	aria-valuemin={isMeter ? 0 : undefined}
 	aria-valuemax={isMeter ? 100 : undefined}
 	aria-valuenow={isMeter ? pct : undefined}
-	style:--gauge-w={width}
-	style:--gauge-h={height}
-	{style}
+	style={inline + style || undefined}
 	{...rest}
 >
 	{#if variant === 'segments'}
-		<span class="segments" style:--gauge-segments={segmentCount}>
+		<span class="segments">
 			{#each { length: segmentCount } as _, i (i)}
 				<span class="segment" class:lit={i < lit}></span>
 			{/each}
 		</span>
 	{:else}
-		<span class="fill" style:--p={pct / 100}></span>
+		<span class="fill" style:scale="1 {pct / 100}"></span>
 	{/if}
 	{#if corner}
 		<span class="corner">{@render corner()}</span>
@@ -104,8 +103,8 @@
 		display: inline-flex;
 		flex: none;
 		box-sizing: border-box;
-		width: var(--gauge-w, 0.875rem);
-		height: var(--gauge-h, 1.25rem);
+		width: 0.875rem;
+		height: 1.25rem;
 		margin: 0;
 		padding: 0;
 		border: var(--edge-width) solid var(--track-edge);
@@ -121,30 +120,26 @@
 		cursor: pointer;
 	}
 	@media (hover: hover) and (pointer: fine) {
-		.interactive:hover {
-			border-color: var(--gauge-fill);
+		.interactive.tone-ok:hover {
+			border-color: var(--ok);
+		}
+		.interactive.tone-warn:hover {
+			border-color: var(--warn);
+		}
+		.interactive.tone-danger:hover {
+			border-color: var(--danger);
 		}
 	}
 	.interactive:focus-visible {
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset);
 	}
-	.tone-ok {
-		--gauge-fill: var(--ok);
-	}
-	.tone-warn {
-		--gauge-fill: var(--warn);
-	}
-	.tone-danger {
-		--gauge-fill: var(--danger);
-	}
 	.fill {
 		position: absolute;
 		inset: 0;
 		border-radius: calc(var(--r-sm) - var(--sp-px));
-		background: var(--gauge-fill);
 		transform-origin: bottom;
-		scale: 1 var(--p, 0);
+		scale: 1 0;
 		transition:
 			scale var(--dur-base) var(--ease-out),
 			background var(--dur-fast) var(--ease);
@@ -162,8 +157,17 @@
 		background: var(--bg-elevated);
 		transition: background var(--dur-fast) var(--ease);
 	}
-	.segment.lit {
-		background: var(--gauge-fill);
+	.tone-ok .fill,
+	.tone-ok .segment.lit {
+		background: var(--ok);
+	}
+	.tone-warn .fill,
+	.tone-warn .segment.lit {
+		background: var(--warn);
+	}
+	.tone-danger .fill,
+	.tone-danger .segment.lit {
+		background: var(--danger);
 	}
 	.corner {
 		position: absolute;
