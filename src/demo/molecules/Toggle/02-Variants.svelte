@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
-		title: 'Shapes, sizes and row sharing',
-		caption: 'pill rounds the chip; size sm (default), md, lg; grow shares a row equally; shrink={false} keeps intrinsic width.',
+		title: 'Shapes, sizes, tones and row sharing',
+		caption: 'pill rounds the chip; tone recolours the pressed tint; size sm (default), md, lg; grow shares a row equally; shrink={false} keeps intrinsic width.',
 		layout: 'stack'
 	};
 </script>
@@ -27,6 +27,11 @@
 	{/each}
 	<Toggle shrink={false} pressed={false} onclick={() => {}}>Pinned width</Toggle>
 </div>
+<Cluster align="center">
+	{#each ['accent', 'neutral', 'ok', 'warn', 'danger', 'info'] as const as tone (tone)}
+		<Toggle pressed {tone} onclick={() => {}}>{tone}</Toggle>
+	{/each}
+</Cluster>
 
 <style>
 	.tabs {

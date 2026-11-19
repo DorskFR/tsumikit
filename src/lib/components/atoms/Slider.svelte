@@ -4,7 +4,6 @@
 	// engines from tokens. The track shows a filled portion up to the current
 	// value, and an optional `output` displays the value with a correct
 	// for-association. `bind:value` and all native attrs/events pass through.
-	// Recolor per-instance via `--slider-accent` (defaults to the theme accent).
 	import type { HTMLInputAttributes } from 'svelte/elements';
 	import { getFieldContext, warnUnlabelled } from '$lib/field-context';
 	import { playSound } from '$lib/sound';
@@ -105,7 +104,7 @@
 	});
 </script>
 
-<div class="slider {klass}" class:has-ticks={tickValues.length > 0} class:has-marks={marks.length > 0} class:fixed={!!width} style="--pct: {pct}%; {width ? `width: ${width}` : ''}" data-tsu="Slider">
+<div class="slider {klass}" class:has-ticks={tickValues.length > 0} class:has-marks={marks.length > 0} class:fixed={!!width} style:width={width || undefined} data-tsu="Slider">
 	<span class="range">
 	<input
 		bind:this={el}
@@ -124,11 +123,12 @@
 		onpointercancel={handlePointerCancel}
 		aria-describedby={ariaDescribedby ?? field?.describedBy}
 		aria-invalid={ariaInvalid ?? (isInvalid ? 'true' : undefined)}
+		style:--pct="{pct}%"
 	/>
 	{#if tickValues.length > 0}
 		<span class="ticks" aria-hidden="true">
 			{#each tickValues as t, i (`${i}:${t}`)}
-				<i class="tick" class:reached={t <= Number(value)} style="--f: {frac(t)}"></i>
+				<i class="tick" class:reached={t <= Number(value)} style:left="calc(0.6rem + (100% - 1.2rem) * {frac(t)})"></i>
 			{/each}
 		</span>
 	{/if}
@@ -139,7 +139,7 @@
 	{#if marks.length > 0}
 		<span class="marks" aria-hidden="true">
 			{#each marks as m, i (`${i}:${m.value}`)}
-				<button type="button" class="mark" class:on={Number(value) === m.value} style="--f: {frac(m.value)}" tabindex="-1" onclick={() => pick(m.value)}>{m.label}</button>
+				<button type="button" class="mark" class:on={Number(value) === m.value} style:left="{frac(m.value) * 100}%" tabindex="-1" onclick={() => pick(m.value)}>{m.label}</button>
 			{/each}
 		</span>
 	{/if}
@@ -162,7 +162,6 @@
 	}
 	.mark {
 		position: absolute;
-		left: calc(var(--f) * 100%);
 		transform: translateX(-50%);
 		border: 0;
 		background: none;
@@ -176,9 +175,6 @@
 		color: var(--text);
 	}
 	.slider {
-		--thumb: 1.2rem;
-		--track: 0.35rem;
-		--halo: 0 0 0 4px color-mix(in srgb, var(--slider-accent, var(--accent)) 20%, transparent);
 		display: flex;
 		align-items: center;
 		gap: var(--sp-3);
@@ -205,33 +201,33 @@
 	}
 	/* Track — WebKit/Blink. Filled up to --pct with the accent, then the rail. */
 	input[type='range']::-webkit-slider-runnable-track {
-		height: var(--track);
+		height: 0.35rem;
 		border-radius: var(--r-pill);
 		background: linear-gradient(
 			to right,
-			var(--slider-accent, var(--accent)) var(--pct),
+			var(--accent) var(--pct),
 			var(--track-fill) var(--pct)
 		);
 	}
 	input[type='range']::-moz-range-track {
-		height: var(--track);
+		height: 0.35rem;
 		border-radius: var(--r-pill);
 		background: var(--track-fill);
 	}
 	input[type='range']::-moz-range-progress {
-		height: var(--track);
+		height: 0.35rem;
 		border-radius: var(--r-pill);
-		background: var(--slider-accent, var(--accent));
+		background: var(--accent);
 	}
 	/* Thumb */
 	input[type='range']::-webkit-slider-thumb {
 		appearance: none;
 		-webkit-appearance: none;
-		margin-top: calc((var(--track) - var(--thumb)) / 2);
-		width: var(--thumb);
-		height: var(--thumb);
+		margin-top: calc((0.35rem - 1.2rem) / 2);
+		width: 1.2rem;
+		height: 1.2rem;
 		border-radius: var(--r-pill);
-		background: var(--slider-accent, var(--accent));
+		background: var(--accent);
 		border: 2px solid var(--bg);
 		box-shadow: var(--thumb-shadow);
 		transition:
@@ -239,10 +235,10 @@
 			box-shadow var(--dur-fast) var(--ease);
 	}
 	input[type='range']::-moz-range-thumb {
-		width: var(--thumb);
-		height: var(--thumb);
+		width: 1.2rem;
+		height: 1.2rem;
 		border-radius: var(--r-pill);
-		background: var(--slider-accent, var(--accent));
+		background: var(--accent);
 		border: 2px solid var(--bg);
 		box-shadow: var(--thumb-shadow);
 		transition:
@@ -251,10 +247,10 @@
 	}
 	@media (hover: hover) and (pointer: fine) {
 		input[type='range']:not(:disabled):hover::-webkit-slider-thumb {
-			box-shadow: var(--thumb-shadow), var(--halo);
+			box-shadow: var(--thumb-shadow), 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent);
 		}
 		input[type='range']:not(:disabled):hover::-moz-range-thumb {
-			box-shadow: var(--thumb-shadow), var(--halo);
+			box-shadow: var(--thumb-shadow), 0 0 0 4px color-mix(in srgb, var(--accent) 20%, transparent);
 		}
 	}
 	input[type='range']:not(:disabled):active::-webkit-slider-thumb {
@@ -294,10 +290,9 @@
 	.tick {
 		position: absolute;
 		top: 50%;
-		left: calc(var(--thumb) / 2 + (100% - var(--thumb)) * var(--f));
-		width: var(--track);
-		height: var(--track);
-		margin: calc(var(--track) / -2) 0 0 calc(var(--track) / -2);
+		width: 0.35rem;
+		height: 0.35rem;
+		margin: calc(0.35rem / -2) 0 0 calc(0.35rem / -2);
 		border-radius: var(--r-pill);
 		background: var(--border-strong);
 	}

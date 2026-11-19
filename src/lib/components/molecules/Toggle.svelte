@@ -1,10 +1,11 @@
 <script lang="ts">
 	import type { ControlSize } from '$lib/size';
+	import { canonicalTone, type Tone } from '$lib/tone';
 	// Toggle chip — a muted pill/chip that lights up (tinted) when `pressed`.
-	// The "on" tint is driven by the `--toggle-accent` CSS var (default accent),
-	// so callers recolor it per-use (e.g. warm for behavior, role color for
-	// message-type filters) without restyling the base. Used across the
-	// conversation toolbar (filters / formatting / behavior / mobile tabs).
+	// The "on" tint follows `tone` (default accent), so callers recolor it
+	// per-use (e.g. warn for behavior, a role tone for message-type filters).
+	// Used across the conversation toolbar (filters / formatting / behavior /
+	// mobile tabs).
 	//
 	// A chip shares almost nothing visually with Button, so it owns its own
 	// <button> + scoped styles rather than specializing the Button atom.
@@ -16,6 +17,7 @@
 		pressed = false,
 		pill = false,
 		struck = false,
+		tone = 'accent',
 		size = 'sm',
 		grow = false,
 		shrink = true,
@@ -30,6 +32,8 @@
 		pressed?: boolean;
 		pill?: boolean;
 		struck?: boolean;
+		/** Colour of the pressed tint. */
+		tone?: Tone;
 		size?: ControlSize;
 		// Share a flex row with siblings (flex: 1 1 0).
 		grow?: boolean;
@@ -39,6 +43,8 @@
 		sound?: boolean;
 		children?: Snippet;
 	} = $props();
+
+	const t = $derived(canonicalTone(tone));
 
 	function click(e: MouseEvent & { currentTarget: EventTarget & HTMLButtonElement }) {
 		const next = !pressed;
@@ -61,13 +67,18 @@
 	class:grow
 	class:no-shrink={!shrink}
 	class:on={pressed}
+	class:tone-neutral={t === 'neutral'}
+	class:tone-ok={t === 'ok'}
+	class:tone-warn={t === 'warn'}
+	class:tone-danger={t === 'danger'}
+	class:tone-info={t === 'info'}
 	aria-pressed={pressed}
 >
 	<span class="label">{@render children?.()}</span>
 </button>
 
 <style>
-	/* The height is pinned to the `--toggle-size` box, never to the line box:
+	/* The height is pinned to the control box, never to the line box:
 	   an emoji, a 12px Icon and plain text all leave the chip the same height. */
 	.toggle {
 		display: inline-flex;
@@ -75,13 +86,12 @@
 		justify-content: center;
 		gap: var(--sp-1);
 		box-sizing: border-box;
-		height: var(--toggle-size, var(--control-sm));
+		height: var(--control-sm);
 		padding: 0 var(--control-px-sm);
 		border-radius: var(--r-sm);
 		font-size: var(--control-fs-sm);
 		font-weight: var(--fw-medium);
 		line-height: var(--lh-none);
-		--icon-size: var(--control-icon-sm);
 		background: var(--surface-fill-2);
 		color: var(--text-muted);
 		border: var(--edge-width) solid var(--surface-edge);
@@ -102,10 +112,15 @@
 		border-radius: var(--r-pill);
 	}
 	.toggle.md {
-		height: var(--toggle-size, var(--control-md));
+		height: var(--control-md);
 		padding: 0 var(--control-px-md);
 		font-size: var(--control-fs-md);
-		--icon-size: var(--control-icon-md);
+	}
+	.toggle :global(.icon) {
+		font-size: var(--control-icon-sm);
+	}
+	.toggle.md :global(.icon) {
+		font-size: var(--control-icon-md);
 	}
 	.label {
 		display: contents;
@@ -135,10 +150,34 @@
 		transition-duration: var(--dur-press);
 	}
 	.toggle.on {
-		--tc: var(--toggle-accent, var(--accent));
-		color: var(--tc);
-		border-color: color-mix(in srgb, var(--tc) 55%, transparent);
-		background: color-mix(in srgb, var(--tc) 16%, transparent);
+		color: var(--accent);
+		border-color: color-mix(in srgb, var(--accent) 55%, transparent);
+		background: color-mix(in srgb, var(--accent) 16%, transparent);
+	}
+	.toggle.on.tone-neutral {
+		color: var(--text);
+		border-color: color-mix(in srgb, var(--text) 55%, transparent);
+		background: color-mix(in srgb, var(--text) 16%, transparent);
+	}
+	.toggle.on.tone-ok {
+		color: var(--ok);
+		border-color: color-mix(in srgb, var(--ok) 55%, transparent);
+		background: color-mix(in srgb, var(--ok) 16%, transparent);
+	}
+	.toggle.on.tone-warn {
+		color: var(--warn);
+		border-color: color-mix(in srgb, var(--warn) 55%, transparent);
+		background: color-mix(in srgb, var(--warn) 16%, transparent);
+	}
+	.toggle.on.tone-danger {
+		color: var(--danger);
+		border-color: color-mix(in srgb, var(--danger) 55%, transparent);
+		background: color-mix(in srgb, var(--danger) 16%, transparent);
+	}
+	.toggle.on.tone-info {
+		color: var(--info);
+		border-color: color-mix(in srgb, var(--info) 55%, transparent);
+		background: color-mix(in srgb, var(--info) 16%, transparent);
 	}
 	.toggle.struck {
 		text-decoration: line-through;

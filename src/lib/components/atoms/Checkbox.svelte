@@ -32,8 +32,7 @@
 		label: string;
 		/** Keep `label` for AT only (sr-only). */
 		labelHidden?: boolean;
-		/** Box + label scale, as on `Switch`. Override the box alone with
-		 *  `style="--cb-box: 1rem"`. */
+		/** Box + label scale, as on `Switch`. */
 		size?: ControlSize;
 		/** Play UI sounds when enabled globally; false silences this instance. */
 		sound?: boolean;
@@ -103,18 +102,16 @@
 		margin: 0;
 	}
 	.checkbox-sm {
-		--cb-box: var(--chip-xs);
 		font-size: var(--fs-xs);
 	}
 	.checkbox-lg {
-		--cb-box: var(--chip-md);
 		font-size: var(--fs-base);
 	}
 	.box {
 		position: relative;
 		flex: none;
-		width: var(--cb-box, var(--chip-sm));
-		height: var(--cb-box, var(--chip-sm));
+		width: var(--chip-sm);
+		height: var(--chip-sm);
 		border: var(--edge-width) solid var(--control-edge);
 		border-radius: var(--r-sm);
 		background: var(--control-fill);
@@ -187,8 +184,22 @@
 		position: absolute;
 		inset: 0;
 		z-index: -1;
-		font-size: var(--cb-box, var(--chip-sm));
+		font-size: var(--chip-sm);
 		pointer-events: none;
+	}
+	.checkbox-sm .box {
+		width: var(--chip-xs);
+		height: var(--chip-xs);
+	}
+	.checkbox-sm .fx {
+		font-size: var(--chip-xs);
+	}
+	.checkbox-lg .box {
+		width: var(--chip-md);
+		height: var(--chip-md);
+	}
+	.checkbox-lg .fx {
+		font-size: var(--chip-md);
 	}
 	.fx::before,
 	.fx::after {

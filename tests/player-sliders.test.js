@@ -124,7 +124,7 @@ test('SeekSlider exposes the slider role with a spoken "position of duration" va
 	assert.equal(r.seek.getAttribute('aria-valuetext'), '1:02 of 23:45');
 	assert.equal(r.seek.getAttribute('aria-orientation'), 'horizontal');
 	assert.equal(r.seek.getAttribute('aria-label'), 'Seek');
-	assert.equal(r.seek.style.getPropertyValue('--pct').trim(), String((62 / DUR) * 100));
+	assert.equal(/** @type {HTMLElement} */ (r.seek.querySelector('[data-part="played"]')).style.width, `${(62 / DUR) * 100}%`);
 	r.destroy();
 });
 
@@ -140,7 +140,7 @@ test('dragging previews through oninput and seeks exactly once on release', () =
 	r.pointer(r.seek, 'pointermove', xAt(0.75));
 	assert.equal(r.props.value, 62);
 	assert.equal(r.seek.getAttribute('aria-valuenow'), String(DUR * 0.75));
-	assert.equal(r.seek.style.getPropertyValue('--pct').trim(), '75');
+	assert.equal(/** @type {HTMLElement} */ (r.seek.querySelector('[data-part="played"]')).style.width, '75%');
 	assert.ok(r.seek.querySelector('[data-part="tip"]'), 'tooltip shows while dragging');
 	assert.equal(r.seek.querySelector('[data-part="tip"]')?.textContent?.trim(), formatMediaTime(DUR * 0.75));
 	r.pointer(r.seek, 'pointerup', xAt(0.75));
@@ -203,10 +203,10 @@ test('buffered ranges render as muted fills with clamped percentages', () => {
 	const r = render({ buffered: [[0, DUR / 4], [DUR / 2, DUR * 2], [DUR, DUR]] });
 	const fills = [...r.seek.querySelectorAll('[data-part="buffered"]')];
 	assert.equal(fills.length, 2, 'empty and inverted ranges are dropped');
-	assert.equal(/** @type {HTMLElement} */ (fills[0]).style.getPropertyValue('--a').trim(), '0');
-	assert.equal(/** @type {HTMLElement} */ (fills[0]).style.getPropertyValue('--b').trim(), '25');
-	assert.equal(/** @type {HTMLElement} */ (fills[1]).style.getPropertyValue('--a').trim(), '50');
-	assert.equal(/** @type {HTMLElement} */ (fills[1]).style.getPropertyValue('--b').trim(), '100');
+	assert.equal(/** @type {HTMLElement} */ (fills[0]).style.getPropertyValue('inset-inline-start'), '0%');
+	assert.equal(/** @type {HTMLElement} */ (fills[0]).style.width, '25%');
+	assert.equal(/** @type {HTMLElement} */ (fills[1]).style.getPropertyValue('inset-inline-start'), '50%');
+	assert.equal(/** @type {HTMLElement} */ (fills[1]).style.width, '50%');
 	assert.ok(r.seek.querySelector('[data-part="played"]'));
 	r.props.buffered = [[0, DUR]];
 	r.flush();
@@ -222,7 +222,7 @@ test('hover shows the time under the pointer and the preview snippet; leaving hi
 	assert.ok(tip);
 	assert.equal(tip.querySelector('.seek-tip-time')?.textContent, formatMediaTime(DUR / 2));
 	assert.equal(tip.querySelector('.probe-preview')?.textContent, `thumb@${Math.round(DUR / 2)}`);
-	assert.equal(r.seek.style.getPropertyValue('--tip').trim(), '50');
+	assert.equal(/** @type {HTMLElement} */ (r.seek.querySelector('.seek-anchor--tip')).style.getPropertyValue('inset-inline-start'), '50%');
 	assert.deepEqual(r.log(), [], 'hover never emits');
 	r.pointer(r.seek, 'pointerleave', xAt(0.5), 10, 3);
 	assert.equal(r.seek.querySelector('[data-part="tip"]'), null);
@@ -360,12 +360,13 @@ test('TimeDisplay shows "position / duration", toggles to remaining on click, an
 
 test('CSS contracts: touch-action none, thin track, coarse slab, hidden thumb, reduced motion, tokens only', () => {
 	assert.ok(hasDecl(seekCss, '.seek', 'touch-action', 'none'));
-	assert.ok(hasDecl(seekCss, '.seek', '--seek-track', '3px'));
-	assert.ok(hasDecl(seekCss, '.seek--md', '--seek-track', '4px'));
-	assert.ok(hasDecl(seekCss, '.seek', 'min-height', 'var(--seek-slab)'));
+	assert.ok(hasDecl(seekCss, '.seek-track', 'height', '3px'));
+	assert.ok(hasDecl(seekCss, '.seek--md .seek-track', 'height', '4px'));
+	assert.ok(hasDecl(seekCss, '.seek', 'min-height', '1.25rem'));
 	assert.ok(hasDecl(seekCss, '.seek-thumb', 'opacity', '0'));
 	assert.ok(hasDecl(seekCss, '.seek-track', 'inset-inline', '0'));
-	assert.ok(hasDecl(seekCss, '.seek-anchor--thumb', 'inset-inline-start', 'calc(var(--pct) * 1%)'));
+	assert.match(seekSrc, /data-part="thumb-anchor" style:inset-inline-start="\{pct\}%"/);
+	for (const src of [seekSrc, volSrc]) assert.doesNotMatch(src, /--[a-z][a-z0-9-]*\s*:|var\(--[a-z0-9-]+,/, 'no custom property declared, no hook read');
 	const flatSeek = normalize(seekCss);
 	assert.match(flatSeek, /@media \(pointer: coarse\) { \.seek { min-height: var\(--touch-target-compact\); } }/);
 	assert.doesNotMatch(flatSeek, /prefers-reduced-motion/);

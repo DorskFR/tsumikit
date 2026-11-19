@@ -269,15 +269,12 @@
 	/* Every size pins the track height (sm 32 / md 40 / control 44 / box 40);
 	   items fill the inside, which is the height minus border and padding. */
 	.seg {
-		--seg-h: var(--control-md);
-		--seg-inset: calc(var(--sp-0-5) + var(--edge-width));
-		--seg-item-h: calc(var(--seg-h) - 2 * var(--seg-inset));
 		position: relative;
 		display: inline-flex;
 		align-items: center;
 		gap: var(--sp-1);
-		height: var(--seg-h);
-		min-height: var(--seg-h);
+		height: var(--control-md);
+		min-height: var(--control-md);
 		padding: var(--sp-0-5);
 		background: var(--track-fill);
 		border: var(--edge-width) solid var(--track-edge);
@@ -289,14 +286,16 @@
 		border-radius: var(--r-md);
 	}
 	.seg-sm {
-		--seg-h: var(--control-sm);
+		height: var(--control-sm);
+		min-height: var(--control-sm);
 	}
 	.seg-control {
-		--seg-h: var(--control-height);
 		height: var(--control-height);
+		min-height: var(--control-height);
 	}
 	.seg-box {
-		--seg-h: var(--control-height-default);
+		height: var(--control-height-default);
+		min-height: var(--control-height-default);
 	}
 	.seg-wrap {
 		flex-wrap: wrap;
@@ -384,7 +383,6 @@
 		font-size: var(--control-fs-md);
 		font-weight: var(--fw-medium);
 		line-height: var(--lh-none);
-		--icon-size: var(--control-icon-md);
 		white-space: nowrap;
 		text-decoration: none;
 		cursor: pointer;
@@ -395,26 +393,58 @@
 	.seg-sm .seg-item {
 		padding: 0 var(--control-px-sm);
 		font-size: var(--control-fs-sm);
-		--icon-size: var(--control-icon-sm);
+	}
+	.seg-item :global(.icon) {
+		font-size: var(--control-icon-md);
+	}
+	.seg-sm .seg-item :global(.icon) {
+		font-size: var(--control-icon-sm);
 	}
 	.seg-wrap .seg-item {
 		height: auto;
-		min-height: var(--seg-item-h);
+		min-height: calc(var(--control-md) - 2 * (var(--sp-0-5) + var(--edge-width)));
+	}
+	.seg-wrap.seg-sm .seg-item {
+		min-height: calc(var(--control-sm) - 2 * (var(--sp-0-5) + var(--edge-width)));
+	}
+	.seg-wrap.seg-control .seg-item {
+		min-height: calc(var(--control-height) - 2 * (var(--sp-0-5) + var(--edge-width)));
+	}
+	.seg-wrap.seg-box .seg-item {
+		min-height: calc(var(--control-height-default) - 2 * (var(--sp-0-5) + var(--edge-width)));
 	}
 	/* Capped at half a row: one row stays a pill, extra rows square the corners. */
 	.seg-wrap:not(.seg-icon) {
-		border-radius: min(var(--r-control), calc(var(--seg-h) / 2));
+		border-radius: min(var(--r-control), calc(var(--control-md) / 2));
+	}
+	.seg-wrap.seg-sm:not(.seg-icon) {
+		border-radius: min(var(--r-control), calc(var(--control-sm) / 2));
+	}
+	.seg-wrap.seg-control:not(.seg-icon) {
+		border-radius: min(var(--r-control), calc(var(--control-height) / 2));
+	}
+	.seg-wrap.seg-box:not(.seg-icon) {
+		border-radius: min(var(--r-control), calc(var(--control-height-default) / 2));
 	}
 	/* Icon-only segments are squares; corners stay concentric with the track. */
 	.seg-icon .seg-item,
 	.seg-icon .seg-thumb {
-		border-radius: calc(var(--r-md) - var(--seg-inset));
+		border-radius: calc(var(--r-md) - (var(--sp-0-5) + var(--edge-width)));
 	}
 	.seg-icon .seg-item {
 		gap: 0;
 		padding: 0;
-		width: var(--seg-item-h);
+		width: calc(var(--control-md) - 2 * (var(--sp-0-5) + var(--edge-width)));
 		font-size: var(--control-icon-md);
+	}
+	.seg-icon.seg-sm .seg-item {
+		width: calc(var(--control-sm) - 2 * (var(--sp-0-5) + var(--edge-width)));
+	}
+	.seg-icon.seg-control .seg-item {
+		width: calc(var(--control-height) - 2 * (var(--sp-0-5) + var(--edge-width)));
+	}
+	.seg-icon.seg-box .seg-item {
+		width: calc(var(--control-height-default) - 2 * (var(--sp-0-5) + var(--edge-width)));
 	}
 	.seg-icon.seg-sm .seg-item {
 		font-size: var(--control-icon-sm);
@@ -441,7 +471,16 @@
 		.seg-collapse-mobile .seg-item.has-label {
 			gap: 0;
 			padding: 0;
-			width: var(--seg-item-h);
+			width: calc(var(--control-md) - 2 * (var(--sp-0-5) + var(--edge-width)));
+		}
+		.seg-collapse-mobile.seg-sm .seg-item.has-label {
+			width: calc(var(--control-sm) - 2 * (var(--sp-0-5) + var(--edge-width)));
+		}
+		.seg-collapse-mobile.seg-control .seg-item.has-label {
+			width: calc(var(--control-height) - 2 * (var(--sp-0-5) + var(--edge-width)));
+		}
+		.seg-collapse-mobile.seg-box .seg-item.has-label {
+			width: calc(var(--control-height-default) - 2 * (var(--sp-0-5) + var(--edge-width)));
 		}
 	}
 	@container (max-width: 35rem) {
@@ -451,7 +490,16 @@
 		.collapse-container .seg-item.has-label {
 			gap: 0;
 			padding: 0;
-			width: var(--seg-item-h);
+			width: calc(var(--control-md) - 2 * (var(--sp-0-5) + var(--edge-width)));
+		}
+		.collapse-container.seg-sm .seg-item.has-label {
+			width: calc(var(--control-sm) - 2 * (var(--sp-0-5) + var(--edge-width)));
+		}
+		.collapse-container.seg-control .seg-item.has-label {
+			width: calc(var(--control-height) - 2 * (var(--sp-0-5) + var(--edge-width)));
+		}
+		.collapse-container.seg-box .seg-item.has-label {
+			width: calc(var(--control-height-default) - 2 * (var(--sp-0-5) + var(--edge-width)));
 		}
 	}
 

@@ -88,7 +88,6 @@ function render(props = {}, at = { left: 170, top: 700 }) {
 test('RadialMenu is exported, documented and demoed in a bottom bar and a page corner', async () => {
 	assert.match(normalize(index), /export \{ default as RadialMenu, type RadialArc, \} from '\.\/components\/molecules\/RadialMenu\.svelte';/);
 	assert.match(readme, /### RadialMenu/);
-	assert.match(readme, /\| `RadialMenu` \| `--radial-radius`, `--radial-petal-size`, `--radial-fab-size` \|/);
 	assert.ok(await demoed('RadialMenu'));
 	assert.match(page, /<div class="corner">\s*<RadialMenu\b/);
 	assert.equal([...page.matchAll(/<RadialMenu\b/g)].length >= 2, true, 'bar and corner demos');
@@ -122,17 +121,19 @@ test('tokens: petals, FAB and overrides with defaults; reduced motion drops the 
 	assert.equal(hasDecl(css, '.radial-petal', 'background', 'var(--raised-fill)'), true);
 	assert.equal(hasDecl(css, '.radial-petal', 'border', 'var(--edge-width) solid var(--raised-edge)'), true);
 	assert.equal(hasDecl(css, '.radial-petal', 'box-shadow', 'var(--raised-shadow)'), true);
-	assert.equal(hasDecl(css, '.radial-petal', 'width', 'max(var(--radial-petal-size, 3.5rem), var(--touch-target))'), true);
+	assert.equal(hasDecl(css, '.radial-petal', 'width', 'max(3.5rem, var(--touch-target))'), true);
 	assert.equal(hasDecl(css, '.radial-glyph', 'color', 'var(--text-muted)'), true);
 	assert.equal(hasDecl(css, '.radial-fab', 'background', 'var(--bg-elevated-2)'), true);
 	assert.equal(hasDecl(css, '.radial-fab', 'box-shadow', 'var(--shadow-lg)'), true);
-	assert.equal(hasDecl(css, '.radial-fab', 'width', 'var(--radial-fab-size, 3.75rem)'), true);
-	assert.equal(hasDecl(css, '.radial-fab', 'border', '2px solid var(--radial-ring, var(--accent))'), true);
+	assert.equal(hasDecl(css, '.radial-fab', 'width', '3.75rem'), true);
+	assert.equal(hasDecl(css, '.radial-fab', 'border', '2px solid var(--accent)'), true);
 	assert.equal(hasDecl(css, '.radial-panel', 'z-index', 'var(--z-modal)'), true);
-	assert.equal(hasDecl(css, '.radial-fab', '--radial-reach', 'var(--radial-radius, 8.5rem)'), true);
-	assert.match(source, /'--radial-reach', '8\.5rem'/);
+	assert.match(source, /length\(triggerEl, radius, '8\.5rem'\)/);
+	assert.match(source, /style:border-color=\{ring\}/);
+	assert.match(source, /style:animation-delay="\{i \* stagger\}ms"/);
+	assert.doesNotMatch(source, /--radial-/);
 	assert.match(css, /\.radial-petal\.danger \{\s*border-color: var\(--danger\);/);
-	assert.match(css, /animation: radial-in var\(--dur-base\) var\(--ease-out\) backwards;\s*animation-delay: calc\(var\(--radial-i, 0\) \* var\(--radial-stagger, 18ms\)\);/);
+	assert.match(css, /animation: radial-in var\(--dur-base\) var\(--ease-out\) backwards;/);
 	assert.doesNotMatch(css, /prefers-reduced-motion/);
 	assert.doesNotMatch(css, /#[0-9a-f]{3,8}\b/i);
 });

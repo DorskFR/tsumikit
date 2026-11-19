@@ -61,7 +61,7 @@ test('OptionButton: the public surface gains value, description and onfocuschang
 	assert.match(option, /Omit<HTMLButtonAttributes, 'value'>/);
 	assert.match(option, /{#if description}<span class="description" id={descId}>{description}<\/span>{\/if}/);
 	assert.ok(hasDecl(option, '.description', 'font-size', 'var(--fs-xs)'));
-	assert.ok(hasDecl(option, '.description', 'color', 'var(--faint-color, var(--text-muted))'));
+	assert.ok(hasDecl(option, '.description', 'color', 'var(--text-muted)'));
 });
 
 for (const variant of /** @type {const} */ (['list', 'rows'])) {

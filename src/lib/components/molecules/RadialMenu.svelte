@@ -40,9 +40,9 @@
 		/** Colour of the FAB ring. */
 		tone?: Tone;
 		arc?: RadialArc;
-		/** Preferred arc radius; defaults to `--radial-radius`, else 8.5rem. */
+		/** Preferred arc radius; defaults to 8.5rem. */
 		radius?: string;
-		/** Petal diameter; defaults to `--radial-petal-size`, else 3.5rem. */
+		/** Petal diameter; defaults to 3.5rem. */
 		petalSize?: string;
 		scrim?: boolean;
 		/** A line centred above the arc while open. */
@@ -98,8 +98,9 @@
 
 	const petals = $derived(items.filter((item) => !item.control));
 	// Keep the whole fan inside the default budget: base enter + (n-1) × stagger ≤ 300 ms.
-	const stagger = $derived(`${Math.min(18, petals.length > 1 ? 120 / (petals.length - 1) : 18)}ms`);
+	const stagger = $derived(Math.min(18, petals.length > 1 ? 120 / (petals.length - 1) : 18));
 	const ring = $derived(tone === 'neutral' ? 'var(--border-strong)' : `var(--${canonicalTone(tone)})`);
+	const petalBox = $derived(petalSize ? `max(${petalSize}, var(--touch-target))` : undefined);
 	const forward = $derived(points.length < 2 || points[points.length - 1].x >= points[0].x);
 
 	function toPx(length: string, el: Element): number {
@@ -113,9 +114,8 @@
 		return n;
 	}
 
-	function length(el: Element, prop: string | undefined, name: string, fallback: string): number {
-		const value = prop ?? (getComputedStyle(el).getPropertyValue(name).trim() || fallback);
-		return toPx(value, el) || toPx(fallback, el);
+	function length(el: Element, value: string | undefined, fallback: string): number {
+		return (value && toPx(value, el)) || toPx(fallback, el);
 	}
 
 	function bounds(): Bounds {
@@ -129,15 +129,15 @@
 	function position() {
 		if (!triggerEl) return;
 		const r = triggerEl.getBoundingClientRect();
-		const touch = length(triggerEl, undefined, '--touch-target', '44px');
-		petalPx = Math.max(length(triggerEl, petalSize, '--radial-petal-size', '3.5rem'), touch);
+		const touch = length(triggerEl, getComputedStyle(triggerEl).getPropertyValue('--touch-target').trim(), '44px');
+		petalPx = Math.max(length(triggerEl, petalSize, '3.5rem'), touch);
 		const center = { x: r.left + r.width / 2, y: r.top + r.height / 2 };
 		const layout = fanLayout({
 			center,
 			count: petals.length,
 			from: arc.from,
 			to: arc.to,
-			radius: length(triggerEl, radius, '--radial-reach', '8.5rem'),
+			radius: length(triggerEl, radius, '8.5rem'),
 			petal: petalPx,
 			minRadius: Math.max(r.width, r.height) / 2 + petalPx / 2,
 			bounds: bounds(),
@@ -358,7 +358,7 @@
 	data-tsu="RadialMenu"
 	class="radial-fab {klass}"
 	style={styleProp}
-	style:--radial-ring={ring}
+	style:border-color={ring}
 	aria-label={label}
 	aria-haspopup="menu"
 	aria-expanded={open}
@@ -383,7 +383,7 @@
 			<span
 				class="radial-fab radial-ghost"
 				aria-hidden="true"
-				style:--radial-ring={ring}
+				style:border-color={ring}
 				style:left="{fab.left}px"
 				style:top="{fab.top}px"
 				style:width="{fab.width}px"
@@ -398,7 +398,7 @@
 			</div>
 		{/if}
 	{/if}
-	<div id={menuId} role="menu" aria-label={label} class="radial-menu" style:--radial-stagger={stagger}>
+	<div id={menuId} role="menu" aria-label={label} class="radial-menu">
 		{#if open}
 			{#each petals as item, i (item.id ?? `${i}:${item.label}`)}
 				{@const p = points[i]}
@@ -418,7 +418,9 @@
 						tabindex={i === active ? 0 : -1}
 						style:left="{p.x}px"
 						style:top="{p.y}px"
-						style:--radial-i={i}
+						style:width={petalBox}
+						style:height={petalBox}
+						style:animation-delay="{i * stagger}ms"
 						onclick={() => activate(item)}
 						onkeydown={onpetalkey}
 						onfocus={() => (active = i)}
@@ -444,7 +446,6 @@
 
 <style>
 	.radial-fab {
-		--radial-reach: var(--radial-radius, 8.5rem);
 		position: relative;
 		display: inline-flex;
 		flex-direction: column;
@@ -452,12 +453,12 @@
 		justify-content: center;
 		gap: var(--sp-px);
 		flex: none;
-		width: var(--radial-fab-size, 3.75rem);
-		height: var(--radial-fab-size, 3.75rem);
+		width: 3.75rem;
+		height: 3.75rem;
 		min-width: var(--touch-target);
 		min-height: var(--touch-target);
 		padding: 0;
-		border: 2px solid var(--radial-ring, var(--accent));
+		border: 2px solid var(--accent);
 		border-radius: 50%;
 		background: var(--bg-elevated-2);
 		color: var(--text);
@@ -466,15 +467,14 @@
 		touch-action: none;
 		user-select: none;
 		-webkit-touch-callout: none;
-		--radial-scale-dur: var(--dur-fast);
 		transition:
 			background-color var(--dur-fast) var(--ease),
 			border-color var(--dur-fast) var(--ease),
-			scale var(--radial-scale-dur) var(--ease-out);
+			scale var(--dur-fast) var(--ease-out);
 	}
 	.radial-fab:active:not(:disabled) {
-		--radial-scale-dur: var(--dur-press);
 		scale: var(--press-scale-sm);
+		transition-duration: var(--dur-fast), var(--dur-fast), var(--dur-press);
 	}
 	.radial-face-glyph {
 		display: inline-flex;
@@ -539,8 +539,8 @@
 		align-items: center;
 		justify-content: center;
 		gap: var(--sp-0-5);
-		width: max(var(--radial-petal-size, 3.5rem), var(--touch-target));
-		height: max(var(--radial-petal-size, 3.5rem), var(--touch-target));
+		width: max(3.5rem, var(--touch-target));
+		height: max(3.5rem, var(--touch-target));
 		padding: 0 var(--sp-0-5);
 		border: var(--edge-width) solid var(--raised-edge);
 		border-radius: 50%;
@@ -552,17 +552,15 @@
 		translate: -50% -50%;
 		pointer-events: auto;
 		cursor: pointer;
-		--radial-scale-dur: var(--dur-fast);
 		transition:
 			background-color var(--dur-fast) var(--ease),
 			border-color var(--dur-fast) var(--ease),
-			scale var(--radial-scale-dur) var(--ease-out);
+			scale var(--dur-fast) var(--ease-out);
 		animation: radial-in var(--dur-base) var(--ease-out) backwards;
-		animation-delay: calc(var(--radial-i, 0) * var(--radial-stagger, 18ms));
 	}
 	.radial-petal:active:not(:disabled) {
-		--radial-scale-dur: var(--dur-press);
 		scale: var(--press-scale-sm);
+		transition-duration: var(--dur-fast), var(--dur-fast), var(--dur-press);
 	}
 	@keyframes radial-in {
 		from {

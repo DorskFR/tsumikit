@@ -20,5 +20,5 @@
 <Slider bind:value={threshold} ticks={[50, 70, 90]} marks={[{ value: 50, label: 'Low' }, { value: 70, label: 'Warn' }, { value: 90, label: 'Danger' }]} label="Alert threshold" />
 <Cluster>
 	<Slider bind:value={brightness} width="10rem" label="Brightness" showValue />
-	<Slider bind:value={brightness} width="16rem" label="Brightness" showValue style="--slider-accent: var(--warn)" />
+	<Slider bind:value={brightness} width="16rem" label="Brightness" showValue />
 </Cluster>
