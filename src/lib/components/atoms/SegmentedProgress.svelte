@@ -196,6 +196,9 @@
 	.tone-danger .bar {
 		background: var(--danger);
 	}
+	.tone-info .bar {
+		background: var(--info);
+	}
 	.tone-neutral .bar,
 	.tone-muted .bar {
 		background: var(--text-faint);

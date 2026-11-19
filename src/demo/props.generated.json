@@ -3290,7 +3290,7 @@
 				"name": "tone",
 				"type": "Tone",
 				"optional": true,
-				"default": "'neutral'"
+				"default": "'accent'"
 			},
 			{
 				"name": "actionLabel",

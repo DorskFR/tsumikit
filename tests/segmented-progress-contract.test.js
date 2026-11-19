@@ -33,6 +33,7 @@ test('tones map to semantic tokens', () => {
 	assert.match(component, /\.tone-success \.bar,\s*\.tone-ok \.bar\s*{\s*background: var\(--ok\);/);
 	assert.match(component, /\.tone-warn \.bar\s*{\s*background: var\(--warn\);/);
 	assert.match(component, /\.tone-danger \.bar\s*{\s*background: var\(--danger\);/);
+	assert.match(component, /\.tone-info \.bar\s*{\s*background: var\(--info\);/);
 	assert.match(component, /\.tone-muted \.bar\s*{\s*background: var\(--text-faint\);/);
 	assert.equal(component.match(/<div class="bar" style:translate="{pct\(seg\) - 100}% 0"><\/div>/g)?.length, 2);
 	assert.doesNotMatch(component, /--(fill|seg-fill|p)\b/);

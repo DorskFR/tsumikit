@@ -21,8 +21,8 @@
 		title,
 		description,
 		icon,
-		// Tints the icon chip with a semantic hue; neutral falls back to accent.
-		tone = 'neutral',
+		// Tints the icon chip with a semantic hue; `neutral` is a quiet grey.
+		tone = 'accent',
 		// Built-in primary action button. Provide both to render it; for anything
 		// richer (multiple buttons, links) use the `action` snippet instead.
 		actionLabel,
@@ -124,8 +124,23 @@
 		border-radius: var(--r-lg);
 		font-size: var(--fs-xl);
 		color: var(--accent);
-		background: color-mix(in srgb, var(--accent) 14%, transparent);
-		border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
+		background: color-mix(in srgb, currentColor 14%, transparent);
+		border: 1px solid color-mix(in srgb, currentColor 30%, transparent);
+	}
+	.empty-ok .empty-chip {
+		color: var(--ok);
+	}
+	.empty-warn .empty-chip {
+		color: var(--warn);
+	}
+	.empty-danger .empty-chip {
+		color: var(--danger);
+	}
+	.empty-info .empty-chip {
+		color: var(--info);
+	}
+	.empty-neutral .empty-chip {
+		color: var(--text-muted);
 	}
 	.empty-compact .empty-chip {
 		width: 2.25rem;
