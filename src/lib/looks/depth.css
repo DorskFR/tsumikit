@@ -1258,8 +1258,11 @@
 	background: linear-gradient(180deg, color-mix(in oklab, var(--c-violet), var(--text) 12%) 0%, var(--c-violet) 100%);
 	box-shadow: var(--depth-primary-edge), 0 0 12px -3px color-mix(in oklab, var(--c-violet) 55%, transparent);
 }
+:root[data-look="depth"] .badge.active.badge-custom > .badge-ink {
+	color: var(--text-on-accent);
+}
 :root[data-look="depth"] .badge.solid.badge-custom:not(.active) {
-	background: linear-gradient(180deg, color-mix(in oklab, currentColor, var(--text) 12%) 0%, currentColor 100%);
+	background: linear-gradient(180deg, color(from currentColor srgb-linear 1 1 1 / clamp(0, ((0.2126 * r + 0.7152 * g + 0.0722 * b) - 0.179) * 1000, 0.12)) 0%, color(from currentColor srgb-linear 0 0 0 / clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 0.14)) 100%), currentColor;
 	box-shadow: var(--depth-primary-edge), 0 0 12px -3px color-mix(in oklab, currentColor 55%, transparent);
 }
 :root[data-look="depth"][data-mode="light"] .badge.solid.badge-ok:not(.active) {
@@ -1287,7 +1290,6 @@
 	box-shadow: var(--depth-primary-edge), 0 0 12px -3px color-mix(in oklab, var(--c-violet) 40%, transparent);
 }
 :root[data-look="depth"][data-mode="light"] .badge.solid.badge-custom:not(.active) {
-	background: linear-gradient(180deg, currentColor 0%, color-mix(in oklab, currentColor, var(--text) 14%) 100%);
 	box-shadow: var(--depth-primary-edge), 0 0 12px -3px color-mix(in oklab, currentColor 40%, transparent);
 }
 :root[data-look="depth"] .dot-colored.glow {
