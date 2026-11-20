@@ -384,6 +384,9 @@
 		border-color: transparent;
 		box-shadow: none;
 	}
+	.btn-ghost:focus-visible:not(.btn-link, .btn-icon-inline, [aria-pressed='true']) {
+		box-shadow: var(--focus-glow);
+	}
 	.btn-sm {
 		min-height: var(--control-height-compact);
 		padding: var(--sp-1) var(--btn-px-sm);

@@ -581,19 +581,19 @@
 :root[data-look="tactile"] .badge:not(.text, .role-pill) {
   color: color-mix(in oklab, var(--text-muted) 60%, var(--text));
 }
-:root[data-look="tactile"] .bubble .role-pill {
+:root[data-look="tactile"] .bubble:where([data-tsu="ChatBubble"]) .role-pill {
   color: color-mix(in oklab, var(--role-assistant) 70%, var(--text));
 }
-:root[data-look="tactile"] .bubble.role-user .role-pill {
+:root[data-look="tactile"] .bubble:where([data-tsu="ChatBubble"]).role-user .role-pill {
   color: color-mix(in oklab, var(--role-user) 70%, var(--text));
 }
-:root[data-look="tactile"] .bubble.role-system .role-pill {
+:root[data-look="tactile"] .bubble:where([data-tsu="ChatBubble"]).role-system .role-pill {
   color: color-mix(in oklab, var(--role-system) 70%, var(--text));
 }
-:root[data-look="tactile"] .bubble.role-tool .role-pill {
+:root[data-look="tactile"] .bubble:where([data-tsu="ChatBubble"]).role-tool .role-pill {
   color: color-mix(in oklab, var(--role-tool) 70%, var(--text));
 }
-:root[data-look="tactile"] .bubble.role-mcp .role-pill {
+:root[data-look="tactile"] .bubble:where([data-tsu="ChatBubble"]).role-mcp .role-pill {
   color: color-mix(in oklab, var(--role-mcp) 70%, var(--text));
 }
 :root[data-look="tactile"] .badge.badge-ok:not(.text, .active, .solid) {
@@ -759,7 +759,7 @@
 :root[data-look="tactile"] .card:is(.card-ok, .card-warn, .card-danger, .card-info, .card-accent) .tone-faint {
   color: color-mix(in oklab, var(--c-text-faint) 75%, var(--text));
 }
-:root[data-look="tactile"] :is(.card:is(.card-ok, .card-warn, .card-danger, .card-info, .card-accent), .bubble) .tone-muted {
+:root[data-look="tactile"] :is(.card:is(.card-ok, .card-warn, .card-danger, .card-info, .card-accent), .bubble:where([data-tsu="ChatBubble"])) .tone-muted {
   color: color-mix(in oklab, var(--text-muted) 55%, var(--text));
 }
 :root[data-look="tactile"] .card.card-attention,
@@ -1044,30 +1044,30 @@
 
 /* ---------- Chat ---------- */
 
-:root[data-look="tactile"] .bubble {
+:root[data-look="tactile"] .bubble:where([data-tsu="ChatBubble"]) {
   border: 0;
   border-radius: 20px;
   box-shadow: var(--look-elev-1);
 }
-:root[data-look="tactile"] .bubble[class*="role-"] {
+:root[data-look="tactile"] .bubble:where([data-tsu="ChatBubble"])[class*="role-"] {
   background: color-mix(in oklab, var(--role-assistant) 8%, var(--bg-elevated));
 }
-:root[data-look="tactile"] .bubble.role-user {
+:root[data-look="tactile"] .bubble:where([data-tsu="ChatBubble"]).role-user {
   background: color-mix(in oklab, var(--role-user) 8%, var(--bg-elevated));
 }
-:root[data-look="tactile"] .bubble.role-system {
+:root[data-look="tactile"] .bubble:where([data-tsu="ChatBubble"]).role-system {
   background: color-mix(in oklab, var(--role-system) 8%, var(--bg-elevated));
 }
-:root[data-look="tactile"] .bubble.role-tool {
+:root[data-look="tactile"] .bubble:where([data-tsu="ChatBubble"]).role-tool {
   background: color-mix(in oklab, var(--role-tool) 8%, var(--bg-elevated));
 }
-:root[data-look="tactile"] .bubble.role-mcp {
+:root[data-look="tactile"] .bubble:where([data-tsu="ChatBubble"]).role-mcp {
   background: color-mix(in oklab, var(--role-mcp) 8%, var(--bg-elevated));
 }
-:root[data-look="tactile"] .bubble.align-end {
+:root[data-look="tactile"] .bubble:where([data-tsu="ChatBubble"]).align-end {
   border-end-end-radius: 6px;
 }
-:root[data-look="tactile"] .bubble.align-start {
+:root[data-look="tactile"] .bubble:where([data-tsu="ChatBubble"]).align-start {
   border-end-start-radius: 6px;
 }
 :root[data-look="tactile"] .composer .textarea {

@@ -1,16 +1,18 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
-import { BADGE_INK, BADGE_TINT, CARD_TINT, breaches, contrast, oklch, palettes } from './theme-contrast.mjs';
+import { BADGE_INK, BADGE_TINT, CARD_TINT, INK_FLOOR, breaches, contrast, luminance, mixSrgb, oklch, palettes } from './theme-contrast.mjs';
 
 /** @param {string} p */
 const read = (p) => readFile(new URL(`../${p}`, import.meta.url), 'utf8');
-const [tokens, themes, store, badge, card, ...fields] = await Promise.all([
+const [tokens, themes, store, badge, card, badgeDemo, depth, ...fields] = await Promise.all([
 	read('src/lib/styles/tokens.css'),
 	read('src/lib/styles/themes.css'),
 	read('src/lib/stores/theme.svelte.ts'),
 	read('src/lib/components/atoms/Badge.svelte'),
 	read('src/lib/components/atoms/Card.svelte'),
+	read('src/demo/atoms/Badge/02-Variants.svelte'),
+	read('src/lib/looks/depth.css'),
 	...['Input', 'Select', 'Textarea'].map((n) => read(`src/lib/components/atoms/${n}.svelte`))
 ]);
 /** @param {number} w */
@@ -59,4 +61,58 @@ test('control boundaries and focus rings stay solid', () => {
 		assert.doesNotMatch(src, /0 0 0 [^,;]* color-mix\(/, 'the ring itself is never a tint');
 	}
 	for (const src of [fields[0], fields[2]]) assert.match(src, /::placeholder \{\s*color: var\(--text-faint\);\s*opacity: 1;/);
+});
+
+/** @param {string} css `hsl(H S% L%)` */
+const hslHex = (css) => {
+	const [h, sat, l] = (css.match(/[\d.]+/g) ?? []).map(Number);
+	const a = (sat / 100) * Math.min(l / 100, 1 - l / 100);
+	/** @param {number} n */
+	const f = (n) => {
+		const k = (n + h / 30) % 12;
+		return Math.round((l / 100 - a * Math.max(-1, Math.min(k - 3, 9 - k, 1))) * 255);
+	};
+	return `#${[f(0), f(8), f(4)].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+};
+
+test('a solid custom badge draws its ink from its own colour', () => {
+	const Y = '\\(0\\.2126 \\* r \\+ 0\\.7152 \\* g \\+ 0\\.0722 \\* b\\)';
+	const channel = `clamp\\(0, \\(([\\d.]+) - ${Y}\\) \\* 1000, 1\\)`;
+	const ink = `color: color\\(from currentColor srgb-linear ${channel} ${channel} ${channel}\\);`;
+	const fallback = 'color: var\\(--text-on-accent\\);\\s*';
+	const rest = badge.match(new RegExp(`\\.active > \\.badge-ink,\\s*\\.solid > \\.badge-ink \\{\\s*${fallback}${ink}\\s*\\}`));
+	const hover = badge.match(
+		new RegExp(`\\.interactive\\.active:hover > \\.badge-ink,\\s*\\.interactive\\.solid:hover > \\.badge-ink \\{\\s*${fallback}${ink}\\s*\\}`)
+	);
+	assert.ok(rest, 'ink rule');
+	assert.ok(hover, 'hover ink rule');
+	const cuts = [...rest.slice(1), ...hover.slice(1)].map(Number);
+	assert.deepEqual(new Set(cuts).size, 1);
+	/** @param {string} fill */
+	const inkOn = (fill) => (luminance(fill) < cuts[0] ? '#ffffff' : '#000000');
+
+	for (let v = 0; v < 256; v++) {
+		for (const fill of [[v, v, v], [v, 0, 0], [0, v, 0], [0, 0, v], [v, v, 0], [0, v, v], [v, 0, v], [255, v, 128]]) {
+			const hex = `#${fill.map((c) => c.toString(16).padStart(2, '0')).join('')}`;
+			assert.ok(contrast(inkOn(hex), hex) >= INK_FLOOR, hex);
+		}
+	}
+
+	const demo = [...badgeDemo.matchAll(/<Badge color="(hsl\([^"]+\))" variant="solid">/g)].map((m) => hslHex(m[1]));
+	assert.ok(demo.length > 0, 'demo solid custom badges');
+	const sheen = depth.match(
+		new RegExp(
+			`\\.badge\\.solid\\.badge-custom:not\\(\\.active\\) \\{\\s*background: linear-gradient\\(180deg, color\\(from currentColor srgb-linear 1 1 1 / clamp\\(0, \\(${Y} - ([\\d.]+)\\) \\* 1000, ([\\d.]+)\\)\\) 0%, color\\(from currentColor srgb-linear 0 0 0 / clamp\\(0, \\(([\\d.]+) - ${Y}\\) \\* 1000, ([\\d.]+)\\)\\) 100%\\), currentColor;`
+		)
+	);
+	assert.ok(sheen, 'depth sheen');
+	const [litCut, lit, shadeCut, shade] = sheen.slice(1).map(Number);
+	assert.deepEqual([litCut, shadeCut], [cuts[0], cuts[0]]);
+	assert.doesNotMatch(depth, /\.badge\.solid\.badge-custom:not\(\.active\) \{\s*background: [^;]*var\(--text\)/);
+	assert.match(depth, /\.badge\.active\.badge-custom > \.badge-ink \{\s*color: var\(--text-on-accent\);/);
+	for (const fill of demo) {
+		const dark = luminance(fill) < cuts[0];
+		const ends = [fill, dark ? mixSrgb('#000000', fill, shade) : mixSrgb('#ffffff', fill, lit)];
+		for (const end of ends) assert.ok(contrast(inkOn(fill), end) >= INK_FLOOR, `${fill} on ${end}`);
+	}
 });

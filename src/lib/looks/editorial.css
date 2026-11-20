@@ -599,44 +599,44 @@
 }
 
 /* ---------- Chat, progress, kbd ---------- */
-:root[data-look="editorial"] .bubble {
+:root[data-look="editorial"] .bubble:where([data-tsu="ChatBubble"]) {
   border-color: transparent;
   border-radius: 0 var(--r-md) var(--r-md) 0;
   background: var(--bg-elevated-2);
 }
-:root[data-look="editorial"] .bubble[class*="role-"] {
+:root[data-look="editorial"] .bubble:where([data-tsu="ChatBubble"])[class*="role-"] {
   border-inline-start: 4px solid var(--role-assistant);
 }
-:root[data-look="editorial"] .bubble.role-user {
+:root[data-look="editorial"] .bubble:where([data-tsu="ChatBubble"]).role-user {
   border-inline-start: 4px solid var(--role-user);
 }
-:root[data-look="editorial"] .bubble.role-system {
+:root[data-look="editorial"] .bubble:where([data-tsu="ChatBubble"]).role-system {
   border-inline-start: 4px solid var(--role-system);
 }
-:root[data-look="editorial"] .bubble.role-tool {
+:root[data-look="editorial"] .bubble:where([data-tsu="ChatBubble"]).role-tool {
   border-inline-start: 4px solid var(--role-tool);
 }
-:root[data-look="editorial"] .bubble.role-mcp {
+:root[data-look="editorial"] .bubble:where([data-tsu="ChatBubble"]).role-mcp {
   border-inline-start: 4px solid var(--role-mcp);
 }
-:root[data-look="editorial"] .bubble .role-pill {
+:root[data-look="editorial"] .bubble:where([data-tsu="ChatBubble"]) .role-pill {
   border-color: transparent;
   background: var(--role-assistant);
   color: var(--ed-ink-role-assistant);
 }
-:root[data-look="editorial"] .bubble.role-user .role-pill {
+:root[data-look="editorial"] .bubble:where([data-tsu="ChatBubble"]).role-user .role-pill {
   background: var(--role-user);
   color: var(--ed-ink-role-user);
 }
-:root[data-look="editorial"] .bubble.role-system .role-pill {
+:root[data-look="editorial"] .bubble:where([data-tsu="ChatBubble"]).role-system .role-pill {
   background: var(--role-system);
   color: var(--ed-ink-role-system);
 }
-:root[data-look="editorial"] .bubble.role-tool .role-pill {
+:root[data-look="editorial"] .bubble:where([data-tsu="ChatBubble"]).role-tool .role-pill {
   background: var(--role-tool);
   color: var(--ed-ink-role-tool);
 }
-:root[data-look="editorial"] .bubble.role-mcp .role-pill {
+:root[data-look="editorial"] .bubble:where([data-tsu="ChatBubble"]).role-mcp .role-pill {
   background: var(--role-mcp);
   color: var(--ed-ink-role-mcp);
 }

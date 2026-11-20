@@ -19,11 +19,20 @@
 		{ value: 12, max: 0, tone: 'warn', label: 'nonconforming' },
 		{ value: 3, max: 0, tone: 'danger', label: 'blocked' },
 	] as const;
+	const tones = [
+		{ value: 4, max: 5, tone: 'accent', label: 'accent' },
+		{ value: 4, max: 5, tone: 'ok', label: 'ok' },
+		{ value: 4, max: 5, tone: 'warn', label: 'warn' },
+		{ value: 4, max: 5, tone: 'danger', label: 'danger' },
+		{ value: 4, max: 5, tone: 'info', label: 'info' },
+		{ value: 4, max: 5, tone: 'neutral', label: 'neutral' },
+	] as const;
 </script>
 
 <SegmentedProgress label="Series completion by season" segments={[...seasons]} />
 <SegmentedProgress size="sm" label="Thin" segments={[...seasons]} />
 <SegmentedProgress size="lg" gap={6} label="Tall, wide gap" segments={[...seasons]} />
+<SegmentedProgress label="Every tone" legend segments={[...tones]} />
 <SegmentedProgress mode="stacked" label="Maintenance checks" legend="inline" segments={[...checks]} />
 <SegmentedProgress mode="stacked" label="Maintenance checks" segments={[...checks]}>
 	{#snippet legend(segs)}

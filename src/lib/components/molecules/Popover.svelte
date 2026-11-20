@@ -142,12 +142,12 @@
 	const canonicalChrome = $derived(
 		!toggleChrome && (variant !== undefined || tone !== 'none' || size !== undefined || control || block)
 	);
-	const counted = $derived(hasCount(count));
+	const isCounted = $derived(hasCount(count));
 	const countText = $derived(hasCount(count) ? formatCount(count, countMax) : '');
-	const triggerName = $derived(counted ? `${label}, ${count}` : label);
+	const triggerName = $derived(isCounted ? `${label}, ${count}` : label);
 	// The count pill is absolutely positioned against the chip, which therefore
 	// needs to be its containing block.
-	const toggleStyle = $derived([counted ? 'position:relative' : '', styleProp].filter(Boolean).join(';'));
+	const toggleStyle = $derived([isCounted ? 'position:relative' : '', styleProp].filter(Boolean).join(';'));
 
 	const id = `pop-${Math.random().toString(36).slice(2, 8)}`;
 	let triggerEl = $state<HTMLElement | null>(null);
@@ -308,7 +308,7 @@
 		}}
 	>
 		{@render trigger()}
-		{#if counted}<span class="pop-count count-sm" aria-hidden="true">{countText}</span>{/if}
+		{#if isCounted}<span class="pop-count count-sm" aria-hidden="true">{countText}</span>{/if}
 	</Toggle>
 {:else}
 	<svelte:element
@@ -343,7 +343,7 @@
 	class:trigger-tone-warn={tone === 'warn'}
 	class:trigger-tone-danger={tone === 'danger'}
 	class:is-disabled={disabled && as === 'a'}
-	class:counted
+	class:counted={isCounted}
 	aria-label={triggerName}
 	aria-haspopup={haspopup}
 	aria-expanded={open}
@@ -354,7 +354,7 @@
 	onkeydown={onTriggerKeydown}
 >
 	{@render trigger()}
-	{#if counted}<span class="pop-count" aria-hidden="true">{countText}</span>{/if}
+	{#if isCounted}<span class="pop-count" aria-hidden="true">{countText}</span>{/if}
 </svelte:element>
 {/if}
 

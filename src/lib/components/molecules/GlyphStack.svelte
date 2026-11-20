@@ -61,7 +61,7 @@
 	const mode = $derived(expand !== 'none' ? expand : coarse ? 'tap' : 'none');
 	let width = $state(Number.POSITIVE_INFINITY);
 	let limit = $state(0);
-	const stacked = $derived(stack === 'always' || (stack === 'auto' && width < limit));
+	const isStacked = $derived(stack === 'always' || (stack === 'auto' && width < limit));
 
 	function toPx(length: string, el: HTMLElement): number {
 		const n = Number.parseFloat(length);
@@ -86,7 +86,7 @@
 	const CONTROL = 'button, a[href], input, select, textarea, [role="button"], [tabindex]:not([tabindex="-1"])';
 
 	const tiles = $derived(items?.slice(0, 4) ?? []);
-	const expandable = $derived(mode !== 'none' && stacked && tiles.length > 0);
+	const expandable = $derived(mode !== 'none' && isStacked && tiles.length > 0);
 	let panel = $state<HTMLDivElement>();
 	let open = $state(false);
 	let armed = $state(-1);
@@ -239,9 +239,9 @@
 	bind:this={root}
 	data-tsu="GlyphStack"
 	class="glyph-stack {klass}"
-	class:stacked
+	class:stacked={isStacked}
 	data-stack={stack}
-	data-stacked={stacked || undefined}
+	data-stacked={isStacked || undefined}
 	data-expand={expandable ? mode : undefined}
 	{...rest}
 	onpointerdown={onPointerDown}
@@ -252,7 +252,7 @@
 >
 	{#if items}
 		{#each tiles as item, i (i)}
-			{@const glyph = stacked && item.stacked !== undefined ? item.stacked : item.inline}
+			{@const glyph = isStacked && item.stacked !== undefined ? item.stacked : item.inline}
 			<span class="cell">
 				{#if typeof glyph === 'string'}{glyph}{:else}{@render glyph()}{/if}
 			</span>

@@ -1,7 +1,7 @@
 <script module>
 	export const meta = {
 		title: 'Sizes and tones',
-		caption: 'size default/compact/inline; tone tints the icon chip (neutral falls back to accent).',
+		caption: 'size default/compact/inline; tone tints the icon chip: accent by default, ok/warn/danger/info, or a quiet neutral.',
 		layout: 'grid'
 	};
 </script>
@@ -27,4 +27,10 @@
 </Card>
 <Card>
 	<EmptyState icon="x-circle" title="Access denied" description="Ask an admin for the viewer role." tone="danger" size="compact" />
+</Card>
+<Card>
+	<EmptyState icon="plus" title="Start a board" description="Pin the charts you check every day." tone="accent" size="compact" />
+</Card>
+<Card>
+	<EmptyState icon="archive" title="No archived runs" description="Runs older than 30 days land here." tone="neutral" size="compact" />
 </Card>

@@ -360,6 +360,7 @@
 	.active > .badge-ink,
 	.solid > .badge-ink {
 		color: var(--text-on-accent);
+		color: color(from currentColor srgb-linear clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1));
 	}
 	.interactive {
 		cursor: pointer;
@@ -416,6 +417,7 @@
 		.interactive.active:hover > .badge-ink,
 		.interactive.solid:hover > .badge-ink {
 			color: var(--text-on-accent);
+			color: color(from currentColor srgb-linear clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1) clamp(0, (0.179 - (0.2126 * r + 0.7152 * g + 0.0722 * b)) * 1000, 1));
 		}
 	}
 	.interactive:active:not(:disabled, [aria-disabled='true']) {
