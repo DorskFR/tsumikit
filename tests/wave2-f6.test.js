@@ -178,7 +178,12 @@ test('disclosure chevrons rotate and panels fade in from --shift-xs; closing sta
 });
 
 test('clickable cards press to --press-scale-lg; rows and nav items light up instantly and fade out', () => {
-	assert.ok(hasDecl(css(files.Card), '.card-tap:active', 'scale', 'var(--press-scale-lg)'));
+	assert.ok(hasDecl(
+			css(files.Card),
+			".card-tap:active:not(.card-row, :has(:is(button, a, input, select, textarea, [role='button'], [contenteditable]):active))",
+			'scale',
+			'var(--press-scale-lg)'
+		));
 	assert.ok(hasDecl(css(files.Artwork), '.hover:active', 'scale', 'var(--press-scale-lg)'));
 	for (const [name, sel] of [
 		['NavItem', '.nav-item:hover'],

@@ -294,8 +294,10 @@
 }
 :root[data-look="editorial"] .card-tap:active {
   background: transparent;
-  scale: 0.99;
   transition-duration: var(--dur-press);
+}
+:root[data-look="editorial"] .card-tap:active:not(.card-row, :has(:is(button, a, input, select, textarea, [role='button'], [contenteditable]):active)) {
+  scale: 0.99;
 }
 
 /* toned cards & callouts: solid blocks with their own on-fill text colour */

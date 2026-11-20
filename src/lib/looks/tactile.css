@@ -801,10 +801,12 @@
     translate var(--dur-fast) var(--ease-spring-bounce),
     scale var(--dur-fast) var(--ease-spring-bounce);
 }
-:root[data-look="tactile"] .card-tap:active {
-  background: var(--bg-elevated);
+:root[data-look="tactile"] .card-tap:active:not(.card-row, :has(:is(button, a, input, select, textarea, [role='button'], [contenteditable]):active)) {
   scale: var(--press-scale-lg);
   translate: 0 1px;
+}
+:root[data-look="tactile"] .card-tap:active {
+  background: var(--bg-elevated);
   box-shadow: inset 0 1px 0 var(--look-hi), 0 1px 2px var(--look-drop);
   transition-duration: var(--dur-press);
   transition-timing-function: var(--ease-out);
@@ -1239,7 +1241,7 @@
       radial-gradient(circle 14rem at var(--pointer-x, 50%) var(--pointer-y, -40%), var(--look-spot), transparent 70%),
       var(--surface);
   }
-  :root[data-look="tactile"] .card-tap:hover:not(:active) {
+  :root[data-look="tactile"] .card-tap:hover:not(.card-row, :active:not(:has(:is(button, a, input, select, textarea, [role='button'], [contenteditable]):active))) {
     translate: 0 -2px;
     box-shadow: var(--look-elev-2);
   }
