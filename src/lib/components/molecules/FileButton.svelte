@@ -276,7 +276,7 @@
 		box-shadow: var(--btn-primary-shadow), var(--focus-glow);
 	}
 	.file-btn.ghost:focus-within {
-		box-shadow: none;
+		box-shadow: var(--focus-glow);
 	}
 	.file-btn.disabled {
 		opacity: var(--disabled-opacity);
@@ -302,6 +302,9 @@
 			background: var(--bg-elevated-2);
 			border-color: transparent;
 			box-shadow: none;
+		}
+		.file-btn.ghost:hover:focus-within:not(.disabled) {
+			box-shadow: var(--focus-glow);
 		}
 	}
 </style>

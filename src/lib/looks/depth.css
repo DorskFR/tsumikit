@@ -740,6 +740,9 @@
 		border-color: transparent;
 		box-shadow: none;
 	}
+	:root[data-look="depth"] .btn.btn-ghost:hover:focus-visible:not(:disabled, .btn-link, .btn-icon-inline, [aria-pressed="true"]) {
+		box-shadow: var(--focus-glow);
+	}
 	:root[data-look="depth"] .btn.btn-ghost:not(.btn-link, .btn-icon-inline):hover:not(:disabled) {
 		translate: 0 0;
 	}
