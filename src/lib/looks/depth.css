@@ -1485,38 +1485,38 @@
 }
 
 /* ---------- chat ---------- */
-:root[data-look="depth"] .bubble {
+:root[data-look="depth"] .bubble:where([data-tsu="ChatBubble"]) {
 	border-inline-start-width: 1px;
 }
-:root[data-look="depth"] .bubble[class*="role-"] {
+:root[data-look="depth"] .bubble:where([data-tsu="ChatBubble"])[class*="role-"] {
 	background:
 		linear-gradient(180deg, color-mix(in oklab, var(--role-assistant) 6%, transparent), color-mix(in oklab, var(--role-assistant) 2%, transparent)) padding-box,
 		var(--depth-fill-2) padding-box;
 	border-color: color-mix(in oklab, var(--role-assistant) 45%, transparent) color-mix(in oklab, var(--role-assistant) 25%, transparent) color-mix(in oklab, var(--role-assistant) 10%, transparent);
 	box-shadow: var(--depth-hl), inset 2px 0 0 var(--role-assistant), var(--depth-drop-1);
 }
-:root[data-look="depth"] .bubble.role-user {
+:root[data-look="depth"] .bubble:where([data-tsu="ChatBubble"]).role-user {
 	background:
 		linear-gradient(180deg, color-mix(in oklab, var(--role-user) 6%, transparent), color-mix(in oklab, var(--role-user) 2%, transparent)) padding-box,
 		var(--depth-fill-2) padding-box;
 	border-color: color-mix(in oklab, var(--role-user) 45%, transparent) color-mix(in oklab, var(--role-user) 25%, transparent) color-mix(in oklab, var(--role-user) 10%, transparent);
 	box-shadow: var(--depth-hl), inset 2px 0 0 var(--role-user), var(--depth-drop-1);
 }
-:root[data-look="depth"] .bubble.role-system {
+:root[data-look="depth"] .bubble:where([data-tsu="ChatBubble"]).role-system {
 	background:
 		linear-gradient(180deg, color-mix(in oklab, var(--role-system) 6%, transparent), color-mix(in oklab, var(--role-system) 2%, transparent)) padding-box,
 		var(--depth-fill-2) padding-box;
 	border-color: color-mix(in oklab, var(--role-system) 45%, transparent) color-mix(in oklab, var(--role-system) 25%, transparent) color-mix(in oklab, var(--role-system) 10%, transparent);
 	box-shadow: var(--depth-hl), inset 2px 0 0 var(--role-system), var(--depth-drop-1);
 }
-:root[data-look="depth"] .bubble.role-tool {
+:root[data-look="depth"] .bubble:where([data-tsu="ChatBubble"]).role-tool {
 	background:
 		linear-gradient(180deg, color-mix(in oklab, var(--role-tool) 6%, transparent), color-mix(in oklab, var(--role-tool) 2%, transparent)) padding-box,
 		var(--depth-fill-2) padding-box;
 	border-color: color-mix(in oklab, var(--role-tool) 45%, transparent) color-mix(in oklab, var(--role-tool) 25%, transparent) color-mix(in oklab, var(--role-tool) 10%, transparent);
 	box-shadow: var(--depth-hl), inset 2px 0 0 var(--role-tool), var(--depth-drop-1);
 }
-:root[data-look="depth"] .bubble.role-mcp {
+:root[data-look="depth"] .bubble:where([data-tsu="ChatBubble"]).role-mcp {
 	background:
 		linear-gradient(180deg, color-mix(in oklab, var(--role-mcp) 6%, transparent), color-mix(in oklab, var(--role-mcp) 2%, transparent)) padding-box,
 		var(--depth-fill-2) padding-box;
