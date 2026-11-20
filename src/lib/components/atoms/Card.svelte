@@ -299,8 +299,10 @@
 	}
 	.card-tap:active {
 		background: var(--surface-fill-2);
-		scale: var(--press-scale-lg);
 		transition-duration: var(--dur-press);
+	}
+	.card-tap:active:not(.card-row, :has(:is(button, a, input, select, textarea, [role='button'], [contenteditable]):active)) {
+		scale: var(--press-scale-lg);
 	}
 	@media (hover: hover) and (pointer: fine) {
 		.card-tap:hover {
