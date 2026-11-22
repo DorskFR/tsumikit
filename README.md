@@ -112,7 +112,7 @@ npm run build        # prerendered static site in /build
 npm run package      # publishable library in /dist (+ publint)
 ```
 
-Hooks (lefthook, via `prepare`): Biome on commit, `svelte-check` on push. A `v*` tag publishes to npm through GitHub Actions trusted publishing.
+Hooks (`.githooks/`, run by the global git hook guard): Biome on commit, `svelte-check` on push. A `v*` tag publishes to npm through GitHub Actions trusted publishing.
 
 ## License
 

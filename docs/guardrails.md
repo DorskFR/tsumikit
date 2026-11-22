@@ -40,14 +40,13 @@ padding: 3px;
 
 Omit the rule id to ignore every rule on that line. In app code, read the breakpoint list from `breakpoints` in the main entry.
 
-lefthook:
+As a git pre-commit hook:
 
-```yaml
-pre-commit:
-  commands:
-    tsumikit-lint:
-      glob: '*.{svelte,css}'
-      run: npx tsumikit-lint {staged_files}
+```sh
+#!/bin/sh
+set -e
+files=$(git diff --cached --name-only --diff-filter=ACMR -- '*.svelte' '*.css')
+[ -z "$files" ] || printf '%s\n' "$files" | xargs npx tsumikit-lint
 ```
 
 ## Dev-mode design warnings

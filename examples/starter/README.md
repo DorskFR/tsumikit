@@ -5,7 +5,7 @@ The copy-paste baseline for a new app on `@dorsk/tsumikit`:
 - `src/routes/+layout.svelte`: the kit stylesheet (tokens, themes, Inter), `AppShell` with a sidebar, `ThemePicker`, `Toaster`.
 - `src/routes/+error.svelte`: every error, 404 included, is an `EmptyState tone="danger"` in plain words with a way out.
 - `src/routes/items`: a list with a URL-driven filter (`Tabs href` + `urlState`), `LoadMore`, empty and filtered-empty states, and delete with `toasts.undo()` instead of a confirm dialog.
-- `lefthook.yml` and `npm run lint`: `tsumikit-lint` on every commit.
+- `.githooks/pre-commit` and `npm run lint`: `tsumikit-lint` on every commit (`git config core.hooksPath .githooks` to enable it).
 
 ```sh
 npm install
