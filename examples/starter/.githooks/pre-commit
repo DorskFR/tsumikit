@@ -1,0 +1,4 @@
+#!/bin/sh
+set -e
+files=$(git diff --cached --name-only --diff-filter=ACMR -- 'src/*.svelte' 'src/*.css')
+[ -z "$files" ] || printf '%s\n' "$files" | xargs npx tsumikit-lint
