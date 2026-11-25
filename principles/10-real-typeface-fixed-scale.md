@@ -23,8 +23,8 @@ Sources: https://practicaltypography.com/summary-of-key-rules.html , https://www
 ## In tsumikit
 
 - Inter bundled via `styles/font.css`; `--font-sans` is the default stack, `--font-mono` for code.
-- Type scale `--fs-2xs` (11) through `--fs-3xl` (36), scaled by `--fs-scale` (see `FontScalePicker`).
-- Weights `--fw-normal`, `--fw-medium`, `--fw-semibold`, `--fw-bold`; line heights `--lh-heading`, `--lh-normal`.
+- Type scale `--fs-xs` (12), `--fs-sm` (13), `--fs-base` (15), `--fs-lg` (18), `--fs-xl` (22), `--fs-2xl` (28), scaled by `--fs-scale` (see `FontScalePicker`) and rounded to whole pixels; `--fs-2xs`, `--fs-md` and `--fs-3xl` are deprecated aliases of xs, base and 2xl.
+- Weights `--fw-normal` (400) and `--fw-semibold` (600) for body and controls, `--fw-bold` (700) for titles; `--fw-medium` is deprecated and resolves to 600; line heights `--lh-heading`, `--lh-normal`.
 - `Heading` and `Text` cover titles, body, labels, captions and eyebrows.
 - Lint rule `no-raw-font` flags font-family or font-size literals in app styles.
 

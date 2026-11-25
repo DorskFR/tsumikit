@@ -12,7 +12,7 @@
 	const steps = ['Rotate the API key', 'Update the CI secret', 'Revoke the old key'];
 </script>
 
-<Stack as="ol" gap="var(--sp-2)" style="padding-inline-start: var(--sp-5); margin: 0">
+<Stack as="ol" gap="var(--sp-2)" style="padding-inline-start: var(--sp-6); margin: 0">
 	{#each steps as step (step)}
 		<li><Text>{step}</Text></li>
 	{/each}

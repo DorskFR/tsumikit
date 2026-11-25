@@ -130,11 +130,16 @@ test('the chrome-less Popover trigger floors at the sm box and yields its size t
 	assert.equal(def['min-width'], 'var(--box-sm)');
 	assert.equal(def.padding, 'var(--sp-1)');
 	assert.equal(def['min-height'].includes('--box-md'), false);
-	// The 44px coarse-pointer target stays on the absolute slab, off the box.
+	// The 24px floor and the 44px coarse-pointer target stay on the absolute slab, off the box.
 	const slab = rule(popover, '.pop-trigger:not(.canonical, .hit-compact)::after');
-	assert.equal(slab['inset-block'], 'min(0px, calc((100% - var(--touch-target)) / 2))');
-	assert.equal(slab['inset-inline-start'], 'min(0px, calc((100% - var(--touch-target)) / 2))');
+	assert.equal(slab['inset-block'], 'var(--hit-slab)');
+	assert.equal(slab['inset-inline-start'], 'var(--hit-slab)');
 	assert.equal(slab['inset-inline-end'], '0');
 	assert.equal(slab.inset, undefined);
-	assert.equal(rule(popover, '.pop-trigger:not(.canonical, .hit-compact)::after').height, undefined);
+	assert.equal(slab.height, undefined);
+	const coarse = popover.slice(popover.indexOf('@media (pointer: coarse) {\n\t\t.pop-trigger'));
+	const touch = rule(coarse, '.pop-trigger:not(.canonical, .hit-compact)::after');
+	assert.equal(touch['inset-block'], 'min(0px, calc((100% - var(--touch-target)) / 2))');
+	assert.equal(touch['inset-inline-start'], 'min(0px, calc((100% - var(--touch-target)) / 2))');
+	assert.equal(touch['inset-inline-end'], '0');
 });

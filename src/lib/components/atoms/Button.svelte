@@ -302,7 +302,7 @@
 		background: var(--btn-fill);
 		box-shadow: var(--btn-shadow);
 		color: var(--text);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		font-size: var(--control-fs-md);
 		line-height: var(--lh-none);
 		transition:
@@ -406,7 +406,7 @@
 	.btn-xl {
 		min-height: calc(var(--control-height-large) + var(--sp-2));
 		padding: var(--sp-4) var(--sp-6);
-		font-size: var(--fs-md);
+		font-size: var(--fs-lg);
 	}
 	.btn-xl :global(.icon) {
 		font-size: var(--icon-xl);
@@ -482,7 +482,7 @@
 		border-radius: var(--r-md);
 		background: var(--btn-fill);
 		color: var(--text);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		font-size: var(--control-fs-md);
 		line-height: var(--lh-none);
 		white-space: normal;
@@ -546,10 +546,11 @@
 		border-color: color-mix(in srgb, var(--warn) 35%, var(--accent));
 		color: var(--text-on-accent);
 	}
+	/* A destructive primary action is filled with danger, like success above. */
 	.btn-primary.btn-tone-danger {
-		background: color-mix(in srgb, var(--danger) 35%, var(--accent));
-		border-color: color-mix(in srgb, var(--danger) 35%, var(--accent));
-		color: var(--text-on-accent);
+		background: var(--danger);
+		border-color: var(--danger);
+		color: var(--text-on-danger);
 	}
 
 	.no-shrink {
@@ -695,6 +696,34 @@
 		}
 	}
 
+	/* Every pointer: inline icon and link buttons reach --hit-target. */
+	.btn-icon-inline:not(.hit-compact),
+	.btn-link:not(.hit-compact) {
+		position: relative;
+	}
+	.btn-icon-inline:not(.hit-compact)::after {
+		content: '';
+		position: absolute;
+		inset-block: var(--hit-slab);
+		inset-inline-start: var(--hit-slab);
+		inset-inline-end: 0;
+		animation: none;
+		translate: none;
+		rotate: none;
+		scale: none;
+	}
+	.btn-link:not(.hit-compact)::before {
+		content: '';
+		position: absolute;
+		inset-block: var(--hit-slab);
+		inset-inline-start: var(--hit-slab);
+		inset-inline-end: 0;
+		animation: none;
+		translate: none;
+		rotate: none;
+		scale: none;
+	}
+
 	/* Coarse pointers: icon-only and square buttons carry an invisible slab that
 	   extends the hit area towards --touch-target without changing layout. Buttons
 	   already at or above the target keep their own box (inset never positive).
@@ -724,6 +753,10 @@
 			inset-block: min(0px, calc((100% - var(--touch-target)) / 2));
 			inset-inline-start: min(0px, calc((100% - var(--touch-target)) / 2));
 			inset-inline-end: 0;
+			animation: none;
+			translate: none;
+			rotate: none;
+			scale: none;
 		}
 		.btn-sm:not(.btn-icon, .btn-icon-inline, .btn-box, .btn-square, .btn-chip, .btn-stacked, .hit-compact) {
 			position: relative;
@@ -734,6 +767,10 @@
 			inset-block: var(--touch-slab);
 			inset-inline-start: var(--touch-slab);
 			inset-inline-end: 0;
+			animation: none;
+			translate: none;
+			rotate: none;
+			scale: none;
 		}
 		.btn-link:not(.hit-compact) {
 			position: relative;
@@ -744,6 +781,10 @@
 			inset-block: var(--touch-slab);
 			inset-inline-start: var(--touch-slab);
 			inset-inline-end: 0;
+			animation: none;
+			translate: none;
+			rotate: none;
+			scale: none;
 		}
 	}
 
@@ -803,7 +844,7 @@
 		font-size: var(--fs-lg);
 	}
 	.btn-stacked.btn-sm .btn-glyph {
-		font-size: var(--fs-md);
+		font-size: var(--fs-base);
 	}
 	.btn-stacked.btn-lg .btn-glyph,
 	.btn-stacked.btn-xl .btn-glyph {
@@ -834,7 +875,7 @@
 		left: var(--sp-1);
 		font-family: var(--font-label);
 		font-size: calc(var(--fs-xs) * 0.75);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-normal);
 		color: var(--text-faint);
 		line-height: var(--lh-none);
 		pointer-events: none;
@@ -994,8 +1035,8 @@
 			filter: brightness(1.08);
 		}
 		.btn-primary.btn-tone-danger:hover:not(:disabled) {
-			background: color-mix(in srgb, var(--danger) 35%, var(--accent));
-			border-color: color-mix(in srgb, var(--danger) 35%, var(--accent));
+			background: var(--danger);
+			border-color: var(--danger);
 			filter: brightness(1.08);
 		}
 		.btn-link:hover:not(:disabled) {

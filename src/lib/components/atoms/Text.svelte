@@ -106,7 +106,7 @@
 	}
 	.v-label {
 		font-size: var(--fs-sm);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		color: var(--text-muted);
 	}
 	.v-caption {
@@ -120,7 +120,7 @@
 	.v-eyebrow {
 		font-size: var(--fs-xs);
 		color: var(--text-muted);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 	}
@@ -157,7 +157,7 @@
 		font-weight: var(--fw-normal);
 	}
 	.fw-medium {
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 	}
 	.fw-semibold {
 		font-weight: var(--fw-semibold);
@@ -176,7 +176,7 @@
 		font-size: var(--fs-base);
 	}
 	.fs-md {
-		font-size: var(--fs-md);
+		font-size: var(--fs-base);
 	}
 	.fs-lg {
 		font-size: var(--fs-lg);
@@ -197,7 +197,7 @@
 		font-size: 15px;
 	}
 	.noscale.fs-md {
-		font-size: 16px;
+		font-size: 15px;
 	}
 	.noscale.fs-lg {
 		font-size: 18px;

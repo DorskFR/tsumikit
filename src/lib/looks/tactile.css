@@ -576,7 +576,7 @@
   font-weight: var(--fw-semibold);
 }
 :root[data-look="tactile"] .tab .badge:not(.text) {
-  font-weight: var(--fw-medium);
+  font-weight: var(--fw-semibold);
 }
 :root[data-look="tactile"] .badge:not(.text, .role-pill) {
   color: color-mix(in oklab, var(--text-muted) 60%, var(--text));
@@ -862,7 +862,7 @@
   height: 1.75rem;
   min-height: 0;
   border-radius: var(--r-pill);
-  font-size: var(--fs-md);
+  font-size: var(--fs-base);
   color: var(--text-muted);
   background: color-mix(in oklab, var(--text-muted) 22%, transparent);
 }
@@ -1031,7 +1031,7 @@
 }
 :root[data-look="tactile"] .toaster .card.toast {
   border-radius: var(--r-pill);
-  padding-inline: var(--sp-5);
+  padding-inline: var(--sp-6);
   box-shadow: var(--overlay-shadow);
 }
 

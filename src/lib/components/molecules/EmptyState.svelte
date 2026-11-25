@@ -107,7 +107,7 @@
 		justify-content: center;
 		text-align: center;
 		gap: var(--sp-3);
-		padding: var(--sp-8) var(--sp-5);
+		padding: var(--sp-8) var(--sp-6);
 	}
 	.empty-compact {
 		gap: var(--sp-2);
@@ -173,7 +173,7 @@
 	}
 	.empty-title {
 		margin: 0;
-		font-size: var(--fs-md);
+		font-size: var(--fs-base);
 		font-weight: var(--fw-semibold);
 		color: var(--text);
 		line-height: var(--lh-snug);

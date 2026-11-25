@@ -52,16 +52,18 @@ for (const [name, src, sel] of /** @type {const} */ ([
 	});
 }
 
-test('fine pointers keep the dense rendering: no slab, no min-height outside the coarse blocks', () => {
+test('fine pointers keep the dense rendering: only the 24px --hit-slab, no min-height outside the coarse blocks', () => {
 	for (const [src, sel] of /** @type {const} */ ([
 		[checkbox, '.checkbox'],
-		[button, '.btn-link'],
-		[table, '.dt-sort']
+		[button, '.btn-link:not(.hit-compact)']
 	])) {
-		const f = fine(src);
-		assert.ok(!f.includes(`${sel}::before`), `${sel}::before only exists under (pointer: coarse)`);
-		assert.notEqual(rule(f, sel).position, 'relative');
+		const slab = rule(fine(src), `${sel}::before`);
+		assert.equal(slab['inset-block'], 'var(--hit-slab)', sel);
+		assert.equal(slab['inset-inline-start'], 'var(--hit-slab)', sel);
+		assert.equal(slab['inset-inline-end'], '0', sel);
 	}
+	assert.ok(!fine(table).includes('.dt-sort::before'), '.dt-sort::before only exists under (pointer: coarse)');
+	assert.notEqual(rule(fine(table), '.dt-sort').position, 'relative');
 	assert.equal(rule(fine(table), '.dt-sort').padding, '0');
 	assert.equal(rule(fine(button), '.btn-link')['min-height'], 'auto');
 });

@@ -288,7 +288,7 @@
 		border-color: var(--accent);
 	}
 	.auto-glyph {
-		font-size: var(--fs-md);
+		font-size: var(--fs-base);
 		line-height: var(--lh-none);
 	}
 	.auto-text {

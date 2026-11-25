@@ -12,7 +12,7 @@
 	const variants = ['icon', 'arc', 'dots', 'orbit', 'pulse', 'bars', 'grid', 'clock', 'bounce', 'comet', 'breath', 'morph', 'sweep'] as const;
 </script>
 
-<Cluster gap="var(--sp-5)">
+<Cluster gap="var(--sp-6)">
 	{#each variants as variant (variant)}
 		<Stack gap="var(--sp-2)" align="center">
 			<Spinner {variant} size={28} label="Loading ({variant})" />

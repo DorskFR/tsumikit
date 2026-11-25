@@ -197,11 +197,11 @@
 					</DoDont>
 				{:else if p.id === '09'}
 					<DoDont
-						goodNote="Within a group --sp-1, between groups --sp-5: the gap does the grouping."
+						goodNote="Within a group --sp-1, between groups --sp-6: the gap does the grouping."
 						badNote="Every line in its own box; the eye reads borders instead of content."
 					>
 						{#snippet good()}
-							<Stack gap="var(--sp-5)">
+							<Stack gap="var(--sp-6)">
 								<Stack gap="var(--sp-1)">
 									<Text variant="label" tone="muted">Billing</Text>
 									<Text>Visa ending 4242</Text>

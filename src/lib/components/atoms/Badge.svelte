@@ -204,7 +204,7 @@
 		padding: 0 var(--sp-2);
 		border-radius: var(--r-pill);
 		font-size: var(--fs-xs);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		line-height: var(--lh-snug);
 		background: var(--bg-elevated-2);
 		color: var(--text-muted);
@@ -222,7 +222,7 @@
 	}
 	.badge-sm {
 		min-height: var(--chip-sm);
-		padding: 0 var(--sp-1-5);
+		padding: 0 var(--sp-1);
 	}
 	.badge-xs {
 		min-height: var(--chip-xs);
@@ -494,6 +494,16 @@
 	.action:focus-visible {
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset-inset);
+	}
+	.action {
+		position: relative;
+	}
+	.action::before {
+		content: '';
+		position: absolute;
+		inset-block: var(--hit-slab);
+		inset-inline-start: var(--hit-slab);
+		inset-inline-end: 0;
 	}
 	@media (pointer: coarse) {
 		.action {

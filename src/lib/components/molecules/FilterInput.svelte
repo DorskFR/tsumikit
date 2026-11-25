@@ -663,7 +663,7 @@
 		transition-duration: var(--dur-instant);
 	}
 	.fi__opt-label {
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 	}
 	.fi__opt-hint {
 		color: var(--text-muted);

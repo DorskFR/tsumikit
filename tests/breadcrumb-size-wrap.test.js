@@ -29,7 +29,7 @@ test('new props are optional with non-breaking defaults', () => {
 
 test('size md bumps the trail font and separator icon', () => {
 	assert.match(source, /size === 'md' && 'crumbs--md'/);
-	assert.ok(hasDecl(css, '.crumbs--md', 'font-size', 'var(--fs-md)'));
+	assert.ok(hasDecl(css, '.crumbs--md', 'font-size', 'var(--fs-base)'));
 	assert.ok(hasDecl(css, '.sep', 'font-size', 'var(--icon-sm)'));
 	assert.ok(hasDecl(css, '.crumbs--md .sep', 'font-size', 'var(--icon-md)'));
 });

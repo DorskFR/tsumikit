@@ -12,12 +12,14 @@
   muted 4.5:1, every accent/status hue 4.5:1, `accent-ink` on `accent` 4.5:1,
   and `--c-border-strong` (the outline of every control) 3:1.
 - Three text levels: `--text` for values and titles, `--text-muted` for labels
-  and secondary text (4.5:1), `--text-faint` only for placeholders, disabled
-  and decorative text (3:1, and muted is at least 1.35x faint so the step is
-  visible).
+  and secondary text (4.5:1 on every surface, well and tinted card),
+  `--text-faint` only for placeholders, disabled, decorative text and
+  uppercase eyebrow labels (3:1). Each step is visible: text is at least 1.5x
+  muted and muted at least 1.35x faint (contrast on `--bg`).
 - The accent is never a status colour: every theme keeps `--c-accent` at least
-  OKLab deltaE 0.08 away from `--c-green`, `--c-amber` and `--c-red`, so the
-  primary action never reads as "success".
+  OKLab deltaE 0.08 away from `--c-green`, `--c-amber` and `--c-red`, and at
+  least 30° of OKLCH hue from `--c-green`, so the primary action never reads as
+  "success".
   `tests/theme-contrast.mjs` holds the floors; the test suite fails on any
   breach.
 - `<ThemePicker />` and `<FontScalePicker />` wire the stores to the UI. Theme

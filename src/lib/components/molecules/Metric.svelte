@@ -183,7 +183,7 @@
 		width: 1.75rem;
 		height: 1.75rem;
 		border-radius: var(--r-md);
-		font-size: var(--fs-md);
+		font-size: var(--fs-base);
 		color: var(--accent);
 		background: color-mix(in srgb, var(--accent) 14%, transparent);
 		border: 1px solid color-mix(in srgb, var(--accent) 30%, transparent);
@@ -265,7 +265,7 @@
 		min-width: 0;
 	}
 	.metric-inline .metric-num {
-		font-size: var(--fs-md);
+		font-size: var(--fs-base);
 	}
 	.metric-inline.metric-tap {
 		padding: 0;

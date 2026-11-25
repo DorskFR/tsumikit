@@ -85,9 +85,11 @@ test('Card and Badge as="button" default to type="button" and never submit their
 
 test('Badge action grows a coarse-pointer touch slab that never overflows inline-end', () => {
 	assert.match(badge, /@media \(pointer: coarse\)\s*{\s*\.action\s*{\s*position: relative;/);
-	assert.ok(hasDecl(badge, '.action::before', 'inset-block', 'var(--touch-slab)'));
-	assert.ok(hasDecl(badge, '.action::before', 'inset-inline-start', 'var(--touch-slab)'));
-	assert.ok(hasDecl(badge, '.action::before', 'inset-inline-end', '0'));
+	const coarse = badge.slice(badge.indexOf('@media (pointer: coarse) {\n\t\t.action {'));
+	assert.ok(hasDecl(coarse, '.action::before', 'inset-block', 'var(--touch-slab)'));
+	assert.ok(hasDecl(coarse, '.action::before', 'inset-inline-start', 'var(--touch-slab)'));
+	assert.ok(hasDecl(coarse, '.action::before', 'inset-inline-end', '0'));
+	assert.ok(hasDecl(badge, '.action::before', 'inset-block', 'var(--hit-slab)'), 'the 24px floor applies on every pointer');
 });
 
 test('only the topmost Scrim closes on Escape', () => {

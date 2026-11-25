@@ -98,7 +98,7 @@
 	}
 	.kv-label {
 		color: var(--text-muted);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 	}
 	.kv-value {
 		margin: 0;

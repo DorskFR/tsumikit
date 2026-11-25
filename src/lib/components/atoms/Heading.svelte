@@ -86,7 +86,7 @@
 		font-size: var(--fs-sm);
 	}
 	.fs-md {
-		font-size: var(--fs-md);
+		font-size: var(--fs-base);
 	}
 	.fs-lg {
 		font-size: var(--fs-lg);
@@ -104,7 +104,7 @@
 		font-size: 13px;
 	}
 	.noscale.fs-md {
-		font-size: 16px;
+		font-size: 15px;
 	}
 	.noscale.fs-lg {
 		font-size: 18px;

@@ -90,7 +90,7 @@
 		padding: 0 var(--control-px-sm);
 		border-radius: var(--r-sm);
 		font-size: var(--control-fs-sm);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		line-height: var(--lh-none);
 		background: var(--surface-fill-2);
 		color: var(--text-muted);
@@ -181,6 +181,16 @@
 	}
 	.toggle.struck {
 		text-decoration: line-through;
+	}
+	.toggle {
+		position: relative;
+	}
+	.toggle::before {
+		content: '';
+		position: absolute;
+		inset-block: var(--hit-slab);
+		inset-inline-start: var(--hit-slab);
+		inset-inline-end: 0;
 	}
 	@media (pointer: coarse) {
 		.toggle {

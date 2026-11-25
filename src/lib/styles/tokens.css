@@ -21,7 +21,7 @@
   --c-border: #2c323d;
   --c-border-strong: #757d8b;
   --c-text: #e6e9ef;
-  --c-text-muted: #9aa3b2;
+  --c-text-muted: #939caa;
   --c-text-faint: #747e8e;
 
   --c-accent: #4cc3f0;
@@ -74,6 +74,8 @@
   /* Adaptive ink for filled positive actions: dark canvas ink on bright greens,
      light canvas ink on the darker greens used by light themes. */
   --text-on-success: var(--bg);
+  /* Same for filled destructive actions; --c-red clears 4.5:1 on --bg. */
+  --text-on-danger: var(--bg);
 
   --accent: var(--c-accent);
   --accent-dim: var(--c-accent-dim);
@@ -133,21 +135,24 @@
 	   ballooning UI. Default 1 = no scaling. */
   --fs-scale: 1;
 
-  /* Type scale. 2xs is the floor (never go below 11px). 13 / 15 / 16 are
-	   "UI small / UI / body": no more steps between them. */
-  --fs-2xs: calc(0.6875rem * var(--fs-scale)); /* 11 */
+  /* Type scale: 12 / 13 / 15 / 18 / 22 / 28. 13 and 15 are "UI small / UI",
+	   15 is also body. 2xs, md and 3xl are deprecated aliases of the nearest
+	   kept step. */
   --fs-xs: calc(0.75rem * var(--fs-scale)); /* 12 */
   --fs-sm: calc(0.8125rem * var(--fs-scale)); /* 13 */
   --fs-base: calc(0.9375rem * var(--fs-scale)); /* 15 */
-  --fs-md: calc(1rem * var(--fs-scale)); /* 16 */
   --fs-lg: calc(1.125rem * var(--fs-scale)); /* 18 */
   --fs-xl: calc(1.375rem * var(--fs-scale)); /* 22 */
   --fs-2xl: calc(1.75rem * var(--fs-scale)); /* 28 */
-  --fs-3xl: calc(2.25rem * var(--fs-scale)); /* 36 */
+  --fs-2xs: var(--fs-xs);
+  --fs-md: var(--fs-base);
+  --fs-3xl: var(--fs-2xl);
 
+  /* 400 and 600 for body and controls, 700 for titles. --fw-medium is
+     deprecated and resolves to 600. */
   --fw-normal: 400;
-  --fw-medium: 500;
   --fw-semibold: 600;
+  --fw-medium: var(--fw-semibold);
   --fw-bold: 700;
 
   /* Leading paired to the scale: none = single-line controls and glyphs,
@@ -159,7 +164,10 @@
   --lh-snug: 1.375;
   --lh-normal: 1.5;
 
-  /* ---- Spacing (4px base) ---- */
+  /* ---- Spacing (4px base) ----
+     --sp-0-5 is for hairline adjustments only. --sp-1-5 and --sp-5 are
+     deprecated (off the 4/8/12/16/24/32 scale); use --sp-1/--sp-2 and
+     --sp-4/--sp-6. */
   --sp-0: 0;
   --sp-px: 1px;
   --sp-0-5: 0.125rem;
@@ -213,7 +221,7 @@
   --control-icon-lg: var(--icon-lg);
   --btn-px-sm: var(--sp-3);
   --btn-px-md: var(--sp-4);
-  --btn-px-lg: var(--sp-5);
+  --btn-px-lg: var(--sp-6);
   /* Chip-class heights (Badge, Switch track, Checkbox box) on the 4px grid. */
   --chip-xs: 1rem;
   --chip-sm: 1.25rem;
@@ -241,6 +249,12 @@
   /* Minimum hit area on coarse pointers (WCAG 2.5.8); px so it never shrinks
 	   under a small root font-size. */
   --touch-target: 44px;
+  /* Minimum hit area on every pointer (WCAG 2.5.8 AA). Small controls carry an
+     absolute ::before/::after at --hit-slab on inset-block and
+     inset-inline-start (same shape as --touch-slab); it only grows a box that
+     is under the target, and coarse pointers raise the target. */
+  --hit-target: 24px;
+  --hit-slab: min(0px, calc((100% - var(--hit-target)) / 2));
   /* Compact controls on coarse pointers: an absolute ::before with inset-block
 	   and inset-inline-start at var(--touch-slab) and inset-inline-end: 0 (no
 	   scrollable overflow sideways). Controls that clip their overflow grow
@@ -341,6 +355,24 @@
     --control-height-default: var(--touch-target);
     --box-md: var(--touch-target);
     --touch-target-compact: var(--touch-target);
+    --hit-target: var(--touch-target);
+  }
+}
+
+/* A scaled step lands on whole pixels; without round() it keeps the exact calc. */
+@supports (width: round(1.5px, 1px)) {
+  :root {
+    --fs-xs: round(calc(0.75rem * var(--fs-scale)), 1px);
+    --fs-sm: round(calc(0.8125rem * var(--fs-scale)), 1px);
+    --fs-base: round(calc(0.9375rem * var(--fs-scale)), 1px);
+    --fs-lg: round(calc(1.125rem * var(--fs-scale)), 1px);
+    --fs-xl: round(calc(1.375rem * var(--fs-scale)), 1px);
+    --fs-2xl: round(calc(1.75rem * var(--fs-scale)), 1px);
+    --icon-xs: round(calc(0.75rem * var(--fs-scale)), 1px);
+    --icon-sm: round(calc(0.875rem * var(--fs-scale)), 1px);
+    --icon-md: round(calc(1rem * var(--fs-scale)), 1px);
+    --icon-lg: round(calc(1.25rem * var(--fs-scale)), 1px);
+    --icon-xl: round(calc(1.5rem * var(--fs-scale)), 1px);
   }
 }
 

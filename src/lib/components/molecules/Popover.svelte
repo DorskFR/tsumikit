@@ -473,7 +473,7 @@
 		border-color: var(--btn-edge);
 		background: var(--btn-fill);
 		box-shadow: var(--btn-shadow);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		font-size: var(--control-fs-md);
 		line-height: var(--lh-none);
 		user-select: none;
@@ -561,6 +561,16 @@
 		min-width: var(--box-lg);
 		height: var(--box-lg);
 		min-height: var(--box-lg);
+	}
+	.pop-trigger:not(.canonical, .hit-compact) {
+		position: relative;
+	}
+	.pop-trigger:not(.canonical, .hit-compact)::after {
+		content: '';
+		position: absolute;
+		inset-block: var(--hit-slab);
+		inset-inline-start: var(--hit-slab);
+		inset-inline-end: 0;
 	}
 	/* Coarse pointers: icon-only triggers extend their hit area towards --touch-target
 	   via an invisible slab; layout does not move. Same geometry as Button.svelte:

@@ -379,7 +379,7 @@
 	}
 	.notif-ask {
 		font-size: var(--fs-sm);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 	}
 	.notif-state {
 		display: flex;

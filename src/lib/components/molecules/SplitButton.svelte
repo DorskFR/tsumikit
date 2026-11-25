@@ -14,7 +14,8 @@
 	type MenuProps = ComponentProps<typeof Menu>;
 
 	type Own = {
-		variant?: 'default' | 'primary' | 'danger';
+		/** `ghost` keeps an idle action quiet (no fill, no edge) until it becomes the primary. */
+		variant?: 'default' | 'primary' | 'ghost' | 'danger';
 		size?: ControlSize;
 		/** Uniform toolbar/composer control height; follows a sized `Cluster`. */
 		control?: boolean;

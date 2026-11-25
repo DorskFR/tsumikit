@@ -25,8 +25,9 @@ function resolve(v, depth = 0) {
 }
 
 const expected = {
-	'--fs-2xs': 'calc(0.6875rem * var(--fs-scale))',
-	'--fs-3xl': 'calc(2.25rem * var(--fs-scale))',
+	'--fs-2xs': 'var(--fs-xs)',
+	'--fs-md': 'var(--fs-base)',
+	'--fs-3xl': 'var(--fs-2xl)',
 	'--lh-none': '1',
 	'--lh-heading': '1.2',
 	'--lh-snug': '1.375',
@@ -48,7 +49,7 @@ const expected = {
 	'--control-icon-lg': 'var(--icon-lg)',
 	'--btn-px-sm': 'var(--sp-3)',
 	'--btn-px-md': 'var(--sp-4)',
-	'--btn-px-lg': 'var(--sp-5)',
+	'--btn-px-lg': 'var(--sp-6)',
 	'--chip-xs': '1rem',
 	'--chip-sm': '1.25rem',
 	'--chip-md': '1.5rem',
@@ -81,7 +82,6 @@ test('the pre-existing scale keeps its names and values', () => {
 		'--fs-xs': 'calc(0.75rem * var(--fs-scale))',
 		'--fs-sm': 'calc(0.8125rem * var(--fs-scale))',
 		'--fs-base': 'calc(0.9375rem * var(--fs-scale))',
-		'--fs-md': 'calc(1rem * var(--fs-scale))',
 		'--fs-lg': 'calc(1.125rem * var(--fs-scale))',
 		'--fs-xl': 'calc(1.375rem * var(--fs-scale))',
 		'--fs-2xl': 'calc(1.75rem * var(--fs-scale))',
@@ -103,8 +103,8 @@ test('the pre-existing scale keeps its names and values', () => {
 });
 
 test('every font-size and icon-size token scales with --fs-scale', () => {
-	const scaled = [...decls.keys()].filter((n) => /^--(fs|icon)-/.test(n) && n !== '--fs-scale');
-	assert.ok(scaled.length >= 14);
+	const scaled = [...decls.keys()].filter((n) => /^--(fs|icon)-/.test(n) && !['--fs-scale', '--fs-2xs', '--fs-md', '--fs-3xl'].includes(n));
+	assert.ok(scaled.length >= 11);
 	for (const n of scaled) assert.match(value(n) ?? '', /^calc\([\d.]+rem \* var\(--fs-scale\)\)$/, n);
 });
 
@@ -116,7 +116,7 @@ test('type, spacing, radius and control ladders are strictly increasing', () => 
 		return Number(m[1]) * (m[2] === 'rem' ? 16 : 1);
 	};
 	const ladders = [
-		['--fs-2xs', '--fs-xs', '--fs-sm', '--fs-base', '--fs-md', '--fs-lg', '--fs-xl', '--fs-2xl', '--fs-3xl'],
+		['--fs-xs', '--fs-sm', '--fs-base', '--fs-lg', '--fs-xl', '--fs-2xl'],
 		['--sp-0', '--sp-px', '--sp-0-5', '--sp-1', '--sp-1-5', '--sp-2', '--sp-3', '--sp-4', '--sp-5', '--sp-6', '--sp-8', '--sp-10', '--sp-12'],
 		['--r-xs', '--r-sm', '--r-md', '--r-lg', '--r-pill'],
 		['--control-sm', '--control-md', '--control-lg'],
@@ -134,7 +134,7 @@ test('type, spacing, radius and control ladders are strictly increasing', () => 
 			assert.ok(values[i] > values[i - 1], `${ladder[i]} (${values[i]}) <= ${ladder[i - 1]} (${values[i - 1]})`);
 		}
 	}
-	for (const [n, want] of [['--control-sm', 32], ['--control-md', 40], ['--control-lg', 48], ['--box-md', 40], ['--chip-md', 24], ['--icon-md', 16], ['--fs-2xs', 11]]) {
+	for (const [n, want] of [['--control-sm', 32], ['--control-md', 40], ['--control-lg', 48], ['--box-md', 40], ['--chip-md', 24], ['--icon-md', 16], ['--fs-xs', 12], ['--fs-sm', 13], ['--fs-base', 15], ['--fs-lg', 18], ['--fs-xl', 22], ['--fs-2xl', 28]]) {
 		assert.equal(px(String(n)), want, String(n));
 	}
 });
@@ -142,5 +142,15 @@ test('type, spacing, radius and control ladders are strictly increasing', () => 
 test('every alias resolves to a defined token', () => {
 	for (const [n, [v]] of decls) {
 		if (/var\(--[\w-]+\)/.test(v) && !/env\(/.test(v)) resolve(v);
+	}
+});
+
+test('scaled type and icon sizes round to whole pixels where round() is supported', () => {
+	const block = tokens.match(/@supports \(width: round\(1\.5px, 1px\)\) \{\s*:root \{([^}]*)\}/)?.[1];
+	assert.ok(block, 'round() override block');
+	const steps = ['--fs-xs', '--fs-sm', '--fs-base', '--fs-lg', '--fs-xl', '--fs-2xl', '--icon-xs', '--icon-sm', '--icon-md', '--icon-lg', '--icon-xl'];
+	for (const n of steps) {
+		const exact = value(n);
+		assert.ok(block.includes(`${n}: round(${exact}, 1px);`), n);
 	}
 });

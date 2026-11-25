@@ -108,7 +108,7 @@
 	}
 	.label {
 		font-size: var(--fs-sm);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		color: var(--text-muted);
 	}
 	.hint {

@@ -111,7 +111,7 @@
 		color: var(--text-muted);
 		border-radius: var(--r-md);
 		font-size: var(--fs-sm);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		text-decoration: none;
 		white-space: nowrap;
 		transition:

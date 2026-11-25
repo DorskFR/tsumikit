@@ -92,7 +92,7 @@
 		font-size: var(--fs-sm);
 	}
 	.crumbs--md {
-		font-size: var(--fs-md);
+		font-size: var(--fs-base);
 	}
 	.crumbs--nowrap {
 		flex-wrap: nowrap;
@@ -135,7 +135,7 @@
 	}
 	.current {
 		color: var(--text);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;

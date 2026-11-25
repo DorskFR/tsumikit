@@ -154,8 +154,8 @@ const variants = {
 };
 
 test('the token scale parsed from tokens.css covers the sizes the fields use', () => {
-	for (const name of ['fs-xs', 'fs-sm', 'fs-base', 'fs-md']) assert.ok(fontTokens[name] > 0, name);
-	assert.ok(fontTokens['fs-md'] > fontTokens['fs-base'], '--fs-md must exceed --fs-base');
+	for (const name of ['fs-xs', 'fs-sm', 'fs-base']) assert.ok(fontTokens[name] > 0, name);
+	assert.ok(fontTokens['fs-base'] > fontTokens['fs-sm'], '--fs-base must exceed --fs-sm');
 });
 
 for (const scale of [1, 0.875, 0.75]) {

@@ -6,13 +6,13 @@ import { rule } from './helpers.mjs';
 const read = (/** @type {string} */ p) => readFile(new URL(`../src/lib/components/molecules/${p}`, import.meta.url), 'utf8');
 const [timestamp, popover] = await Promise.all([read('Timestamp.svelte'), read('Popover.svelte')]);
 
-// Regression guard for TSU-101 (0.40.0): the Timestamp details trigger is a
-// dotted-underlined <time>, never a padded button.
-test('Timestamp details trigger is a bare Popover with an underlined inline <time>', () => {
+test('Timestamp details trigger is a bare Popover with plain inline text, underlined only on hover/focus', () => {
 	assert.match(timestamp, /<Popover label="{label}, details" placement="bottom-start" bare>/);
 	const t = rule(timestamp, '.ts-trigger');
-	assert.equal(t['text-decoration-line'], 'underline');
+	assert.equal(t['text-decoration-line'], undefined, 'no underline at rest');
 	assert.equal(t['text-decoration-style'], 'dotted');
+	assert.equal(rule(timestamp, '.ts-trigger:focus-visible')['text-decoration-line'], 'underline');
+	assert.equal(rule(timestamp, '.ts-trigger:hover')['text-decoration-line'], 'underline');
 	for (const prop of ['min-height', 'height', 'padding', 'border']) assert.equal(t[prop], undefined, `${prop} must not be set`);
 });
 

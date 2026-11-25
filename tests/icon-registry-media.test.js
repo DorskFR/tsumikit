@@ -66,3 +66,8 @@ test('volume glyphs: volume, volume-low, volume-high, volume-mute, volume-off, s
 	assert.equal(paths('volume-mute'), 3);
 	assert.equal(paths('volume-off'), 5);
 });
+
+test('mic and mic-off glyphs are registered', () => {
+	assert.match(icon, /^\t\tmic: '<path d="M12 19v3" \/>.*<rect x="9" y="2" width="6" height="13" rx="3" \/>',$/m);
+	assert.match(icon, /^\t\t'mic-off': '<path d="M12 19v3" \/>.*<path d="m2 2 20 20" \/>/m);
+});

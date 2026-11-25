@@ -204,7 +204,7 @@
 
 <style>
 	.emoji-trigger {
-		font-size: var(--fs-md);
+		font-size: var(--fs-base);
 		line-height: var(--lh-none);
 	}
 	.picker {

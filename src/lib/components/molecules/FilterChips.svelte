@@ -373,7 +373,7 @@
 		background: var(--surface-fill-2);
 		color: var(--text-muted);
 		font-size: var(--control-fs-sm);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		line-height: var(--lh-none);
 		white-space: nowrap;
 		text-decoration: none;

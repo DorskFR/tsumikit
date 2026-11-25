@@ -402,7 +402,7 @@
 		background: transparent;
 		color: var(--text-muted);
 		font-size: var(--control-fs-md);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		line-height: var(--lh-none);
 		white-space: nowrap;
 		text-decoration: none;
@@ -598,8 +598,8 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		min-width: var(--sp-5);
-		padding: 0 var(--sp-1-5);
+		min-width: var(--chip-sm);
+		padding: 0 var(--sp-1);
 		border-radius: var(--r-pill);
 		background: var(--bg-elevated-2);
 		color: var(--text-muted);

@@ -30,8 +30,8 @@ test('ConfirmModal prop surface', () => {
 test('ConfirmModal drives Modal open/tone/busy and maps tone onto the confirm Button', () => {
 	assert.match(source, /<Modal\s+bind:open\s+{title}\s+tone={modalTone}\s+busy={working}/s);
 	assert.match(source, /const working = \$derived\(busy \|\| pending\);/);
-	assert.match(source, /variant={t === 'danger' \? 'danger' : 'primary'}/);
-	assert.match(source, /tone={t === 'warn' \|\| t === 'ok' \|\| t === 'info' \? t : 'none'}/);
+	assert.match(source, /variant="primary"/);
+	assert.match(source, /tone={t === 'warn' \|\| t === 'ok' \|\| t === 'info' \|\| t === 'danger' \? t : 'none'}/);
 	assert.match(source, /loading={working}/);
 	assert.match(source, /<Button onclick={cancel} disabled={working}>{cancelLabel}<\/Button>/);
 });
@@ -51,4 +51,12 @@ test('Button accepts tone="danger" as an alias of variant="danger"', () => {
 
 test('ConfirmModal is exported', () => {
 	assert.match(index, /export { default as ConfirmModal } from '\.\/components\/molecules\/ConfirmModal\.svelte';/);
+});
+
+test('a danger primary Button is filled with --danger and inked with --text-on-danger, at rest and on hover', async () => {
+	const tokens = await readFile(new URL('../src/lib/styles/tokens.css', import.meta.url), 'utf8');
+	assert.match(tokens, /--text-on-danger: var\(--bg\);/);
+	assert.match(button, /\.btn-primary\.btn-tone-danger {\s*background: var\(--danger\);\s*border-color: var\(--danger\);\s*color: var\(--text-on-danger\);/);
+	assert.match(button, /\.btn-primary\.btn-tone-danger:hover:not\(:disabled\) {\s*background: var\(--danger\);\s*border-color: var\(--danger\);/);
+	assert.doesNotMatch(button, /color-mix\(in srgb, var\(--danger\) 35%, var\(--accent\)\)/);
 });
