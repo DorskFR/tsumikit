@@ -48,7 +48,7 @@ async function measure({ coarse }) {
 			flushSync();
 		});
 		return await page.evaluate(
-			([targets, reach]) => {
+			(/** @type {[Record<string, string>, number]} */ [targets, reach]) => {
 				/** @type {Record<string, { h: number, top: boolean, bottom: boolean, coarse: boolean }>} */
 				const out = {};
 				for (const [name, sel] of Object.entries(targets)) {

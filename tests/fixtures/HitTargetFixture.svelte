@@ -10,11 +10,11 @@
 <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 48px; padding: 48px">
 	<IconButton id="inline" inline label="Close" icon="x" size={14} />
 	<Button id="link" variant="link">Details</Button>
-	<Popover bare id="bare">
+	<Popover bare id="bare" label="More">
 		{#snippet trigger()}⋯{/snippet}
 		<p>panel</p>
 	</Popover>
 	<Badge id="badge" size="sm" removable onremove={() => {}}>tag</Badge>
 	<Switch id="switch" size="sm" label="Notify" />
-	<Checkbox id="checkbox" />
+	<Checkbox id="checkbox" label="Pin" />
 </div>
