@@ -15,6 +15,8 @@ const { palettes: all } = palettes(tokens, themes);
 /** Accent must sit this far (OKLab ΔE) from every status colour so "do this" never reads as "this succeeded". */
 const MIN_DELTA_E = 0.08;
 const STATUS = ['green', 'amber', 'red'];
+/** And this far in OKLCH hue from green, so the accent never reads as "working" or "online". */
+const MIN_HUE_FROM_GREEN = 30;
 
 /** @param {string} hex */
 const oklab = (hex) => {
@@ -39,6 +41,12 @@ for (const [id, own] of Object.entries(all)) {
 			const d = deltaE(p.accent, p[tone]);
 			assert.ok(d >= MIN_DELTA_E, `accent ${p.accent} vs ${tone} ${p[tone]}: ΔE ${d.toFixed(3)} < ${MIN_DELTA_E}`);
 		}
+	});
+
+	test(`${id}: accent hue sits at least ${MIN_HUE_FROM_GREEN}° from green`, () => {
+		const d = Math.abs(oklch(p.accent)[2] - oklch(p.green)[2]) % 360;
+		const deg = Math.min(d, 360 - d);
+		assert.ok(deg >= MIN_HUE_FROM_GREEN, `accent ${p.accent} vs green ${p.green}: ${deg.toFixed(1)}°`);
 	});
 
 	test(`${id}: accent ink stays readable on the accent fill`, () => {
