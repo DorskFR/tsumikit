@@ -8329,9 +8329,10 @@
 		"props": [
 			{
 				"name": "variant",
-				"type": "'default' | 'primary' | 'danger'",
+				"type": "'default' | 'primary' | 'ghost' | 'danger'",
 				"optional": true,
-				"default": "'default'"
+				"default": "'default'",
+				"description": "`ghost` keeps an idle action quiet (no fill, no edge) until it becomes the primary."
 			},
 			{
 				"name": "size",

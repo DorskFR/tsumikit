@@ -649,10 +649,12 @@ panel props (`tag`, `panelClass`, `panelStyle`, `gap`, `open`, `onopen`,
 (`title`, `aria-describedby`, `data-*` — a disabled-with-reason tooltip), while
 rest props stay on the root box; the props SplitButton owns are applied after it,
 so the fused chrome cannot be clobbered.
-`variant` (default | primary | danger), `size` and `control` apply to both
+`variant` (default | primary | ghost | danger), `size` and `control` apply to both
 segments and match `Button` heights; `disabled` turns off the whole control,
 `menuDisabled` only the caret. `caret="half"` narrows the caret to half the
-control height so it reads as secondary. ArrowDown on the primary opens the menu.
+control height so it reads as secondary. `ghost` drops the fill and the
+divider, for an action that is idle until its input has content (switch it to
+`primary` then). ArrowDown on the primary opens the menu.
 
 ```svelte
 <SplitButton variant="primary" label="Send options" {items} onclick={send}>Send</SplitButton>

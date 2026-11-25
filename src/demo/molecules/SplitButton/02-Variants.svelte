@@ -19,6 +19,7 @@
 <Cluster align="center">
 	<SplitButton label="Export formats" items={formats} onclick={() => toasts.show('Exported CSV')}>Export</SplitButton>
 	<SplitButton variant="primary" label="Export formats" items={formats} onclick={() => toasts.ok('Exported')}>Export</SplitButton>
+	<SplitButton variant="ghost" label="Send options" items={formats} onclick={() => toasts.ok('Sent')}>Send</SplitButton>
 	<SplitButton variant="danger" label="Delete options" items={formats} onclick={() => toasts.error('Deleted')}>Delete</SplitButton>
 </Cluster>
 <Cluster align="center">

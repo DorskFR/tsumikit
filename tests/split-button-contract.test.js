@@ -247,6 +247,10 @@ test('the variant reaches both segments', () => {
 	assert.ok(danger.primary.classList.contains('btn-danger'));
 	assert.ok(danger.caret.classList.contains('trigger-danger'));
 	assert.ok(!danger.root.classList.contains('split-primary'));
+	const ghost = render({ variant: 'ghost' });
+	assert.ok(ghost.primary.classList.contains('btn-ghost'));
+	assert.ok(ghost.caret.classList.contains('trigger-ghost'));
+	assert.ok(!ghost.root.classList.contains('split-primary'));
 	const sm = render({ size: 'sm' });
 	assert.ok(sm.primary.classList.contains('btn-sm'));
 	assert.ok(sm.caret.classList.contains('trigger-sm'));
