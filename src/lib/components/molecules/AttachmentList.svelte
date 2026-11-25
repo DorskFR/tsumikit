@@ -247,7 +247,7 @@
 		overflow-wrap: anywhere;
 	}
 	.chip :global(.action) {
-		font-size: var(--fs-md);
+		font-size: var(--fs-base);
 	}
 	.chip :global(.clip) {
 		display: inline-flex;
@@ -308,7 +308,7 @@
 	}
 	.num {
 		flex: none;
-		font-size: var(--fs-2xs);
+		font-size: var(--fs-xs);
 		font-weight: var(--fw-semibold);
 		line-height: var(--lh-none);
 		color: var(--text-muted);

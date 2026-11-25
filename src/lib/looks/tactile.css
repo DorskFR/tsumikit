@@ -862,7 +862,7 @@
   height: 1.75rem;
   min-height: 0;
   border-radius: var(--r-pill);
-  font-size: var(--fs-md);
+  font-size: var(--fs-base);
   color: var(--text-muted);
   background: color-mix(in oklab, var(--text-muted) 22%, transparent);
 }

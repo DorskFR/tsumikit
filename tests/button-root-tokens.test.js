@@ -49,7 +49,7 @@ test('Button size="xl" is one step above lg, from existing tokens', () => {
 	assert.match(button, /class:btn-xl={size === 'xl'}/);
 	assert.ok(hasDecl(button, '.btn-xl', 'min-height', 'calc(var(--control-height-large) + var(--sp-2))'));
 	assert.ok(hasDecl(button, '.btn-xl', 'padding', 'var(--sp-4) var(--sp-6)'));
-	assert.ok(hasDecl(button, '.btn-xl', 'font-size', 'var(--fs-md)'));
+	assert.ok(hasDecl(button, '.btn-xl', 'font-size', 'var(--fs-lg)'));
 	assert.ok(hasDecl(button, '.btn-xl :global(.icon)', 'font-size', 'var(--icon-xl)'));
 	assert.ok(hasDecl(button, '.btn-square.btn-xl', 'width', 'calc(var(--control-height-large) + var(--sp-2))'));
 	assert.match(variants, /<Button size="xl">/);

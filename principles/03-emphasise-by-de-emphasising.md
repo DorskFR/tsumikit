@@ -23,7 +23,7 @@ Source: https://www.refactoringui.com/
 
 - Text colour levels: `--text` for values, `--text-muted` for labels (>= 4.5:1), `--text-faint` for placeholder and disabled text only (~3:1).
 - `Heading` for titles; `Text` with `tone="muted"` for labels and `variant="caption"` for small supporting copy.
-- Weight tokens `--fw-normal`, `--fw-semibold`, `--fw-bold` (`--fw-medium` is a deprecated alias of semibold); size tokens `--fs-xs` to `--fs-3xl`.
+- Weight tokens `--fw-normal`, `--fw-semibold`, `--fw-bold` (`--fw-medium` is a deprecated alias of semibold); size tokens `--fs-xs` to `--fs-2xl`.
 - `KeyValue`, `Metric`, `StatTile` already encode the title / value / label structure.
 
 ## Check

@@ -133,17 +133,18 @@
 	   ballooning UI. Default 1 = no scaling. */
   --fs-scale: 1;
 
-  /* Type scale. 2xs is the floor (never go below 11px). 13 / 15 / 16 are
-	   "UI small / UI / body": no more steps between them. */
-  --fs-2xs: calc(0.6875rem * var(--fs-scale)); /* 11 */
+  /* Type scale: 12 / 13 / 15 / 18 / 22 / 28. 13 and 15 are "UI small / UI",
+	   15 is also body. 2xs, md and 3xl are deprecated aliases of the nearest
+	   kept step. */
   --fs-xs: calc(0.75rem * var(--fs-scale)); /* 12 */
   --fs-sm: calc(0.8125rem * var(--fs-scale)); /* 13 */
   --fs-base: calc(0.9375rem * var(--fs-scale)); /* 15 */
-  --fs-md: calc(1rem * var(--fs-scale)); /* 16 */
   --fs-lg: calc(1.125rem * var(--fs-scale)); /* 18 */
   --fs-xl: calc(1.375rem * var(--fs-scale)); /* 22 */
   --fs-2xl: calc(1.75rem * var(--fs-scale)); /* 28 */
-  --fs-3xl: calc(2.25rem * var(--fs-scale)); /* 36 */
+  --fs-2xs: var(--fs-xs);
+  --fs-md: var(--fs-base);
+  --fs-3xl: var(--fs-2xl);
 
   /* 400 and 600 for body and controls, 700 for titles. --fw-medium is
      deprecated and resolves to 600. */
@@ -343,6 +344,23 @@
     --control-height-default: var(--touch-target);
     --box-md: var(--touch-target);
     --touch-target-compact: var(--touch-target);
+  }
+}
+
+/* A scaled step lands on whole pixels; without round() it keeps the exact calc. */
+@supports (width: round(1.5px, 1px)) {
+  :root {
+    --fs-xs: round(calc(0.75rem * var(--fs-scale)), 1px);
+    --fs-sm: round(calc(0.8125rem * var(--fs-scale)), 1px);
+    --fs-base: round(calc(0.9375rem * var(--fs-scale)), 1px);
+    --fs-lg: round(calc(1.125rem * var(--fs-scale)), 1px);
+    --fs-xl: round(calc(1.375rem * var(--fs-scale)), 1px);
+    --fs-2xl: round(calc(1.75rem * var(--fs-scale)), 1px);
+    --icon-xs: round(calc(0.75rem * var(--fs-scale)), 1px);
+    --icon-sm: round(calc(0.875rem * var(--fs-scale)), 1px);
+    --icon-md: round(calc(1rem * var(--fs-scale)), 1px);
+    --icon-lg: round(calc(1.25rem * var(--fs-scale)), 1px);
+    --icon-xl: round(calc(1.5rem * var(--fs-scale)), 1px);
   }
 }
 

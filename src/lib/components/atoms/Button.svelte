@@ -406,7 +406,7 @@
 	.btn-xl {
 		min-height: calc(var(--control-height-large) + var(--sp-2));
 		padding: var(--sp-4) var(--sp-6);
-		font-size: var(--fs-md);
+		font-size: var(--fs-lg);
 	}
 	.btn-xl :global(.icon) {
 		font-size: var(--icon-xl);
@@ -803,7 +803,7 @@
 		font-size: var(--fs-lg);
 	}
 	.btn-stacked.btn-sm .btn-glyph {
-		font-size: var(--fs-md);
+		font-size: var(--fs-base);
 	}
 	.btn-stacked.btn-lg .btn-glyph,
 	.btn-stacked.btn-xl .btn-glyph {

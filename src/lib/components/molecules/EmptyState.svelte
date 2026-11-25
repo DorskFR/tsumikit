@@ -173,7 +173,7 @@
 	}
 	.empty-title {
 		margin: 0;
-		font-size: var(--fs-md);
+		font-size: var(--fs-base);
 		font-weight: var(--fw-semibold);
 		color: var(--text);
 		line-height: var(--lh-snug);

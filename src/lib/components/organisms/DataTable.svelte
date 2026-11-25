@@ -921,7 +921,7 @@
 		min-width: min(100%, 12rem);
 		order: -2;
 		font-weight: var(--fw-semibold);
-		font-size: var(--fs-md);
+		font-size: var(--fs-base);
 		color: var(--text);
 	}
 	[data-stacked] td[data-role='detail']::before {

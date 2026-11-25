@@ -51,9 +51,10 @@ for (const [name, src] of [
 	});
 
 	test(`${name} noscale pins each size to its px value after the scaled rules`, () => {
-		const px = { xs: 12, sm: 13, md: 16, lg: 18, xl: 22, '2xl': 28, ...(name === 'Text' ? { base: 15 } : {}) };
+		const px = { xs: 12, sm: 13, md: 15, lg: 18, xl: 22, '2xl': 28, ...(name === 'Text' ? { base: 15 } : {}) };
 		for (const [size, value] of Object.entries(px)) {
-			const scaled = src.search(new RegExp(`\\.fs-${size}\\s*{\\s*font-size: var\\(--fs-${size}\\)`));
+			const token = size === 'md' ? 'base' : size;
+			const scaled = src.search(new RegExp(`\\.fs-${size}\\s*{\\s*font-size: var\\(--fs-${token}\\)`));
 			const pinned = src.search(new RegExp(`\\.noscale\\.fs-${size}\\s*{\\s*font-size: ${value}px`));
 			assert.ok(scaled >= 0 && pinned > scaled, `${name} .noscale.fs-${size}`);
 		}

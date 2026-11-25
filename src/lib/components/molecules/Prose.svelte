@@ -67,7 +67,7 @@
 		font-size: var(--fs-lg);
 	}
 	.prose :global(h3) {
-		font-size: var(--fs-md);
+		font-size: var(--fs-base);
 	}
 	.prose :global(h4) {
 		font-size: var(--fs-base);

@@ -57,7 +57,7 @@
 		place-items: center;
 		height: var(--chip-md);
 		border-radius: var(--r-sm);
-		font-size: var(--fs-2xs);
+		font-size: var(--fs-xs);
 		font-weight: var(--fw-semibold);
 		color: var(--c-bg);
 	}

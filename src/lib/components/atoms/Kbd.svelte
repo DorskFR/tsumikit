@@ -124,7 +124,7 @@
 		white-space: nowrap;
 	}
 	.kbd-sep {
-		font-size: var(--fs-2xs);
+		font-size: var(--fs-xs);
 		color: var(--text-faint);
 	}
 </style>

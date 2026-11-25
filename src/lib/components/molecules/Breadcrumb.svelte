@@ -92,7 +92,7 @@
 		font-size: var(--fs-sm);
 	}
 	.crumbs--md {
-		font-size: var(--fs-md);
+		font-size: var(--fs-base);
 	}
 	.crumbs--nowrap {
 		flex-wrap: nowrap;

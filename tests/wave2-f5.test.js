@@ -299,7 +299,7 @@ test('focus rings, disabled opacity and type scale read the shared tokens', () =
 		assert.doesNotMatch(style, /font-weight: \d{3}/, name);
 	}
 	assert.ok(hasDecl(css(files.Gauge), '.corner', 'font-size', 'var(--fs-xs)'));
-	assert.ok(hasDecl(css(files.Metric), '.metric-chip', 'font-size', 'var(--fs-md)'));
+	assert.ok(hasDecl(css(files.Metric), '.metric-chip', 'font-size', 'var(--fs-base)'));
 	assert.match(files.ResizablePanel, /<Icon name={toggleIcon} \/>/);
 	assert.ok(hasDecl(css(files.ResizablePanel), '.collapse-control', 'font-size', 'var(--icon-sm)'));
 });
