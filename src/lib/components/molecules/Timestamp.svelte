@@ -189,22 +189,18 @@
 	.ts-invalid {
 		color: var(--text-muted);
 	}
-	/* The popover trigger is a plain inline run of text that hints it's clickable
-	   — no button chrome (we pass `bare`), just an underline on hover/focus. */
 	.ts-trigger {
 		cursor: pointer;
 		border-radius: var(--r-sm);
-		text-decoration-line: underline;
 		text-decoration-style: dotted;
 		text-underline-offset: 2px;
-		text-decoration-color: var(--border-strong);
 	}
 	.ts-trigger:focus-visible {
-		text-decoration-color: currentColor;
+		text-decoration-line: underline;
 	}
 	@media (hover: hover) and (pointer: fine) {
 		.ts-trigger:hover {
-			text-decoration-color: currentColor;
+			text-decoration-line: underline;
 		}
 		.ts-mode:hover {
 			background: var(--bg-elevated-2);
