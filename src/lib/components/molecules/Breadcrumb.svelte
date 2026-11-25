@@ -135,7 +135,7 @@
 	}
 	.current {
 		color: var(--text);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		white-space: nowrap;
 		overflow: hidden;
 		text-overflow: ellipsis;

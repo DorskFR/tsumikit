@@ -313,7 +313,7 @@
 		color: var(--text-muted);
 		font: inherit;
 		font-size: var(--fs-sm);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		text-decoration: none;
 		cursor: pointer;
 		transition:

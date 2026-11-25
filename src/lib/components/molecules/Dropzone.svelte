@@ -252,7 +252,7 @@
 	}
 
 	.dz-label {
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		font-size: var(--fs-sm);
 	}
 	.dz-hint {

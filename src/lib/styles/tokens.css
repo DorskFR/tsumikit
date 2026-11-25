@@ -21,7 +21,7 @@
   --c-border: #2c323d;
   --c-border-strong: #757d8b;
   --c-text: #e6e9ef;
-  --c-text-muted: #9aa3b2;
+  --c-text-muted: #939caa;
   --c-text-faint: #747e8e;
 
   --c-accent: #4cc3f0;
@@ -145,9 +145,11 @@
   --fs-2xl: calc(1.75rem * var(--fs-scale)); /* 28 */
   --fs-3xl: calc(2.25rem * var(--fs-scale)); /* 36 */
 
+  /* 400 and 600 for body and controls, 700 for titles. --fw-medium is
+     deprecated and resolves to 600. */
   --fw-normal: 400;
-  --fw-medium: 500;
   --fw-semibold: 600;
+  --fw-medium: var(--fw-semibold);
   --fw-bold: 700;
 
   /* Leading paired to the scale: none = single-line controls and glyphs,

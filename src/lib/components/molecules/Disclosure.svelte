@@ -141,7 +141,7 @@
 		background: none;
 		color: inherit;
 		font: inherit;
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		font-size: var(--fs-sm);
 		text-align: start;
 		cursor: pointer;

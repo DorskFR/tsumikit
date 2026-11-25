@@ -122,7 +122,7 @@
 		background: var(--btn-fill);
 		box-shadow: var(--btn-shadow);
 		color: var(--text);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		font-size: var(--control-fs-md);
 		line-height: var(--lh-none);
 		max-width: 100%;

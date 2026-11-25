@@ -138,7 +138,7 @@
 		justify-content: center;
 		gap: var(--sp-2);
 		color: var(--text-muted);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 	}
 	.opt.block {
 		width: 100%;

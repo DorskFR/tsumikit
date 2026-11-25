@@ -206,7 +206,7 @@
 		color: var(--accent);
 		font: inherit;
 		font-size: var(--fs-sm);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		cursor: pointer;
 		flex-shrink: 0;
 	}

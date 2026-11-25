@@ -66,7 +66,7 @@ test('Text gets block and the eyebrow preset', () => {
 	assert.match(text, /variant\?: 'body' \| 'label' \| 'caption' \| 'code' \| 'eyebrow'/);
 	assert.match(
 		text,
-		/\.v-eyebrow\s*{\s*font-size: var\(--fs-xs\);\s*color: var\(--text-muted\);\s*font-weight: var\(--fw-medium\);\s*text-transform: uppercase;\s*letter-spacing: 0\.04em;/
+		/\.v-eyebrow\s*{\s*font-size: var\(--fs-xs\);\s*color: var\(--text-muted\);\s*font-weight: var\(--fw-semibold\);\s*text-transform: uppercase;\s*letter-spacing: 0\.04em;/
 	);
 });
 

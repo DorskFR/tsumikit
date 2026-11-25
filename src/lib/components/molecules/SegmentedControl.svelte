@@ -402,7 +402,7 @@
 		background: transparent;
 		color: var(--text-muted);
 		font-size: var(--control-fs-md);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		line-height: var(--lh-none);
 		white-space: nowrap;
 		text-decoration: none;

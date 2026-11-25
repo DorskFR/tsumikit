@@ -204,7 +204,7 @@
 		padding: 0 var(--sp-2);
 		border-radius: var(--r-pill);
 		font-size: var(--fs-xs);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		line-height: var(--lh-snug);
 		background: var(--bg-elevated-2);
 		color: var(--text-muted);

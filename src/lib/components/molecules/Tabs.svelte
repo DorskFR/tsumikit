@@ -401,7 +401,7 @@
 		color: var(--text-muted);
 		text-decoration: none;
 		font-size: var(--control-fs-md);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		border-bottom: 2px solid transparent;
 		margin-bottom: calc(-1 * var(--edge-width));
 		transition:

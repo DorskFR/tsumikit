@@ -176,7 +176,7 @@
 		justify-content: flex-start;
 		gap: var(--sp-2);
 		width: 100%;
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 	}
 	.sb-glyph {
 		display: inline-flex;

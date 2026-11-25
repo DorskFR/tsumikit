@@ -47,7 +47,7 @@
 	}
 	th {
 		font-size: var(--fs-xs);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		color: var(--text-muted);
 	}
 </style>

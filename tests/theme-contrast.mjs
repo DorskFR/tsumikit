@@ -75,6 +75,8 @@ export const TEXT_FLOOR = 4.5;
 export const FAINT_FLOOR = 3;
 /** text-muted must be at least this many times more contrasting than text-faint on --bg. */
 export const MUTED_OVER_FAINT = 1.35;
+/** text must be at least this many times more contrasting than text-muted on --bg, so secondary text reads as secondary. */
+export const TEXT_OVER_MUTED = 1.5;
 
 /**
  * Minimum contrast against every SURFACES entry (WCAG 1.4.3 text, 1.4.11 control boundaries).
@@ -83,7 +85,7 @@ export const MUTED_OVER_FAINT = 1.35;
  */
 export const FLOORS = {
 	text: 7,
-	'text-muted': 5.5,
+	'text-muted': TEXT_FLOOR,
 	'text-faint': FAINT_FLOOR,
 	accent: 4.5,
 	blue: 4.5,
@@ -184,7 +186,8 @@ export const breaches = (p, margin = 0) => {
 	}
 	check('blue/md-code-bg', p.blue, p['md-code-bg'], FLOORS.blue);
 	check('accent-ink/accent', p['accent-ink'], p.accent, INK_FLOOR);
-	const [m, f] = [contrast(p['text-muted'], p.bg), contrast(p['text-faint'], p.bg)];
+	const [t, m, f] = ['text', 'text-muted', 'text-faint'].map((k) => contrast(p[k], p.bg));
+	if (t / m < TEXT_OVER_MUTED) out.push(`text/text-muted=${(t / m).toFixed(2)}<${TEXT_OVER_MUTED}`);
 	if (m / f < MUTED_OVER_FAINT) out.push(`text-muted/text-faint=${(m / f).toFixed(2)}<${MUTED_OVER_FAINT}`);
 	return out;
 };

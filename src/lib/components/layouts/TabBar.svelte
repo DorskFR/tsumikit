@@ -183,7 +183,7 @@
 		color: var(--text-muted);
 		font: inherit;
 		font-size: var(--fs-xs);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		text-decoration: none;
 		cursor: pointer;
 		-webkit-tap-highlight-color: transparent;

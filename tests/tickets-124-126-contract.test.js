@@ -19,7 +19,7 @@ const [badge, popover, menu, fontScale, themePicker, readme, showcase] = await P
 test('Badge sets its type from the root scale on the base chip', () => {
 	const base = rule(badge, '.badge');
 	assert.equal(base['font-size'], 'var(--fs-xs)');
-	assert.equal(base['font-weight'], 'var(--fw-medium)');
+	assert.equal(base['font-weight'], 'var(--fw-semibold)');
 });
 
 test('Badge sm/xs keep the xs type step', () => {

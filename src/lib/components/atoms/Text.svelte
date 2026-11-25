@@ -106,7 +106,7 @@
 	}
 	.v-label {
 		font-size: var(--fs-sm);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		color: var(--text-muted);
 	}
 	.v-caption {
@@ -120,7 +120,7 @@
 	.v-eyebrow {
 		font-size: var(--fs-xs);
 		color: var(--text-muted);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		text-transform: uppercase;
 		letter-spacing: 0.04em;
 	}
@@ -157,7 +157,7 @@
 		font-weight: var(--fw-normal);
 	}
 	.fw-medium {
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 	}
 	.fw-semibold {
 		font-weight: var(--fw-semibold);

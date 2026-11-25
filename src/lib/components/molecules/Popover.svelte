@@ -473,7 +473,7 @@
 		border-color: var(--btn-edge);
 		background: var(--btn-fill);
 		box-shadow: var(--btn-shadow);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		font-size: var(--control-fs-md);
 		line-height: var(--lh-none);
 		user-select: none;

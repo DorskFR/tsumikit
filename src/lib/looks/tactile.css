@@ -576,7 +576,7 @@
   font-weight: var(--fw-semibold);
 }
 :root[data-look="tactile"] .tab .badge:not(.text) {
-  font-weight: var(--fw-medium);
+  font-weight: var(--fw-semibold);
 }
 :root[data-look="tactile"] .badge:not(.text, .role-pill) {
   color: color-mix(in oklab, var(--text-muted) 60%, var(--text));

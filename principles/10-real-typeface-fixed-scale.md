@@ -24,7 +24,7 @@ Sources: https://practicaltypography.com/summary-of-key-rules.html , https://www
 
 - Inter bundled via `styles/font.css`; `--font-sans` is the default stack, `--font-mono` for code.
 - Type scale `--fs-2xs` (11) through `--fs-3xl` (36), scaled by `--fs-scale` (see `FontScalePicker`).
-- Weights `--fw-normal`, `--fw-medium`, `--fw-semibold`, `--fw-bold`; line heights `--lh-heading`, `--lh-normal`.
+- Weights `--fw-normal` (400) and `--fw-semibold` (600) for body and controls, `--fw-bold` (700) for titles; `--fw-medium` is deprecated and resolves to 600; line heights `--lh-heading`, `--lh-normal`.
 - `Heading` and `Text` cover titles, body, labels, captions and eyebrows.
 - Lint rule `no-raw-font` flags font-family or font-size literals in app styles.
 

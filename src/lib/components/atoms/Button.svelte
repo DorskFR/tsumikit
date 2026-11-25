@@ -302,7 +302,7 @@
 		background: var(--btn-fill);
 		box-shadow: var(--btn-shadow);
 		color: var(--text);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		font-size: var(--control-fs-md);
 		line-height: var(--lh-none);
 		transition:
@@ -482,7 +482,7 @@
 		border-radius: var(--r-md);
 		background: var(--btn-fill);
 		color: var(--text);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-semibold);
 		font-size: var(--control-fs-md);
 		line-height: var(--lh-none);
 		white-space: normal;
@@ -834,7 +834,7 @@
 		left: var(--sp-1);
 		font-family: var(--font-label);
 		font-size: calc(var(--fs-xs) * 0.75);
-		font-weight: var(--fw-medium);
+		font-weight: var(--fw-normal);
 		color: var(--text-faint);
 		line-height: var(--lh-none);
 		pointer-events: none;
