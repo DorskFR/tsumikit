@@ -49,7 +49,7 @@ const expected = {
 	'--control-icon-lg': 'var(--icon-lg)',
 	'--btn-px-sm': 'var(--sp-3)',
 	'--btn-px-md': 'var(--sp-4)',
-	'--btn-px-lg': 'var(--sp-5)',
+	'--btn-px-lg': 'var(--sp-6)',
 	'--chip-xs': '1rem',
 	'--chip-sm': '1.25rem',
 	'--chip-md': '1.5rem',

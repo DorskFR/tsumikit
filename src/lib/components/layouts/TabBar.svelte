@@ -225,7 +225,7 @@
 		top: -0.4rem;
 		left: calc(100% - 2px);
 		max-width: none;
-		padding-inline: var(--sp-1-5);
+		padding-inline: var(--sp-1);
 		font-size: var(--fs-xs);
 	}
 </style>

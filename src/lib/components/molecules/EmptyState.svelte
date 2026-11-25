@@ -107,7 +107,7 @@
 		justify-content: center;
 		text-align: center;
 		gap: var(--sp-3);
-		padding: var(--sp-8) var(--sp-5);
+		padding: var(--sp-8) var(--sp-6);
 	}
 	.empty-compact {
 		gap: var(--sp-2);

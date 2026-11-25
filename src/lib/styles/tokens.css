@@ -162,7 +162,10 @@
   --lh-snug: 1.375;
   --lh-normal: 1.5;
 
-  /* ---- Spacing (4px base) ---- */
+  /* ---- Spacing (4px base) ----
+     --sp-0-5 is for hairline adjustments only. --sp-1-5 and --sp-5 are
+     deprecated (off the 4/8/12/16/24/32 scale); use --sp-1/--sp-2 and
+     --sp-4/--sp-6. */
   --sp-0: 0;
   --sp-px: 1px;
   --sp-0-5: 0.125rem;
@@ -216,7 +219,7 @@
   --control-icon-lg: var(--icon-lg);
   --btn-px-sm: var(--sp-3);
   --btn-px-md: var(--sp-4);
-  --btn-px-lg: var(--sp-5);
+  --btn-px-lg: var(--sp-6);
   /* Chip-class heights (Badge, Switch track, Checkbox box) on the 4px grid. */
   --chip-xs: 1rem;
   --chip-sm: 1.25rem;

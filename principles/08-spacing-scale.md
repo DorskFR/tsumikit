@@ -21,7 +21,7 @@ Source: https://www.refactoringui.com/
 
 ## In tsumikit
 
-- Spacing tokens `--sp-1` (4px) through `--sp-12` (48px), with `--sp-0-5` and `--sp-1-5` for hairline cases.
+- Spacing tokens `--sp-1` (4px) through `--sp-12` (48px), with `--sp-0-5` (2px) for hairline adjustments only. `--sp-1-5` (6px) and `--sp-5` (20px) are deprecated: they still resolve, but sit off the scale.
 - Layouts `Stack`, `Cluster`, `AutoGrid`, `Container` take gaps from the scale; `--content-max` caps reading width.
 - Lint rule `spacing-scale` flags raw pixel spacing in app styles.
 

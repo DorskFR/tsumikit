@@ -222,7 +222,7 @@
 	}
 	.badge-sm {
 		min-height: var(--chip-sm);
-		padding: 0 var(--sp-1-5);
+		padding: 0 var(--sp-1);
 	}
 	.badge-xs {
 		min-height: var(--chip-xs);

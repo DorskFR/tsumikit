@@ -15,7 +15,7 @@
 	<ChatBubble role="assistant"><Thinking variant="sheen" /></ChatBubble>
 	<ChatBubble role="assistant"><Thinking variant="sheen" caret={false}>Searching the changelog</Thinking></ChatBubble>
 </Stack>
-<Cluster align="center" gap="var(--sp-5)">
+<Cluster align="center" gap="var(--sp-6)">
 	<Text tone="muted"><Thinking /></Text>
 	<Text tone="accent"><Thinking /></Text>
 	<Text size="xl"><Thinking /></Text>

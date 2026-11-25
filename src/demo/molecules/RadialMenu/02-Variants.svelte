@@ -47,7 +47,7 @@
 		justify-items: center;
 		gap: var(--sp-2);
 		margin: 0;
-		padding: var(--sp-5) var(--sp-2) var(--sp-2);
+		padding: var(--sp-6) var(--sp-2) var(--sp-2);
 		border: 1px dashed var(--border);
 		border-radius: var(--r-md);
 	}

@@ -1031,7 +1031,7 @@
 }
 :root[data-look="tactile"] .toaster .card.toast {
   border-radius: var(--r-pill);
-  padding-inline: var(--sp-5);
+  padding-inline: var(--sp-6);
   box-shadow: var(--overlay-shadow);
 }
 
