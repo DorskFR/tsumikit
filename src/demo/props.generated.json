@@ -2250,7 +2250,7 @@
 				"type": "Tone | 'primary'",
 				"optional": true,
 				"default": "'primary'",
-				"description": "`primary` is a legacy alias of `accent`."
+				"description": "`primary` is a legacy alias of `accent`. `danger` fills the confirm button with --danger."
 			},
 			{
 				"name": "busy",
