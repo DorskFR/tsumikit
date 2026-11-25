@@ -270,7 +270,12 @@ the segments. `gap` (px or CSS length, default `2`) applies in segments mode, an
 
 `Card` takes `tone="neutral" | "ok" | "warn" | "danger" | "info"` (default
 `neutral`, the plain look) to tint its border and wash its background with the
-semantic hue. `Callout` builds on it for inline messages: leading glyph (auto
+semantic hue. A neutral card has no visible frame: it stands off the page by
+its surface shade (`surface` base / raised / sunken), and its edge stays as a
+transparent 1px box so switching it on never shifts layout. Pass
+`border="solid"` (or `dashed`) for an outlined card, for example one that
+floats over content; `border="none"` drops the edge box. Toned cards keep a
+solid tinted frame unless `border` says otherwise. `Callout` builds on it for inline messages: leading glyph (auto
 per tone, or `icon`), optional `title`, body, right-aligned `actions` snippet,
 `dismissible` + `ondismiss`, and `busy` to show a Spinner while work runs. It
 is a live region — `role="status"`, or `role="alert"` when `tone="danger"`.
@@ -332,7 +337,7 @@ reports each toggle; `lazy` renders `children` only after the first open),
 badge) · title · `count` · flexible 1px rule · `actions` (sort menu, eye toggle).
 
 `Card` takes `header` / `footer` snippets rendered outside the padded body
-behind a divider, `title` / `subtitle` / `actions` sugar that renders a
+(behind a divider on outlined and toned cards, spacing alone otherwise), `title` / `subtitle` / `actions` sugar that renders a
 `SectionHeader` in the header slot, and `gap` to stack children as a flex
 column. A Card without any of these is a plain padded box.
 

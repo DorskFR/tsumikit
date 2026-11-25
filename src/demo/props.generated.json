@@ -1323,8 +1323,7 @@
 				"name": "border",
 				"type": "'solid' | 'dashed' | 'none'",
 				"optional": true,
-				"default": "'solid'",
-				"description": "Frame border style; `none` drops the frame. Applies to the stacked layers too."
+				"description": "Frame border style; applies to the stacked layers too. Unset, a neutral card has no visible frame (shade only, the edge stays transparent) and a toned card is `solid`. `none` drops the frame box entirely."
 			},
 			{
 				"name": "tone",

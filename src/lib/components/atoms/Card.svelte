@@ -7,8 +7,9 @@
 	// rows); `as` lets it be a button/anchor when the whole surface is clickable.
 	// `padding` dials the inner spacing (none/sm/md/lg) for denser cards.
 	// `tone` tints the surface itself (border + faint background wash) with a
-	// semantic hue for inline banners; `neutral` is the plain card; `attention`
-	// adds a left bar for needs-input rows.
+	// semantic hue for inline banners; `neutral` is the plain card, separated
+	// from the page by shade alone unless `border` asks for a frame;
+	// `attention` adds a left bar for needs-input rows.
 	//
 	// `interactive` makes a non-button/anchor card keyboard-operable
 	// (role=button, tabindex, Enter/Space) and ignores clicks originating from
@@ -42,7 +43,11 @@
 		as?: 'div' | 'button' | 'a' | 'li' | 'section' | 'form';
 		padding?: 'none' | 'sm' | 'md' | 'lg';
 		surface?: 'base' | 'raised' | 'sunken';
-		/** Frame border style; `none` drops the frame. Applies to the stacked layers too. */
+		/**
+		 * Frame border style; applies to the stacked layers too. Unset, a neutral card has no
+		 * visible frame (shade only, the edge stays transparent) and a toned card is `solid`.
+		 * `none` drops the frame box entirely.
+		 */
 		border?: 'solid' | 'dashed' | 'none';
 		tone?: Tone;
 		stacked?: boolean;
@@ -71,7 +76,7 @@
 		type = 'button',
 		padding = 'md',
 		surface = 'base',
-		border = 'solid',
+		border,
 		tone = 'neutral',
 		stacked = false,
 		stackTone = 'neutral',
@@ -92,6 +97,7 @@
 		...rest
 	}: Omit<HTMLAttributes<HTMLElement>, keyof Own> & Own = $props();
 	const t = $derived(canonicalTone(tone));
+	const edge = $derived(border ?? (t === 'neutral' ? 'shade' : 'solid'));
 
 	let stackStyle = $derived(
 		stacked ? `--stack-y:${stackY}px;--stack-x:${stackX}px;` : ''
@@ -170,8 +176,9 @@
 	class:pad-lg={padding === 'lg'}
 	class:surface-raised={surface === 'raised'}
 	class:surface-sunken={surface === 'sunken'}
-	class:border-dashed={border === 'dashed'}
-	class:border-none={border === 'none'}
+	class:border-dashed={edge === 'dashed'}
+	class:border-none={edge === 'none'}
+	class:border-shade={edge === 'shade'}
 	class:card-tap={tap || interactive}
 	class:card-row={row}
 	class:card-max={maxWidth !== undefined}
@@ -258,6 +265,11 @@
 	}
 	.border-none {
 		border-style: none;
+	}
+	.border-shade,
+	.border-shade > .card-head,
+	.border-shade > .card-foot {
+		border-color: transparent;
 	}
 	.pad-none {
 		padding: 0;
@@ -497,6 +509,10 @@
 	.card-stacked.border-none::before,
 	.card-stacked.border-none::after {
 		border-style: none;
+	}
+	.card-stacked.border-shade:not(.stack-ok, .stack-warn, .stack-danger, .stack-info)::before,
+	.card-stacked.border-shade:not(.stack-ok, .stack-warn, .stack-danger, .stack-info)::after {
+		border-color: transparent;
 	}
 	/* Nearest back layer — sits just under the front surface. */
 	.card-stacked::before {

@@ -233,6 +233,7 @@
 		<Card
 			as="div"
 			surface="raised"
+			border="solid"
 			class="toast"
 			{tone}
 			data-leaving={t.leaving || undefined}
@@ -266,6 +267,7 @@
 		<Card
 			as="button"
 			surface="raised"
+			border="solid"
 			class="toast"
 			{tone}
 			type="button"

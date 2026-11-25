@@ -20,6 +20,7 @@
 </Cluster>
 <Cluster align="stretch">
 	{#each surfaces as surface (surface)}<Card {surface} padding="sm"><Text size="sm">surface {surface}</Text></Card>{/each}
+	<Card surface="sunken" padding="sm"><Text size="sm">border unset (shade only)</Text></Card>
 	{#each borders as border (border)}<Card {border} surface="sunken" padding="sm"><Text size="sm">border {border}</Text></Card>{/each}
 </Cluster>
 <Cluster align="stretch">
