@@ -247,6 +247,12 @@
   /* Minimum hit area on coarse pointers (WCAG 2.5.8); px so it never shrinks
 	   under a small root font-size. */
   --touch-target: 44px;
+  /* Minimum hit area on every pointer (WCAG 2.5.8 AA). Small controls carry an
+     absolute ::before/::after at --hit-slab on inset-block and
+     inset-inline-start (same shape as --touch-slab); it only grows a box that
+     is under the target, and coarse pointers raise the target. */
+  --hit-target: 24px;
+  --hit-slab: min(0px, calc((100% - var(--hit-target)) / 2));
   /* Compact controls on coarse pointers: an absolute ::before with inset-block
 	   and inset-inline-start at var(--touch-slab) and inset-inline-end: 0 (no
 	   scrollable overflow sideways). Controls that clip their overflow grow
@@ -347,6 +353,7 @@
     --control-height-default: var(--touch-target);
     --box-md: var(--touch-target);
     --touch-target-compact: var(--touch-target);
+    --hit-target: var(--touch-target);
   }
 }
 

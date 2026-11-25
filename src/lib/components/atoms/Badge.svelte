@@ -495,6 +495,16 @@
 		outline: var(--focus-ring);
 		outline-offset: var(--focus-ring-offset-inset);
 	}
+	.action {
+		position: relative;
+	}
+	.action::before {
+		content: '';
+		position: absolute;
+		inset-block: var(--hit-slab);
+		inset-inline-start: var(--hit-slab);
+		inset-inline-end: 0;
+	}
 	@media (pointer: coarse) {
 		.action {
 			position: relative;

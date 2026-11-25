@@ -23,6 +23,7 @@ Sources: https://lawsofux.com/fittss-law/ , https://www.w3.org/WAI/WCAG22/quickr
 ## In tsumikit
 
 - `--touch-target` (44px) and `--touch-target-compact` (40px, 44px on coarse pointers); on coarse pointers md controls and boxes are 44px; `--control-height` variants for desktop density.
+- `--hit-target` (24px, `--touch-target` on coarse pointers) and `--hit-slab`: small controls (inline IconButton, link Button, bare Popover/Menu triggers, Badge action, Switch, Toggle, Checkbox) grow an invisible slab up to it without moving layout; `hitArea="compact"` opts out.
 - `IconButton` and `Button` pad to the target size; `TabBar` and `SwipeRow` are built for thumbs.
 - `AppShell` places primary navigation at the bottom on narrow screens.
 

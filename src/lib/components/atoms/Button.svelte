@@ -695,6 +695,34 @@
 		}
 	}
 
+	/* Every pointer: inline icon and link buttons reach --hit-target. */
+	.btn-icon-inline:not(.hit-compact),
+	.btn-link:not(.hit-compact) {
+		position: relative;
+	}
+	.btn-icon-inline:not(.hit-compact)::after {
+		content: '';
+		position: absolute;
+		inset-block: var(--hit-slab);
+		inset-inline-start: var(--hit-slab);
+		inset-inline-end: 0;
+		animation: none;
+		translate: none;
+		rotate: none;
+		scale: none;
+	}
+	.btn-link:not(.hit-compact)::before {
+		content: '';
+		position: absolute;
+		inset-block: var(--hit-slab);
+		inset-inline-start: var(--hit-slab);
+		inset-inline-end: 0;
+		animation: none;
+		translate: none;
+		rotate: none;
+		scale: none;
+	}
+
 	/* Coarse pointers: icon-only and square buttons carry an invisible slab that
 	   extends the hit area towards --touch-target without changing layout. Buttons
 	   already at or above the target keep their own box (inset never positive).
@@ -724,6 +752,10 @@
 			inset-block: min(0px, calc((100% - var(--touch-target)) / 2));
 			inset-inline-start: min(0px, calc((100% - var(--touch-target)) / 2));
 			inset-inline-end: 0;
+			animation: none;
+			translate: none;
+			rotate: none;
+			scale: none;
 		}
 		.btn-sm:not(.btn-icon, .btn-icon-inline, .btn-box, .btn-square, .btn-chip, .btn-stacked, .hit-compact) {
 			position: relative;
@@ -734,6 +766,10 @@
 			inset-block: var(--touch-slab);
 			inset-inline-start: var(--touch-slab);
 			inset-inline-end: 0;
+			animation: none;
+			translate: none;
+			rotate: none;
+			scale: none;
 		}
 		.btn-link:not(.hit-compact) {
 			position: relative;
@@ -744,6 +780,10 @@
 			inset-block: var(--touch-slab);
 			inset-inline-start: var(--touch-slab);
 			inset-inline-end: 0;
+			animation: none;
+			translate: none;
+			rotate: none;
+			scale: none;
 		}
 	}
 
