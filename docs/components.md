@@ -302,7 +302,10 @@ row of buttons.
 `confirmLabel`/`cancelLabel`, `tone="primary" | "danger" | "warn"`, `busy`,
 `onconfirm`, `oncancel`. An async `onconfirm` keeps the dialog busy until it
 settles, closes only on success and shows a rejection's message (`role="alert"`)
-under the body. `Button` accepts `tone="danger"` as an alias of
+under the body. Pass `tone="danger"` for every destructive confirm (delete,
+remove, revoke): the confirm button is then filled with `--danger` (`Button
+variant="primary" tone="danger"`, ink `--text-on-danger`) instead of the accent.
+The kit does not guess the tone from the label. `Button` accepts `tone="danger"` as an alias of
 `variant="danger"` so the tone axis works alone.
 
 ```svelte

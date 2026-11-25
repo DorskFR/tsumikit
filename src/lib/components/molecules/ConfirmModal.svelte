@@ -29,7 +29,7 @@
 		children?: Snippet;
 		confirmLabel?: string;
 		cancelLabel?: string;
-		/** `primary` is a legacy alias of `accent`. */
+		/** `primary` is a legacy alias of `accent`. `danger` fills the confirm button with --danger. */
 		tone?: Tone | 'primary';
 		busy?: boolean;
 		onconfirm: () => void | Promise<void>;
@@ -97,8 +97,8 @@
 	{#snippet footer()}
 		<Button onclick={cancel} disabled={working}>{cancelLabel}</Button>
 		<Button
-			variant={t === 'danger' ? 'danger' : 'primary'}
-			tone={t === 'warn' || t === 'ok' || t === 'info' ? t : 'none'}
+			variant="primary"
+			tone={t === 'warn' || t === 'ok' || t === 'info' || t === 'danger' ? t : 'none'}
 			loading={working}
 			onclick={confirm}
 		>

@@ -74,6 +74,8 @@
   /* Adaptive ink for filled positive actions: dark canvas ink on bright greens,
      light canvas ink on the darker greens used by light themes. */
   --text-on-success: var(--bg);
+  /* Same for filled destructive actions; --c-red clears 4.5:1 on --bg. */
+  --text-on-danger: var(--bg);
 
   --accent: var(--c-accent);
   --accent-dim: var(--c-accent-dim);

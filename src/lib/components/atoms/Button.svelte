@@ -546,10 +546,11 @@
 		border-color: color-mix(in srgb, var(--warn) 35%, var(--accent));
 		color: var(--text-on-accent);
 	}
+	/* A destructive primary action is filled with danger, like success above. */
 	.btn-primary.btn-tone-danger {
-		background: color-mix(in srgb, var(--danger) 35%, var(--accent));
-		border-color: color-mix(in srgb, var(--danger) 35%, var(--accent));
-		color: var(--text-on-accent);
+		background: var(--danger);
+		border-color: var(--danger);
+		color: var(--text-on-danger);
 	}
 
 	.no-shrink {
@@ -1034,8 +1035,8 @@
 			filter: brightness(1.08);
 		}
 		.btn-primary.btn-tone-danger:hover:not(:disabled) {
-			background: color-mix(in srgb, var(--danger) 35%, var(--accent));
-			border-color: color-mix(in srgb, var(--danger) 35%, var(--accent));
+			background: var(--danger);
+			border-color: var(--danger);
 			filter: brightness(1.08);
 		}
 		.btn-link:hover:not(:disabled) {
