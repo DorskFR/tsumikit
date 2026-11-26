@@ -6,13 +6,18 @@ import { rule } from './helpers.mjs';
 const read = (/** @type {string} */ p) => readFile(new URL(`../src/lib/components/molecules/${p}`, import.meta.url), 'utf8');
 const [timestamp, popover] = await Promise.all([read('Timestamp.svelte'), read('Popover.svelte')]);
 
-test('Timestamp details trigger is a bare Popover with plain inline text, underlined only on hover/focus', () => {
+test('Timestamp details trigger is a bare Popover with a dotted-underlined inline <time> at rest', () => {
 	assert.match(timestamp, /<Popover label="{label}, details" placement="bottom-start" bare>/);
 	const t = rule(timestamp, '.ts-trigger');
-	assert.equal(t['text-decoration-line'], undefined, 'no underline at rest');
+	assert.equal(t['text-decoration-line'], 'underline', 'underlined at rest');
 	assert.equal(t['text-decoration-style'], 'dotted');
-	assert.equal(rule(timestamp, '.ts-trigger:focus-visible')['text-decoration-line'], 'underline');
-	assert.equal(rule(timestamp, '.ts-trigger:hover')['text-decoration-line'], 'underline');
+	assert.equal(t['text-underline-offset'], '2px');
+	assert.equal(t['text-decoration-color'], 'var(--border-strong)');
+	for (const sel of ['.ts-trigger:focus-visible', '.ts-trigger:hover']) {
+		const r = rule(timestamp, sel);
+		assert.equal(r['text-decoration-color'], 'currentColor', `${sel} inks the underline`);
+		assert.equal(r['text-decoration-line'], undefined, `${sel} must not toggle the underline`);
+	}
 	for (const prop of ['min-height', 'height', 'padding', 'border']) assert.equal(t[prop], undefined, `${prop} must not be set`);
 });
 

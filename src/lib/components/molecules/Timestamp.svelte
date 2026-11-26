@@ -192,15 +192,17 @@
 	.ts-trigger {
 		cursor: pointer;
 		border-radius: var(--r-sm);
+		text-decoration-line: underline;
 		text-decoration-style: dotted;
 		text-underline-offset: 2px;
+		text-decoration-color: var(--border-strong);
 	}
 	.ts-trigger:focus-visible {
-		text-decoration-line: underline;
+		text-decoration-color: currentColor;
 	}
 	@media (hover: hover) and (pointer: fine) {
 		.ts-trigger:hover {
-			text-decoration-line: underline;
+			text-decoration-color: currentColor;
 		}
 		.ts-mode:hover {
 			background: var(--bg-elevated-2);
