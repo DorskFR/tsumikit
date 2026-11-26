@@ -266,9 +266,7 @@
 	.border-none {
 		border-style: none;
 	}
-	.border-shade,
-	.border-shade > .card-head,
-	.border-shade > .card-foot {
+	.border-shade {
 		border-color: transparent;
 	}
 	.pad-none {
