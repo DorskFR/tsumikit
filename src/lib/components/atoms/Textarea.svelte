@@ -115,7 +115,17 @@
 		const wasBar = node.classList.contains('bar');
 		const prevHeight = node.style.height;
 		const floor = parseFloat(node.style.minHeight) || 0;
+		const prevStart = node.style.paddingInlineStart;
+		const prevEnd = node.style.paddingInlineEnd;
+		const single = inputGroupPadding({
+			size: group.size,
+			leadingW: group.leadingW,
+			trailingW: group.trailingW,
+			bar: false
+		});
 		node.classList.remove('bar');
+		node.style.paddingInlineStart = single.start;
+		node.style.paddingInlineEnd = single.end;
 		node.style.height = 'auto';
 		node.style.minHeight = '';
 		const cs = getComputedStyle(node);
@@ -124,6 +134,8 @@
 		const height = Math.max(content, floor, rowsFloor(node));
 		const oneRow = Math.max(rowsHeight(node, 1), parseFloat(cs.minHeight) || 0);
 		node.style.height = prevHeight;
+		node.style.paddingInlineStart = prevStart;
+		node.style.paddingInlineEnd = prevEnd;
 		if (floor) node.style.minHeight = `${floor}px`;
 		if (wasBar) node.classList.add('bar');
 		group.setBar(height > oneRow + 1);
