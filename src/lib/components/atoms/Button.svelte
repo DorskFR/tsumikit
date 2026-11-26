@@ -1176,72 +1176,72 @@
 		}
 
 		/* smoke: two soft puffs drift up and across the fill */
-		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))::before,
-		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))::after {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))::before,
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))::after {
 			inset: -60% -30%;
 			translate: 0 15%;
 			animation: fx-smoke 7s var(--ease-in-out) infinite alternate;
 		}
-		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))::after {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))::after {
 			translate: 0 -10%;
 			animation: fx-smoke-b 9s var(--ease-in-out) infinite alternate;
 		}
-		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))::before {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))::before {
 			background:
 				radial-gradient(40% 55% at 30% 60%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 70%),
 				radial-gradient(35% 45% at 70% 40%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 70%);
 		}
-		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))::after {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))::after {
 			background:
 				radial-gradient(30% 40% at 55% 70%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 70%),
 				radial-gradient(25% 35% at 20% 30%, color-mix(in srgb, var(--accent) 26%, transparent), transparent 70%);
 		}
-		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-tone-success::before {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-tone-success::before {
 			background:
 				radial-gradient(40% 55% at 30% 60%, color-mix(in srgb, var(--ok) 26%, transparent), transparent 70%),
 				radial-gradient(35% 45% at 70% 40%, color-mix(in srgb, var(--ok) 26%, transparent), transparent 70%);
 		}
-		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-tone-success::after {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-tone-success::after {
 			background:
 				radial-gradient(30% 40% at 55% 70%, color-mix(in srgb, var(--ok) 26%, transparent), transparent 70%),
 				radial-gradient(25% 35% at 20% 30%, color-mix(in srgb, var(--ok) 26%, transparent), transparent 70%);
 		}
-		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-tone-info::before {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-tone-info::before {
 			background:
 				radial-gradient(40% 55% at 30% 60%, color-mix(in srgb, var(--info) 26%, transparent), transparent 70%),
 				radial-gradient(35% 45% at 70% 40%, color-mix(in srgb, var(--info) 26%, transparent), transparent 70%);
 		}
-		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-tone-info::after {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-tone-info::after {
 			background:
 				radial-gradient(30% 40% at 55% 70%, color-mix(in srgb, var(--info) 26%, transparent), transparent 70%),
 				radial-gradient(25% 35% at 20% 30%, color-mix(in srgb, var(--info) 26%, transparent), transparent 70%);
 		}
-		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-tone-warn::before {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-tone-warn::before {
 			background:
 				radial-gradient(40% 55% at 30% 60%, color-mix(in srgb, var(--warn) 26%, transparent), transparent 70%),
 				radial-gradient(35% 45% at 70% 40%, color-mix(in srgb, var(--warn) 26%, transparent), transparent 70%);
 		}
-		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-tone-warn::after {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-tone-warn::after {
 			background:
 				radial-gradient(30% 40% at 55% 70%, color-mix(in srgb, var(--warn) 26%, transparent), transparent 70%),
 				radial-gradient(25% 35% at 20% 30%, color-mix(in srgb, var(--warn) 26%, transparent), transparent 70%);
 		}
-		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)):is(.btn-danger, .btn-tone-danger)::before {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)):is(.btn-danger, .btn-tone-danger)::before {
 			background:
 				radial-gradient(40% 55% at 30% 60%, color-mix(in srgb, var(--danger) 26%, transparent), transparent 70%),
 				radial-gradient(35% 45% at 70% 40%, color-mix(in srgb, var(--danger) 26%, transparent), transparent 70%);
 		}
-		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)):is(.btn-danger, .btn-tone-danger)::after {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)):is(.btn-danger, .btn-tone-danger)::after {
 			background:
 				radial-gradient(30% 40% at 55% 70%, color-mix(in srgb, var(--danger) 26%, transparent), transparent 70%),
 				radial-gradient(25% 35% at 20% 30%, color-mix(in srgb, var(--danger) 26%, transparent), transparent 70%);
 		}
-		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-primary::before {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-primary::before {
 			background:
 				radial-gradient(40% 55% at 30% 60%, color-mix(in srgb, var(--text-on-accent) 16%, transparent), transparent 70%),
 				radial-gradient(35% 45% at 70% 40%, color-mix(in srgb, var(--text-on-accent) 16%, transparent), transparent 70%);
 		}
-		.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-primary::after {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *)).btn-primary::after {
 			background:
 				radial-gradient(30% 40% at 55% 70%, color-mix(in srgb, var(--text-on-accent) 16%, transparent), transparent 70%),
 				radial-gradient(25% 35% at 20% 30%, color-mix(in srgb, var(--text-on-accent) 16%, transparent), transparent 70%);
@@ -1257,18 +1257,18 @@
 		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *)):active:not(:disabled, [aria-disabled='true'], .loading, .btn-link):not(.btn-stacked[aria-pressed='true']) {
 			box-shadow: none;
 		}
-		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *))::before {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *))::before {
 			transform-origin: 50% 100%;
 			animation: fx-ember 2.4s var(--ease-in-out) infinite;
 		}
-		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *))::after {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *))::after {
 			inset: 0 0 -100% 0;
 			animation: fx-sparks 3.2s linear infinite;
 		}
-		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *))::before {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *))::before {
 			background: radial-gradient(70% 90% at 50% 115%, color-mix(in srgb, color-mix(in srgb, var(--warn) 55%, var(--accent)) 55%, transparent), transparent 70%);
 		}
-		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *))::after {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *))::after {
 			background:
 				radial-gradient(circle at 18% 62%, color-mix(in srgb, var(--warn) 55%, var(--accent)) 0 1px, transparent 1.6px),
 				radial-gradient(circle at 36% 88%, color-mix(in srgb, var(--warn) 55%, var(--accent)) 0 1.3px, transparent 1.9px),
@@ -1277,10 +1277,10 @@
 				radial-gradient(circle at 84% 58%, color-mix(in srgb, var(--warn) 55%, var(--accent)) 0 1px, transparent 1.6px),
 				radial-gradient(circle at 92% 80%, color-mix(in srgb, var(--warn) 55%, var(--accent)) 0 0.8px, transparent 1.4px);
 		}
-		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *)).btn-primary::before {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *)).btn-primary::before {
 			background: radial-gradient(70% 90% at 50% 115%, color-mix(in srgb, color-mix(in srgb, var(--warn) 70%, var(--text-on-accent)) 55%, transparent), transparent 70%);
 		}
-		.btn:where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *)).btn-primary::after {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:global([data-fx-hover='ember']) *):where(:not(:global([data-fx-hover='ember'] [data-fx-hover]:not([data-fx-hover='ember'])) *)).btn-primary::after {
 			background:
 				radial-gradient(circle at 18% 62%, color-mix(in srgb, var(--warn) 70%, var(--text-on-accent)) 0 1px, transparent 1.6px),
 				radial-gradient(circle at 36% 88%, color-mix(in srgb, var(--warn) 70%, var(--text-on-accent)) 0 1.3px, transparent 1.9px),
@@ -1291,8 +1291,8 @@
 		}
 
 		/* aurora: accent, info and success flow through the fill in two crossing layers */
-		.btn:where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *))::before,
-		.btn:where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *))::after {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *))::before,
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *))::after {
 			inset: 0 auto 0 0;
 			width: 300%;
 			background-size: 33.3334% 100%;
@@ -1300,21 +1300,21 @@
 			translate: -33.3334% 0;
 			animation: fx-aurora 7s linear infinite;
 		}
-		.btn:where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *))::after {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *))::after {
 			mask-image: radial-gradient(120% 110% at 50% 110%, #000 30%, transparent 100%);
 			translate: -66.6667% 0;
 			animation: fx-aurora-back 11s linear infinite;
 		}
-		.btn:where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *))::before {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *))::before {
 			background-image: linear-gradient(90deg, color-mix(in srgb, var(--accent) 34%, transparent), color-mix(in srgb, var(--info) 30%, transparent), color-mix(in srgb, var(--ok) 30%, transparent), color-mix(in srgb, var(--accent) 34%, transparent));
 		}
-		.btn:where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *))::after {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *))::after {
 			background-image: linear-gradient(90deg, color-mix(in srgb, var(--ok) 30%, transparent), color-mix(in srgb, var(--accent) 34%, transparent), color-mix(in srgb, var(--info) 30%, transparent), color-mix(in srgb, var(--ok) 30%, transparent));
 		}
-		.btn:where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *)).btn-primary::before {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *)).btn-primary::before {
 			background-image: linear-gradient(90deg, color-mix(in srgb, var(--text-on-accent) 18%, transparent), color-mix(in srgb, var(--info) 45%, transparent), color-mix(in srgb, var(--ok) 40%, transparent), color-mix(in srgb, var(--text-on-accent) 18%, transparent));
 		}
-		.btn:where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *)).btn-primary::after {
+		.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:global([data-fx-hover='aurora']) *):where(:not(:global([data-fx-hover='aurora'] [data-fx-hover]:not([data-fx-hover='aurora'])) *)).btn-primary::after {
 			background-image: linear-gradient(90deg, color-mix(in srgb, var(--ok) 40%, transparent), color-mix(in srgb, var(--text-on-accent) 18%, transparent), color-mix(in srgb, var(--info) 45%, transparent), color-mix(in srgb, var(--ok) 40%, transparent));
 		}
 		.btn:not(:hover)::before,
