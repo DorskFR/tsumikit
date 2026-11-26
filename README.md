@@ -1,3 +1,5 @@
+<img src="docs/assets/icon.svg" width="64" height="64" alt="">
+
 # @dorsk/tsumikit
 
 Svelte 5 UI components styled with plain CSS variables: 31 themes, WCAG AA contrast, no runtime dependencies.
