@@ -7537,6 +7537,13 @@
 				"default": "'pill'"
 			},
 			{
+				"name": "shape",
+				"type": "'pill' | 'square'",
+				"optional": true,
+				"default": "'pill'",
+				"description": "`square`: separate small-radius tiles with a neutral ring instead of a filled track."
+			},
+			{
 				"name": "size",
 				"type": "ControlSize",
 				"optional": true

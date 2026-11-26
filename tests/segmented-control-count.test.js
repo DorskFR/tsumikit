@@ -18,5 +18,5 @@ test('string counts render verbatim', () => {
 test('SegmentedControl renders the badge through the formatter', () => {
 	const src = readFileSync('src/lib/components/molecules/SegmentedControl.svelte', 'utf8');
 	assert.match(src, /count\?: number \| string;/);
-	assert.match(src, /<span class="seg-count">\{formatSegmentCount\(o\.count\)\}<\/span>/);
+	assert.match(src, /<span class="seg-count"[^>]*>\{formatSegmentCount\(o\.count\)\}<\/span>/);
 });

@@ -13,6 +13,10 @@
 		disabled?: boolean;
 		/** Render this segment as a real link; overrides the control's `href`. */
 		href?: string;
+		/** Rings the segment in this tone while it is selected. */
+		tone?: import('$lib/tone').Tone;
+		/** Any CSS colour for the selected ring; overrides `tone`. */
+		color?: string;
 	}
 </script>
 
@@ -32,6 +36,7 @@
 	import Icon from '$lib/components/atoms/Icon.svelte';
 	import { playSound } from '$lib/sound';
 	import { isModifiedClick } from '$lib/url-state.svelte';
+	import { canonicalTone } from '$lib/tone';
 	import { formatSegmentCount } from './segmented-control-count.js';
 	import { nextEnabledSegment } from './segmented-control-keyboard.js';
 
@@ -45,6 +50,7 @@
 		// `icon` packs the segments into compact square buttons (label hidden as an
 		// accessible name only); `pill` keeps the labelled filter-pill layout.
 		variant = 'pill',
+		shape = 'pill',
 		size: sizeProp,
 		control = false,
 		box = false,
@@ -72,6 +78,8 @@
 		/** Allow segments to wrap onto multiple lines. */
 		wrap?: boolean;
 		variant?: 'pill' | 'icon';
+		/** `square`: separate small-radius tiles with a neutral ring instead of a filled track. */
+		shape?: 'pill' | 'square';
 		size?: ControlSize;
 		/** Uniform toolbar control height (like Popover/Button `control`) so the
 		 *  whole segmented control height-matches its siblings; follows a sized
@@ -111,6 +119,13 @@
 	const stop = $derived(
 		options.find((o) => o.value === value && !o.disabled) ?? options.find((o) => !o.disabled)
 	);
+	const ring = $derived.by(() => {
+		const o = options.find((x) => x.value === value);
+		if (!o) return undefined;
+		if (o.color) return o.color;
+		const t = o.tone && canonicalTone(o.tone);
+		return t && t !== 'neutral' ? `var(--${t})` : undefined;
+	});
 	const segId = (val: string) => `${baseId}-${val}`;
 	const linkTo = (o: SegmentOption) => (o.disabled ? undefined : (o.href ?? href?.(o.value)));
 
@@ -204,7 +219,7 @@
 	{:else}
 		{#if o.icon}<Icon name={o.icon} />{/if}
 		{#if o.label}<span class="seg-label">{o.label}</span>{/if}
-		{#if o.count !== undefined}<span class="seg-count">{formatSegmentCount(o.count)}</span>{/if}
+		{#if o.count !== undefined}<span class="seg-count" style:color={selected ? ring : undefined}>{formatSegmentCount(o.count)}</span>{/if}
 	{/if}
 {/snippet}
 
@@ -214,6 +229,8 @@
 	aria-label={label}
 	tabindex="-1"
 	class="seg seg-{variant} seg-{size} {klass}"
+	class:seg-square={shape === 'square'}
+	class:seg-toned={ring !== undefined}
 	class:seg-control={control}
 	class:seg-control-sm={tier === 'sm'}
 	class:seg-control-md={tier === 'md'}
@@ -232,7 +249,7 @@
 	{onkeydown}
 	{@attach watchOverflow}
 >
-	<span bind:this={thumb} class="seg-thumb" aria-hidden="true"></span>
+	<span bind:this={thumb} class="seg-thumb" style:color={ring} aria-hidden="true"></span>
 	{#each options as o (o.value)}
 		{@const selected = value === o.value}
 		{@const link = linkTo(o)}
@@ -508,6 +525,25 @@
 	.seg-icon.seg-sm .seg-item.has-label {
 		padding: 0 var(--control-px-sm);
 	}
+	.seg-square {
+		gap: var(--sp-2);
+		background: transparent;
+		border-color: transparent;
+		border-radius: var(--r-md);
+	}
+	.seg-square .seg-item,
+	.seg-square .seg-thumb {
+		border-radius: var(--r-sm);
+	}
+	.seg-square .seg-item {
+		box-shadow: inset 0 0 0 var(--edge-width) var(--control-edge);
+	}
+	.seg-square .seg-thumb,
+	.seg-square .seg-item.selected {
+		box-shadow:
+			inset 0 0 0 var(--edge-width) var(--text),
+			var(--thumb-shadow);
+	}
 
 	/* collapseLabels='mobile': below the breakpoint, drop the label text and
 	   tighten labelled segments back to a square icon button. The aria-label on
@@ -580,6 +616,11 @@
 		background: var(--thumb-fill);
 		box-shadow: var(--thumb-shadow);
 	}
+	.seg-toned .seg-thumb {
+		box-shadow:
+			inset 0 0 0 var(--edge-width) currentColor,
+			var(--thumb-shadow);
+	}
 	.seg.placed .seg-item.selected {
 		background: transparent;
 		box-shadow: none;
@@ -621,5 +662,8 @@
 	.seg-item.selected .seg-count {
 		background: color-mix(in srgb, var(--accent) 18%, transparent);
 		color: var(--accent);
+	}
+	.seg-toned .seg-item.selected .seg-count {
+		background: color-mix(in srgb, currentColor 18%, transparent);
 	}
 </style>
