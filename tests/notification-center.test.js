@@ -284,6 +284,27 @@ for (const sheet of [false, true])
 		assert.deepEqual(t.logged().at(-1), ['openchange', false]);
 	});
 
+for (const sheet of [false, true])
+	test(`center: bell={false} renders no trigger; bind:open drives a ${sheet ? 'bottom' : 'side'} Drawer and focus returns to the opener`, async () => {
+		const t = render({ items: [approval], bell: false, sheet });
+		assert.equal(t.qa('[data-tsu="NotificationCenter"] [aria-haspopup]').length, 0, 'no bell');
+		assert.equal(t.qa('.pop-panel').length, 0, 'no popover');
+		const opener = t.q('#outside');
+		opener.focus();
+		await t.set({ open: true });
+		const dialog = t.q('dialog.drawer');
+		assert.ok(dialog.hasAttribute('open'));
+		assert.equal(dialog.dataset.side, sheet ? 'bottom' : 'right');
+		assert.equal(t.doc.activeElement?.getAttribute('data-id'), 'a1');
+		const close = /** @type {HTMLElement} */ (t.qa('button').find((b) => b.getAttribute('aria-label') === 'Close notifications'));
+		await t.click(close);
+		await t.set({});
+		assert.equal(t.live.open, false);
+		assert.ok(!dialog.hasAttribute('open'));
+		assert.equal(t.doc.activeElement, opener);
+		assert.deepEqual(t.logged().at(-1), ['openchange', false]);
+	});
+
 test('dayLabel: today, yesterday, then a weekday date', () => {
 	const ref = new Date(2026, 10, 16, 9);
 	assert.equal(dayLabel(new Date(2026, 10, 16, 0, 5), ref), 'Today');
