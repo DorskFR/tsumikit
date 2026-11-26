@@ -9,17 +9,18 @@ const style = src.slice(src.indexOf('<style>'), src.indexOf('</style>'));
 const fxBlock = style.slice(style.indexOf('/* Ambient hover'));
 const hoverBlock = fxBlock.slice(fxBlock.indexOf('@media (hover: hover) and (pointer: fine)'));
 
-/** @param {string} v */
-const closest = (v) =>
-	`.btn:where(:global([data-fx-hover='${v}']) *):where(:not(:global([data-fx-hover='${v}'] [data-fx-hover]:not([data-fx-hover='${v}'])) *))`;
+const layered = '.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted))';
+/** @param {string} v @param {string} [host] */
+const closest = (v, host = '.btn') =>
+	`${host}:where(:global([data-fx-hover='${v}']) *):where(:not(:global([data-fx-hover='${v}'] [data-fx-hover]:not([data-fx-hover='${v}'])) *))`;
 
 test('smoke is the default with no attribute and every picked variant resolves the closest ancestor', () => {
-	const smoke = `.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))`;
+	const smoke = `.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))`;
 	assert.ok(hoverBlock.includes(`${smoke}::before`), 'smoke ::before');
 	assert.ok(hoverBlock.includes(`${smoke}::after`), 'smoke ::after');
 	for (const v of ['ember', 'aurora']) {
-		assert.ok(hoverBlock.includes(`${closest(v)}::before`), `${v} ::before`);
-		assert.ok(hoverBlock.includes(`${closest(v)}::after`), `${v} ::after`);
+		assert.ok(hoverBlock.includes(`${closest(v, layered)}::before`), `${v} ::before`);
+		assert.ok(hoverBlock.includes(`${closest(v, layered)}::after`), `${v} ::after`);
 	}
 	assert.doesNotMatch(hoverBlock, /data-fx-hover='none'\]\) \*\)::(before|after)/);
 	assert.match(hoverBlock, /:global\(\[data-fx-hover\]:not\(\[data-fx-hover='none'\]\)\) \*\) \{\s*position: relative;\s*isolation: isolate;\s*overflow: hidden;/);
@@ -119,13 +120,13 @@ test('FileButton mirrors the spring press release', async () => {
 
 test('the closest data-fx-hover ancestor wins: a wrapper overrides the root, in jsdom', async () => {
 	const { JSDOM } = await import('jsdom');
-	const dom = new JSDOM(`<div data-fx-hover="aurora"><div data-fx-hover="smoke"><button class="btn" id="smoke"></button></div><div data-fx-hover="none"><button class="btn" id="none"></button></div><button class="btn" id="aurora"></button></div><button class="btn" id="bare"></button>`);
+	const dom = new JSDOM(`<div data-fx-hover="aurora"><div data-fx-hover="smoke"><button class="btn" id="smoke"></button></div><div data-fx-hover="none"><button class="btn" id="none"></button></div><button class="btn" id="aurora"></button></div><button class="btn" id="bare"></button><button class="btn btn-link" id="link"></button><button class="btn btn-icon-inline" id="inline"></button>`);
 	/** @param {string} sel */
 	const unscope = (sel) => sel.replace(/:global\(((?:[^()]|\([^()]*\))*)\)/g, '$1');
 	const rules = {
-		smoke: `.btn:where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))`,
-		aurora: closest('aurora'),
-		ember: closest('ember'),
+		smoke: `.btn:where(:not(.btn-link, .btn-icon-inline, .btn-counted)):where(:not(:global([data-fx-hover]) *), :global([data-fx-hover='smoke']) *):where(:not(:global([data-fx-hover='smoke'] [data-fx-hover]:not([data-fx-hover='smoke'])) *))`,
+		aurora: closest('aurora', layered),
+		ember: closest('ember', layered),
 	};
 	for (const sel of Object.values(rules)) assert.ok(hoverBlock.includes(sel), sel);
 	/** @param {string} sel */
