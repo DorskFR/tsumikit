@@ -29,7 +29,9 @@ const GAP: Record<ControlSize, string> = {
 
 /** Inline padding that keeps the field's text clear of the overlaid
  *  adornments; in the bar they sit under the text, so only the tier padding is left. */
-export function inputGroupPadding(group: InputGroupContext): { start: string; end: string } {
+export function inputGroupPadding(
+	group: Pick<InputGroupContext, 'size' | 'leadingW' | 'trailingW' | 'bar'>,
+): { start: string; end: string } {
 	const padX = PAD_X[group.size];
 	if (group.bar) return { start: padX, end: padX };
 	const clear = (width: number) => `max(${padX}, ${width}px + ${GAP[group.size]})`;
