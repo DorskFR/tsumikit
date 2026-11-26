@@ -439,6 +439,9 @@ popover; Remove stays separate.
 the title, the count and Mark all read, optional `filters` (All / Unread / Needs
 action), the items grouped by day, `EmptyState` (or the `empty` snippet) when
 there is nothing, `LoadMore` while `hasMore`, and a `footer` snippet.
+`bell={false}` drops the bell: the app opens the panel with `bind:open` (from a
+menu row, a shortcut) and it shows as a right-side `Drawer`, or the bottom sheet
+where `sheet` applies; closing returns focus to the element that had it on open.
 
 Opening the panel marks nothing read. The parent decides: `onvisible(id)` reports
 each unread item that scrolls into view (once per open), `onread(id)` reports an
@@ -466,6 +469,12 @@ an item: it turns muted, shows the label and drops its actions.
 >
   {#snippet footer()}<Button size="sm" variant="ghost" href="/settings/notifications">Notification settings</Button>{/snippet}
 </NotificationCenter>
+
+<!-- no bell: open it from an account menu -->
+<Menu label="Account" items={[{ label: 'Notifications', icon: 'bell', onselect: () => (inboxOpen = true) }]}>
+  {#snippet trigger()}<Icon name="user" />{/snippet}
+</Menu>
+<NotificationCenter bell={false} bind:open={inboxOpen} {items} />
 
 <!-- the same row in a full-page inbox -->
 <ul>

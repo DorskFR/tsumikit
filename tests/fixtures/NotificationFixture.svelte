@@ -28,6 +28,7 @@
 		unread={live.unread}
 		bind:open={live.open}
 		sheet={live.sheet ?? false}
+		bell={live.bell ?? true}
 		filters={live.filters}
 		hasMore={live.hasMore}
 		loading={live.loading}

@@ -5916,6 +5916,13 @@
 				"description": "`auto` opens a bottom Drawer on coarse pointers and narrow screens, a Popover otherwise."
 			},
 			{
+				"name": "bell",
+				"type": "boolean",
+				"optional": true,
+				"default": "true",
+				"description": "`false` renders no bell: `bind:open` opens the panel as a side Drawer (a bottom sheet where `sheet` applies), e.g. from a menu row."
+			},
+			{
 				"name": "attention",
 				"type": "boolean",
 				"optional": true,
@@ -7535,6 +7542,13 @@
 				"type": "'pill' | 'icon'",
 				"optional": true,
 				"default": "'pill'"
+			},
+			{
+				"name": "shape",
+				"type": "'pill' | 'square'",
+				"optional": true,
+				"default": "'pill'",
+				"description": "`square`: separate small-radius tiles with a neutral ring instead of a filled track."
 			},
 			{
 				"name": "size",

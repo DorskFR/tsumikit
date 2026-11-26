@@ -31,6 +31,7 @@
 		emptyDescription = 'You are all caught up.',
 		placement = 'bottom-end',
 		sheet: sheetProp = 'auto',
+		bell = true,
 		attention = true,
 		chime = false,
 		sound = true,
@@ -64,6 +65,9 @@
 		placement?: 'bottom-start' | 'bottom-end';
 		/** `auto` opens a bottom Drawer on coarse pointers and narrow screens, a Popover otherwise. */
 		sheet?: 'auto' | boolean;
+		/** `false` renders no bell: `bind:open` opens the panel as a side Drawer
+		 *  (a bottom sheet where `sheet` applies), e.g. from a menu row. */
+		bell?: boolean;
 		/** Wiggle the bell when the unread count rises; skipped under reduced motion. */
 		attention?: boolean;
 		/** Play the `notify` sound when the unread count rises (needs sounds enabled). */
@@ -94,6 +98,7 @@
 
 	const narrow = media(`(pointer: coarse), ${maxWidth('sm')}`);
 	const sheet = $derived(sheetProp === 'auto' ? narrow.matches : sheetProp);
+	const drawer = $derived(sheet || !bell);
 
 	const count = $derived(unread ?? items.filter((i) => i.unread).length);
 	const needsAction = (i: NotificationData) => !i.state && (i.actions?.length ?? 0) > 0;
@@ -158,19 +163,21 @@
 					}
 				}
 			},
-			{ root: sheet ? null : bodyEl, threshold: 0.6 },
+			{ root: drawer ? null : bodyEl, threshold: 0.6 },
 		);
 		for (const el of bodyEl.querySelectorAll<HTMLElement>('[data-tsu="NotificationItem"][data-unread]')) io.observe(el);
 		return () => io.disconnect();
 	});
 
 	let wasOpen = false;
+	let opener: HTMLElement | null = null;
 	$effect(() => {
 		const o = open;
 		if (o === wasOpen) return;
 		wasOpen = o;
 		onopenchange?.(o);
 		if (o) {
+			opener = document.activeElement instanceof HTMLElement ? document.activeElement : null;
 			reported = new Set();
 			tick().then(focusFirst);
 		}
@@ -181,13 +188,13 @@
 		(first ?? bodyEl)?.focus({ preventScroll: true });
 	}
 
-	function bell(): HTMLElement | null {
-		return document.getElementById(bellId);
+	function returnTarget(): HTMLElement | null {
+		return document.getElementById(bellId) ?? (opener?.isConnected ? opener : null);
 	}
 
 	function restoreFocus() {
 		const active = document.activeElement;
-		if (!active || active === document.body || bodyEl?.closest('.nc-panel')?.contains(active)) bell()?.focus();
+		if (!active || active === document.body || bodyEl?.closest('.nc-panel')?.contains(active)) returnTarget()?.focus();
 	}
 
 	async function close() {
@@ -252,7 +259,7 @@
 		{#if count > 0}<Badge size="xs" numeric tone="accent" border={false}>{count}</Badge>{/if}
 		<span class="nc-spacer"></span>
 		<Button size="sm" variant="ghost" disabled={count === 0} onclick={() => onreadall?.()}>{markAllLabel}</Button>
-		{#if sheet}<IconButton icon="x" label={closeLabel} onclick={close} />{/if}
+		{#if drawer}<IconButton icon="x" label={closeLabel} onclick={close} />{/if}
 	</div>
 	{#if filters}
 		<div class="nc-filters">
@@ -314,21 +321,24 @@
 {/snippet}
 
 <span data-tsu="NotificationCenter" class="nc {klass}" style={styleProp}>
-	{#if sheet}
-		<IconButton
-			id={bellId}
-			icon="bell"
-			label={title}
-			{count}
-			class="nc-bell-btn {wiggle ? 'nc-wiggle' : ''}"
-			aria-haspopup="dialog"
-			aria-expanded={open}
-			onclick={() => (open = !open)}
-			{sound}
-		/>
+	{#if drawer}
+		{#if bell}
+			<IconButton
+				id={bellId}
+				icon="bell"
+				label={title}
+				{count}
+				class="nc-bell-btn {wiggle ? 'nc-wiggle' : ''}"
+				aria-haspopup="dialog"
+				aria-expanded={open}
+				onclick={() => (open = !open)}
+				{sound}
+			/>
+		{/if}
 		<Drawer
 			bind:open
-			side="bottom"
+			side={sheet ? 'bottom' : 'right'}
+			width="26rem"
 			{title}
 			class="nc-panel nc-sheet"
 			flush

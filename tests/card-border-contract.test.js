@@ -19,10 +19,12 @@ test('border toggles a border-<style> class; solid adds none', () => {
 	assert.doesNotMatch(card, /class:border-solid/);
 });
 
-test('a shade-only card keeps its edge box but paints it, its dividers and its stack layers transparent', () => {
-	assert.match(card, /\.border-shade,\s*\.border-shade > \.card-head,\s*\.border-shade > \.card-foot\s*{\s*border-color: transparent;/);
+test('a shade-only card keeps its edge box but paints it and its stack layers transparent, not its dividers', () => {
+	const rule = card.match(/\n\t\.border-shade\s*{[^}]*}/)?.[0] ?? '';
+	assert.match(rule, /border-color: transparent;/);
+	assert.doesNotMatch(rule, /border-style|border-width/);
+	assert.doesNotMatch(card, /\.border-shade > \.card-(head|foot)/, 'head/foot separators keep --surface-edge');
 	assert.match(card, /\.card-stacked\.border-shade:not\(\.stack-ok, \.stack-warn, \.stack-danger, \.stack-info\)::before,/);
-	assert.doesNotMatch(card.match(/\.border-shade,[^}]*}/)?.[0] ?? '', /border-style|border-width/);
 });
 
 test('the variants set only border-style so tone keeps owning the colour', () => {

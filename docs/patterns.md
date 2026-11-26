@@ -82,6 +82,7 @@ stack above it.
 | Page-level views (Queue / History / Blocklist) | `Tabs` |
 | Filters over a list (All 3,047 / Missing 924 / Complete) | `FilterChips` |
 | Two-state display toggles (grid / list) | `SegmentedControl`, icon only |
+| Picking one of a few targets, each with its own colour (machine / dispatch, harness) | `SegmentedControl shape="square"`, a `tone` or `color` per option |
 
 `FilterChips` keeps one row: it scrolls with a fade only on the edge that hides chips and, with
 `collapse="auto"` (default), turns into a single dropdown chip ("All 3,047 ▾") when the chips do
